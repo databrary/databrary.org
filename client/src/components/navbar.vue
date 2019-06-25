@@ -33,7 +33,64 @@
     <q-btn class="text-weight-light gt-sm" to="/news" exact stretch flat label="News"/>
     <q-separator vertical inset class="gt-sm"/>
     <q-btn class="text-weight-light gt-sm" to="/messenger" exact stretch flat label="Messenger"/>
+    <q-separator vertical inset class="gt-sm"/>
+    <q-btn-dropdown class="text-weight-light gt-sm" exact stretch flat label="About">
+      <q-list>
+        <q-item to="/about" clickable v-close-popup>
+          <q-item-section>
+            <q-item-label>About The Project</q-item-label>
+          </q-item-section>
+        </q-item>
 
+        <q-item clickable v-close-popup>
+          <q-item-section>
+            <q-item-label>About Databrary</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-close-popup>
+          <q-item-section>
+            <q-item-label>Mission</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-close-popup>
+          <q-item-section>
+            <q-item-label>Why Share mission Data</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-close-popup>
+          <q-item-section>
+            <q-item-label>Use Cases</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-close-popup>
+          <q-item-section>
+            <q-item-label>Jobs</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-close-popup>
+          <q-item-section>
+            <q-item-label>Press and Publications</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-close-popup>
+          <q-item-section>
+            <q-item-label>News Letter</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item clickable v-close-popup>
+          <q-item-section>
+            <q-item-label>Support</q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-btn-dropdown>
     <q-space/>
     <q-btn dense flat class="text-weight-light text-grey-8 q-ma-sm" icon="notifications">
       <q-badge color="red-5" floating>3</q-badge>

@@ -28,6 +28,18 @@ const routes = [
       { path: '/messenger', component: () => import('pages/messenger.vue') },
       { path: '/settings', component: () => import('pages/settings.vue') },
       { path: '/news', component: () => import('pages/news.vue') },
+      {
+        path: '/about',
+        component: () => import('pages/about/index.vue'),
+        children: [
+          { path: '/about', component: () => import('pages/about/AboutProject.vue') },
+
+          {
+            path: '/about/aboutdatabrary',
+            component: () => import('pages/about/AboutDatabrary.vue'),
+          },
+        ],
+      },
 
 
     ],
