@@ -30,7 +30,7 @@
 
     <q-btn class="text-weight-light gt-sm" to="/search" exact stretch flat label="Search"/>
     <q-separator vertical inset class="gt-sm"/>
-    <q-btn class="text-weight-light gt-sm" to="/pages" exact stretch flat label="Pages"/>
+    <q-btn class="text-weight-light gt-sm" to="/news" exact stretch flat label="News"/>
     <q-separator vertical inset class="gt-sm"/>
     <q-btn class="text-weight-light gt-sm" to="/messenger" exact stretch flat label="Messenger"/>
 

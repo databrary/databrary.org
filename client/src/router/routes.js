@@ -27,6 +27,8 @@ const routes = [
       { path: '/notifications', component: () => import('pages/notifications.vue') },
       { path: '/messenger', component: () => import('pages/messenger.vue') },
       { path: '/settings', component: () => import('pages/settings.vue') },
+      { path: '/news', component: () => import('pages/news.vue') },
+
 
     ],
   },
