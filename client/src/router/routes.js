@@ -35,13 +35,43 @@ const routes = [
           { path: '/about', component: () => import('pages/about/AboutProject.vue') },
 
           {
-            path: '/about/aboutdatabrary',
+            path: '/about/about-databrary',
             component: () => import('pages/about/AboutDatabrary.vue'),
+          },
+          {
+            path: '/about/mission',
+            component: () => import('pages/about/Mission.vue'),
+          },
+          {
+            path: '/about/why-share-data',
+            component: () => import('pages/about/WhyShareData.vue'),
+          },
+          {
+            path: '/about/use-cases',
+            component: () => import('pages/about/UseCases.vue'),
+          },
+          {
+            path: '/about/our-team',
+            component: () => import('pages/about/OurTeam.vue'),
+          },
+          {
+            path: '/about/jobs',
+            component: () => import('pages/about/Jobs.vue'),
+          },
+          {
+            path: '/about/press-and-publications',
+            component: () => import('pages/about/PressAndPublications.vue'),
+          },
+          {
+            path: '/about/news-letter',
+            component: () => import('pages/about/NewsLetter.vue'),
+          },
+          {
+            path: '/about/support',
+            component: () => import('pages/about/Support.vue'),
           },
         ],
       },
-
-
     ],
   },
 ];

@@ -18,7 +18,6 @@ function extendTypescriptToWebpack(cfg) {
 
 module.exports = function (ctx) {
   return {
-
     // app boot file (/src/boot)
     // --> boot files are part of 'main.js'
     boot: ["axios", "apollo"],
@@ -101,7 +100,8 @@ module.exports = function (ctx) {
         "QImg",
         "QCarousel",
         "QCarouselControl",
-        "QCarouselSlide"
+        "QCarouselSlide",
+        "QMarkupTable"
       ],
 
       directives: ["Ripple", "ClosePopup"],

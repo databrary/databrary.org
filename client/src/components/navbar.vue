@@ -36,60 +36,66 @@
     <q-separator vertical inset class="gt-sm"/>
     <q-btn-dropdown class="text-weight-light gt-sm" exact stretch flat label="About">
       <q-list>
-        <q-item to="/about" clickable v-close-popup>
-          <q-item-section>
-            <q-item-label>About The Project</q-item-label>
-          </q-item-section>
-        </q-item>
+      <q-item to="/about" clickable v-close-popup>
+        <q-item-section>
+          <q-item-label>About The Project</q-item-label>
+        </q-item-section>
+      </q-item>
 
-        <q-item clickable v-close-popup>
-          <q-item-section>
-            <q-item-label>About Databrary</q-item-label>
-          </q-item-section>
-        </q-item>
+      <q-item to="/about/about-databrary" clickable v-close-popup>
+        <q-item-section>
+          <q-item-label>About Databrary</q-item-label>
+        </q-item-section>
+      </q-item>
 
-        <q-item clickable v-close-popup>
-          <q-item-section>
-            <q-item-label>Mission</q-item-label>
-          </q-item-section>
-        </q-item>
+      <q-item to="/about/mission" clickable v-close-popup>
+        <q-item-section>
+          <q-item-label>Mission</q-item-label>
+        </q-item-section>
+      </q-item>
 
-        <q-item clickable v-close-popup>
-          <q-item-section>
-            <q-item-label>Why Share mission Data</q-item-label>
-          </q-item-section>
-        </q-item>
+      <q-item to="/about/why-share-data" clickable v-close-popup>
+        <q-item-section>
+          <q-item-label>Why Share mission Data</q-item-label>
+        </q-item-section>
+      </q-item>
 
-        <q-item clickable v-close-popup>
-          <q-item-section>
-            <q-item-label>Use Cases</q-item-label>
-          </q-item-section>
-        </q-item>
+      <q-item  to="/about/use-cases" clickable v-close-popup>
+        <q-item-section>
+          <q-item-label>Use Cases</q-item-label>
+        </q-item-section>
+      </q-item>
 
-        <q-item clickable v-close-popup>
-          <q-item-section>
-            <q-item-label>Jobs</q-item-label>
-          </q-item-section>
-        </q-item>
+      <q-item to="/about/our-team" clickable v-close-popup>
+        <q-item-section>
+          <q-item-label>Our Team</q-item-label>
+        </q-item-section>
+      </q-item>
 
-        <q-item clickable v-close-popup>
-          <q-item-section>
-            <q-item-label>Press and Publications</q-item-label>
-          </q-item-section>
-        </q-item>
+      <q-item to="/about/jobs" clickable v-close-popup>
+        <q-item-section>
+          <q-item-label>Jobs</q-item-label>
+        </q-item-section>
+      </q-item>
 
-        <q-item clickable v-close-popup>
-          <q-item-section>
-            <q-item-label>News Letter</q-item-label>
-          </q-item-section>
-        </q-item>
+      <q-item to="/about/press-and-publications" clickable v-close-popup>
+        <q-item-section>
+          <q-item-label>Press and Publications</q-item-label>
+        </q-item-section>
+      </q-item>
 
-        <q-item clickable v-close-popup>
-          <q-item-section>
-            <q-item-label>Support</q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-list>
+      <q-item to="/about/news-letter" clickable v-close-popup>
+        <q-item-section>
+          <q-item-label>News Letter</q-item-label>
+        </q-item-section>
+      </q-item>
+
+      <q-item to="/about/support" clickable v-close-popup>
+        <q-item-section>
+          <q-item-label>Support</q-item-label>
+        </q-item-section>
+      </q-item>
+    </q-list>
     </q-btn-dropdown>
     <q-space/>
     <q-btn dense flat class="text-weight-light text-grey-8 q-ma-sm" icon="notifications">

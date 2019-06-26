@@ -31,13 +31,6 @@
           <q-card-section>
             There are no scheduled events.
           </q-card-section>
-
-          <!-- <q-separator inset />
-
-          <q-card-section>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua.
-          </q-card-section> -->
         </q-card>
       </div>
     </div>
