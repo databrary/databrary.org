@@ -101,7 +101,13 @@ module.exports = function (ctx) {
         "QCarousel",
         "QCarouselControl",
         "QCarouselSlide",
-        "QMarkupTable"
+        "QMarkupTable",
+        "QList",
+        "QItem",
+        "QItemSection",
+        "QItemLabel",
+        "QTooltip",
+        "QTree"
       ],
 
       directives: ["Ripple", "ClosePopup"],
