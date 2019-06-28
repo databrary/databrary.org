@@ -25,7 +25,6 @@ const routes = [
       { path: '/register', component: () => import('pages/register.vue') },
       { path: '/search', component: () => import('pages/pages/search.vue') },
       { path: '/notifications', component: () => import('pages/notifications.vue') },
-      { path: '/messenger', component: () => import('pages/messenger.vue') },
       { path: '/settings', component: () => import('pages/settings.vue') },
       { path: '/news', component: () => import('pages/news.vue') },
       {

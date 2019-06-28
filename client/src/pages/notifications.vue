@@ -88,7 +88,7 @@ export default {
   methods: {
     goToNotifcation() {
       console.log('hete', this.$router);
-      this.$router.push({ path: 'messenger' });
+      // this.$router.push({ path: 'messenger' });
     },
   },
 };

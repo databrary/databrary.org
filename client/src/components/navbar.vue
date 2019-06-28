@@ -32,8 +32,6 @@
     <q-separator vertical inset class="gt-sm"/>
     <q-btn class="text-weight-light gt-sm" to="/news" exact stretch flat label="News"/>
     <q-separator vertical inset class="gt-sm"/>
-    <q-btn class="text-weight-light gt-sm" to="/messenger" exact stretch flat label="Messenger"/>
-    <q-separator vertical inset class="gt-sm"/>
     <q-btn-dropdown class="text-weight-light gt-sm" exact stretch flat label="About">
       <q-list>
       <q-item to="/about" clickable v-close-popup>
@@ -144,14 +142,6 @@
             <q-item-section>
               <q-btn class="text-weight-regular" to="/search" exact stretch flat label="Search"/>
               <q-btn class="text-weight-regular" to="/pages" exact stretch flat label="Pages"/>
-              <q-btn
-                class="text-weight-regular"
-                to="/messenger"
-                exact
-                stretch
-                flat
-                label="Messenger"
-              />
             </q-item-section>
           </q-item>
           <q-separator inset spaced/>
