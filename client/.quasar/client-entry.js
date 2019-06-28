@@ -51,12 +51,6 @@ import qboot_Bootapollo from 'boot/apollo'
 
 
 
-Vue.config.devtools = true
-Vue.config.productionTip = false
-
-
-
-console.info('[Quasar] Running SPA.')
 
 
 

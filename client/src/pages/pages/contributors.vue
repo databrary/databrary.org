@@ -121,17 +121,17 @@ export default {
         {
           name: 'Fred Alex',
           permission: 'Read & Write',
-          icon: 'https://cdn.quasar-framework.org/img/avatar1.jpg',
+          icon: 'https://cdn.quasar.dev/img/avatar1.jpg',
         },
         {
           name: 'Sarah Perter',
           permission: 'Read',
-          icon: 'https://cdn.quasar-framework.org/img/avatar2.jpg',
+          icon: 'https://cdn.quasar.dev/img/avatar2.jpg',
         },
         {
           name: 'Jackie Blob',
           permission: 'Read & Write',
-          icon: 'https://cdn.quasar-framework.org/img/avatar3.jpg',
+          icon: 'https://cdn.quasar.dev/img/avatar3.jpg',
         },
       ],
       model: null,
