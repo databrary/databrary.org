@@ -62,6 +62,25 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <q-toolbar bordered class="databrary-footer bg-white text-black">
+      <div class="row full-width">
+        <div class="text-h6 col-12">
+          Databrary
+        </div>
+        <div class="text-subtitle1 col-12">
+          196 Mercer Street, Room 807 | New York, <br />NY 10012 212.998.5800
+        </div>
+        <div class="col-md-6 col-sm-12 col-xs-12 text-subtitle2">
+          Each dataset on Databrary represents an individual work owned by the party who
+          contributed it. Data on Databrary are provided for non-commercial use and are subject to
+          the terms of use outlined in the Databrary Access Agreement. [1]
+        </div>
+        <div class="text-center text-subtitle1 col-12">
+          Copyright &copy;2019 Databrary<br /> Developed by 221b
+        </div>
+      </div>
+    </q-toolbar>
   </q-layout>
 </template>
 
@@ -91,5 +110,8 @@ export default {
 <style scoped>
 .q-layout__section--marginal {
       background-color:#e0e0e0;
+}
+.databrary-footer {
+  width: 100%;
 }
 </style>
