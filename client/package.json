@@ -1,7 +1,7 @@
 {
   "name": "Databrary",
   "version": "0.0.1",
-  "description": "A template Framework",
+  "description": "Open data library",
   "productName": "Databrary",
   "cordovaId": "org.cordova.quasar.app",
   "author": "Ryan Mason <ryanmasonjar@gmail.com>",

@@ -77,7 +77,7 @@
           the terms of use outlined in the Databrary Access Agreement. [1]
         </div>
         <div class="text-center text-subtitle1 col-12">
-          Copyright &copy;2019 Databrary<br /> Developed by 221b
+          Copyright &copy;2019 Databrary
         </div>
       </div>
     </q-toolbar>
