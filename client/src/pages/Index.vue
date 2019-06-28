@@ -54,7 +54,7 @@
               <div class="col-md-4 col-sm-6 group" v-for="n in 3" :key="n">
                 <q-card inline class="q-ma-sm">
                   <q-video
-                    src="https://www.youtube.com/embed/k3_tw44QsZQ?rel=0"
+                    src="https://www.youtube.com/embed/OfIQW6s1-ew"
                   />
                   <q-card-section>
                     Adolph, K. (2018). Excerpt: The organization of exploratory
