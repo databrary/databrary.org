@@ -20,7 +20,7 @@
       </div>
     </div>
     <q-page padding class="row">
-    <div class="col-9">
+    <div class="col-xs-12 col-sm-8 col-md-9">
       <div class="text-h5">
         Description
       </div>
@@ -48,7 +48,7 @@
         <img :src="'https://cdn.quasar.dev/img/avatar' + k + '.jpg'">
       </q-avatar>
     </div>
-    <div class="col-3">
+    <div class="col-xs-12 col-sm-4 col-md-3">
       <q-card class="q-px-sm" flat bordered>
         <q-list>
           <q-item clickable>
@@ -117,22 +117,6 @@
       </q-card>
     </div>
     <div class="col-12">
-      <div class="text-h5 q-py-sm">
-        Highlights
-      </div>
-      <q-carousel
-        swipeable
-        animated
-        v-model="slide"
-        thumbnails
-        infinite
-      >
-        <q-carousel-slide :name="1" img-src="https://cdn.quasar.dev/img/mountains.jpg" />
-        <q-carousel-slide :name="2" img-src="https://cdn.quasar.dev/img/parallax1.jpg" />
-        <q-carousel-slide :name="3" img-src="https://cdn.quasar.dev/img/parallax2.jpg" />
-        <q-carousel-slide :name="4" img-src="https://cdn.quasar.dev/img/quasar.jpg" />
-      </q-carousel>
-
       <section class="row q-py-lg">
         <q-toolbar class="no-padding bg-white text-dark q-mt-sm">
           <q-toolbar-title>Data</q-toolbar-title>
@@ -569,7 +553,6 @@ export default {
     },
     getKey(data, selected) {
       try {
-        debugger;
         return data.children.filter(e => e.label === selected)[0].label;
       } catch (e) {
         console.log(e);
