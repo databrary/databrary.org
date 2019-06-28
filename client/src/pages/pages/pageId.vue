@@ -4,7 +4,8 @@
       <q-toolbar-title>
 
       </q-toolbar-title>
-      <q-btn flat icon="person" label="Contributors" />
+      <!-- Get route ID  -->
+      <q-btn to="1/contributors" flat icon="person" label="Contributors" />
     </q-toolbar>
     <div class="row">
       <div class="col-12 bg-grey-10">
@@ -135,7 +136,7 @@
             flat
             icon="folder"
             color="primary"
-            label="Create new volume"
+            label="Create Virtual Volume"
             @click="volumesDialog = true"
           >
             <q-tooltip>Create a new volume from selected data</q-tooltip>
@@ -514,7 +515,7 @@ export default {
     fileUploadDialog: false,
     maximizedToggle: true,
     newVolumeName: 'New Volume',
-    splitterModel: 50,
+    splitterModel: 20,
     selected: 'Good food',
   }),
   watch: {

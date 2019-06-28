@@ -10,7 +10,11 @@ const routes = [
         component: () => import('pages/pages/pages.vue'),
       },
       {
-        path: '/pages/contributors',
+        path: '/search/:pageId/contributors',
+        component: () => import('pages/pages/contributors.vue'),
+      },
+      {
+        path: '/pages/:pageId/contributors',
         component: () => import('pages/pages/contributors.vue'),
       },
       {
