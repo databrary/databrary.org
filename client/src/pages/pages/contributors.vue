@@ -1,5 +1,5 @@
 <template>
-<q-page padding class="row">
+<q-page padding class="row max-page-width">
   <div class="col-xs-12 col-sm-12 col-md-9">
     <q-table
       :data="data"

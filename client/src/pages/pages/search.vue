@@ -1,5 +1,5 @@
 <template>
-  <q-page padding>
+  <q-page padding class="max-page-width">
     <h4 class="text-weight-light no-margin q-py-md text-center">Search</h4>
     <section class="row">
       <article
