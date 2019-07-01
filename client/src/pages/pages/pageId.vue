@@ -1,9 +1,10 @@
 <template>
   <div>
-    <q-toolbar class="">
+    <q-toolbar>
       <q-toolbar-title>
 
       </q-toolbar-title>
+      <q-btn v-on:click="editMode = !editMode" flat :label="editmodeLabel" />
       <!-- Get route ID  -->
       <q-btn to="1/contributors" flat icon="person" label="Contributors" />
     </q-toolbar>
@@ -35,13 +36,7 @@
       <div class="text-h5">
         Citation
       </div>
-      <p>
-        Adolph, K. (2014). Children's social and motor play on a playground.
-        <em>Databrary</em>. Retrieved June 20, 2019 from
-        <a href="http://doi.org/10.17910/B77P4V">
-          http://doi.org/10.17910/B77P4V
-        </a>. <wbr>
-      </p>
+      <citationBuilder doi="10.1037/0003-066X.59.1.29" :editMode="editMode"/>
       <div class="text-h5">
         Contributors
       </div>
@@ -279,114 +274,17 @@
 </template>
 <script>
 // import VRuntimeTemplate from 'v-runtime-template';
+import citationBuilder from '../../components/CitationBuilder.vue';
 
 export default {
+  name: 'PageId',
+  components: {
+    citationBuilder,
+  },
   data: () => ({
-    name: 'PageId',
-    // slide: 'first',
-    template: `<q-page padding>
-                <div class="row">
-                  <div class="col-12">
-                    <q-carousel
-                      arrows
-                      animated
-                      v-model="slide"
-                      height="400px"
-                    >
-                      <q-carousel-slide name="first" img-src="https://cdn.quasar-framework.org/img/parallax1.jpg">
-                        <div class="absolute-bottom custom-caption flex flex-center">
-                          <q-avatar square size="148px">
-                            <img class="profile-border shadow-15" src="https://images.unsplash.com/photo-1525085475165-c6808cdb005e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=925&q=80" />
-                          </q-avatar>
-                        </div>
-                      </q-carousel-slide>
-                    </q-carousel>
-                  </div>
-                  <div class="col-12 flex flex-center q-pa-md">
-                   <h5 class="q-ma-none"> Jenny Tomptson</h5>
-                  </div>
-                  <div class="col-3">
-                    <q-card flat bordered>
-                      <q-card-section>
-                        <div class="text-h6">Contact</div>
-                      </q-card-section>
-
-                      <q-card-section>
-                        <b>Email:</b> Email@email.com
-                        <br/>
-                        <b>Website:</b> website.com
-                      </q-card-section>
-
-                      <q-separator inset />
-
-                      <q-card-section>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-                        tempor incididunt ut labore et dolore magna aliqua.
-                      </q-card-section>
-                    </q-card>
-                  </div>
-                  <div class="col-9 q-pa-md">
-                     <div class="text-h6">About Me</div>
-                    <p>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Massa enim nec dui nunc mattis enim. A scelerisque purus semper eget duis at. Urna nec tincidunt praesent semper. Malesuada proin libero nunc consequat interdum. Mattis pellentesque id nibh tortor. Enim sit amet venenatis urna cursus eget nunc scelerisque. Sit amet porttitor eget dolor morbi. Auctor elit sed vulputate mi sit. Quis risus sed vulputate odio ut enim. Sed adipiscing diam donec adipiscing. Orci ac auctor augue mauris augue neque. Viverra orci sagittis eu volutpat odio facilisis mauris sit amet.
-                    </p>
-                    <div class="q-pb-md">
-                      <div class="text-h6">Experience</div>
-                      <q-timeline color="secondary">
-
-                        <q-timeline-entry
-                          title="Event Title"
-                          subtitle="February 22, 1986"
-                        >
-                          <div>
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                          </div>
-                        </q-timeline-entry>
-
-                        <q-timeline-entry
-                          title="Event Title"
-                          subtitle="February 22, 1986"
-                        >
-                          <div>
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                          </div>
-                        </q-timeline-entry>
-
-                        <q-timeline-entry
-                          title="Event Title"
-                          subtitle="February 22, 1986"
-                          color="orange"
-                          icon="done_all"
-                        >
-                          <div>
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                          </div>
-                        </q-timeline-entry>
-
-                        <q-timeline-entry
-                          title="Event Title"
-                          subtitle="February 22, 1986"
-                        >
-                          <div>
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                          </div>
-                        </q-timeline-entry>
-
-                        <q-timeline-entry
-                          title="Event Title"
-                          subtitle="February 22, 1986"
-                        >
-                          <div>
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                          </div>
-                        </q-timeline-entry>
-                      </q-timeline>
-                    </div>             
-                 </div>
-                </div>
-              </q-page>`,
+    editMode: false,
+    editmodeLabel: 'Edit',
     columns: [
-
       {
         name: 'File Type',
         label: 'File Type',
@@ -529,9 +427,13 @@ export default {
         });
       });
     },
-  },
-  components: {
-    // VRuntimeTemplate,
+    editMode() {
+      if (this.editMode) {
+        this.editmodeLabel = 'Edit';
+      } else {
+        this.editmodeLabel = 'Save';
+      }
+    },
   },
   mounted() {
     console.log(this.$route);
