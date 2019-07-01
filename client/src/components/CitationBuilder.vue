@@ -1,16 +1,37 @@
 <template>
   <div>
-    <div v-if="editMode">
+    <div>
+      <q-btn
+        no-caps
+        icon="edit"
+        v-if="editMode"
+        flat
+        color="primary"
+        @click="editCitation = true"
+      />
       {{ citation }}
     </div>
-    <div v-else>
-      <q-input class="q-pb-sm" outlined v-model="family" label="Family" />
-      <q-input class="q-pb-sm" outlined v-model="given" label="Given" />
-      <q-input class="q-pb-sm" outlined v-model="title" label="Title" />
-      <q-input class="q-pb-sm" outlined v-model="date" label="Date" />
-      <q-input class="q-pb-sm" outlined v-model="journal" label="Journal" />
+    <q-dialog
+      v-model="editCitation"
+    >
+      <q-card style="width: 700px; max-width: 80vw;">
+        <q-card-section>
+          <div class="text-h6">Edit Citation</div>
+        </q-card-section>
 
-    </div>
+        <q-card-section>
+          <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="family" label="Family" />
+          <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="given" label="Given" />
+          <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="title" label="Title" />
+          <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="date" label="Date" />
+          <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="journal" label="Journal" />
+        </q-card-section>
+
+        <q-card-actions align="right" class="bg-white text-teal">
+          <q-btn v-on:click="saveCitation" flat label="Save" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -20,6 +41,7 @@ export default {
   props: ['doi', 'editMode'],
   data() {
     return {
+      editCitation: false,
       citation: '',
       family: '',
       given: '',
@@ -31,12 +53,10 @@ export default {
   mounted() {
     this.createCitation();
   },
-  watch: {
-    editMode() {
+  methods: {
+    saveCitation() {
       this.citation = `${this.family}, ${this.given} ${this.title} (${this.date}) ${this.journal}`;
     },
-  },
-  methods: {
     createCitation() {
       const url = `https://api.crossref.org/works/${this.doi}`;
       this.$axios.get(url)
@@ -47,7 +67,7 @@ export default {
           this.given = message.author[0].given;
           /* eslint prefer-destructuring: ["error", {VariableDeclarator: {object: true}}] */
           this.title = message.title[0];
-          this.date = message.deposited['date-time'];
+          this.date = this.formatDate(new Date(message.deposited['date-time']));
           this.journal = message.publisher;
 
           this.citation = `${this.family}, ${this.given} ${this.title} (${this.date}) ${this.journal}`;
@@ -55,6 +75,19 @@ export default {
         .catch((error) => {
           console.log(error);
         });
+    },
+    formatDate(date) {
+      const monthNames = [
+        'January', 'February', 'March',
+        'April', 'May', 'June', 'July',
+        'August', 'September', 'October',
+        'November', 'December',
+      ];
+      const day = date.getDate();
+      const monthIndex = date.getMonth();
+      const year = date.getFullYear();
+
+      return `${day} ${monthNames[monthIndex]} ${year}`;
     },
   },
 };
