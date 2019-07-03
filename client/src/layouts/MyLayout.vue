@@ -71,7 +71,7 @@
           Databrary
         </div>
         <div class="text-subtitle1 col-12">
-          196 Mercer Street, Room 807 | New York, <br />NY 10012 212.998.5800
+          123 abc Street, Room 456 | some city, <br />NY 1234 567.789.1011
         </div>
         <div class="text-center text-subtitle1 col-12">
           Copyright &copy;2019 Databrary

@@ -273,11 +273,9 @@
         </div>
       </div>
     </q-page>
-    <!-- <v-runtime-template :template="template"></v-runtime-template> -->
   </div>
 </template>
 <script>
-// import VRuntimeTemplate from 'v-runtime-template';
 import citationBuilder from '../../components/CitationBuilder.vue';
 
 export default {
@@ -468,17 +466,6 @@ export default {
         console.log(e);
       }
       return null;
-    },
-    async generateCitation() {
-      // const example = await Cite.async('Q21972834');
-
-      // const output = example.format('bibliography', {
-      //   format: 'html',
-      //   template: 'apa',
-      //   lang: 'en-US',
-      // });
-
-      // console.log(output);
     },
   },
 };
