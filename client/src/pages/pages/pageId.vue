@@ -257,6 +257,7 @@
                         {{ getKey(data[index], selected) }}
                       </div>
                       <iframe
+                        class="dataView"
                         width="100%"
                         height="300px"
                         src="https://www.youtube.com/embed/owsfdh4gxyc"
@@ -416,7 +417,7 @@ export default {
     fileUploadDialog: false,
     maximizedToggle: true,
     newVolumeName: 'New Volume',
-    splitterModel: 20,
+    splitterModel: 30,
     selected: 'Good food',
   }),
   watch: {
@@ -485,5 +486,9 @@ export default {
 <style>
 .profile-border {
   border: 5px solid white!important;
+}
+.dataView {
+  max-width: 700px;
+  margin: auto;
 }
 </style>

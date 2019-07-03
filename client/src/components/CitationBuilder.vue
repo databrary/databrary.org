@@ -18,18 +18,42 @@
         <q-card-section>
           <div class="text-h6">Edit Citation</div>
         </q-card-section>
+        <q-tabs
+          v-model="tab"
+          dense
+          class="text-grey"
+          active-color="primary"
+          indicator-color="primary"
+          align="justify"
+          narrow-indicator
+        >
+          <q-tab name="edit" label=Edit />
+          <q-tab name="lookup" label="Lookup" />
+        </q-tabs>
 
-        <q-card-section>
-          <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="family" label="Family" />
-          <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="given" label="Given" />
-          <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="title" label="Title" />
-          <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="date" label="Date" />
-          <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="journal" label="Journal" />
-        </q-card-section>
+        <q-separator />
 
-        <q-card-actions align="right" class="bg-white text-teal">
-          <q-btn v-on:click="saveCitation" flat label="Save" v-close-popup />
-        </q-card-actions>
+        <q-tab-panels v-model="tab" animated>
+          <q-tab-panel name="edit">
+            <div class="text-h6">Edit</div>
+            <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="family" label="Family" />
+            <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="given" label="Given" />
+            <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="title" label="Title" />
+            <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="date" label="Date" />
+            <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="journal" label="Journal" />
+            <q-card-actions align="right" class="bg-white text-teal">
+              <q-btn v-on:click="saveCitation" flat label="Save" v-close-popup />
+            </q-card-actions>
+          </q-tab-panel>
+
+          <q-tab-panel name="lookup">
+            <div class="text-h6">Lookup</div>
+            <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="doi" label="DOI" />
+            <q-card-actions align="right" class="bg-white text-teal">
+              <q-btn v-on:click="createCitation" flat label="Lookup" v-close-popup />
+            </q-card-actions>
+          </q-tab-panel>
+        </q-tab-panels>
       </q-card>
     </q-dialog>
   </div>
@@ -48,6 +72,7 @@ export default {
       title: '',
       date: '',
       journal: '',
+      tab: 'edit',
     };
   },
   mounted() {
