@@ -39,7 +39,7 @@
             Citation
           </div>
           <citationBuilder doi="10.1037/0003-066X.59.1.29" :editMode="editMode"/>
-          <div class="text-h5">
+          <div class="text-h5 q-mt-md">
             Contributors
           </div>
           <q-avatar class="q-ma-xs" size="40px" v-for="k in 6" :key="k">

@@ -50,7 +50,7 @@
             <div class="text-h6">Lookup</div>
             <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="doi" label="DOI" />
             <q-card-actions align="right" class="bg-white text-teal">
-              <q-btn v-on:click="createCitation" flat label="Lookup" v-close-popup />
+              <q-btn v-on:click="lookupCitation" flat label="Lookup" />
             </q-card-actions>
           </q-tab-panel>
         </q-tab-panels>
@@ -79,6 +79,10 @@ export default {
     this.createCitation();
   },
   methods: {
+    lookupCitation() {
+      this.createCitation();
+      this.tab = 'edit';
+    },
     saveCitation() {
       this.citation = `${this.family}, ${this.given} ${this.title} (${this.date}) ${this.journal}`;
     },
