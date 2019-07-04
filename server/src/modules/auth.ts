@@ -14,7 +14,8 @@ export const AuthModule = new GraphQLModule({
     }
 
     type Mutation {
-      login (): void,
+      register(email: String!, password: String!): String,
+      login (email: String!, password: String!): String,
       logout (): void
     }
   `

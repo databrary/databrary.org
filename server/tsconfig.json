@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2019",
     "module": "commonjs",
     "moduleResolution": "node",
     "rootDir": "src",
     "outDir": "dist",
     "sourceMap": true,
-    "lib": []
+    "lib": [],
+    "allowJs": true
   },
   "exclude": [
     "node_modules"

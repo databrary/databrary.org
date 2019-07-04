@@ -11,15 +11,26 @@
     "config": "^3.1.0",
     "express": "^4.17.1",
     "express-session": "^1.16.2",
+    "graphql": "^14.4.1",
     "graphql-shield": "^5.6.1",
     "graphql-yoga": "^1.17.4",
+    "knex": "^0.18.0",
+    "lodash": "^4.17.11",
+    "objection": "^1.6.9",
+    "objection-graphql": "^0.4.5",
     "passport": "^0.4.0",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "pg": "^7.11.0"
   },
   "devDependencies": {
     "ts-node": "^8.3.0",
+    "ts-node-dev": "^1.0.0-pre.40",
     "tslint": "^5.17.0",
     "tslint-config-standard": "^8.0.1",
     "typescript": "^3.5.2"
+  },
+  "scripts": {
+    "knex": "knex",
+    "start:dev": "ts-node-dev --respawn src/index.ts"
   }
 }
