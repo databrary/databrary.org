@@ -1,0 +1,17 @@
+- model: User
+  graph:
+    - fullName: 'Jeffrey Spies'
+      projects:
+        - title: Project 1
+          _isHidden: true
+        - title: Project 2
+        - title: Project 3
+        - title: Project 4
+- model: Permission
+  graph:
+    - userId: 1
+      assetId: 2
+      type: read
+    - userId: 1
+      assetId: 3
+      type: read

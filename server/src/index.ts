@@ -9,7 +9,7 @@ import { builder as graphQlBuilder } from 'objection-graphql'
 import { Model } from 'objection'
 import * as Knex from 'knex'
 import * as knexConfig from '../knexfile'
-export const knex = Knex(knexConfig.development)
+const knex = Knex(knexConfig.development)
 Model.knex(knex)
 
 // Can use https://github.com/Vincit/objection-graphql/blob/access-control/examples/access-control/src/schema.js
@@ -34,32 +34,6 @@ async function main () {
   await knex.migrate.down()
   await knex.migrate.up()
   
-  await (User as any).query().insertGraph({
-    fullName: 'Jeffrey Spies',
-    projects: [
-      {
-        title: 'Project 1',
-        _isHidden: true
-      },
-      {
-        title: 'Project 2'
-      },
-      {
-        title: 'Project 3'
-      }
-    ]
-  })
-
-  await (Permission as any).query().insertGraph([{
-    userId: 1,
-    assetId: 2,
-    type: 'read'
-  },{
-    userId: 1,
-    assetId: 3,
-    type: 'read'
-  }])
-
   const server = new ApolloServer({
     schema: graphQlSchema,
     rootValue: (ast) => ({

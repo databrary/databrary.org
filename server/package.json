@@ -7,6 +7,7 @@
     "@graphql-modules/core": "^0.7.5",
     "@types/config": "^0.0.34",
     "apollo-server-express": "^2.6.3",
+    "async": "^3.1.0",
     "casual": "^1.6.2",
     "config": "^3.1.0",
     "express": "^4.17.1",
@@ -18,11 +19,13 @@
     "lodash": "^4.17.11",
     "objection": "^1.6.9",
     "objection-graphql": "^0.4.5",
+    "p-each-series": "^2.1.0",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "pg": "^7.11.0"
   },
   "devDependencies": {
+    "js-yaml": "^3.13.1",
     "ts-node": "^8.3.0",
     "ts-node-dev": "^1.0.0-pre.40",
     "tslint": "^5.17.0",
@@ -31,6 +34,7 @@
   },
   "scripts": {
     "knex": "knex",
-    "start:dev": "ts-node-dev --respawn src/index.ts"
+    "start:dev": "ts-node-dev --respawn src/index.ts",
+    "db:reset": "ts-node scripts/resetDatabase.ts"
   }
 }
