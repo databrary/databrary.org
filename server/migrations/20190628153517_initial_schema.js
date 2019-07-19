@@ -1,3 +1,10 @@
+const _ = require('lodash')
+
+const tables = [
+  'users', 'permissions', 'groups', 'projects', 'trees',
+  'groups_users', 'users_projects', 'projects_trees'
+]
+
 exports.up = function(knex) {
   return knex.schema
     .createTable('users', table => {
@@ -6,9 +13,15 @@ exports.up = function(knex) {
     })
     .createTable('permissions', table => {
       table.increments('id').primary()
-      table.integer('userId')
       table.integer('assetId')
+      table.integer('groupId')
       table.string('type')
+    })
+    .createTable('groups',  table => {
+      table.increments('id').primary()
+      table.string('name')
+      table.string('isGenerated')
+      table.string('isIndividual')
     })
     .createTable('projects', table => {
       table.increments('id').primary()
@@ -20,6 +33,23 @@ exports.up = function(knex) {
     .createTable('trees', table => {
       table.increments('id').primary()
       table.string('type')
+    })
+    .createTable('groups_users', table => {
+      table.increments('id').primary()
+      table
+        .integer('groupId')
+        .unsigned()
+        .references('id')
+        .inTable('groups')
+        .onDelete('CASCADE')
+        .index()
+      table
+        .integer('userId')
+        .unsigned()
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE')
+        .index()
     })
     .createTable('users_projects', table => {
       table.increments('id').primary()
@@ -58,11 +88,9 @@ exports.up = function(knex) {
 }
 
 exports.down = function(knex) {
-  return knex.schema
-    .dropTableIfExists('projects_trees')
-    .dropTableIfExists('users_projects')
-    .dropTableIfExists('trees')
-    .dropTableIfExists('projects')
-    .dropTableIfExists('permissions')
-    .dropTableIfExists('users')
+  let chain = knex.schema
+  _.each(_.reverse(tables), (name) => {
+    chain = chain.dropTableIfExists(name)
+  })
+  return chain
 }

@@ -15,6 +15,7 @@ Model.knex(knex)
 // Can use https://github.com/Vincit/objection-graphql/blob/access-control/examples/access-control/src/schema.js
 import User from './models/User'
 import Project from './models/Project'
+import Group from './models/Group'
 import Permission from './models/Permission'
 
 const graphQlSchema = graphQlBuilder()
@@ -25,6 +26,10 @@ const graphQlSchema = graphQlBuilder()
   .model(Project, {
     fieldName: 'project',
     listFieldName: 'projects'
+  })
+  .model(Group, {
+    fieldName: 'group',
+    listFieldName: 'groups'
   })
   .build()
 

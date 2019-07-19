@@ -19,8 +19,8 @@ async function go () {
 
   const doc = yaml.safeLoad(
     fs.readFileSync('seeds/dev.yaml', 'utf8')
-  );
-  
+  )
+
   interface Seeds {
     model: string
     graph: any[]
@@ -29,9 +29,10 @@ async function go () {
   await pEachSeries(doc, async (element: Seeds) => {
     const modelName = element.model
     const graph = element.graph
-    await models[modelName].query().insertGraph(graph)
+    console.log(modelName)
+    await models[modelName].query().upsertGraph(graph)
   })
-  
+
   await knex.destroy()
 }
 

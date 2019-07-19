@@ -7,11 +7,17 @@
         - title: Project 2
         - title: Project 3
         - title: Project 4
+- model: Group
+  graph:
+    - name: FirstGroup 
+    - isGenerated: true
+    - users:
+        - id: 1
 - model: Permission
   graph:
-    - userId: 1
+    - groupId: 1
       assetId: 2
       type: read
-    - userId: 1
+    - groupId: 1
       assetId: 3
       type: read
