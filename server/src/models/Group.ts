@@ -8,8 +8,8 @@ export default class Group extends BaseModel {
   static tableName = 'groups'
   readonly id!: number
   name?: string
-  isGenerated?: string
-  isIndividual?: string
+  isGenerated?: boolean
+  isIndividual?: boolean
   users?: User[]
 
   static jsonSchema = {

@@ -10,6 +10,25 @@ import { Model } from 'objection'
 
 import * as models from '../src/models'
 
+interface Seeds {
+  model: string
+  graph: any[]
+}
+
+async function loadSeedsFromFile(path) {
+  const doc = yaml.safeLoad(
+    fs.readFileSync(path, 'utf8')
+  )
+
+  await pEachSeries(doc, async (element: Seeds) => {
+    const modelName = element.model
+    const graph = element.graph
+    await models[modelName]
+      .query()
+      .upsertGraph(graph, { relate: true })
+  })
+}
+
 async function go () {
   const knex = Knex(knexConfig.development)
   Model.knex(knex)
@@ -17,21 +36,7 @@ async function go () {
   await knex.migrate.down()
   await knex.migrate.up()
 
-  const doc = yaml.safeLoad(
-    fs.readFileSync('seeds/dev.yaml', 'utf8')
-  )
-
-  interface Seeds {
-    model: string
-    graph: any[]
-  }
-
-  await pEachSeries(doc, async (element: Seeds) => {
-    const modelName = element.model
-    const graph = element.graph
-    console.log(modelName)
-    await models[modelName].query().upsertGraph(graph)
-  })
+  await loadSeedsFromFile('seeds/dev.yaml')
 
   await knex.destroy()
 }

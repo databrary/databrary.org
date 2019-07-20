@@ -10,8 +10,9 @@
 - model: Group
   graph:
     - name: FirstGroup 
-    - isGenerated: true
-    - users:
+      isGenerated: true
+      isIndividual: true
+      users:
         - id: 1
 - model: Permission
   graph:

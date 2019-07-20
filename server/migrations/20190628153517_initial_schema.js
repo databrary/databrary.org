@@ -20,14 +20,14 @@ exports.up = function(knex) {
     .createTable('groups',  table => {
       table.increments('id').primary()
       table.string('name')
-      table.string('isGenerated')
-      table.string('isIndividual')
+      table.boolean('isGenerated')
+      table.boolean('isIndividual')
     })
     .createTable('projects', table => {
       table.increments('id').primary()
       table.string('title')
       table
-        .string('_isHidden')
+        .boolean('_isHidden')
         .defaultTo(false)
     })
     .createTable('trees', table => {

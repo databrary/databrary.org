@@ -39,11 +39,11 @@ export default class Project extends BaseModel {
     qb
       .where('projects._isHidden', false)
       // .where('id', 'in', subquery)
-      .innerJoin('permissions', function() {
-        this
-          .on('permissions.userId', '=', _.toNumber(userId))
-          .andOn('permissions.assetId', '=', 'projects.id')
-      })
+      // .innerJoin('permissions', function() {
+      //   this
+      //     .on('permissions.groupId', '=', _.toNumber(userId))
+      //     .andOn('permissions.assetId', '=', 'projects.id')
+      // })
   }
 
   static beforeFind = function (args) {
