@@ -24,8 +24,9 @@
 - model: Permission
   graph:
     - groupId: 1
-      assetId: 2
       type: read
     - groupId: 3
-      assetId: 3
       type: read
+- model: PermissionSet
+  graph:
+    - 

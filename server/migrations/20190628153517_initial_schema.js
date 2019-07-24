@@ -81,16 +81,9 @@ exports.up = function(knex) {
       table
         .integer('permissionSetId')
         .unsigned()
-        .references('id')
-        .inTable('permissionSets')
-        .onDelete('CASCADE')
-        .index()
       table
         .integer('assetId')
         .unsigned()
-        .references('id')
-        .inTable('assets')
-        .onDelete('CASCADE')
         .index()
     })
     .createTable('groups_users', table => {
@@ -149,14 +142,13 @@ exports.up = function(knex) {
 exports.down = function(knex) {
 
   const typesString = _.join(_.map(types, (type) => {
-    return `DROP TYPE ${type}`
-  }), ';')
+    return `DROP TYPE ${type} IF EXISTS`
+  }), '; ')
 
   let chain = knex.schema
   _.each(_.reverse(tables), (name) => {
     chain = chain.dropTableIfExists(name)
   })
-  return chain.then(() => {
-    knex.schema.raw(typeString);
-  })
+
+  return chain.raw(typesString)
 }
