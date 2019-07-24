@@ -9,8 +9,17 @@ import { builder as graphQlBuilder } from 'objection-graphql'
 import { Model } from 'objection'
 import * as Knex from 'knex'
 import * as knexConfig from '../knexfile'
+
+import * as PgBoss from 'pg-boss'
+
 const knex = Knex(knexConfig.development)
+const dbConfig = _.defaults(
+  knex['_context'].client.config.connection,
+  knex['_context'].client.driver.defaults
+)
 Model.knex(knex)
+
+const queue = new PgBoss(`postgres://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}/${dbConfig.database}`);
 
 // Can use https://github.com/Vincit/objection-graphql/blob/access-control/examples/access-control/src/schema.js
 import User from './models/User'
@@ -36,8 +45,8 @@ const graphQlSchema = graphQlBuilder()
 const app = express()
 
 async function main () {
-  await knex.migrate.down()
-  await knex.migrate.up()
+  // await knex.migrate.down()
+  // await knex.migrate.up()
   
   const server = new ApolloServer({
     schema: graphQlSchema,

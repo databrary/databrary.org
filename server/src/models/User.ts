@@ -10,6 +10,7 @@ export default class User extends BaseModel {
   fullName?: string
   projects?: Project[]
   // permissions?: Permission[]
+  password?: string
 
   static jsonSchema = {
     type: 'object',
@@ -22,6 +23,18 @@ export default class User extends BaseModel {
   }
 
   static relationMappings: RelationMappings = {
+    groups: {
+      relation: Model.ManyToManyRelation,
+      modelClass: join(__dirname, 'Group'),
+      join: {
+        from: 'users.id',
+        through: {
+          from: 'groups_users.userId',
+          to: 'groups_users.groupId'
+        },
+        to: 'groups.id'
+      }
+    },
     projects: {
       relation: Model.ManyToManyRelation,
       modelClass: join(__dirname, 'Project'),

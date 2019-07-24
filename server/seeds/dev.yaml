@@ -1,24 +1,31 @@
+- model: Group
+  graph:
+      - name: org.databrary
+        type: enclave
+      - name: org.zoobrary
+        type: enclave
 - model: User
   graph:
-    - fullName: 'Jeffrey Spies'
+    - fullName: Jeffrey Spies
+      password: hidden
       projects:
         - title: Project 1
           _isHidden: true
         - title: Project 2
         - title: Project 3
         - title: Project 4
+      groups:
+        - id: 1
+        - type: individual
 - model: Group
   graph:
-    - name: FirstGroup 
-      isGenerated: true
-      isIndividual: true
-      users:
-        - id: 1
+    - name: SecondGroup
+      type: generated
 - model: Permission
   graph:
     - groupId: 1
       assetId: 2
       type: read
-    - groupId: 1
+    - groupId: 3
       assetId: 3
       type: read

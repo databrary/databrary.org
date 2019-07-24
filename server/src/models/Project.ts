@@ -6,6 +6,7 @@ import * as _ from 'lodash'
 
 export default class Project extends BaseModel {
   static tableName = 'projects'
+  
   readonly id!: number
   title?: string
   contributors?: User[]
@@ -35,18 +36,19 @@ export default class Project extends BaseModel {
     }
   }
 
-  static async modifyApiQuery(qb, { userId }) { 
+  static async modifyApiQuery(qb: any, { userId }) { 
+    console.log(qb._operations[3])
     qb
       .where('projects._isHidden', false)
       // .where('id', 'in', subquery)
-      // .innerJoin('permissions', function() {
-      //   this
-      //     .on('permissions.groupId', '=', _.toNumber(userId))
-      //     .andOn('permissions.assetId', '=', 'projects.id')
-      // })
-  }
-
-  static beforeFind = function (args) {
-    console.log('beforeFind')
+      .innerJoin('permissions', function() {
+        this
+          .on('permissions.assetId', '=', 'projects.id')
+      })
+      .innerJoin('groups_users', function () {
+        this
+          .on('groups_users.userId', '=', _.toNumber(userId))
+          .on('groups_users.groupId', '=', 'permissions.groupId')
+      })
   }
 }

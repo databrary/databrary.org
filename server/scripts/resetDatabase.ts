@@ -15,7 +15,7 @@ interface Seeds {
   graph: any[]
 }
 
-async function loadSeedsFromFile(path) {
+async function loadSeedsFromFile(path: string) {
   const doc = yaml.safeLoad(
     fs.readFileSync(path, 'utf8')
   )
