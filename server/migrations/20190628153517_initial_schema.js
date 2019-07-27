@@ -46,6 +46,11 @@ function assetClass(table) {
     )
 }
 
+function assetData(table) {
+  table.increments('id').primary()
+  table.string('md5')
+}
+
 // If you make a change here, change
 //   src/models - class
 //   src/models - jsonSchema
