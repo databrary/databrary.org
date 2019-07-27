@@ -21,6 +21,7 @@
     "objection": "^1.6.9",
     "objection-graphql": "^0.4.5",
     "p-each-series": "^2.1.0",
+    "p-map-series": "^2.1.0",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "pg": "^7.11.0",

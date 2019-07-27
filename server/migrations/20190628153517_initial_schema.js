@@ -1,90 +1,117 @@
 const _ = require('lodash')
 
 const tables = [
-  'users', 'permissions', 'groups', 'permissionSets', 'projects', 'trees', 
-  'permissionSets_assets', 'groups_users', 'users_projects', 'projects_trees'
+  'assetTypes', 'permissionTypes',
+  'groups', 'permissionsets', 'groups_permissionsets',
+  'users', 'groups_users',
+  'projects', 'assets_permissionsets',
 ]
 
 const types = [
   'group_type', 'permissionsets_type', 'privacy_type'
 ]
 
+function createTypes(chain) {
+  const typesString = `
+    CREATE TYPE permissionsets_type AS ENUM ('new', 'inherited', 'follows');
+  `
+  return chain.raw(typesString)
+}
+
+function collectionClass(table) {
+  table.increments('id').primary()
+  table.string('name')
+  table
+    .integer('permissionsetId')
+    .references('id')
+    .inTable('permissionsets')
+  table
+    .enu('permissionsetType',
+      null,
+      { useNative: true, existingType: true, enumName: 'permissionsets_type' }
+    )
+}
+
+function assetClass(table) {
+  table.increments('id').primary()
+  table.string('name')
+  table
+    .integer('permissionsetId')
+    .references('id')
+    .inTable('permissionsets')
+  table
+    .enu('permissionsetType',
+      null,
+      { useNative: true, existingType: true, enumName: 'permissionsets_type' }
+    )
+}
+
 // If you make a change here, change
 //   src/models - class
 //   src/models - jsonSchema
 //   seeds/*.yaml
 exports.up = function(knex) {
-  return knex.schema
-    .createTable('users', table => {
+  let chain = knex.schema
+
+  chain = createTypes(chain)
+
+  chain = chain
+    .createTable('permissionTypes', table => {
       table.increments('id').primary()
-      table.string('fullName')
-      table.string('preferredName')
-      table.string('password')
+      table.string('name').notNullable()
     })
-    .createTable('permissions', table => {
+    .createTable('assetTypes', table => {
       table.increments('id').primary()
-      table.integer('groupId').index()
-      table.string('type')
+      table.string('name').notNullable()
     })
+
+  chain = chain
     .createTable('groups',  table => {
       table.increments('id').primary()
       table.string('name')
       table.enu('type', 
         ['enclave', 'individual', 'generated', 'named'], 
         { useNative: true, enumName: 'group_type' }
-      )
+      ).notNullable()
     })
-    .createTable('permissionSets', table => {
+    .createTable('permissionsets', table => {
       table.increments('id').primary()
-      table.enu('type',
-        ['new', 'inherited', 'follows'],
-        { useNative: true, enumName: 'permissionsets_type' }
-      )
-      table.string('sourceTypedId')
+      // table.enu('type',
+      //   ['new', 'inherited', 'follows'],
+      //   { useNative: true, enumName: 'permissionsets_type' }
+      // )
+      table.integer('sourceId')
+      table.integer('sourceAssetTypeId')
       table.string('sourceGuid')
     })
-    .createTable('projects', table => {
-      table.increments('id').primary()
-      table.string('title')
-      table.enu('privacy', 
-        ['public', 'private', 'protected'], 
-        { useNative: true, enumName: 'privacy_type' }
-      )
-      table
-        .boolean('_isHidden')
-        .defaultTo(false)
-    })
-    .createTable('trees', table => {
-      table.increments('id').primary()
-      table.string('type')
-    })
-    // .createTable('enclaves', table => {
-    //   table.increments('id').primary()
-    //   table.string('name')
-    // })
-    // .createTable('enclaves_users', table => {
-    //   table.increments('id').primary()
-    //   table
-    //     .string('enclaveId')
-    //     .references('id')
-    //     .inTable('enclaves')
-    //     .index()
-    //   table.integer('userId')
-    //     .unsigned()
-    //     .references('id')
-    //     .inTable('users')
-    //     .onDelete('CASCADE')
-    //     .index()
-    // })
-    .createTable('permissionSets_assets', table => {
+    .createTable('groups_permissionsets', table => {
       table.increments('id').primary()
       table
-        .integer('permissionSetId')
+        .integer('groupId')
         .unsigned()
-      table
-        .integer('assetId')
-        .unsigned()
+        .references('id')
+        .inTable('groups')
+        .onDelete('CASCADE')
         .index()
+        .notNullable()
+      table
+        .integer('permissionsetId')
+        .unsigned()
+        .references('id')
+        .inTable('permissionsets')
+        .onDelete('CASCADE')
+        .index()
+        .notNullable()
+      table.integer('permissionTypeId').notNullable()
+    })
+  
+  chain = chain
+    .createTable('users', table => {
+      table.increments('id').primary()
+      table.string('fullName')
+      table.string('preferredName')
+      table.string('password')
+      table.boolean('isConfirmed').defaultTo(false)
     })
     .createTable('groups_users', table => {
       table.increments('id').primary()
@@ -103,46 +130,59 @@ exports.up = function(knex) {
         .onDelete('CASCADE')
         .index()
     })
-    .createTable('users_projects', table => {
+
+  chain = chain
+    .createTable('projects', table => {
+      assetClass(table)
+      table.text('description')
+      table.enu('privacy', 
+        ['public', 'private', 'protected'], 
+        { useNative: true, enumName: 'privacy_type' }
+      )
+      table
+        .boolean('_isHidden')
+        .defaultTo(false)
+    })
+    .createTable('assets_permissionsets', table => {
       table.increments('id').primary()
       table
-        .integer('userId')
-        .unsigned()
-        .references('id')
-        .inTable('users')
-        .onDelete('CASCADE')
+        .integer('assetId')
         .index()
       table
-        .integer('projectId')
-        .unsigned()
-        .references('id')
-        .inTable('projects')
-        .onDelete('CASCADE')
+        .integer('assetTypeId')
+        .index()
+      table
+        .integer('permissionsetId')
         .index()
     })
-    .createTable('projects_trees', table => {
+  
+  chain = chain
+    .createTable('filetrees', table => {
+      table.increments('id').primary()
+    })
+    .createTable('files', table => {
+      assetClass(table)
+      table.increments('id').primary()
+      table.string('name')
+      table.boolean('isDeleted')
+    })
+    .createTable('files_filetrees', table => {
       table.increments('id').primary()
       table
-        .integer('projectId')
-        .unsigned()
-        .references('id')
-        .inTable('projects')
-        .onDelete('CASCADE')
+        .integer('fileId')
         .index()
       table
-        .integer('treeId')
-        .unsigned()
-        .references('id')
-        .inTable('trees')
-        .onDelete('CASCADE')
+        .integer('filetreeId')
         .index()
     })
+  
+  return chain
 }
 
 exports.down = function(knex) {
 
   const typesString = _.join(_.map(types, (type) => {
-    return `DROP TYPE ${type} IF EXISTS`
+    return `DROP TYPE IF EXISTS ${type}`
   }), '; ')
 
   let chain = knex.schema

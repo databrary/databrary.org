@@ -10,17 +10,34 @@ import { Model } from 'objection'
 
 import * as models from '../src/models'
 
-interface Seeds {
+interface ObjectSeed {
   model: string
   graph: any[]
 }
 
-async function loadSeedsFromFile(path: string) {
+interface TableSeed {
+  table: string
+  data: any[]
+}
+
+async function loadSeedTablesFromFile(knex:any, path: string) {
   const doc = yaml.safeLoad(
     fs.readFileSync(path, 'utf8')
   )
 
-  await pEachSeries(doc, async (element: Seeds) => {
+  await pEachSeries(doc, async (element: TableSeed) => {
+    const tableName = element.table
+    const data = element.data
+    await knex(tableName).insert(data)
+  })
+}
+
+async function loadSeedObjectsFromFile(path: string) {
+  const doc = yaml.safeLoad(
+    fs.readFileSync(path, 'utf8')
+  )
+
+  await pEachSeries(doc, async (element: ObjectSeed) => {
     const modelName = element.model
     const graph = element.graph
     await models[modelName]
@@ -36,7 +53,7 @@ async function go () {
   await knex.migrate.down()
   await knex.migrate.up()
 
-  await loadSeedsFromFile('seeds/dev.yaml')
+  await loadSeedTablesFromFile(knex, 'seeds/tables.yaml')
 
   await knex.destroy()
 }

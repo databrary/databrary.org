@@ -1,0 +1,67 @@
+##################################################
+# Types
+##################################################
+- table: assetTypes
+  data:
+    - id: 1
+      name: 'project'
+    - id: 2
+      name: 'file'
+- table: permissionTypes
+  data:
+    - id: 1
+      name: read
+    - id: 2
+      name: write
+    - id: 3
+      name: admin
+
+##################################################
+# Groups
+##################################################
+- table: groups
+  data:
+    - name: org.databrary
+      type: enclave
+    - name: org.zoobrary
+      type: enclave
+
+# - table: permissions
+#   data:
+#     - type: new
+#       sourceId: null
+#       sourceAssetTypeId: null
+#       sourceGuid: null
+      
+# - table: groups_permissions
+#   data:
+#     - groupId: 1
+#       permissionId: 1
+#       permissionTypeId: 1
+
+# ##################################################
+# # Users
+# ##################################################
+# - table: users
+#   data:
+#     - fullName: Jeffrey R. Spies
+#       password: testing123
+
+# - table: groups_users
+#   data:
+#     - groupId: 1
+#       userId: 1
+
+# ##################################################
+# # Assets
+# ##################################################
+# - table: projects
+#   data:
+#     - name: Project One
+#     - name: Project Two
+
+# - table: assets_permissions
+#   data:
+#     - assetId: 1 # project 1
+#       assetTypeId: 1 # project
+#       permissionId: 1
