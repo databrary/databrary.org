@@ -1,4 +1,4 @@
-import { getProjectPermissionSetId, getAssetPermissionSetId } from './permissions'
+import { getProjectPermissionSetId } from './permissions'
 
 export async function addUserToEnclave( options: any ) {
   const groupId = options.enclaveId
@@ -19,7 +19,7 @@ export async function addProjectToEnclave( options: any) {
   } else if ( options.projectId ) {
     permissionsetId = await getProjectPermissionSetId(options)
   } else if( options.assetId && options.assetTypeId ) {
-    permissionsetId = await getAssetPermissionSetId( options )
+    // permissionsetId = await getAssetPermissionSetId( options )
   } else {
     throw new Error('database error')
   }

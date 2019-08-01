@@ -2,9 +2,8 @@ const _ = require('lodash')
 
 const tables = [
   'assetTypes', 'permissionTypes',
-  'groups', 'permissionsets', 'groups_permissionsets',
-  'users', 'groups_users',
-  'projects', 'assets_permissionsets',
+  'users', 'groups', 'groups_users', 'permissionsets', 'groups_permissionsets',
+  'collections', 'collections_permissionsets',
 ]
 
 const types = [
@@ -46,7 +45,12 @@ function assetClass(table) {
     )
 }
 
-function assetData(table) {
+function assetMetadataClass(table) {
+  table.increments('id').primary()
+  table.string(schema)
+}
+
+function assetDataClass(table) {
   table.increments('id').primary()
   table.string('md5')
 }
@@ -71,6 +75,13 @@ exports.up = function(knex) {
     })
 
   chain = chain
+    .createTable('users', table => {
+      table.increments('id').primary()
+      table.string('fullName')
+      table.string('preferredName')
+      table.string('password')
+      table.boolean('isConfirmed').defaultTo(false)
+    })
     .createTable('groups',  table => {
       table.increments('id').primary()
       table.string('name')
@@ -79,12 +90,25 @@ exports.up = function(knex) {
         { useNative: true, enumName: 'group_type' }
       ).notNullable()
     })
+    .createTable('groups_users', table => {
+      table.increments('id').primary()
+      table
+        .integer('groupId')
+        .unsigned()
+        .references('id')
+        .inTable('groups')
+        .onDelete('CASCADE')
+        .index()
+      table
+        .integer('userId')
+        .unsigned()
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE')
+        .index()
+    })
     .createTable('permissionsets', table => {
       table.increments('id').primary()
-      // table.enu('type',
-      //   ['new', 'inherited', 'follows'],
-      //   { useNative: true, enumName: 'permissionsets_type' }
-      // )
       table.integer('sourceId')
       table.integer('sourceAssetTypeId')
       table.string('sourceGuid')
@@ -111,33 +135,7 @@ exports.up = function(knex) {
     })
   
   chain = chain
-    .createTable('users', table => {
-      table.increments('id').primary()
-      table.string('fullName')
-      table.string('preferredName')
-      table.string('password')
-      table.boolean('isConfirmed').defaultTo(false)
-    })
-    .createTable('groups_users', table => {
-      table.increments('id').primary()
-      table
-        .integer('groupId')
-        .unsigned()
-        .references('id')
-        .inTable('groups')
-        .onDelete('CASCADE')
-        .index()
-      table
-        .integer('userId')
-        .unsigned()
-        .references('id')
-        .inTable('users')
-        .onDelete('CASCADE')
-        .index()
-    })
-
-  chain = chain
-    .createTable('projects', table => {
+    .createTable('collections', table => {
       assetClass(table)
       table.text('description')
       table.enu('privacy', 
@@ -147,38 +145,6 @@ exports.up = function(knex) {
       table
         .boolean('_isHidden')
         .defaultTo(false)
-    })
-    .createTable('assets_permissionsets', table => {
-      table.increments('id').primary()
-      table
-        .integer('assetId')
-        .index()
-      table
-        .integer('assetTypeId')
-        .index()
-      table
-        .integer('permissionsetId')
-        .index()
-    })
-  
-  chain = chain
-    .createTable('filetrees', table => {
-      table.increments('id').primary()
-    })
-    .createTable('files', table => {
-      assetClass(table)
-      table.increments('id').primary()
-      table.string('name')
-      table.boolean('isDeleted')
-    })
-    .createTable('files_filetrees', table => {
-      table.increments('id').primary()
-      table
-        .integer('fileId')
-        .index()
-      table
-        .integer('filetreeId')
-        .index()
     })
   
   return chain
