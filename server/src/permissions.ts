@@ -26,43 +26,44 @@ function lookup (category: string, property: string) {
 }
 
 async function main () {
-  // await knex.transaction(async (knex) => {
-  //   const userId = await createUser({
-  //     knex,
-  //     fullName: 'Jeffrey R. Spies'
-  //   })
+  await knex.transaction(async (knex) => {
+    const userId = await createUser({
+      knex,
+      fullName: 'Bill Heath'
+    })
 
-  //   await addUserToEnclave({
-  //     knex,
-  //     userId,
-  //     enclaveId: lookup('enclave', 'org.zoobrary')
-  //   })
+    await addUserToEnclave({
+      knex,
+      userId,
+      enclaveId: lookup('enclave', 'org.zoobrary')
+    })
 
-  //   const projectId = await createProject({
-  //     knex,
-  //     userId,
-  //     name: 'Trial 1147343',
-  //     description: 'A test project',
-  //     assetTypeId: lookup('asset', 'project'),
-  //     permissionTypeId: lookup('permission', 'admin')
-  //   })
+    // const projectId = await createProject({
+    //   knex,
+    //   userId,
+    //   name: 'Trial 1147343',
+    //   description: 'A test project',
+    //   assetTypeId: lookup('asset', 'project'),
+    //   permissionTypeId: lookup('permission', 'admin')
+    // })
 
-  //   await addProjectToEnclave({
-  //     knex,
-  //     projectId,
-  //     enclaveId: lookup('enclave', 'org.zoobrary'),
-  //     permissionTypeId: lookup('permission', 'read')
-  //   })
+    // await addProjectToEnclave({
+    //   knex,
+    //   projectId,
+    //   enclaveId: lookup('enclave', 'org.zoobrary'),
+    //   permissionTypeId: lookup('permission', 'read')
+    // })
 
-  //   await knex.commit()
-  // })
-  const result = await getProject({
-    knex,
-    id: 4,
-    projectTypeId: lookup('asset', 'project'),
-    select: ['id', 'name', 'groups']
+    await knex.commit()
   })
-  console.log(result)
+  // const result = await getProject({
+  //   knex,
+  //   id: 4,
+  //   projectTypeId: lookup('asset', 'project'),
+  //   select: ['id', 'name', 'groups']
+  // })
+  // console.log(result)
 }
 
+// tslint:disable-next-line: no-floating-promises
 main()

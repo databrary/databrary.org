@@ -17,6 +17,7 @@
     "graphql-shield": "^5.6.1",
     "graphql-yoga": "^1.17.4",
     "knex": "^0.18.0",
+    "knexnest": "^1.0.0",
     "lodash": "^4.17.15",
     "objection": "^1.6.9",
     "objection-graphql": "^0.4.5",
