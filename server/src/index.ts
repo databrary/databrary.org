@@ -21,49 +21,25 @@ const dbConfig = _.defaults(
 )
 // Model.knex(knex)
 
-const queue = new PgBoss(`postgres://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}/${dbConfig.database}`);
-
-// Can use https://github.com/Vincit/objection-graphql/blob/access-control/examples/access-control/src/schema.js
-// import User from './models/User'
-// import Project from './models/Project'
-// import Group from './models/Group'
-// import Permission from './models/Permission'
-
-// const graphQlSchema = graphQlBuilder()
-//   .model(User, {
-//     fieldName: 'user',
-//     listFieldName: 'users'
-//   })
-//   .model(Project, {
-//     fieldName: 'project',
-//     listFieldName: 'projects'
-//   })
-//   .model(Group, {
-//     fieldName: 'group',
-//     listFieldName: 'groups'
-//   })
-//   .build()
+const queue = new PgBoss(`postgres://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}/${dbConfig.database}`)
 
 const app = express()
 
 async function main () {
+
+  await knex.raw("SELECT 'test connection';")
+
   const server = new ApolloServer({
     schema: AppModule.schema,
-    // rootValue: (ast) => ({
-    //   onQuery: async (builder) => {
-    //     await builder.mergeContext({
-    //       userId: '1'
-    //     })
-    //   }
-    // }),
-    context: ({ req, res }) => ({
-      knex,
-      userId: 1
-    })
+    context: ({ req, res }) => {
+      return {
+        knex,
+        userId: 1
+      }
+    }
   })
 
-  const path = '/graphql'
-  server.applyMiddleware({ app, path })
+  server.applyMiddleware({ app, path: '/graphql' })
 
   const port: number = config.get('port')
   app.listen({ port }, () =>
