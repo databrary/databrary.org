@@ -1,5 +1,5 @@
-import * as Knex from 'knex'
-import * as knexConfig from '../knexfile'
+import Knex from 'knex'
+import knexConfig from '../knexfile'
 const knex = Knex(knexConfig.development)
 
 import { createUser } from './units/users'
@@ -26,7 +26,7 @@ function lookup (category: string, property: string) {
 }
 
 async function main () {
-  await knex.transaction(async (knex) => {
+  await knex.transaction(async (knex: any) => {
     const userId = await createUser({
       knex,
       fullName: 'Bill Heath'
@@ -38,21 +38,21 @@ async function main () {
       enclaveId: lookup('enclave', 'org.zoobrary')
     })
 
-    // const projectId = await createProject({
-    //   knex,
-    //   userId,
-    //   name: 'Trial 1147343',
-    //   description: 'A test project',
-    //   assetTypeId: lookup('asset', 'project'),
-    //   permissionTypeId: lookup('permission', 'admin')
-    // })
+    const projectId = await createProject({
+      knex,
+      userId,
+      name: 'Trial 1147343',
+      description: 'A test project',
+      assetTypeId: lookup('asset', 'project'),
+      permissionTypeId: lookup('permission', 'admin')
+    })
 
-    // await addProjectToEnclave({
-    //   knex,
-    //   projectId,
-    //   enclaveId: lookup('enclave', 'org.zoobrary'),
-    //   permissionTypeId: lookup('permission', 'read')
-    // })
+    await addProjectToEnclave({
+      knex,
+      projectId,
+      enclaveId: lookup('enclave', 'org.zoobrary'),
+      permissionTypeId: lookup('permission', 'read')
+    })
 
     await knex.commit()
   })

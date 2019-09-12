@@ -1,41 +1,22 @@
 import * as _ from 'lodash'
-import * as express from 'express'
+import express from 'express'
 import { ApolloServer, gql } from 'apollo-server-express'
 import * as casual from 'casual'
-import * as config from 'config'
-
+import config from 'config'
 import { AppModule } from './modules'
+import { setup } from './database'
 
-// import { builder as graphQlBuilder } from 'objection-graphql'
-
-// import { Model } from 'objection'
-import * as Knex from 'knex'
-import * as knexConfig from '../knexfile'
-
-import * as PgBoss from 'pg-boss'
-
-const knex = Knex(knexConfig.development)
-const dbConfig = _.defaults(
-  knex['_context'].client.config.connection,
-  knex['_context'].client.driver.defaults
-)
-// Model.knex(knex)
-
-const queue = new PgBoss(`postgres://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}/${dbConfig.database}`)
+// const queue = new PgBoss(`postgres://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}/${dbConfig.database}`)
 
 const app = express()
 
 async function main () {
-
-  await knex.raw("SELECT 'test connection';")
-
+  const knex = await setup()
   const server = new ApolloServer({
     schema: AppModule.schema,
-    context: ({ req, res }) => {
-      return {
-        knex,
-        userId: 1
-      }
+    context: {
+      knex,
+      userId: 1
     }
   })
 

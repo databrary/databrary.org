@@ -1,11 +1,11 @@
 import * as _ from 'lodash'
-import * as pEachSeries from 'p-each-series'
+import pEachSeries from 'p-each-series'
 
 import * as fs from 'fs'
 import * as yaml from 'js-yaml'
 
-import * as Knex from 'knex'
-import * as knexConfig from '../knexfile'
+import Knex from 'knex'
+import knexConfig from '../knexfile'
 import { Model } from 'objection'
 
 import * as models from '../src/models'

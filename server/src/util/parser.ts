@@ -27,10 +27,15 @@ function buildChain (knex: any, ast: any, rules: any) {
     const relateds = []
     const ids = []
     // const ast = parse(doc)
+    let startingLoc = null
+    let endingLoc =  null
     let editedAST = visit(ast, {
       enter (node, key, parent, path, ancestors) {
-        console.log(node.kind)
         if (node.kind === 'Field') {
+          if( !startingLoc && !endingLoc) {
+            startingLoc = node.loc.start
+            endingLoc = node.loc.end
+          }
           const type = node.name.value
           // TYPES/CLASSES/TABLES
           if (node.selectionSet) {
@@ -70,9 +75,11 @@ function buildChain (knex: any, ast: any, rules: any) {
             nesting.pop()
           }
         }
-        if (node.loc.start === 0) {
+        if (node.loc.start === startingLoc && node.loc.end === endingLoc) {
           _.each(ids, id => selection.push(id))
-          resolve(chain.select(selection))
+          chain = chain.select(selection)
+          console.log(chain.toString())
+          resolve(chain)
         }
       }
     })
@@ -80,6 +87,6 @@ function buildChain (knex: any, ast: any, rules: any) {
 }
 
 export async function buildResolver (knex: any, ast: any, rules: any) {
-  const chain = await buildChain(knex, ast, rules)
-  return nest(chain)
+  const results = await buildChain(knex, ast, rules)
+  return nest(results)
 }

@@ -1,6 +1,5 @@
 import { gql } from 'apollo-server-express'
 import { GraphQLModule } from '@graphql-modules/core'
-
 import { buildResolver } from '../util/parser'
 import { rules } from '../rules'
 
@@ -26,8 +25,6 @@ export const ProjectModule = new GraphQLModule({
     Query: {
       project: (parent, args, context, data) => {
         const ast = (data.fieldNodes)[0]
-        console.log(context.userId)
-        // console.log(JSON.stringify(ast))
         return [
           {
             id: 3,
@@ -35,20 +32,14 @@ export const ProjectModule = new GraphQLModule({
           }
         ][0]
       },
-      projects: async (parent, args, context, data) => {
+      projects: async (parent, args,  context, data) => {
         const ast = (data.fieldNodes)[0]
-        console.log(context.userId)
-        const result = await buildResolver(context.knex, ast, rules)
+        const userId = context.userId
+        const knex = context.knex
+        const result = await buildResolver(knex, ast, rules)
         return result
       }
     }
-    // Project: {
-    //   group: (parent, args, context, info) => {
-    //     console.log(info)
-    //     return {
-    //       name: 'admins'
-    //     }
-    //   }
-    // }
-  }
+  },
+  context: session => session
 })

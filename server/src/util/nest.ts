@@ -1,4 +1,4 @@
-const _ = require('lodash')
+import _ from 'lodash'
 
 const ENDING_TOKEN = '$'
 
@@ -46,8 +46,8 @@ function removeObjectPrefixes (obj: any) {
 
 function buildIndexName (row: any, path: any) {
   const name = [ENDING_TOKEN, row[ENDING_TOKEN]]
-  _.each(path, (pathPart, index) => {
-    if (index === index.length - 1) {
+  _.each(path, (pathPart, index: number) => {
+    if (index === path.length - 1) {
       pathPart = cleanPath(pathPart)
     }
     name.push(pathPart)

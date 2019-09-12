@@ -1,4 +1,4 @@
-import * as pMapSeries from 'p-map-series'
+import pMapSeries from 'p-map-series'
 
 export async function createGroup( options: any ) {
   const [groupId] = await options.knex('groups')
