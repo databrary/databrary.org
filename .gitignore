@@ -5,5 +5,5 @@ yarn-error.log*
 scratch
 .vscode
 dist
-config/*
-!config/default.*
+server/config/*
+server/!config/default.*
