@@ -10,20 +10,8 @@ import config from 'config'
 import Keycloak from 'keycloak-connect'
 import OAuth2Strategy from 'passport-oauth2'
 import { access } from 'fs'
-// import * as superagent from 'superagent'
-// "lib": ["es2015", "es2016", "dom", "es2017", "es6", "es5"],
 
-function uuid () {
-  let s = []
-  const hexDigits = '0123456789abcdef'
-  for (let i = 0; i < 36; i++) {
-    s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1)
-  }
-  s[14] = '4'
-  s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1)
-  s[8] = s[13] = s[18] = s[23] = '-'
-  return s.join('')
-}
+import { routes as authRoutes } from './routes/auth'
 
 const memoryStore = new session.MemoryStore()
 
@@ -75,54 +63,11 @@ app.get('/', (req: express.Request, res: express.Response) => {
   res.send(`<html><body><a href="/login">login</a> | <a href="/logout">logout</a></body></html>`)
 })
 
-app.get('/auth/databrary', passport.authenticate('oauth2'))
-
-app.get('/auth/databrary/callback',
-  passport.authenticate('oauth2', { failureRedirect: '/login' }),
-  (req, res) => {
-    res.redirect('/')
-  }
-)
-
-app.get('/login', (req: express.Request, res: express.Response) => {
-  const url = keycloak.loginUrl(uuid(), 'http://localhost:8000/auth/databrary/callback')
-  res.redirect(url)
-})
-
-app.get('/logout', (req: express.Request, res: express.Response) => {
-  const url = keycloak.logoutUrl('http://localhost:8000')
-  res.redirect(url)
-})
+authRoutes(app, keycloak, passport)
 
 app.get('/project', passport.authenticate('oauth2'), (req: express.Request, res: express.Response) => {
   res.send(`<html><body>project</body></html>`)
 })
-
-// app.get('/check-sso', keycloak.checkSso(), () => {
-//   console.log('checked')
-// })
-
-// app.get('/auth', async (req: express.Request, res: express.Response) => {
-//   req.session.auth_redirect_uri = 'http://localhost:8000/auth'
-//   const tokenResponse = await keycloak.grantManager.obtainFromCode(req, req.query.code)
-//   console.log(tokenResponse.access_token)
-//   res.redirect('/')
-// })
-
-// const typeDefs = gql`
-//   type Query {
-//     project: String
-//   }
-// `
-
-// const resolvers = {
-//   Query: {
-//     project: (parent, args, context, data) => {
-//       console.log(context)
-//       return 'hi'
-//     }
-//   }
-// }
 
 async function main () {
 

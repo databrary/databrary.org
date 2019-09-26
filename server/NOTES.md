@@ -21,3 +21,6 @@ CREATE DATABASE keycloak
 Add
 https://www.apollographql.com/docs/apollo-server/federation/implementing/
 https://github.com/louie007/passport-keycloak-oauth2-oidc
+
+// import * as superagent from 'superagent'
+// "lib": ["es2015", "es2016", "dom", "es2017", "es6", "es5"],
