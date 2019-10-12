@@ -51,19 +51,20 @@ services:
       - 8002:8080
     restart: always
     environment:
+      HASURA_GRAPHQL_ADMIN_SECRET: mysecret
       HASURA_GRAPHQL_DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/postgres
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
       ## uncomment next line to set an admin secret
       # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
 
-  minio:
-    image: minio/minio
-    volumes:
-      - file_data:/data
-    ports:
-      - "9000:9000"
-    command: server /data
+  # minio:
+  #   image: minio/minio
+  #   volumes:
+  #     - file_data:/data
+  #   ports:
+  #     - "9000:9000"
+  #   command: server /data
 
 # networks:
 #   postgres:
@@ -72,7 +73,7 @@ services:
 #     driver: bridge
 
 volumes:
-  file_data:
+  # file_data:
   postgres_data:
 #   es_data:
 #   fa_config:

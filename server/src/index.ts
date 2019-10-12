@@ -1,27 +1,44 @@
 import * as _ from 'lodash'
 import express from 'express'
+import bodyParser from 'body-parser'
+import cors from 'cors'
 import session from 'express-session'
+import FileStoreSession from 'session-file-store'
+// import proxy from 'http-proxy-middleware'
+import proxy from 'express-http-proxy'
 import passport from 'passport'
-import { ApolloServer, gql } from 'apollo-server-express'
-import { mergeSchemaList } from './mergeSchemaList'
+import { ApolloServer } from 'apollo-server-express'
+import { mergeSchemaList } from './utils/mergeSchemaList'
 import { AppModule } from './modules'
 
+import { Strategy as KeycloakStrategy } from 'passport-keycloak-oauth2-oidc'
+
+import { routes as addAuthRoutes } from './routes/auth'
+import { routes as addHomeRoutes } from './routes/home'
+
 import config from 'config'
-import Keycloak from 'keycloak-connect'
-import OAuth2Strategy from 'passport-oauth2'
-import { access } from 'fs'
+const appPort: number = config.get('appPort')
+const keycloakPort: number = config.get('keycloak.port')
+const keycloakRealm: string = config.get('keycloak.realm')
+const keycloakClientId: string = config.get('keycloak.client.id')
+const keycloakClientSecret: string = config.get('keycloak.client.secret')
 
-import { routes as authRoutes } from './routes/auth'
-
-const memoryStore = new session.MemoryStore()
+// const memoryStore = new session.MemoryStore()
 
 const app = express()
+
+app.use(cors())
+
+const FileStore = FileStoreSession(session)
+
 app.use(session({
+  name: 'localhost',
   secret: 'mySecret',
   resave: false,
   saveUninitialized: true,
-  store: memoryStore
+  store: new FileStore({})
 }))
+
 app.use(passport.initialize())
 app.use(passport.session())
 
@@ -30,70 +47,67 @@ passport.serializeUser((user, done) => {
 })
 
 passport.deserializeUser((id, done) => {
-  console.log(id)
+  // TODO Should I put database logic here? How many times would this be called? Memoized somehow?
   done(null, id)
 })
 
-passport.use(new OAuth2Strategy(
-  {
-    authorizationURL: 'http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/auth',
-    tokenURL: 'http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/token',
-    clientID: 'client',
-    clientSecret: 'd527f007-35d8-4956-a904-6165460714d9',
-    callbackURL: 'http://localhost:8000/auth/databrary/callback'
-  },
-  async (accessToken: any, refreshToken: any, profile: any, cb: any) => {
-    const userInfo = await keycloak.grantManager.userInfo(accessToken)
-    cb(null, userInfo)
-  }
-))
+passport.use(new KeycloakStrategy({
+  clientID: keycloakClientId,
+  realm: keycloakRealm,
+  publicClient: 'false',
+  clientSecret: keycloakClientSecret,
+  sslRequired: 'none',
+  authServerURL: `http://localhost:${keycloakPort}/auth`,
+  callbackURL: `http://localhost:${appPort}/auth/databrary/callback`
+},
+function (accesseToken, refreshToken, profile, done) {
+  done(null, profile)
+}))
 
-let keycloak = new Keycloak({ store: memoryStore }, {
-  'realm': 'databrary.org',
-  'auth-server-url': 'http://localhost:8001/auth/databrary/callback',
-  'ssl-required': 'none',
-  'resource': 'client',
-  'credentials': {
-    'secret': 'd527f007-35d8-4956-a904-6165460714d9'
-  },
-  'confidential-port': 0
-})
-
-app.get('/', (req: express.Request, res: express.Response) => {
-  res.send(`<html><body><a href="/login">login</a> | <a href="/logout">logout</a></body></html>`)
-})
-
-authRoutes(app, keycloak, passport)
-
-app.get('/project', passport.authenticate('oauth2'), (req: express.Request, res: express.Response) => {
-  res.send(`<html><body>project</body></html>`)
-})
+// addHomeRoutes(app, passport)
 
 async function main () {
+  try {
+    app.use(bodyParser.json())
 
-  const schema = await mergeSchemaList([
-    'http://localhost:8002/v1/graphql',
-    {
-      typeDefs: AppModule.typeDefs,
-      resolvers: AppModule.resolvers
-    }
-  ])
+    // app.use('/v1/graphql', function (req, res, next) {
+    //   console.log('Request Type:', req.originalUrl, req.method, req.body)
+    //   next()
+    // })
 
-  const server = new ApolloServer({
-    schema,
-    context: ({ req, res }) => {
-      return {
-        userId: 1
+    const schema = await mergeSchemaList([
+      'http://localhost:8002/v1/graphql',
+      {
+        typeDefs: AppModule.typeDefs,
+        resolvers: AppModule.resolvers
       }
-    }
-  })
+    ])
 
-  server.applyMiddleware({ app, path: '/v1/graphql' })
+    const server = new ApolloServer({
+      schema,
+      context: ({ req, res }) => {
+        return {
+          userId: 1
+        }
+      },
+      playground: {
+        settings: {
+          'editor.theme': 'light'
+        }
+      }
+    })
 
-  const port: number = config.get('appPort')
-  app.listen({ port }, () =>
-    console.log(`🚀 Server ready at http://localhost:${port}`)
-  )
+    server.applyMiddleware({ app, path: '/v1/graphql' })
+
+    addAuthRoutes(app, passport)
+    app.use('/', proxy('http://localhost:8080/'))
+
+    app.listen({ port: appPort }, () =>
+      console.log(`Server ready at http://localhost:${appPort}/`)
+    )
+  } catch (err) {
+    console.log(err)
+  }
 }
 
 // tslint:disable-next-line: no-floating-promises

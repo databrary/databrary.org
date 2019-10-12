@@ -96,24 +96,24 @@
 
 <script>
 
-import SettingsProfile from '../components/settings/settingsProfile.vue';
-import SettingsAccount from '../components/settings/settingsAccount.vue';
-import SettingsEmails from '../components/settings/settingsEmails.vue';
-import SettingsSecurity from '../components/settings/settingsSecurity.vue';
+import SettingsProfile from '../components/settings/settingsProfile.vue'
+import SettingsAccount from '../components/settings/settingsAccount.vue'
+import SettingsEmails from '../components/settings/settingsEmails.vue'
+import SettingsSecurity from '../components/settings/settingsSecurity.vue'
 
 export default {
   components: {
     SettingsProfile,
     SettingsAccount,
     SettingsEmails,
-    SettingsSecurity,
+    SettingsSecurity
   },
-  data() {
+  data () {
     return {
-      tab: 'profile',
-    };
-  },
-};
+      tab: 'profile'
+    }
+  }
+}
 </script>
 <style>
 .btn-link {

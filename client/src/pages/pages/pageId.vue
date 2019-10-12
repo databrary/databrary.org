@@ -276,12 +276,12 @@
   </div>
 </template>
 <script>
-import citationBuilder from '../../components/CitationBuilder.vue';
+import citationBuilder from '../../components/CitationBuilder.vue'
 
 export default {
   name: 'PageId',
   components: {
-    citationBuilder,
+    citationBuilder
   },
   data: () => ({
     editMode: false,
@@ -291,30 +291,30 @@ export default {
         name: 'File Type',
         label: 'File Type',
         field: 'fileType',
-        classes: 'bg-grey-2 ellipsis',
+        classes: 'bg-grey-2 ellipsis'
       },
       {
         name: 'Release Level',
         label: 'Release Level',
         field: 'releaseLevel',
-        classes: 'bg-grey-2 ellipsis',
+        classes: 'bg-grey-2 ellipsis'
       },
       {
         name: '# of Files',
         label: '# of Files',
-        field: 'fileCount',
-      },
+        field: 'fileCount'
+      }
     ],
     filePermission: [
       {
         fileType: 'sessions',
         releaseLevel: 'authorized users',
-        fileCount: 5,
-      },
+        fileCount: 5
+      }
     ],
     pagination: {
       page: 1,
-      rowsPerPage: 0, // 0 means all rows
+      rowsPerPage: 0 // 0 means all rows
     },
     slide: 1,
     tab: 'data',
@@ -327,17 +327,17 @@ export default {
         children: [
           {
             label: 'data3.txt',
-            icon: 'insert_drive_file',
+            icon: 'insert_drive_file'
           },
           {
             label: 'schema4.json',
-            icon: 'insert_drive_file',
+            icon: 'insert_drive_file'
           },
           {
             label: 'videoTime5.mp4',
-            icon: 'insert_drive_file',
-          },
-        ],
+            icon: 'insert_drive_file'
+          }
+        ]
       },
       {
         label: 'JaneDoe',
@@ -345,17 +345,17 @@ export default {
         children: [
           {
             label: 'data2.txt',
-            icon: 'insert_drive_file',
+            icon: 'insert_drive_file'
           },
           {
             label: 'schema2.json',
-            icon: 'insert_drive_file',
+            icon: 'insert_drive_file'
           },
           {
             label: 'videoRun.mp4',
-            icon: 'insert_drive_file',
-          },
-        ],
+            icon: 'insert_drive_file'
+          }
+        ]
       },
       {
         label: 'QunHue',
@@ -363,18 +363,18 @@ export default {
         children: [
           {
             label: 'data.txt',
-            icon: 'insert_drive_file',
+            icon: 'insert_drive_file'
           },
           {
             label: 'schema.json',
-            icon: 'insert_drive_file',
+            icon: 'insert_drive_file'
           },
           {
             label: 'videoTime.mp4',
-            icon: 'insert_drive_file',
-          },
-        ],
-      },
+            icon: 'insert_drive_file'
+          }
+        ]
+      }
     ],
     data: [
       {
@@ -383,17 +383,17 @@ export default {
         children: [
           {
             label: 'Good food',
-            icon: 'insert_drive_file',
+            icon: 'insert_drive_file'
           },
           {
             label: 'Quality ingredients',
-            icon: 'insert_drive_file',
+            icon: 'insert_drive_file'
           },
           {
             label: 'Good recipe',
-            icon: 'insert_drive_file',
-          },
-        ],
+            icon: 'insert_drive_file'
+          }
+        ]
       },
       {
         label: 'A Volume',
@@ -401,14 +401,14 @@ export default {
         children: [
           {
             label: 'some data.csv',
-            icon: 'insert_drive_file',
+            icon: 'insert_drive_file'
           },
           {
             label: 'video.mp4',
-            icon: 'insert_drive_file',
-          },
-        ],
-      },
+            icon: 'insert_drive_file'
+          }
+        ]
+      }
     ],
     newVolumeChildren: [],
     volumesDialog: false,
@@ -416,59 +416,59 @@ export default {
     maximizedToggle: true,
     newVolumeName: 'New Volume',
     splitterModel: 30,
-    selected: 'Good food',
+    selected: 'Good food'
   }),
   watch: {
     // whenever question changes, this function will run
-    ticked() {
-      this.newVolumeChildren = [];
+    ticked () {
+      this.newVolumeChildren = []
       this.ticked.forEach((checkedEle) => {
         this.newVolumeChildren.push({
           label: checkedEle,
-          icon: 'insert_drive_file',
-        });
-      });
+          icon: 'insert_drive_file'
+        })
+      })
     },
-    editMode() {
+    editMode () {
       if (!this.editMode) {
-        this.editmodeLabel = 'Edit';
+        this.editmodeLabel = 'Edit'
       } else {
-        this.editmodeLabel = 'Save';
+        this.editmodeLabel = 'Save'
       }
-    },
+    }
   },
-  mounted() {
-    console.log(this.$route);
-    this.generateCitation('http://doi.org/10.17910/B77P4V');
+  mounted () {
+    console.log(this.$route)
+    this.generateCitation('http://doi.org/10.17910/B77P4V')
   },
   methods: {
-    toggleEditmode() {
-      this.editMode = !this.editMode;
+    toggleEditmode () {
+      this.editMode = !this.editMode
     },
-    resetFilter() {
-      this.filter = '';
-      this.$refs.filter.focus();
+    resetFilter () {
+      this.filter = ''
+      this.$refs.filter.focus()
     },
-    createVolume() {
+    createVolume () {
       const newVolume = {
         label: this.newVolumeName,
         icon: 'folder',
-        children: this.newVolumeChildren,
-      };
-      this.data.push(newVolume);
-      this.ticked = [];
-      this.volumesDialog = false;
-    },
-    getKey(data, selected) {
-      try {
-        return data.children.filter(e => e.label === selected)[0].label;
-      } catch (e) {
-        console.log(e);
+        children: this.newVolumeChildren
       }
-      return null;
+      this.data.push(newVolume)
+      this.ticked = []
+      this.volumesDialog = false
     },
-  },
-};
+    getKey (data, selected) {
+      try {
+        return data.children.filter(e => e.label === selected)[0].label
+      } catch (e) {
+        console.log(e)
+      }
+      return null
+    }
+  }
+}
 </script>
 <style>
 .profile-border {

@@ -34,7 +34,7 @@
 </template>
 <script>
 export default {
-  data() {
+  data () {
     return {
       filter: '',
       columns: [
@@ -44,7 +44,7 @@ export default {
           label: 'Name',
           align: 'left',
           field: row => row.name,
-          format: val => `${val}`,
+          format: val => `${val}`
         },
         {
           name: 'status',
@@ -53,7 +53,7 @@ export default {
           align: 'left',
           sortable: true,
           field: row => row.status,
-          format: val => `${val}`,
+          format: val => `${val}`
         },
         {
           name: 'type',
@@ -61,37 +61,36 @@ export default {
           label: 'Type',
           align: 'left',
           sortable: true,
-          field: row => row.type,
+          field: row => row.type
           // format: val => `<q-badge color="blue">${val}</q-badge>`,
-        },
+        }
       ],
       data: [
         {
           name: 'Clair edited landing page',
           type: 'Project update',
-          status: 'Unread',
+          status: 'Unread'
         },
         {
           name: 'Clair was added to PROJECT',
           type: 'Project update',
-          status: 'Unread',
+          status: 'Unread'
         },
         {
           name: 'Rick messaged you',
           type: 'Message',
-          status: 'Read',
-
-        },
-      ],
-    };
+          status: 'Read'
+        }
+      ]
+    }
   },
   methods: {
-    goToNotifcation() {
-      console.log('hete', this.$router);
-      // this.$router.push({ path: 'messenger' });
-    },
-  },
-};
+    goToNotifcation () {
+      console.log('hete', this.$router)
+      // this.$router.push({ path: 'messenger' })
+    }
+  }
+}
 </script>
 <style>
 .remove-table-shadow {

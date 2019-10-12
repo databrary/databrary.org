@@ -96,7 +96,7 @@
 </template>
 <script>
 export default {
-  data() {
+  data () {
     return {
       showTwoFactor: false,
       showTwoFactorSetup: false,
@@ -122,11 +122,11 @@ export default {
         'Portugal +351', 'Qatar +974', 'Romania +40', 'Russia +7', 'Rwanda +250', 'Senegal +221',
         'Serbia +381', 'Seychelles +248', 'Singapore +65', 'Slovakia +421', 'Slovenia +386',
         'South Africa +27', 'South Korea +82', 'Spain +34', 'Sri Lanka +94', 'St Lucia +1758',
-        'Sudan +249', 'Sweden +46',
-      ],
-    };
-  },
-};
+        'Sudan +249', 'Sweden +46'
+      ]
+    }
+  }
+}
 </script>
 
 <style>

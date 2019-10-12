@@ -97,43 +97,43 @@
 <script>
 export default {
   name: 'PageSearch',
-  data() {
+  data () {
     return {
       search: null,
       startDate: null,
       endDate: null,
       tags: null,
-      currentPage: 1,
-    };
+      currentPage: 1
+    }
   },
-  mounted() {
-    this.search = this.$route.query.q;
+  mounted () {
+    this.search = this.$route.query.q
   },
   watch: {
-    search() {
+    search () {
       this.$router.push({
         path: 'search',
-        query: { ...this.$route.query, q: this.search },
-      });
+        query: { ...this.$route.query, q: this.search }
+      })
     },
-    startDate() {
+    startDate () {
       this.$router.push({
         path: 'search',
-        query: { ...this.$route.query, startDate: this.startDate },
-      });
+        query: { ...this.$route.query, startDate: this.startDate }
+      })
     },
-    endDate() {
+    endDate () {
       this.$router.push({
         path: 'search',
-        query: { ...this.$route.query, endDate: this.endDate },
-      });
+        query: { ...this.$route.query, endDate: this.endDate }
+      })
     },
-    tags() {
+    tags () {
       this.$router.push({
         path: 'search',
-        query: { ...this.$route.query, tags: this.tags.replace(/\s/g, '') },
-      });
-    },
+        query: { ...this.$route.query, tags: this.tags.replace(/\s/g, '') }
+      })
+    }
   },
   computed: {
     // a computed getter
@@ -142,8 +142,8 @@ export default {
     //     q: this.search,
     //   }
     // }
-  },
-};
+  }
+}
 </script>
 <style>
 </style>

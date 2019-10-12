@@ -27,24 +27,24 @@
 </template>
 <script>
 export default {
-  data() {
+  data () {
     return {
       newPassword: '',
-      confirmNewPassword: '',
-    };
+      confirmNewPassword: ''
+    }
   },
   methods: {
-    validatePassword() {
-      console.log(this.newPassword.length);
-      if (this.newPassword !== this.confirmNewPassword
-        || this.newPassword.length === 0
+    validatePassword () {
+      console.log(this.newPassword.length)
+      if (this.newPassword !== this.confirmNewPassword ||
+        this.newPassword.length === 0
       ) {
         this.$q.notify({
           message: 'Error: new password does not match',
-          color: 'red-5',
-        });
+          color: 'red-5'
+        })
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>

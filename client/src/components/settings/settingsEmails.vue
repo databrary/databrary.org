@@ -61,13 +61,13 @@
 </template>
 <script>
 export default {
-  data() {
+  data () {
     return {
       primaryEmail: 'ryanmasonjar@gmail.com',
       emails: [
-        'ryanmasonjar@gmail.com', 'rytiggy@gmail.com',
-      ],
-    };
-  },
-};
+        'ryanmasonjar@gmail.com', 'rytiggy@gmail.com'
+      ]
+    }
+  }
+}
 </script>

@@ -39,34 +39,34 @@
 
 <script>
 export default {
-  data() {
+  data () {
     return {
       currentPage: 1,
       news: [
         {
           title: 'New Feature: Demographics Upload',
-          subject: 'No more manual data entry - now you can upload your participant demographics from a .csv file directly into your Databrary spreadsheet. This feature will be expanded in the near future to permit more flexibility, but for now, be sure to follow the directions on the Participant tab.',
+          subject: 'No more manual data entry - now you can upload your participant demographics from a .csv file directly into your Databrary spreadsheet. This feature will be expanded in the near future to permit more flexibility, but for now, be sure to follow the directions on the Participant tab.'
         },
         {
           title: 'ISSBD 2018 in Gold Coast, Australia',
-          subject: 'Databrary was pleased to bring our data sharing and coding services Down Under in July, 2018.',
+          subject: 'Databrary was pleased to bring our data sharing and coding services Down Under in July, 2018.'
         },
         {
           title: 'XXI ICIS 2018 Philadelphia Invited Program',
-          subject: '<p>Most of the invited program from the XXI International Congress on Infant Studies, held in Philadelphia, PA from June 30-July 3, 2018 is now publicly available on Databrary.</p><p>You may stream or download the talks from the <a href="https://nyu.databrary.org/volume/709">XXI ICIS 2018 Philadelphia Invited Program</a> volume. </p>',
+          subject: '<p>Most of the invited program from the XXI International Congress on Infant Studies, held in Philadelphia, PA from June 30-July 3, 2018 is now publicly available on Databrary.</p><p>You may stream or download the talks from the <a href="https://nyu.databrary.org/volume/709">XXI ICIS 2018 Philadelphia Invited Program</a> volume. </p>'
         },
         {
           title: 'New Default Sharing Option: Volume Overview',
-          subject: 'More options for sharing are now available! You can now choose to share just an overview of your project, for example, if you\'re finishing up your data collection or if you want funders and reviewers to see what you\'re working on, but you aren\'t ready (or able ...',
+          subject: 'More options for sharing are now available! You can now choose to share just an overview of your project, for example, if you\'re finishing up your data collection or if you want funders and reviewers to see what you\'re working on, but you aren\'t ready (or able ...'
         },
         {
           title: 'Take the Databrary User Survey',
-          subject: '<p>We need to hear from you! Help us understand how your lab works so that we can improve our tools, service, and support. Tell us how you use Databrary and Datavyu, so that we can fix issues and add new features. The <a href="https://docs.google.com/forms/d/e/1FAIpQLSfVHhJRLshGDxm1ttlrM31CfvFkEOKJY1BPuvbo3bsMY7VJgw/viewform">Databrary User Survey</a> should take you less than ...</p>',
-        },
-      ],
-    };
-  },
-};
+          subject: '<p>We need to hear from you! Help us understand how your lab works so that we can improve our tools, service, and support. Tell us how you use Databrary and Datavyu, so that we can fix issues and add new features. The <a href="https://docs.google.com/forms/d/e/1FAIpQLSfVHhJRLshGDxm1ttlrM31CfvFkEOKJY1BPuvbo3bsMY7VJgw/viewform">Databrary User Survey</a> should take you less than ...</p>'
+        }
+      ]
+    }
+  }
+}
 </script>
 
 <style>

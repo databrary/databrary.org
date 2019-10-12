@@ -59,10 +59,10 @@
 
 <script>
 export default {
-  data() {
+  data () {
     return {
-      promptDialogPicture: false,
-    };
-  },
-};
+      promptDialogPicture: false
+    }
+  }
+}
 </script>

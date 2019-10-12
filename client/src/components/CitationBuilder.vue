@@ -63,7 +63,7 @@
 export default {
   name: 'CitationBuilder',
   props: ['doi', 'editMode'],
-  data() {
+  data () {
     return {
       editCitation: false,
       citation: '',
@@ -72,54 +72,54 @@ export default {
       title: '',
       date: '',
       journal: '',
-      tab: 'edit',
-    };
+      tab: 'edit'
+    }
   },
-  mounted() {
-    this.createCitation();
+  mounted () {
+    this.createCitation()
   },
   methods: {
-    lookupCitation() {
-      this.createCitation();
-      this.tab = 'edit';
+    lookupCitation () {
+      this.createCitation()
+      this.tab = 'edit'
     },
-    saveCitation() {
-      this.citation = `${this.family}, ${this.given} ${this.title} (${this.date}) ${this.journal}`;
+    saveCitation () {
+      this.citation = `${this.family}, ${this.given} ${this.title} (${this.date}) ${this.journal}`
     },
-    createCitation() {
-      const url = `https://api.crossref.org/works/${this.doi}`;
+    createCitation () {
+      const url = `https://api.crossref.org/works/${this.doi}`
       this.$axios.get(url)
         .then((response) => {
-          console.log(response);
-          const { message } = response.data;
-          this.family = message.author[0].family;
-          this.given = message.author[0].given;
+          console.log(response)
+          const { message } = response.data
+          this.family = message.author[0].family
+          this.given = message.author[0].given
           /* eslint prefer-destructuring: ["error", {VariableDeclarator: {object: true}}] */
-          this.title = message.title[0];
-          this.date = this.formatDate(new Date(message.deposited['date-time']));
-          this.journal = message.publisher;
+          this.title = message.title[0]
+          this.date = this.formatDate(new Date(message.deposited['date-time']))
+          this.journal = message.publisher
 
-          this.citation = `${this.family}, ${this.given} ${this.title} (${this.date}) ${this.journal}`;
+          this.citation = `${this.family}, ${this.given} ${this.title} (${this.date}) ${this.journal}`
         })
         .catch((error) => {
-          console.log(error);
-        });
+          console.log(error)
+        })
     },
-    formatDate(date) {
+    formatDate (date) {
       const monthNames = [
         'January', 'February', 'March',
         'April', 'May', 'June', 'July',
         'August', 'September', 'October',
-        'November', 'December',
-      ];
-      const day = date.getDate();
-      const monthIndex = date.getMonth();
-      const year = date.getFullYear();
+        'November', 'December'
+      ]
+      const day = date.getDate()
+      const monthIndex = date.getMonth()
+      const year = date.getFullYear()
 
-      return `${day} ${monthNames[monthIndex]} ${year}`;
-    },
-  },
-};
+      return `${day} ${monthNames[monthIndex]} ${year}`
+    }
+  }
+}
 </script>
 
 <style>

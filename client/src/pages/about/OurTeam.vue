@@ -52,7 +52,7 @@
 
 <script>
 export default {
-  data() {
+  data () {
     return {
       principalInvestigators: [
         {
@@ -64,13 +64,13 @@ export default {
           links: [
             {
               title: 'New York University',
-              url: 'http://www.nyu.edu/',
+              url: 'http://www.nyu.edu/'
             },
             {
               title: 'NYU Action Lab',
-              url: 'http://psych.nyu.edu/adolph',
-            },
-          ],
+              url: 'http://psych.nyu.edu/adolph'
+            }
+          ]
         },
         {
           name: 'Rick O. Gilmore',
@@ -81,9 +81,9 @@ export default {
           links: [
             {
               title: 'Penn State University',
-              url: 'http://personal.psu.edu/rog1',
-            },
-          ],
+              url: 'http://personal.psu.edu/rog1'
+            }
+          ]
         },
         {
           name: 'David Millman',
@@ -94,56 +94,56 @@ export default {
           links: [
             {
               title: 'New York University',
-              url: 'http://dlib.nyu.edu/dlts/',
-            },
-          ],
-        },
+              url: 'http://dlib.nyu.edu/dlts/'
+            }
+          ]
+        }
       ],
       staff: [
         {
           name: 'Ahmad Arshad',
-          role: 'Managing Director',
+          role: 'Managing Director'
         },
         {
           name: 'Dr. Joy Kennedy Lorenzo',
-          role: 'Scientific Support Specialist',
+          role: 'Scientific Support Specialist'
         },
         {
           name: 'Kanishka Azimi',
-          role: 'Back End Developer',
+          role: 'Back End Developer'
         },
         {
           name: 'Minyong Cho',
-          role: 'Front End Developer',
+          role: 'Front End Developer'
         },
         {
           name: 'Dr. Nezzar Reda',
-          role: 'Software Engineer',
+          role: 'Software Engineer'
         },
         {
           name: 'Shohan Hasan',
-          role: 'Datavyu Support Specialist',
+          role: 'Datavyu Support Specialist'
         },
         {
           name: 'Jesse Lingeman',
-          role: 'Application Developer',
+          role: 'Application Developer'
         },
         {
           name: 'Andrea Seisler',
-          role: 'Authorizations Specialist',
+          role: 'Authorizations Specialist'
         },
         {
           name: 'Dr. Florian Raudies',
-          role: 'Datavyu Developer',
+          role: 'Datavyu Developer'
         },
         {
           name: 'Dr. Kasey Soska',
-          role: 'Research Support Specialist',
-        },
-      ],
-    };
-  },
-};
+          role: 'Research Support Specialist'
+        }
+      ]
+    }
+  }
+}
 </script>
 
 <style>

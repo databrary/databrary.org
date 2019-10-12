@@ -2,32 +2,31 @@
 /* eslint-disable no-path-concat */
 /* eslint-disable func-names */
 // Configuration for your app
-function extendTypescriptToWebpack(cfg) {
+function extendTypescriptToWebpack (cfg) {
   // added the type-script supports
-  cfg.resolve.extensions.push('.ts');
+  cfg.resolve.extensions.push('.ts')
   cfg.module.rules.push({
     test: /\.ts$/,
     loader: 'ts-loader',
     options: {
       appendTsSuffixTo: [/\.vue$/],
-      configFile: './tsconfig.json',
-    },
-  });
+      configFile: './tsconfig.json'
+    }
+  })
 }
-
 
 module.exports = function (ctx) {
   return {
     // app boot file (/src/boot)
     // --> boot files are part of 'main.js'
-    boot: ["axios", "apollo"],
+    boot: ['axios', 'apollo'],
 
-    css: ["app.styl"],
+    css: ['app.styl'],
     cssAddon: true,
 
     extras: [
-      "roboto-font",
-      "material-icons" // optional, you are not bound to it
+      'roboto-font',
+      'material-icons' // optional, you are not bound to it
       // 'ionicons-v4',
       // 'mdi-v3',
       // 'fontawesome-v5',
@@ -35,88 +34,23 @@ module.exports = function (ctx) {
     ],
 
     framework: {
-      // all: true, // --- includes everything; for dev only!
-      cssAddon: true,
-      components: [
-        "QLayout",
-        "QHeader",
-        "QDrawer",
-        "QPageContainer",
-        "QPage",
-        "QToolbar",
-        "QToolbarTitle",
-        "QBtn",
-        "QIcon",
-        "QList",
-        "QItem",
-        "QItemSection",
-        "QItemLabel",
-        "QCarousel",
-        "QCarouselControl",
-        "QCarouselSlide",
-        "QBanner",
-        "QSeparator",
-        "QBtnDropdown",
-        "QSpace",
-        "QCard",
-        "QCardSection",
-        "QCardActions",
-        "QInput",
-        "QExpansionItem",
-        "QAvatar",
-        "QBadge",
-        "QList",
-        "QItem",
-        "QItemSection",
-        "QItemLabel",
-        "QTimeline",
-        "QTimelineEntry",
-        "QStepper",
-        "QStep",
-        "QStepperNavigation",
-        "QCheckbox",
-        "QTable",
-        "QTh",
-        "QTr",
-        "QTd",
-        "QBadge",
-        "QChatMessage",
-        "QSelect",
-        "QBtnToggle",
-        "QSlideItem",
-        "QSplitter",
-        "QTabPanel",
-        "QTabPanels",
-        "QTab",
-        "QTabs",
-        "QSelect",
-        "QFooter",
-        "QDialog",
-        "QUploader",
-        "QScrollArea",
-        "QMenu",
-        "QVideo",
-        "QPagination",
-        "QImg",
-        "QCarousel",
-        "QCarouselControl",
-        "QCarouselSlide",
-        "QMarkupTable",
-        "QList",
-        "QItem",
-        "QItemSection",
-        "QItemLabel",
-        "QTooltip",
-        "QTree"
-      ],
+      // iconSet: 'ionicons-v4', // Quasar icon set
+      // lang: 'de', // Quasar language pack
 
-      directives: ["Ripple", "ClosePopup"],
+      // Possible values for "all":
+      // * 'auto' - Auto-import needed Quasar components & directives
+      //            (slightly higher compile time; next to minimum bundle size; most convenient)
+      // * false  - Manually specify what to import
+      //            (fastest compile time; minimum bundle size; most tedious)
+      // * true   - Import everything from Quasar
+      //            (not treeshaking Quasar; biggest bundle size; convenient)
+      all: 'auto',
+      cssAddon: true,
+      components: [],
+      directives: ['Ripple', 'ClosePopup'],
 
       // Quasar plugins
-      plugins: ["Notify"]
-
-      // iconSet: 'ionicons-v4'
-      // lang: 'de' // Quasar language
+      plugins: ['Notify', 'LocalStorage']
     },
 
     supportIE: true,
@@ -124,19 +58,23 @@ module.exports = function (ctx) {
     build: {
       scopeHoisting: true,
       // vueRouterMode: 'history',
-      // vueCompiler: true,
+      // showProgress: false,
       // gzip: true,
       // analyze: true,
+      // preloadChunks: false,
       // extractCSS: false,
-      extendWebpack(cfg) {
-        extendTypescriptToWebpack(cfg);
+
+      // https://quasar.dev/quasar-cli/cli-documentation/handling-webpack
+      extendWebpack (cfg) {
         cfg.module.rules.push({
-          enforce: "pre",
+          enforce: 'pre',
           test: /\.(js|vue)$/,
-          loader: "eslint-loader",
-          exclude: /node_modules/
-        });
-        cfg.resolve.alias["vue"] = "vue/dist/vue.common";
+          loader: 'eslint-loader',
+          exclude: /node_modules/,
+          options: {
+            formatter: require('eslint').CLIEngine.getFormatter('stylish')
+          }
+        })
       }
     },
 
@@ -160,35 +98,35 @@ module.exports = function (ctx) {
         // name: 'Quasar App',
         // short_name: 'Quasar-PWA',
         // description: 'Best PWA App in town!',
-        display: "standalone",
-        orientation: "portrait",
-        background_color: "#ffffff",
-        theme_color: "#027be3",
+        display: 'standalone',
+        orientation: 'portrait',
+        background_color: '#ffffff',
+        theme_color: '#027be3',
         icons: [
           {
-            src: "statics/icons/icon-128x128.png",
-            sizes: "128x128",
-            type: "image/png"
+            src: 'statics/icons/icon-128x128.png',
+            sizes: '128x128',
+            type: 'image/png'
           },
           {
-            src: "statics/icons/icon-192x192.png",
-            sizes: "192x192",
-            type: "image/png"
+            src: 'statics/icons/icon-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
           },
           {
-            src: "statics/icons/icon-256x256.png",
-            sizes: "256x256",
-            type: "image/png"
+            src: 'statics/icons/icon-256x256.png',
+            sizes: '256x256',
+            type: 'image/png'
           },
           {
-            src: "statics/icons/icon-384x384.png",
-            sizes: "384x384",
-            type: "image/png"
+            src: 'statics/icons/icon-384x384.png',
+            sizes: '384x384',
+            type: 'image/png'
           },
           {
-            src: "statics/icons/icon-512x512.png",
-            sizes: "512x512",
-            type: "image/png"
+            src: 'statics/icons/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
           }
         ]
       }
@@ -202,7 +140,7 @@ module.exports = function (ctx) {
     electron: {
       // bundler: 'builder', // or 'packager'
 
-      extendWebpack(cfg) {
+      extendWebpack (cfg) {
         // do something with Electron main process Webpack cfg
         // chainWebpack also available besides this extendWebpack
       },
@@ -223,5 +161,5 @@ module.exports = function (ctx) {
         // appId: 'quasar-app'
       }
     }
-  };
+  }
 }

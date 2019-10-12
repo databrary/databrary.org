@@ -68,62 +68,37 @@
         </div>
       </section>
     </q-page>
-    <!-- Stats -->
-    <section
-      class="row q-mt-xl fit text-center"
-      style="background: rgb(44, 62, 81);"
-    >
-      <div class="col-md-3 col-sm-6 col-xs-6 group q-py-lg">
-        <h4 class="text-white no-margin">772</h4>
-        <h4 class="stats-header no-margin">investigators</h4>
-      </div>
-      <div class="col-md-3 col-sm-6 col-xs-6 group q-py-lg">
-        <h4 class="text-white no-margin">306</h4>
-        <h4 class="stats-header no-margin">affiliates</h4>
-      </div>
-      <div class="col-md-3 col-sm-6 col-xs-6 group q-py-lg">
-        <h4 class="text-white no-margin">406</h4>
-        <h4 class="stats-header no-margin">institutions</h4>
-      </div>
-      <div class="col-md-3 col-sm-6 col-xs-6 group q-py-lg">
-        <h4 class="text-white no-margin">33,372</h4>
-        <h4 class="stats-header no-margin">hours recorded</h4>
-      </div>
-    </section>
-    <!-- Map -->
-    <section class="row fit text-center">
-      <div class="col">
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d83998.91163207506!2d2.347059899999999!3d48.858858949999984!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sfr!4v1425301582595"
-          width="100%"
-          height="500"
-          frameborder="0"
-          style="border:0"
-        ></iframe>
-      </div>
-    </section>
+    <Stats />
+    <Map />
   </div>
 </template>
 <script>
+import Map from '../components/LandingPage/Map'
+import Stats from '../components/LandingPage/Stats'
+
 export default {
-  name: 'PageIndex',
-  data() {
+  name: 'LandingLoggedOut',
+  components: {
+    Map,
+    Stats
+  },
+  data () {
     return {
-      searchText: '',
-    };
+      searchText: ''
+    }
   },
   methods: {
     /**
      * Send user to search page with ?q=this.search
      */
-    search() {
-      const trimmedSearchText = this.searchText.replace(/\s/g, '');
+    search () {
+      const trimmedSearchText = this.searchText.replace(/\s/g, '')
       if (trimmedSearchText) {
-        this.$router.push({ path: 'search', query: { q: this.searchText } });
+        this.$router.push({ path: 'search', query: { q: this.searchText } })
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>
 
 <style scoped>

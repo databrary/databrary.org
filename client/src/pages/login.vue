@@ -55,15 +55,15 @@
 <script>
 export default {
   name: 'login',
-  data() {
+  data () {
     return {
       email: null,
       password: null,
       isPwd: true,
-      fogotPassword: false,
-    };
-  },
-};
+      fogotPassword: false
+    }
+  }
+}
 </script>
 
 <style scoped>

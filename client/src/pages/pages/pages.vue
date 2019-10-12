@@ -34,7 +34,7 @@
 <script>
 export default {
   name: 'Pages',
-  data() {
+  data () {
     return {
       pages: [
         {
@@ -139,20 +139,20 @@ export default {
                           </div>             
                       </div>
                       </div>
-                    </q-page>`,
-        },
-      ],
-    };
+                    </q-page>`
+        }
+      ]
+    }
   },
   methods: {
-    createPage() {
+    createPage () {
       this.$q.notify({
         message: 'New page created',
-        color: 'green',
-      });
-    },
-  },
-};
+        color: 'green'
+      })
+    }
+  }
+}
 </script>
 <style scoped>
 .shadow-box {

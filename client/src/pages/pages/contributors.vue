@@ -94,10 +94,10 @@
 </template>
 <script>
 const stringOptions = [
-  'Ryan Mason | ryan@221b.io', 'Jeff Spies | jeff@221b.io', 'Jenny Robertson | jenny@email.com',
-];
+  'Ryan Mason | ryan@221b.io', 'Jeff Spies | jeff@221b.io', 'Jenny Robertson | jenny@email.com'
+]
 export default {
-  data() {
+  data () {
     return {
       selected: [],
       columns: [
@@ -107,66 +107,66 @@ export default {
           label: 'Name',
           align: 'left',
           field: 'name',
-          sortable: true,
+          sortable: true
         },
         {
           name: 'permission',
           align: 'center',
           label: 'Permission',
           field: 'permission',
-          sortable: true,
-        },
+          sortable: true
+        }
       ],
       data: [
         {
           name: 'Fred Alex',
           permission: 'Read & Write',
-          icon: 'https://cdn.quasar.dev/img/avatar1.jpg',
+          icon: 'https://cdn.quasar.dev/img/avatar1.jpg'
         },
         {
           name: 'Sarah Perter',
           permission: 'Read',
-          icon: 'https://cdn.quasar.dev/img/avatar2.jpg',
+          icon: 'https://cdn.quasar.dev/img/avatar2.jpg'
         },
         {
           name: 'Jackie Blob',
           permission: 'Read & Write',
-          icon: 'https://cdn.quasar.dev/img/avatar3.jpg',
-        },
+          icon: 'https://cdn.quasar.dev/img/avatar3.jpg'
+        }
       ],
       model: null,
       options: stringOptions,
       actionOptions: ['Delete', 'Permissions'],
       actionOpt: 'Delete',
       childActionOptions: ['Read', 'Read & Write'],
-      childActionOpt: 'Read',
-    };
+      childActionOpt: 'Read'
+    }
   },
   methods: {
-    getSelectedString() {
-      return this.selected.length === 0 ? '' : `${this.selected.length} record${this.selected.length > 1 ? 's' : ''} selected of ${this.data.length}`;
+    getSelectedString () {
+      return this.selected.length === 0 ? '' : `${this.selected.length} record${this.selected.length > 1 ? 's' : ''} selected of ${this.data.length}`
     },
-    filterFn(val, update) {
+    filterFn (val, update) {
       if (val === '') {
         update(() => {
-          this.options = stringOptions;
-        });
-        return;
+          this.options = stringOptions
+        })
+        return
       }
 
       update(() => {
-        const needle = val.toLowerCase();
-        this.options = stringOptions.filter(v => v.toLowerCase().indexOf(needle) > -1);
-      });
+        const needle = val.toLowerCase()
+        this.options = stringOptions.filter(v => v.toLowerCase().indexOf(needle) > -1)
+      })
     },
-    addContributor() {
+    addContributor () {
       this.$q.notify({
         message: 'User Added',
-        color: 'green',
-      });
-    },
-  },
-};
+        color: 'green'
+      })
+    }
+  }
+}
 </script>
 
 <style scoped>

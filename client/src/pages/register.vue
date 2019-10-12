@@ -278,7 +278,7 @@
 <script>
 export default {
   name: 'register',
-  data() {
+  data () {
     return {
       step: 1,
       firstName: null,
@@ -287,8 +287,8 @@ export default {
       affiliation: null,
       agreeToDAA: false,
       password: null,
-      isPwd: true,
-    };
+      isPwd: true
+    }
   },
   methods: {
     /**
@@ -296,11 +296,11 @@ export default {
      * @param {Array} fields an array of fields to validate
      * */
     // TODO: finish
-    onSubmit() {
-      this.step = this.step + 1;
-    },
-  },
-};
+    onSubmit () {
+      this.step = this.step + 1
+    }
+  }
+}
 </script>
 <style scoped>
 .small-card {

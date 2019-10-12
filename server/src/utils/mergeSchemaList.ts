@@ -9,7 +9,8 @@ export async function mergeSchemaList (schemas: any) {
     if (_.isString(schema)) {
       const link = new HttpLink({
         uri: schema,
-        fetch
+        fetch,
+        headers: { 'x-hasura-admin-secret': 'mysecret' }
       })
       const urlSchema = await introspectSchema(link)
       const urlExecutableSchema = makeRemoteExecutableSchema({
