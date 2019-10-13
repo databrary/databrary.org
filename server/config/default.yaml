@@ -1,0 +1,9 @@
+hasuraPort: 8002
+appPort: 8000
+sessionSecret: session_secret
+keycloak:
+  port: 8001
+  realm: databrary.org
+  client:
+    id: client
+    secret: d527f007-35d8-4956-a904-6165460714d9

@@ -51,6 +51,12 @@
     "typescript": "^3.6.3"
   },
   "scripts": {
-    "docker-fresh": "docker system prune && docker volume prune"
+    "docker-fresh": "docker system prune && docker volume prune",
+    "hasura-init-migrations": "hasura init --directory hasura --endpoint http://localhost:8002",
+    "hasura-create-migration": "hasura migrate create \"init\" --from-server --admin-secret mysecret",
+    "hasura-migrate-status": "hasura migrate status",
+    "hasura-migrate-all": "hasura migrate apply --endpoint  http://localhost:8002",
+    "hasura-get-metadata": "curl -d'{\"type\": \"export_metadata\", \"args\": {}}' -H 'X-Hasura-Admin-Secret: mysecret' http://localhost:8002/v1/query -o hasura-metadata.json",
+    "hasura-load-metadata": "curl -d'{\"type\":\"replace_metadata\", \"args\":'$(cat hasura-metadata.json)'}' -H 'X-Hasura-Admin-Secret: mysecret' http://localhost:8002/v1/query"
   }
 }

@@ -8,3 +8,5 @@ dist
 NOTES.md
 server/config/*
 server/!config/default.*
+server/.env
+server/sessions
