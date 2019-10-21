@@ -14,10 +14,14 @@ function uuid () {
   return s.join('')
 }
 
-export function routes (app: any, passport: any) {
-  app.get('/auth/databrary', passport.authenticate('keycloak'))
+export function routes (app: any, passport: any, session: any) {
+
+  app.get('/auth/databrary',
+    passport.authenticate('keycloak')
+  )
 
   app.get('/auth/databrary/callback',
+    session,
     passport.authenticate('keycloak', { failureRedirect: '/login' }),
     async (req: express.Request, res: express.Response) => {
       // Try to get the user based on the auth_server_id
@@ -41,32 +45,41 @@ export function routes (app: any, passport: any) {
   )
 
   app.get('/session',
+    session,
     (req: express.Request, res: express.Response) => {
-      console.log(req.session)
-      res.json(req.session)
+      const data = req.session
+      data['sessionID'] = req.sessionID
+      res.json(data)
     }
   )
 
-  app.get('/login', (req: express.Request, res: express.Response) => {
-    const redirectUri = req.query && req.query.redirect ? req.query.redirect : 'http://localhost:8000'
-    const callbackUri = `http://localhost:8000/auth/databrary/callback`
-    const url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/auth?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
-    res.redirect(url)
-  })
-
-  app.get('/register', (req: express.Request, res: express.Response) => {
-    const callbackUri = `http://localhost:8000/auth/databrary/callback`
-    const url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/registrations?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
-    res.redirect(url)
-  })
-
-  app.get('/logout', (req: express.Request, res: express.Response) => {
-    const url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/logout?redirect_uri=http://localhost:8000`
-    req.session.destroy((err) => {
-      if (err) {
-        console.log('Error destroying session')
-      }
+  app.get('/login',
+    (req: express.Request, res: express.Response) => {
+      const redirectUri = req.query && req.query.redirect ? req.query.redirect : 'http://localhost:8000'
+      const callbackUri = `http://localhost:8000/auth/databrary/callback`
+      const url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/auth?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
       res.redirect(url)
-    })
-  })
+    }
+  )
+
+  app.get('/register',
+    (req: express.Request, res: express.Response) => {
+      const callbackUri = `http://localhost:8000/auth/databrary/callback`
+      const url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/registrations?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
+      res.redirect(url)
+    }
+  )
+
+  app.get('/logout',
+    session,
+    (req: express.Request, res: express.Response) => {
+      const url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/logout?redirect_uri=http://localhost:8000`
+      req.session.destroy((err) => {
+        if (err) {
+          console.log('Error destroying session')
+        }
+        res.redirect(url)
+      })
+    }
+  )
 }

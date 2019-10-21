@@ -3,29 +3,40 @@ import { InMemoryCache } from 'apollo-cache-inmemory'
 import VueApollo from 'vue-apollo'
 import fetch from 'node-fetch'
 import { createHttpLink } from 'apollo-link-http'
+// import { Cookies } from 'quasar'
 
-const httpLink = createHttpLink({ uri: 'http://localhost:8000/v1/graphql', fetch })
+// console.log(Cookies.getAll())
 
-// Create the apollo client
-const apolloClient = new ApolloClient({
-  link: httpLink,
-  cache: new InMemoryCache(),
-  connectToDevTools: true
-})
+export default async ({ app, store, Vue }) => {
+  await store.dispatch('auth/loadSession') // TODO move to separate boot? Router?
 
-export const apolloProvider = new VueApollo({
-  defaultClient: apolloClient,
-  errorHandler ({ graphQLErrors, networkError }) {
-    if (graphQLErrors) {
-      graphQLErrors.map(({ message, locations, path }) => console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`))
+  const httpLink = createHttpLink({
+    uri: 'http://localhost:8002/v1/graphql',
+    fetch,
+    headers: {
+      sessionID: store.getters['auth/sessionId']
     }
-    if (networkError) {
-      console.log(`[Network error]: ${networkError}`)
-    }
-  }
-})
+  })
 
-export default ({ app, Vue }) => {
+  // Create the apollo client
+  const apolloClient = new ApolloClient({
+    link: httpLink,
+    cache: new InMemoryCache(),
+    connectToDevTools: true
+  })
+
+  const apolloProvider = new VueApollo({
+    defaultClient: apolloClient,
+    errorHandler ({ graphQLErrors, networkError }) {
+      if (graphQLErrors) {
+        graphQLErrors.map(({ message, locations, path }) => console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`))
+      }
+      if (networkError) {
+        console.log(`[Network error]: ${networkError}`)
+      }
+    }
+  })
+
   Vue.use(VueApollo)
   app.apolloProvider = apolloProvider
 }

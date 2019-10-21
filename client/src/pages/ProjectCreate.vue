@@ -55,13 +55,18 @@ export default {
     async createProject () {
       // Call to the graphql mutation
       const result = await this.$apollo.mutate({
-        // Query
+        // Query q
         mutation: gql`mutation ($title: String!) {
-          insert_projects(
+          insert_assets(
             objects: { 
-              title: $title 
+              name: $title,
+              type_id: 1
             }
-          )
+          ) {
+            returning {
+              id
+            }
+          }
         }`,
         // Parameters
         variables: {

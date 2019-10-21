@@ -14,6 +14,7 @@ import { AppModule } from './modules'
 import { Strategy as KeycloakStrategy } from 'passport-keycloak-oauth2-oidc'
 
 import { routes as addAuthRoutes } from './routes/auth'
+import { routes as addHasuraRoutes } from './routes/hasura'
 import { routes as addHomeRoutes } from './routes/home'
 
 import config from 'config'
@@ -30,14 +31,15 @@ const app = express()
 app.use(cors())
 
 const FileStore = FileStoreSession(session)
+const sessionStore = new FileStore({})
 
-app.use(session({
+const sessionMiddleware = session({
   name: 'localhost',
   secret: 'mySecret',
   resave: false,
   saveUninitialized: true,
-  store: new FileStore({})
-}))
+  store: sessionStore
+})
 
 app.use(passport.initialize())
 app.use(passport.session())
@@ -51,18 +53,20 @@ passport.deserializeUser((id, done) => {
   done(null, id)
 })
 
-passport.use(new KeycloakStrategy({
-  clientID: keycloakClientId,
-  realm: keycloakRealm,
-  publicClient: 'false',
-  clientSecret: keycloakClientSecret,
-  sslRequired: 'none',
-  authServerURL: `http://localhost:${keycloakPort}/auth`,
-  callbackURL: `http://localhost:${appPort}/auth/databrary/callback`
-},
-function (accesseToken, refreshToken, profile, done) {
-  done(null, profile)
-}))
+passport.use(
+  new KeycloakStrategy({
+    clientID: keycloakClientId,
+    realm: keycloakRealm,
+    publicClient: 'false',
+    clientSecret: keycloakClientSecret,
+    sslRequired: 'none',
+    authServerURL: `http://localhost:${keycloakPort}/auth`,
+    callbackURL: `http://localhost:${appPort}/auth/databrary/callback`
+  },
+  function (accesseToken, refreshToken, profile, done) {
+    done(null, profile)
+  }
+))
 
 // addHomeRoutes(app, passport)
 
@@ -76,7 +80,7 @@ async function main () {
     // })
 
     const schema = await mergeSchemaList([
-      'http://localhost:8002/v1/graphql',
+      // 'http://localhost:8002/v1/graphql',
       {
         typeDefs: AppModule.typeDefs,
         resolvers: AppModule.resolvers
@@ -99,7 +103,8 @@ async function main () {
 
     server.applyMiddleware({ app, path: '/v1/graphql' })
 
-    addAuthRoutes(app, passport)
+    addAuthRoutes(app, passport, sessionMiddleware)
+    addHasuraRoutes(app, sessionStore)
     app.use('/', proxy('http://localhost:8080/'))
 
     app.listen({ port: appPort }, () =>

@@ -31,6 +31,7 @@
     "express-session": "^1.16.2",
     "fusionauth-node-client": "^1.6.0",
     "graphql": "^14.5.8",
+    "graphql-request": "^1.8.2",
     "http-proxy-middleware": "^0.20.0",
     "js-yaml": "^3.13.1",
     "keycloak-connect": "^7.0.0",
