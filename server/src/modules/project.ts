@@ -17,7 +17,7 @@ export const ProjectModule = new GraphQLModule({
     },
     Mutation: {
       createPost: async (parent, { title }) => {
-        const projects = await client.mutate({
+        const results = await client.mutate({
           mutation: gql`
             mutation {
               insert_projects( objects: { title: "${title}" }) {
@@ -28,7 +28,6 @@ export const ProjectModule = new GraphQLModule({
             }
           `
         })
-        return 'hi'
       }
     }
   }

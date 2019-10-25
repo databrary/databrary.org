@@ -6,8 +6,8 @@
 </template>
 
 <script>
-import LandingLoggedIn from './LandingLoggedIn.vue'
-import LandingLoggedOut from './LandingLoggedOut.vue'
+import LandingLoggedIn from './Landing/LandingLoggedIn.vue'
+import LandingLoggedOut from './Landing/LandingLoggedOut.vue'
 
 export default {
   name: 'LandingPage',

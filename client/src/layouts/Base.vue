@@ -19,7 +19,7 @@
             123 abc Street, Room 456 | some city, <br />NY 1234 567.789.1011
           </div> -->
           <div class="text-center text-subtitle1 col-12">
-            Copyright &copy;2019 Databrary
+            Copyright &copy;2014-{{year}} Databrary
           </div>
         </div>
       </div>
@@ -38,7 +38,8 @@ export default {
   },
   data () {
     return {
-      leftDrawerOpen: false // this.$q.platform.is.desktop,
+      leftDrawerOpen: false, // this.$q.platform.is.desktop,
+      year: null
     }
   },
   methods: {
@@ -46,6 +47,9 @@ export default {
     toggleDrawer () {
       this.leftDrawerOpen = !this.leftDrawerOpen
     }
+  },
+  created () {
+    this.year = (new Date()).getFullYear()
   }
 }
 </script>

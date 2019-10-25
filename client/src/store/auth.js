@@ -4,15 +4,13 @@ export default {
   namespaced: true,
   state: {
     isLoggedIn: null,
-    sessionId: null
+    sessionId: null,
+    userId: null
   },
   getters: {
-    isLoggedIn: state => {
-      return state.isLoggedIn
-    },
-    sessionId: state => {
-      return state.sessionId
-    }
+    isLoggedIn: state => state.isLoggedIn,
+    sessionId: state => state.sessionId,
+    userId: state => state.userId
   },
   mutations: {
     logIn: state => {
@@ -23,6 +21,9 @@ export default {
     },
     setSessionId: (state, id) => {
       state.sessionId = id
+    },
+    setUserId: (state, id) => {
+      state.userId = id
     }
   },
   actions: {
@@ -32,9 +33,12 @@ export default {
           const response = await axios({ url: 'http://localhost:8000/session', method: 'GET' })
           if (response.data.passport) {
             commit('logIn')
+            commit('setUserId', response.data.dbId)
             commit('setSessionId', response.data.sessionID)
           } else {
             commit('logOut')
+            commit('setUserId', null)
+            commit('setSessionId', null)
           }
         }
         resolve(true)

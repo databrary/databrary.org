@@ -54,7 +54,7 @@ export default {
 
     async createProject () {
       // Call to the graphql mutation
-      const result = await this.$apollo.mutate({
+      const results = await this.$apollo.mutate({
         // Query q
         mutation: gql`mutation ($title: String!) {
           insert_assets(
@@ -73,7 +73,11 @@ export default {
           title: this.title
         }
       })
-      console.log(result)
+
+      const project = results.data.insert_assets.returning[0]
+      this.$router.push({
+        path: `/project/${project.id}`
+      })
     }
   }
 }

@@ -6,7 +6,7 @@
       </q-toolbar-title>
       <q-btn v-on:click="toggleEditmode()" flat :label="editmodeLabel" />
       <!-- Get route ID  -->
-      <q-btn to="1/contributors" flat icon="person" label="Contributors" />
+      <q-btn :to="projectId + '/contributors'" flat icon="person" label="Contributors" />
     </q-toolbar>
     <div class="row">
       <div class="col-12 bg-grey-10">
@@ -16,7 +16,7 @@
           contain
         >
           <div class="absolute-bottom text-h5 text-center q-pa-xs">
-            Children's social and motor play on a playground
+            {{ projectName }}
           </div>
         </q-img>
       </div>
@@ -55,8 +55,8 @@
                 </q-item-section>
 
                 <q-item-section>
-                  <q-item-label>Added on</q-item-label>
-                  <q-item-label caption>March 2014</q-item-label>
+                  <q-item-label>Created on</q-item-label>
+                  <q-item-label caption>{{ datetimeCreated }}</q-item-label>
                 </q-item-section>
               </q-item>
 
@@ -276,7 +276,9 @@
   </div>
 </template>
 <script>
+import { date } from 'quasar'
 import citationBuilder from '../../components/CitationBuilder.vue'
+import gql from 'graphql-tag'
 
 export default {
   name: 'PageId',
@@ -284,6 +286,9 @@ export default {
     citationBuilder
   },
   data: () => ({
+    projectId: null,
+    projectName: null,
+    datetimeCreated: null,
     editMode: false,
     editmodeLabel: 'Edit',
     columns: [
@@ -435,13 +440,39 @@ export default {
       } else {
         this.editmodeLabel = 'Save'
       }
-    }
+    },
+    '$route': 'fetchData'
   },
-  mounted () {
-    console.log(this.$route)
-    this.generateCitation('http://doi.org/10.17910/B77P4V')
+  async created () {
+    // this.generateCitation('http://doi.org/10.17910/B77P4V')
+    this.projectId = this.$route.params.projectId
+    this.fetchData()
   },
   methods: {
+    async fetchData () {
+      const result = await this.$apollo.query({
+        query: gql`
+          query GetProject($projectId: Int!) {
+            assets(where: {
+              id: {_eq: $projectId},
+              type_id: {_eq: 1}
+            }) {
+              name
+              datetime_created
+            }
+          }
+        `,
+        variables: {
+          projectId: this.projectId
+        }
+      })
+      const project = result.data.assets[0]
+      this.projectName = project.name
+      this.datetimeCreated = date.formatDate(
+        project.datetime_created,
+        'YYYY-MM-DD'
+      )
+    },
     toggleEditmode () {
       this.editMode = !this.editMode
     },
