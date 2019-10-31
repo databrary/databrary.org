@@ -21,7 +21,7 @@ import '@quasar/extras/material-icons/material-icons.css'
 
 
 
-// We load Quasar stylus files
+// We load Quasar stylesheet file
 import 'quasar/dist/quasar.styl'
 
 
@@ -42,8 +42,6 @@ import createApp from './app.js'
 import qboot_Bootaxios from 'boot/axios'
 
 import qboot_Bootapollo from 'boot/apollo'
-
-
 
 
 

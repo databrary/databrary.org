@@ -31,7 +31,7 @@ export default {
       return new Promise(async (resolve, reject) => {
         if (getters.isLoggedIn === null) {
           const response = await axios({ url: 'http://localhost:8000/session', method: 'GET' })
-          if (response.data.passport) {
+          if (response.data.sessionID) {
             commit('logIn')
             commit('setUserId', response.data.dbId)
             commit('setSessionId', response.data.sessionID)

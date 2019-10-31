@@ -103,7 +103,7 @@ async function main () {
 
     server.applyMiddleware({ app, path: '/v1/graphql' })
 
-    addAuthRoutes(app, passport, sessionMiddleware)
+    addAuthRoutes(app, passport, sessionMiddleware, false)
     addHasuraRoutes(app, sessionStore)
     app.use('/', proxy('http://localhost:8080/'))
 

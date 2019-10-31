@@ -10,14 +10,8 @@
 
     <q-toolbar bordered class="databrary-footer max-page-width bg-white text-black">
       <div class="row full-width">
-        <div class="text-h6 col-12">
         <hr />
-          <!-- <div class="text-h6 col-12">
-            Databrary
-          </div>
-          <div class="text-subtitle1 col-12">
-            123 abc Street, Room 456 | some city, <br />NY 1234 567.789.1011
-          </div> -->
+        <div class="text-h6 col-12">
           <div class="text-center text-subtitle1 col-12">
             Copyright &copy;2014-{{year}} Databrary
           </div>

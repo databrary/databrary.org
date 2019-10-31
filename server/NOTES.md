@@ -67,3 +67,24 @@ export const ProjectModule = new GraphQLModule({
 
 
 https://moleculer.services/docs/0.13/index.html
+
+asset
+  6 my project
+users
+  1 jeff
+  2 jane
+groups
+  3 undergrads
+  4 grads
+groups_users
+  4 3 1
+  4 3 2
+asset_groups_permissions
+  1 6 3 read
+  1 6 
+asset_group_permissions
+  6 3 'read' new 6
+  6 3 'write' new 6
+
+
+

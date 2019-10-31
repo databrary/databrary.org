@@ -14,35 +14,62 @@ function uuid () {
   return s.join('')
 }
 
-export function routes (app: any, passport: any, session: any) {
+export function routes (app: any, passport: any, session: any, keycloak: boolean) {
 
   app.get('/auth/databrary',
     passport.authenticate('keycloak')
   )
 
-  app.get('/auth/databrary/callback',
-    session,
-    passport.authenticate('keycloak', { failureRedirect: '/login' }),
-    async (req: express.Request, res: express.Response) => {
-      // Try to get the user based on the auth_server_id
-      let user = await getUser(
-        req.session.passport.user.id
-      )
-      // If the user is null, register the user in the database
-      if (user === null) {
-        user = await registerUser(
-          req.session.passport.user.id,
-          req.session.passport.user.email
+  if (keycloak === false) {
+    app.get('/auth/databrary/callback',
+      session,
+      async (req: express.Request, res: express.Response) => {
+        const email = 'test@example.com'
+        const authServerId = 'xyz'
+        const displayFullName = 'Jeff Spies'
+
+        let user = await getUser(
+          authServerId
         )
+        // If the user is null, register the user in the database
+        if (user === null) {
+          user = await registerUser(
+            authServerId,
+            email
+          )
+        }
+        req.session.dbId = user.id
+        req.session.authServerId = user.auth_server_id
+        req.session.emailPrimary = user.email_primary
+        req.session.displayFullName = displayFullName
+        res.redirect('http://localhost:8000/')
       }
-      // Set session information based upon the user or registered user
-      req.session.dbId = user.id
-      req.session.authServerId = user.auth_server_id
-      req.session.emailPrimary = user.email_primary
-      req.session.displayFullName = user.display_full_name
-      res.redirect('http://localhost:8000/')
-    }
-  )
+    )
+  } else {
+    app.get('/auth/databrary/callback',
+      session,
+      passport.authenticate('keycloak', { failureRedirect: '/login' }),
+      async (req: express.Request, res: express.Response) => {
+      // Try to get the user based on the auth_server_id
+        let user = await getUser(
+          req.session.passport.user.id
+        )
+        // If the user is null, register the user in the database
+        if (user === null) {
+          user = await registerUser(
+            req.session.passport.user.id,
+            req.session.passport.user.email
+          )
+        }
+        // Set session information based upon the user or registered user
+        req.session.dbId = user.id
+        req.session.authServerId = user.auth_server_id
+        req.session.emailPrimary = user.email_primary
+        req.session.displayFullName = user.display_full_name
+        res.redirect('http://localhost:8000/')
+      }
+    )
+  }
 
   app.get('/session',
     session,
@@ -57,7 +84,13 @@ export function routes (app: any, passport: any, session: any) {
     (req: express.Request, res: express.Response) => {
       const redirectUri = req.query && req.query.redirect ? req.query.redirect : 'http://localhost:8000'
       const callbackUri = `http://localhost:8000/auth/databrary/callback`
-      const url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/auth?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
+      let url = null
+      console.log(keycloak)
+      if (keycloak === true ) {
+        url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/auth?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
+      } else {
+        url = 'http://localhost:8000/auth/databrary/callback'
+      }
       res.redirect(url)
     }
   )
@@ -73,7 +106,12 @@ export function routes (app: any, passport: any, session: any) {
   app.get('/logout',
     session,
     (req: express.Request, res: express.Response) => {
-      const url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/logout?redirect_uri=http://localhost:8000`
+      let url = null
+      if (keycloak) {
+        url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/logout?redirect_uri=http://localhost:8000`
+      } else {
+        url = 'http://localhost:8000'
+      }
       req.session.destroy((err) => {
         if (err) {
           console.log('Error destroying session')
