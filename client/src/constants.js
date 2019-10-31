@@ -1,6 +1,8 @@
 export default {
   asset: {
-    project: 1
+    project: 1,
+    file: 2,
+    folder: 3
   },
   group: {
     enclave: 1,
