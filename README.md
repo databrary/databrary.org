@@ -24,10 +24,12 @@ Make sure you have Docker, docker-compose, and yarn installed. Links/instruction
 ### Client
     cd client && yarn run dev
 
+Close localhost:8080
+
 ### App Server
     cd server && ts-node-dev src/index.ts
 
-## Locations
+## Browse to
 
 http://localhost:8000
 http://localhost:8002
