@@ -15,14 +15,15 @@ import { Strategy as KeycloakStrategy } from 'passport-keycloak-oauth2-oidc'
 
 import { routes as addAuthRoutes } from './routes/auth'
 import { routes as addHasuraRoutes } from './routes/hasura'
-import { routes as addHomeRoutes } from './routes/home'
 
-import config from 'config'
-const appPort: number = config.get('appPort')
-const keycloakPort: number = config.get('keycloak.port')
-const keycloakRealm: string = config.get('keycloak.realm')
-const keycloakClientId: string = config.get('keycloak.client.id')
-const keycloakClientSecret: string = config.get('keycloak.client.secret')
+import {
+  USE_KEYCLOAK,
+  APP_PORT,
+  KEYCLOAK_PORT,
+  KEYCLOAK_REALM,
+  KEYCLOAK_CLIENT_ID,
+  KEYCLOAK_CLIENT_SECRET
+} from './config'
 
 // const memoryStore = new session.MemoryStore()
 
@@ -55,20 +56,18 @@ passport.deserializeUser((id, done) => {
 
 passport.use(
   new KeycloakStrategy({
-    clientID: keycloakClientId,
-    realm: keycloakRealm,
+    clientID: KEYCLOAK_CLIENT_ID,
+    realm: KEYCLOAK_REALM,
     publicClient: 'false',
-    clientSecret: keycloakClientSecret,
+    clientSecret: KEYCLOAK_CLIENT_SECRET,
     sslRequired: 'none',
-    authServerURL: `http://localhost:${keycloakPort}/auth`,
-    callbackURL: `http://localhost:${appPort}/auth/databrary/callback`
+    authServerURL: `http://localhost:${KEYCLOAK_PORT}/auth`,
+    callbackURL: `http://localhost:${APP_PORT}/auth/databrary/callback`
   },
   function (accesseToken, refreshToken, profile, done) {
     done(null, profile)
   }
 ))
-
-// addHomeRoutes(app, passport)
 
 async function main () {
   try {
@@ -103,12 +102,12 @@ async function main () {
 
     server.applyMiddleware({ app, path: '/v1/graphql' })
 
-    addAuthRoutes(app, passport, sessionMiddleware, false)
+    addAuthRoutes(app, passport, sessionMiddleware, USE_KEYCLOAK)
     addHasuraRoutes(app, sessionStore)
     app.use('/', proxy('http://localhost:8080/'))
 
-    app.listen({ port: appPort }, () =>
-      console.log(`Server ready at http://localhost:${appPort}/`)
+    app.listen({ port: APP_PORT }, () =>
+      console.log(`Server ready at http://localhost:${APP_PORT}/`)
     )
   } catch (err) {
     console.log(err)

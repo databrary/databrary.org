@@ -1,6 +1,7 @@
 import express from 'express'
 import getUser from '../units/getUser'
 import registerUser from '../units/registerUser'
+import { DUMMY_USER_EMAIL, DUMMY_USER_AUTH_SERVER_ID, DUMMY_USER_FULL_NAME } from '../config'
 
 function uuid () {
   let s = []
@@ -24,24 +25,20 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
     app.get('/auth/databrary/callback',
       session,
       async (req: express.Request, res: express.Response) => {
-        const email = 'test@example.com'
-        const authServerId = 'xyz'
-        const displayFullName = 'Jeff Spies'
-
         let user = await getUser(
-          authServerId
+          DUMMY_USER_AUTH_SERVER_ID
         )
         // If the user is null, register the user in the database
         if (user === null) {
           user = await registerUser(
-            authServerId,
-            email
+            DUMMY_USER_AUTH_SERVER_ID,
+            DUMMY_USER_EMAIL
           )
         }
         req.session.dbId = user.id
         req.session.authServerId = user.auth_server_id
         req.session.emailPrimary = user.email_primary
-        req.session.displayFullName = displayFullName
+        req.session.displayFullName = DUMMY_USER_FULL_NAME
         res.redirect('http://localhost:8000/')
       }
     )
@@ -86,7 +83,7 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
       const callbackUri = `http://localhost:8000/auth/databrary/callback`
       let url = null
       console.log(keycloak)
-      if (keycloak === true ) {
+      if (keycloak === true) {
         url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/auth?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
       } else {
         url = 'http://localhost:8000/auth/databrary/callback'
