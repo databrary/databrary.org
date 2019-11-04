@@ -5,8 +5,9 @@ I know there are credentials in this repo. They will all be hidden as soon as th
 Make sure you have Docker, docker-compose, and yarn installed. Links/instructions coming soon.
 
 ## Install command line tools necessary for development
-    npm install -g @quasar/cli
+    npm install -g typescript
     npm install -g ts-node-dev
+    npm install -g @quasar/cli
     curl -L https://github.com/hasura/graphql-engine/raw/master/cli/get.sh | bash
 
 ## Install packages
@@ -24,7 +25,7 @@ Make sure you have Docker, docker-compose, and yarn installed. Links/instruction
 ### Client
     cd client && yarn run dev
 
-Close localhost:8080
+Close localhost:8080--we proxy 8080 to 8000.
 
 ### App Server
     cd server && ts-node-dev src/index.ts

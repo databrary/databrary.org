@@ -16,45 +16,13 @@
           update: null
       delete_permissions: []
       event_triggers: []
-      insert_permissions: []
-      is_enum: false
-      object_relationships:
-      - comment: null
-        name: group
-        using:
-          foreign_key_constraint_on: group_id
-      - comment: null
-        name: permission
-        using:
-          foreign_key_constraint_on: permission_id
-      select_permissions: []
-      table: groups_permissions
-      update_permissions: []
-    - array_relationships:
-      - comment: null
-        name: groups
-        using:
-          foreign_key_constraint_on:
-            column: asset_id
-            table: assets_groups
-      configuration:
-        custom_column_names: {}
-        custom_root_fields:
-          delete: null
-          insert: null
-          select: null
-          select_aggregate: null
-          select_by_pk: null
-          update: null
-      delete_permissions: []
-      event_triggers: []
       insert_permissions:
       - comment: null
         permission:
           check: {}
           columns:
-          - id
           - name
+          - permissionset_id
           - type_id
           set:
             created_by_id: x-hasura-User-Id
@@ -69,6 +37,10 @@
         name: created_by
         using:
           foreign_key_constraint_on: created_by_id
+      - comment: null
+        name: permissionset
+        using:
+          foreign_key_constraint_on: permissionset_id
       select_permissions:
       - comment: null
         permission:
@@ -78,26 +50,34 @@
           - datetime_created
           - id
           - name
+          - privacy_type_id
           - type_id
           computed_fields: []
-          filter: {}
+          filter:
+            privacy_type_id:
+              _eq: 2
         role: anonymous_user
       - comment: null
         permission:
           allow_aggregations: false
           columns:
           - created_by_id
-          - datetime_created
           - id
-          - name
+          - permissionset_id
           - type_id
+          - name
+          - datetime_created
           computed_fields: []
           filter:
-            groups:
-              group:
-                users:
-                  user_id:
-                    _eq: X-Hasura-User-Id
+            _or:
+            - privacy_type_id:
+                _eq: 2
+            - permissionset:
+                permissions:
+                  group:
+                    users:
+                      user_id:
+                        _eq: X-Hasura-User-Id
         role: user
       table: assets
       update_permissions: []
@@ -117,15 +97,6 @@
       is_enum: false
       object_relationships: []
       select_permissions:
-      - comment: null
-        permission:
-          allow_aggregations: false
-          columns:
-          - id
-          - name
-          computed_fields: []
-          filter: {}
-        role: anonymous_user
       - comment: null
         permission:
           allow_aggregations: false
@@ -167,15 +138,6 @@
           - name
           computed_fields: []
           filter: {}
-        role: anonymous_user
-      - comment: null
-        permission:
-          allow_aggregations: false
-          columns:
-          - id
-          - name
-          computed_fields: []
-          filter: {}
         role: user
       table: asset_types
       update_permissions: []
@@ -192,6 +154,12 @@
           foreign_key_constraint_on:
             column: created_by_id
             table: assets
+      - comment: null
+        name: group_admins
+        using:
+          foreign_key_constraint_on:
+            column: user_id
+            table: groups_admins
       configuration:
         custom_column_names: {}
         custom_root_fields:
@@ -211,22 +179,12 @@
         permission:
           allow_aggregations: false
           columns:
+          - datetime_registered
           - display_full_name
           - id
-          - datetime_registered
           computed_fields: []
           filter: {}
         role: user
-      - comment: null
-        permission:
-          allow_aggregations: false
-          columns:
-          - display_full_name
-          - id
-          - datetime_registered
-          computed_fields: []
-          filter: {}
-        role: anonymous_user
       table: users
       update_permissions: []
     - array_relationships: []
@@ -241,31 +199,49 @@
           update: null
       delete_permissions: []
       event_triggers: []
-      insert_permissions: []
+      insert_permissions:
+      - comment: null
+        permission:
+          check:
+            _or:
+            - group:
+                created_by_id:
+                  _eq: X-Hasura-User-Id
+            - group:
+                admins:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+          columns:
+          - group_id
+          - user_id
+          set: {}
+        role: user
       is_enum: false
-      object_relationships: []
+      object_relationships:
+      - comment: null
+        name: group
+        using:
+          foreign_key_constraint_on: group_id
+      - comment: null
+        name: user
+        using:
+          foreign_key_constraint_on: user_id
       select_permissions:
       - comment: null
         permission:
           allow_aggregations: false
           columns:
           - id
-          - datetime_registered
-          - display_full_name
+          - group_id
+          - user_id
           computed_fields: []
-          filter: {}
+          filter:
+            group:
+              users:
+                user_id:
+                  _eq: X-Hasura-User-Id
         role: user
-      - comment: null
-        permission:
-          allow_aggregations: false
-          columns:
-          - id
-          - display_full_name
-          - datetime_registered
-          computed_fields: []
-          filter: {}
-        role: anonymous_user
-      table: contributors
+      table: groups_admins
       update_permissions: []
     - array_relationships:
       - comment: null
@@ -275,11 +251,17 @@
             column: group_id
             table: groups_users
       - comment: null
-        name: assets
+        name: permissions
         using:
           foreign_key_constraint_on:
             column: group_id
-            table: assets_groups
+            table: permissions
+      - comment: null
+        name: admins
+        using:
+          foreign_key_constraint_on:
+            column: group_id
+            table: groups_admins
       configuration:
         custom_column_names: {}
         custom_root_fields:
@@ -296,10 +278,9 @@
         permission:
           check: {}
           columns:
-          - id
           - name
-          - type_id
-          set: {}
+          set:
+            created_by_id: x-hasura-User-Id
         role: user
       is_enum: false
       object_relationships:
@@ -311,23 +292,13 @@
       - comment: null
         permission:
           allow_aggregations: false
-          columns:
-          - id
-          - type_id
-          - name
+          columns: []
           computed_fields: []
-          filter: {}
+          filter:
+            users:
+              user_id:
+                _eq: X-Hasura-User-Id
         role: user
-      - comment: null
-        permission:
-          allow_aggregations: false
-          columns:
-          - id
-          - type_id
-          - name
-          computed_fields: []
-          filter: {}
-        role: anonymous_user
       table: groups
       update_permissions: []
     - array_relationships: []
@@ -362,8 +333,60 @@
         name: user
         using:
           foreign_key_constraint_on: user_id
-      select_permissions: []
+      select_permissions:
+      - comment: null
+        permission:
+          allow_aggregations: false
+          columns:
+          - id
+          - group_id
+          - user_id
+          computed_fields: []
+          filter:
+            group:
+              users:
+                user_id:
+                  _eq: X-Hasura-User-Id
+        role: user
       table: groups_users
+      update_permissions: []
+    - array_relationships:
+      - comment: null
+        name: permissions
+        using:
+          foreign_key_constraint_on:
+            column: permissionset_id
+            table: permissions
+      - comment: null
+        name: assets
+        using:
+          foreign_key_constraint_on:
+            column: permissionset_id
+            table: assets
+      configuration:
+        custom_column_names: {}
+        custom_root_fields:
+          delete: null
+          insert: null
+          select: null
+          select_aggregate: null
+          select_by_pk: null
+          update: null
+      delete_permissions: []
+      event_triggers: []
+      insert_permissions: []
+      is_enum: false
+      object_relationships: []
+      select_permissions:
+      - comment: null
+        permission:
+          allow_aggregations: false
+          columns:
+          - id
+          computed_fields: []
+          filter: {}
+        role: user
+      table: permissionsets
       update_permissions: []
     - array_relationships: []
       configuration:
@@ -390,6 +413,24 @@
           computed_fields: []
           filter: {}
         role: user
+      table: privacy_types
+      update_permissions: []
+    - array_relationships: []
+      configuration:
+        custom_column_names: {}
+        custom_root_fields:
+          delete: null
+          insert: null
+          select: null
+          select_aggregate: null
+          select_by_pk: null
+          update: null
+      delete_permissions: []
+      event_triggers: []
+      insert_permissions: []
+      is_enum: false
+      object_relationships: []
+      select_permissions:
       - comment: null
         permission:
           allow_aggregations: false
@@ -398,7 +439,7 @@
           - name
           computed_fields: []
           filter: {}
-        role: anonymous_user
+        role: user
       table: permission_types
       update_permissions: []
     - array_relationships: []
@@ -413,36 +454,37 @@
           update: null
       delete_permissions: []
       event_triggers: []
-      insert_permissions:
-      - comment: null
-        permission:
-          check:
-            asset:
-              _or:
-              - created_by_id:
-                  _eq: X-Hasura-User-Id
-              - groups:
-                  group:
-                    users:
-                      user_id:
-                        _eq: X-Hasura-User-Id
-          columns:
-          - id
-          - asset_id
-          - group_id
-          set: {}
-        role: user
+      insert_permissions: []
       is_enum: false
       object_relationships:
       - comment: null
-        name: asset
+        name: permissionset
         using:
-          foreign_key_constraint_on: asset_id
+          foreign_key_constraint_on: permissionset_id
       - comment: null
         name: group
         using:
           foreign_key_constraint_on: group_id
-      select_permissions: []
-      table: assets_groups
+      - comment: null
+        name: permission
+        using:
+          foreign_key_constraint_on: permission_id
+      select_permissions:
+      - comment: null
+        permission:
+          allow_aggregations: false
+          columns:
+          - id
+          - group_id
+          - permission_id
+          - permissionset_id
+          computed_fields: []
+          filter:
+            group:
+              users:
+                user_id:
+                  _eq: X-Hasura-User-Id
+        role: user
+      table: permissions
       update_permissions: []
   type: replace_metadata

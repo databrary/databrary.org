@@ -6,13 +6,16 @@ export default {
   },
   group: {
     enclave: 1,
-    individual: 2,
-    generated: 3,
-    named: 4
+    generated: 2,
+    named: 3
   },
   permission: {
     read: 1,
     write: 2,
     admin: 3
+  },
+  privacy: {
+    private: 1,
+    public: 2
   }
 }
