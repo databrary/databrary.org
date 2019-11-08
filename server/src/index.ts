@@ -15,6 +15,7 @@ import { Strategy as KeycloakStrategy } from 'passport-keycloak-oauth2-oidc'
 
 import { routes as addAuthRoutes } from './routes/auth'
 import { routes as addHasuraRoutes } from './routes/hasura'
+import { routes as addUploadRoutes } from './routes/upload'
 
 import {
   USE_KEYCLOAK,
@@ -104,6 +105,7 @@ async function main () {
 
     addAuthRoutes(app, passport, sessionMiddleware, USE_KEYCLOAK)
     addHasuraRoutes(app, sessionStore)
+    addUploadRoutes(app, sessionStore)
     app.use('/', proxy('http://localhost:8080/'))
 
     app.listen({ port: APP_PORT }, () =>

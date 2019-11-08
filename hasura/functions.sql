@@ -1,3 +1,6 @@
+-- ###########################################################################
+-- Preferred over now() in default value assignment
+
 CREATE OR REPLACE FUNCTION utcnow()
 RETURNS TIMESTAMP
 AS $$

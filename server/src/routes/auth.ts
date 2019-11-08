@@ -82,7 +82,6 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
       const redirectUri = req.query && req.query.redirect ? req.query.redirect : 'http://localhost:8000'
       const callbackUri = `http://localhost:8000/auth/databrary/callback`
       let url = null
-      console.log(keycloak)
       if (keycloak === true) {
         url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/auth?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
       } else {
