@@ -9,6 +9,7 @@ export const APP_PORT: number = env.APP_PORT
 export const HASURA_PORT: number = env.HASURA_PORT
 
 export const SESSION_SECRET: number = env.SESSION_SECRET
+export const PGBOSS_DATABASE: string = env.PGBOSS_DATABASE
 
 export const USE_KEYCLOAK: boolean = JSON.parse(env.USE_KEYCLOAK)
 

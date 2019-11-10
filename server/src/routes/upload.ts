@@ -37,21 +37,10 @@ export function routes (app: any, sessionStore: any) {
     }
   )
 
-  app.get('/webhooks/minio',
-    (req: express.Request, res: express.Response) => {
-      console.log('get', req.body)
-    }
-  )
-
   app.post('/webhooks/minio',
     (req: express.Request, res: express.Response) => {
-      console.log('post', req.body)
-    }
-  )
-
-  app.put('/webhooks/minio',
-    (req: express.Request, res: express.Response) => {
-      console.log('put', req.body)
+      console.log('post', JSON.stringify(req.body))
+      res.send('Done')
     }
   )
 }
