@@ -1,5 +1,8 @@
 import express from 'express'
 import { Client } from 'minio'
+import _ from 'lodash'
+
+import queue from '../queue'
 
 import {
   MINIO_ACCESS_KEY,
@@ -38,9 +41,13 @@ export function routes (app: any, sessionStore: any) {
   )
 
   app.post('/webhooks/minio',
-    (req: express.Request, res: express.Response) => {
-      console.log('post', JSON.stringify(req.body))
-      res.send('Done')
+    async (req: express.Request, res: express.Response) => {
+      if (!_.isEmpty(req.body)) {
+        const fileInfo = req.body.Records[0].s3.object
+        const id = await queue('processMinioUpload', fileInfo)
+        console.log(id)
+      }
+      res.send('done')
     }
   )
 }

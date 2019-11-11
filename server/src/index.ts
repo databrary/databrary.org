@@ -7,11 +7,11 @@ import FileStoreSession from 'session-file-store'
 // import proxy from 'http-proxy-middleware'
 import proxy from 'express-http-proxy'
 import passport from 'passport'
+import { Strategy as KeycloakStrategy } from 'passport-keycloak-oauth2-oidc'
 import { ApolloServer } from 'apollo-server-express'
+
 import { mergeSchemaList } from './utils/mergeSchemaList'
 import { AppModule } from './modules'
-
-import { Strategy as KeycloakStrategy } from 'passport-keycloak-oauth2-oidc'
 
 import { routes as addAuthRoutes } from './routes/auth'
 import { routes as addHasuraRoutes } from './routes/hasura'

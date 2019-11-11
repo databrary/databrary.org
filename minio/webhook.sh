@@ -13,6 +13,9 @@ mc admin config get minio > minioconfig.json
 mc admin config set minio < minioconfig.json
 mc admin service restart minio
 
+mc mb minio/uploads
+mc mb minio/cas
+
 mc event add minio/uploads arn:minio:sqs::1:webhook --event put
 
 mc event remove minio/uploads --force
