@@ -1,0 +1,31 @@
+- args:
+    table:
+      name: assets
+      schema: public
+    role: user
+    permission:
+      allow_upsert: true
+      check: {}
+      columns:
+      - asset_type
+      - id
+      - name
+      - permissionset_id
+      - privacy_type
+      set:
+        created_by_id: x-hasura-User-Id
+  type: create_insert_permission
+- args:
+    table:
+      name: groups
+      schema: public
+    role: user
+    permission:
+      allow_upsert: true
+      check: {}
+      columns:
+      - name
+      set:
+        created_by_id: x-hasura-User-Id
+        group_type: user
+  type: create_insert_permission

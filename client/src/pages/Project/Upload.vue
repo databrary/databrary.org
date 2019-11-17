@@ -36,13 +36,14 @@ export default {
               'content-type': 'application/json'
             },
             body: JSON.stringify({
-              filename: file.name,
+              filename: file.name, // uuid-userid-projectid-filename
               contentType: file.type
             })
           }).then((response) => {
+            console.log('response', response)
             return response.json()
           }).then((data) => {
-            console.log(data)
+            console.log('data', data)
             return {
               method: data.method,
               url: data.url,

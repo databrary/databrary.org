@@ -1,0 +1,6 @@
+- args:
+    sql: DROP TABLE "public"."assets"
+  type: run_sql
+- args:
+    sql: DROP FUNCTION public.utcnow
+  type: run_sql

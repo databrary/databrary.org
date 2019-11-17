@@ -26,6 +26,7 @@
 
 <script>
 import gql from 'graphql-tag'
+import { createProject as mutation } from '../graphql/createProject'
 
 export default {
   data () {
@@ -56,22 +57,7 @@ export default {
       // Call to the graphql mutation
       const results = await this.$apollo.mutate({
         // Query q
-        mutation: gql`mutation ($title: String!) {
-          insert_assets(
-            objects: { 
-              name: $title,
-              type_id: 1
-            }
-          ) {
-            returning {
-              id
-            }
-          }
-        }`,
-        // Parameters
-        variables: {
-          title: this.title
-        }
+        mutation: mutation(this.name)
       })
 
       const project = results.data.insert_assets.returning[0]
