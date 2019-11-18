@@ -1,11 +1,7 @@
 import PgBoss from 'pg-boss'
 
-import {
-  POSTGRES_USER,
-  POSTGRES_PASSWORD,
-  PGBOSS_DATABASE
-} from '../config'
+import '../config'
 
-const boss = new PgBoss(`postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost/${PGBOSS_DATABASE}`)
+const boss = new PgBoss(`postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@localhost/${process.env.PGBOSS_DATABASE}`)
 
 export default boss

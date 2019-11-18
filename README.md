@@ -28,7 +28,7 @@ Make sure you have Docker, docker-compose, and yarn installed. Links/instruction
 Close localhost:8080--we proxy 8080 to 8000.
 
 ### App Server
-    cd server && ts-node-dev src/index.ts
+    cd server && yarn run dev
 
 ## Browse to
 
