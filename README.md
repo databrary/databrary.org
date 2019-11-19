@@ -4,15 +4,8 @@ I know there are credentials in this repo. They will all be hidden as soon as th
 
 Make sure you have Docker, docker-compose, and yarn installed. Links/instructions coming soon.
 
-## Install command line tools necessary for development
-    npm install -g typescript
-    npm install -g ts-node-dev
-    npm install -g @quasar/cli
-    curl -L https://github.com/hasura/graphql-engine/raw/master/cli/get.sh | bash
-
-## Install packages
-    cd server && yarn && cd ..
-    cd client && yarn && cd ..
+## Install command line tools and dependencies necessary for development
+    make install
 
 ## Start docker containers in one terminal where you can see the logs
     docker-compose up
@@ -20,17 +13,17 @@ Make sure you have Docker, docker-compose, and yarn installed. Links/instruction
 ## Setup Hasura
     cd hasura && hasura migrate apply --endpoint  http://localhost:8002  --admin-secret mysecret && cd ..
 
-## Run the app server and client in two terminals
+# Dev env
 
-### Client
-    cd client && yarn run dev
+I open 4 tabs and run the following commands
 
-Close localhost:8080--we proxy 8080 to 8000.
+    make server
+    make client
+    make cleardb
+    make migrate
 
-### App Server
-    cd server && yarn run dev
+## UIs
 
-## Browse to
-
-http://localhost:8000
-http://localhost:8002
+Databrary: http://localhost:8000
+Hasura: http://localhost:8002
+Minio: http://localhost:9000

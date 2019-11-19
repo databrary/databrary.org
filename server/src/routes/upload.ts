@@ -19,11 +19,11 @@ export function routes (app: any, sessionStore: any) {
     (req: express.Request, res: express.Response) => {
       s3Client.presignedPutObject(
         '2019',
-        req.body.filename,
+        `${req.session.dbId}-${req.body.filename}`,
         1000,
         function (e, presignedUrl) {
           if (e) return console.log(e)
-          console.log(presignedUrl)
+          console.log(req.session)
           res.json({
             url: presignedUrl,
             method: 'put',

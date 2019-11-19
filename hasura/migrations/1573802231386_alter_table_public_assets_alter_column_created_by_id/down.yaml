@@ -1,0 +1,9 @@
+- args:
+    sql: ALTER TABLE "public"."assets" ALTER COLUMN "created_by_id" TYPE integer;
+  type: run_sql
+- args:
+    sql: ALTER TABLE "public"."assets" ALTER COLUMN "created_by_id" SET NOT NULL;
+  type: run_sql
+- args:
+    sql: COMMENT ON COLUMN "public"."assets"."created_by_id" IS E'null'
+  type: run_sql

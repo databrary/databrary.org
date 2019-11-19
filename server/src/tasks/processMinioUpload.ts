@@ -18,6 +18,7 @@ const minioClient = new Client({
 export default async function hashFile (input: object) {
   const hashSha256 = crypto.createHash('sha256')
   const hashMd5 = crypto.createHash('md5')
+  const hashSha1 = crypto.createHash('sha1') // todo check this
   let size = 0
   minioClient.getObject('uploads', input['key'], function (err, dataStream) {
     if (err) {
@@ -38,6 +39,7 @@ export default async function hashFile (input: object) {
         console.log('Size mismatch')
       }
 
+      // Move original /upload/file to /cas/sha256(file)
       minioClient.copyObject('cas', sha256Digest, `/uploads/${input['key']}`, conds, function (e, data) {
         if (e) {
           return console.log(e)

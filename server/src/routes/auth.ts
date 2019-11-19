@@ -28,12 +28,14 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
         let user = await getUser(
           process.env.DUMMY_USER_AUTH_SERVER_ID
         )
+        console.log('user', user)
         // If the user is null, register the user in the database
         if (user === null) {
           user = await registerUser(
             process.env.DUMMY_USER_AUTH_SERVER_ID,
             process.env.DUMMY_USER_EMAIL
           )
+          console.log('register user', user)
         }
         req.session.dbId = user.id
         req.session.authServerId = user.auth_server_id

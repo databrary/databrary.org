@@ -1,8 +1,0 @@
-"webhook": {
-  "1": {
-    "enable": true,
-    "endpoint": "http://localhost:3000/",
-    "queueDir": "",
-    "queueLimit": 0
-  }
-}

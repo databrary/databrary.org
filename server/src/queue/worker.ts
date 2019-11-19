@@ -4,7 +4,7 @@ async function runUnit (params) {
   const input = params.data
   const unitName = input.unit
   delete input['unit']
-  const pkg = await import(`../units/${unitName}`)
+  const pkg = await import(`../tasks/${unitName}`)
   const unit = pkg.default
   try {
     const result = await unit(input)

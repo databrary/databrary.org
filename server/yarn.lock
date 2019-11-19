@@ -371,6 +371,13 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
   integrity sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
 
+"@types/minio@^7.0.3":
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/@types/minio/-/minio-7.0.3.tgz#da9f8015a229c976d89b2edd332d70028ce7cdf8"
+  integrity sha512-UBDtfaN2fsl86JFewFSZKPxxruAN7n9+VdBxw6nRblzdf+4DFpQUcry4vERjMuVRuyKoOFqaDUlRY0AmSd6utw==
+  dependencies:
+    "@types/node" "*"
+
 "@types/node@*", "@types/node@>=6":
   version "12.7.11"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.7.11.tgz#be879b52031cfb5d295b047f5462d8ef1a716446"

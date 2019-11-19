@@ -6,7 +6,7 @@ mc admin config get minio > minioconfig.json
         "enable": true,
         "endpoint": "http://host.docker.internal:8000/webhooks/minio",
         "queueDir": "/events",
-        "queueLimit": 10
+        "queueLimit": 10000
       }
     }
 
