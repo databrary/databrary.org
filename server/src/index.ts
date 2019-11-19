@@ -1,4 +1,5 @@
 import * as _ from 'lodash'
+import './config'
 import express from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
@@ -16,15 +17,6 @@ import { AppModule } from './modules'
 import { routes as addAuthRoutes } from './routes/auth'
 import { routes as addHasuraRoutes } from './routes/hasura'
 import { routes as addUploadRoutes } from './routes/upload'
-
-import {
-  USE_KEYCLOAK,
-  APP_PORT,
-  KEYCLOAK_PORT,
-  KEYCLOAK_REALM,
-  KEYCLOAK_CLIENT_ID,
-  KEYCLOAK_CLIENT_SECRET
-} from './config'
 
 // const memoryStore = new session.MemoryStore()
 
@@ -57,13 +49,13 @@ passport.deserializeUser((id, done) => {
 
 passport.use(
   new KeycloakStrategy({
-    clientID: KEYCLOAK_CLIENT_ID,
-    realm: KEYCLOAK_REALM,
+    clientID: process.env.KEYCLOAK_CLIENT_ID,
+    realm: process.env.KEYCLOAK_REALM,
     publicClient: 'false',
-    clientSecret: KEYCLOAK_CLIENT_SECRET,
+    clientSecret: process.env.KEYCLOAK_CLIENT_SECRET,
     sslRequired: 'none',
-    authServerURL: `http://localhost:${KEYCLOAK_PORT}/auth`,
-    callbackURL: `http://localhost:${APP_PORT}/auth/databrary/callback`
+    authServerURL: process.env.AUTH_SERVER_URL,
+    callbackURL: process.env.AUTH_CALLBACK_URL
   },
   function (accesseToken, refreshToken, profile, done) {
     done(null, profile)
@@ -103,13 +95,13 @@ async function main () {
 
     server.applyMiddleware({ app, path: '/v1/graphql' })
 
-    addAuthRoutes(app, passport, sessionMiddleware, USE_KEYCLOAK)
+    addAuthRoutes(app, passport, sessionMiddleware, JSON.parse(process.env.USE_KEYCLOAK))
     addHasuraRoutes(app, sessionStore)
     addUploadRoutes(app, sessionStore)
-    app.use('/', proxy('http://localhost:8080/'))
+    app.use('/', proxy(process.env.APP_URL_PROXY))
 
-    app.listen({ port: APP_PORT }, () =>
-      console.log(`Server ready at http://localhost:${APP_PORT}/`)
+    app.listen({ port: process.env.APP_PORT }, () =>
+      console.log(`Server ready at ${process.env.APP_BASE_URL}`)
     )
   } catch (err) {
     console.log(err)

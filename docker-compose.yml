@@ -11,7 +11,7 @@ services:
       - ${POSTGRES_PORT}:5432
     restart: always
     volumes:
-      -  ${PWD}/docker-scripts:/docker-entrypoint-initdb.d
+      - ${PWD}/docker-scripts:/docker-entrypoint-initdb.d
       - postgres_data:/var/lib/postgresql/data
 
   graphql-engine:
@@ -37,7 +37,6 @@ services:
     environment:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-
 
   # keycloak:
   #   image: jboss/keycloak

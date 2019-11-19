@@ -1,7 +1,7 @@
 import express from 'express'
 import getUser from '../units/getUser'
 import registerUser from '../units/registerUser'
-import { DUMMY_USER_EMAIL, DUMMY_USER_AUTH_SERVER_ID, DUMMY_USER_FULL_NAME } from '../config'
+import '../config'
 
 function uuid () {
   let s = []
@@ -26,22 +26,22 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
       session,
       async (req: express.Request, res: express.Response) => {
         let user = await getUser(
-          DUMMY_USER_AUTH_SERVER_ID
+          process.env.DUMMY_USER_AUTH_SERVER_ID
         )
         console.log('user', user)
         // If the user is null, register the user in the database
         if (user === null) {
           user = await registerUser(
-            DUMMY_USER_AUTH_SERVER_ID,
-            DUMMY_USER_EMAIL
+            process.env.DUMMY_USER_AUTH_SERVER_ID,
+            process.env.DUMMY_USER_EMAIL
           )
           console.log('register user', user)
         }
         req.session.dbId = user.id
         req.session.authServerId = user.auth_server_id
         req.session.emailPrimary = user.email_primary
-        req.session.displayFullName = DUMMY_USER_FULL_NAME
-        res.redirect('http://localhost:8000/')
+        req.session.displayFullName = process.env.DUMMY_USER_FULL_NAME
+        res.redirect(process.env.APP_BASE_URL)
       }
     )
   } else {
@@ -65,7 +65,7 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
         req.session.authServerId = user.auth_server_id
         req.session.emailPrimary = user.email_primary
         req.session.displayFullName = user.display_full_name
-        res.redirect('http://localhost:8000/')
+        res.redirect(process.env.APP_BASE_URL)
       }
     )
   }
@@ -81,21 +81,20 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
 
   app.get('/login',
     (req: express.Request, res: express.Response) => {
-      const redirectUri = req.query && req.query.redirect ? req.query.redirect : 'http://localhost:8000'
-      const callbackUri = `http://localhost:8000/auth/databrary/callback`
-      let url = null
+      const redirectUri = req.query && req.query.redirect ? req.query.redirect : process.env.APP_BASE_URL
+      const callbackUri = process.env.AUTH_CALLBACK_URL
+      let url = callbackUri
       if (keycloak === true) {
         url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/auth?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
-      } else {
-        url = 'http://localhost:8000/auth/databrary/callback'
       }
+
       res.redirect(url)
     }
   )
 
   app.get('/register',
     (req: express.Request, res: express.Response) => {
-      const callbackUri = `http://localhost:8000/auth/databrary/callback`
+      const callbackUri = process.env.AUTH_CALLBACK_URL
       const url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/registrations?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
       res.redirect(url)
     }
@@ -104,12 +103,11 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
   app.get('/logout',
     session,
     (req: express.Request, res: express.Response) => {
-      let url = null
+      let url = process.env.APP_BASE_URL
       if (keycloak) {
         url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/logout?redirect_uri=http://localhost:8000`
-      } else {
-        url = 'http://localhost:8000'
       }
+      
       req.session.destroy((err) => {
         if (err) {
           console.log('Error destroying session')
