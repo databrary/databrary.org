@@ -8,7 +8,7 @@
     >
       <q-input
         filled
-        v-model="title"
+        v-model="name"
         label="Project title *"
         hint="Name your project something descriptive"
         lazy-rules
@@ -25,13 +25,12 @@
 </template>
 
 <script>
-import gql from 'graphql-tag'
-import { createProject as mutation } from '../graphql/createProject'
+import mutation from '../graphql/createProject'
 
 export default {
   data () {
     return {
-      title: null
+      name: null
     }
   },
 
@@ -55,10 +54,8 @@ export default {
 
     async createProject () {
       // Call to the graphql mutation
-      const results = await this.$apollo.mutate({
-        // Query q
-        mutation: mutation(this.name)
-      })
+      console.log(this.name, mutation(this.name))
+      const results = await this.$apollo.mutate(mutation(this.name))
 
       const project = results.data.insert_assets.returning[0]
       this.$router.push({
