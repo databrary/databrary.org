@@ -1,0 +1,17 @@
+FROM node:alpine
+# set working directory
+WORKDIR /usr/src/client
+
+# add `/usr/src/client/node_modules/.bin` to $PATH
+ENV PATH /usr/src/client/node_modules/.bin:$PATH
+
+COPY yarn.lock package*.json Makefile ./
+
+RUN apk add --no-cache --virtual .gyp \
+        python2 \
+        make \
+        g++ \
+    && make install_client \
+    && apk del .gyp
+
+CMD [ "make", "client" ]

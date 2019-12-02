@@ -1,6 +1,44 @@
 version: '3.7'
 
 services:
+  server:
+    build:
+      context: ${PWD}/server
+      dockerfile: ${PWD}/server/Dockerfile.dev
+    image: databrary_server
+    container_name: server
+    restart: always
+    env_file: .env
+    ports:
+      - 8000:8000
+    volumes: 
+      - ${PWD}/server:/usr/src/server
+      - /usr/src/server/node_modules
+    networks:
+      - databrary-network
+    command: yarn run dev
+  
+  client:
+    build:
+      context: ${PWD}/client
+      dockerfile: ${PWD}/client/Dockerfile.dev
+    image: databrary_client
+    container_name: client
+    env_file: .env
+    restart: always
+    volumes: 
+      - ${PWD}/client:/usr/src/client
+      - /usr/src/client/node_modules
+    ports:
+      - 8080:8080
+    networks:
+      - databrary-network
+    depends_on:
+      - server
+      - graphql-engine
+      - minio
+    command: yarn run dev
+
   postgres:
     image: postgres:9.6
     environment:
@@ -9,15 +47,19 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - ${POSTGRES_PORT}:5432
+    networks:
+      - databrary-network
     restart: always
     volumes:
       - ${PWD}/docker-scripts:/docker-entrypoint-initdb.d
       - postgres_data:/var/lib/postgresql/data
 
   graphql-engine:
-    image: hasura/graphql-engine:v1.0.0-beta.9
+    image: hasura/graphql-engine:latest
     ports:
-      - ${HASURA_PORT}:8080
+      - ${HASURA_PORT}:8080    
+    networks:
+      - databrary-network
     restart: always
     environment:
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_SECRET}
@@ -25,6 +67,8 @@ services:
       HASURA_GRAPHQL_ENABLE_CONSOLE: ${HASURA_ENABLE_CONSOLE}
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
       HASURA_GRAPHQL_AUTH_HOOK: http://host.docker.internal:8000/${HASURA_WEBHOOK}
+    depends_on:
+      - postgres
 
   minio:
     image: minio/minio:RELEASE.2019-10-12T01-39-57Z
@@ -33,6 +77,8 @@ services:
       - minio_events:/events
     ports:
       - "9000:9000"
+    networks:
+      - databrary-network
     command: server /data
     environment:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
@@ -67,9 +113,9 @@ services:
   #   depends_on:
   #     - search
 
-
-
- 
+networks:
+  databrary-network:
+    driver: bridge
 
 volumes:
   minio_events:

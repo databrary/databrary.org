@@ -66,6 +66,15 @@ module.exports = function (ctx) {
 
       // https://quasar.dev/quasar-cli/cli-documentation/handling-webpack
       extendWebpack (cfg) {
+        cfg.resolve.extensions.push('.ts')
+        cfg.module.rules.push({
+          test: /\.ts$/,
+          loader: 'ts-loader',
+          options: {
+            appendTsSuffixTo: [/\.vue$/],
+            configFile: './tsconfig.json'
+          }
+        })
         cfg.module.rules.push({
           enforce: 'pre',
           test: /\.(js|vue)$/,
@@ -80,8 +89,8 @@ module.exports = function (ctx) {
 
     devServer: {
       // https: true,
-      // port: 8080,
-      open: true // opens browser window automatically
+      port: 8080,
+      open: false // opens browser window automatically
     },
 
     // animations: 'all', // --- includes all animations

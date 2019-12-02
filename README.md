@@ -2,25 +2,28 @@ I know there are credentials in this repo. They will all be hidden as soon as th
 
 # Install Steps
 
-Make sure you have Docker, docker-compose, and yarn installed. Links/instructions coming soon.
+Make sure you have make installed.
 
 ## Install command line tools and dependencies necessary for development
-    make install
+```
+make install
+```
 
-## Start docker containers in one terminal where you can see the logs
-    docker-compose up
+# Start docker containers
+```
+docker-compose up
+```
 
 ## Setup Hasura
-    cd hasura && hasura migrate apply --endpoint  http://localhost:8002  --admin-secret mysecret && cd ..
+```
+make migrate
+```
+Note: hasura migrate will work only if there are versions not present in the postgres database
 
-# Dev env
-
-I open 4 tabs and run the following commands
-
-    make server
-    make client
-    make cleardb
-    make migrate
+## Remove postgres volume
+```
+make cleardb
+```
 
 ## UIs
 

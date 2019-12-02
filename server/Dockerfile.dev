@@ -1,0 +1,11 @@
+FROM node:alpine
+
+# set working directory
+WORKDIR /usr/src/server
+
+# add `/usr/src/server/node_modules/.bin` to $PATH
+ENV PATH /usr/src/server/node_modules/.bin:$PATH
+
+COPY yarn.lock package*.json Makefile ./
+RUN apk add --no-cache make && make install_server
+CMD [ "make", "server" ]
