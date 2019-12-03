@@ -1,9 +1,13 @@
 include .env
 
-SERVER_DIR = $(PWD)/server
-CLIENT_DIR = $(PWD)/client
+# MAKEFLAGS += --silent
 
-.PHONY: server client cleardb migrate install_app setup_minio
+# Only dev is available for now
+# TODO(REDA): add docker-compose.prod.yml files for production servers
+
+.PHONY: server client compose cleardb migrate install setup_minio
+
+DEV ?= 1
 
 is_hasura_running:
 	docker-compose ps | grep -q "graphql-engine"
@@ -11,14 +15,32 @@ is_hasura_running:
 is_mino_running:
 	docker-compose ps | grep -q "minio"
 
-databrary:
-	docker-compose up
+compose:
+ifeq ($(DEV), 1)
+	@echo 'Starting Databrary in development mode'
+	docker-compose -f docker-compose.dev.yml up
+else 
+	@echo 'Starting Databrary in production mode'
+	docker-compose -f docker-compose.prod.yml up
+endif
 
 server:
-	docker-compose up server
+# We run then server sepratly from other docker services, only with docker-compose.dev.yml
+ifeq ($(DEV), 1)
+	@echo 'Starting Development Server'
+	docker-compose -f docker-compose.dev.yml up server
+else 
+	@echo 'Cannot start the server in production, try: make dev server'
+endif 
 
 client:
-	docker-compose up client
+# We run then client sepratly from other docker services, only with docker-compose.dev.yml
+ifeq ($(DEV), 1)
+	@echo 'Starting Development Client'
+	docker-compose -f docker-compose.dev.yml up client
+else
+	@echo 'Cannot start the client in production,  try: make dev client'
+endif 
 
 cleardb:
 	docker-compose down -v

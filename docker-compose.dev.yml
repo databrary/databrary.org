@@ -16,7 +16,7 @@ services:
       - /usr/src/server/node_modules
     networks:
       - databrary-network
-    command: yarn run dev
+    command: make server
   
   client:
     build:
@@ -37,7 +37,7 @@ services:
       - server
       - graphql-engine
       - minio
-    command: yarn run dev
+    command: make client
 
   postgres:
     image: postgres:9.6

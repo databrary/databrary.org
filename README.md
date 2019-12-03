@@ -11,7 +11,15 @@ make install
 
 # Start docker containers
 ```
-docker-compose up
+make compose
+```
+equivalent to:
+```
+make DEV=1 compose
+```
+The default envirenment is Development, if you want to start docker in production mode use
+```
+make DEV=0 compose
 ```
 
 ## Setup Hasura
