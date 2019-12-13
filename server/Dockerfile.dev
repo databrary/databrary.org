@@ -1,11 +1,14 @@
 FROM node:alpine
 
+RUN mkdir -p /home/node/app && chown -R node:node /home/node/app
 # set working directory
-WORKDIR /usr/src/server
+WORKDIR /home/node/app
 
-# add `/usr/src/server/node_modules/.bin` to $PATH
-ENV PATH /usr/src/server/node_modules/.bin:$PATH
-
-COPY yarn.lock package*.json Makefile ./
+COPY --chown=node:node yarn.lock package*.json Makefile ./
 RUN apk add --no-cache make && make install_server
+USER node
+COPY --chown=node:node . .
+# Fix for ENOENT error https://github.com/valery-barysok/session-file-store/issues/26#issuecomment-278110944
+RUN chmod +x sessions
+EXPOSE 8000
 CMD [ "make", "server" ]

@@ -1,7 +1,6 @@
 import express from 'express'
 import getUser from '../units/getUser'
 import registerUser from '../units/registerUser'
-import '../config'
 
 function uuid () {
   let s = []
@@ -73,6 +72,7 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
   app.get('/session',
     session,
     (req: express.Request, res: express.Response) => {
+      console.log(`route: /session`)
       const data = req.session
       data['sessionID'] = req.sessionID
       res.json(data)
@@ -81,11 +81,12 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
 
   app.get('/login',
     (req: express.Request, res: express.Response) => {
+      console.log(`route: /login`)
       const redirectUri = req.query && req.query.redirect ? req.query.redirect : process.env.APP_BASE_URL
       const callbackUri = process.env.AUTH_CALLBACK_URL
       let url = callbackUri
       if (keycloak === true) {
-        url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/auth?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
+        url = `${process.env.AUTH_SERVER_URL}/realms/databrary.org/protocol/openid-connect/auth?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
       }
 
       res.redirect(url)
@@ -94,8 +95,9 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
 
   app.get('/register',
     (req: express.Request, res: express.Response) => {
+      console.log(`route: /register`)
       const callbackUri = process.env.AUTH_CALLBACK_URL
-      const url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/registrations?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
+      const url = `${process.env.AUTH_SERVER_URL}/realms/databrary.org/protocol/openid-connect/registrations?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
       res.redirect(url)
     }
   )
@@ -103,15 +105,17 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
   app.get('/logout',
     session,
     (req: express.Request, res: express.Response) => {
+      console.log(`route: /logout`)
       let url = process.env.APP_BASE_URL
       if (keycloak) {
-        url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/logout?redirect_uri=http://localhost:8000`
+        url = `${process.env.AUTH_SERVER_URL}/realms/databrary.org/protocol/openid-connect/logout?redirect_uri=http://localhost:8000`
       }
       
       req.session.destroy((err) => {
         if (err) {
           console.log('Error destroying session')
         }
+        res.clearCookie(`localhost`); // TODO(Reda): get session store name
         res.redirect(url)
       })
     }

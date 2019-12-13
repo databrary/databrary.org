@@ -49,4 +49,4 @@ function editAST (ast: any, edits: any) {
 //   })
 // }
 
-parse(query)
+parse(query)  // TODO(Reda): Remove !

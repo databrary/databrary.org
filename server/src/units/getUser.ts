@@ -19,14 +19,19 @@ const query = gql`
   }
 `
 export default async function getUser (authServerId: string) {
-  const response = await client.query({
-    query: query,
-    variables: {
-      authServerId
+  console.log(`Getting User Information ${authServerId}`)
+  try {  
+    const response = await client.query({
+      query: query,
+      variables: {
+        authServerId
+      }
+    })
+    if (_.isEmpty(response.data.users)) {
+      return null
     }
-  })
-  if (_.isEmpty(response.data.users)) {
-    return null
+    return response.data.users[0]
+  } catch (error) {
+    console.error(error)
   }
-  return response.data.users[0]
 }

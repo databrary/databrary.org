@@ -2,16 +2,11 @@ import crypto from 'crypto'
 import { Client, CopyConditions } from 'minio'
 import _ from 'lodash'
 
-import {
-  MINIO_ACCESS_KEY,
-  MINIO_SECRET_KEY
-} from '../config'
-
 const minioClient = new Client({
   endPoint: 'localhost',
   port: 9000,
-  accessKey: MINIO_ACCESS_KEY,
-  secretKey: MINIO_SECRET_KEY,
+  accessKey: process.env.MINIO_ACCESS_KEY,
+  secretKey: process.env.MINIO_SECRET_KEY,
   useSSL: false // Default is true.
 })
 

@@ -11,7 +11,7 @@ export default async ({ app, store, Vue }) => {
   await store.dispatch('auth/loadSession') // TODO move to separate boot? Router?
 
   const httpLink = createHttpLink({
-    uri: 'http://localhost:8002/v1/graphql',
+    uri: 'http://172.32.0.1:8002/v1/graphql',
     fetch,
     headers: {
       sessionID: store.getters['auth/sessionId']

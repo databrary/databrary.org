@@ -1,15 +1,10 @@
 import { Client } from 'minio'
 
-import {
-  MINIO_ACCESS_KEY,
-  MINIO_SECRET_KEY
-} from '../config'
-
 const s3Client = new Client({
-  endPoint: 'localhost',
+  endPoint: 'localhost', // TODO(Reda): Need to change this endpoint
   port: 9000,
-  accessKey: MINIO_ACCESS_KEY,
-  secretKey: MINIO_SECRET_KEY,
+  accessKey: process.env.MINIO_ACCESS_KEY,
+  secretKey: process.env.MINIO_SECRET_KEY,
   useSSL: false // Default is true.
 })
 

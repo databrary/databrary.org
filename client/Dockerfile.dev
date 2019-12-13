@@ -1,17 +1,21 @@
 FROM node:alpine
+
+# RUN mkdir -p /home/node/app && chown -R node:node /home/node/app
+RUN mkdir -p /home/node/app
 # set working directory
-WORKDIR /usr/src/client
+WORKDIR /home/node/app
 
-# add `/usr/src/client/node_modules/.bin` to $PATH
-ENV PATH /usr/src/client/node_modules/.bin:$PATH
-
+# COPY --chown=node:node yarn.lock package*.json Makefile ./
 COPY yarn.lock package*.json Makefile ./
-
 RUN apk add --no-cache --virtual .gyp \
         python2 \
-        make \
         g++ \
+        make \
     && make install_client \
     && apk del .gyp
 
+# USER node
+# COPY --chown=node:node . .
+COPY . .
+EXPOSE 8080
 CMD [ "make", "client" ]

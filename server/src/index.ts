@@ -1,10 +1,10 @@
 import * as _ from 'lodash'
-import './config'
 import express from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import session from 'express-session'
 import FileStoreSession from 'session-file-store'
+import dns from 'dns'
 // import proxy from 'http-proxy-middleware'
 import proxy from 'express-http-proxy'
 import passport from 'passport'
@@ -29,7 +29,7 @@ const sessionStore = new FileStore({})
 
 const sessionMiddleware = session({
   name: 'localhost',
-  secret: 'mySecret',
+  secret: process.env.HASURA_SECRET,
   resave: false,
   saveUninitialized: true,
   store: sessionStore
@@ -98,7 +98,7 @@ async function main () {
     addAuthRoutes(app, passport, sessionMiddleware, JSON.parse(process.env.USE_KEYCLOAK))
     addHasuraRoutes(app, sessionStore)
     addUploadRoutes(app, sessionStore)
-    app.use('/', proxy(process.env.APP_URL_PROXY))
+    // app.use('/', proxy('http://localhost:8080/'))
 
     app.listen({ port: process.env.APP_PORT }, () =>
       console.log(`Server ready at ${process.env.APP_BASE_URL}`)

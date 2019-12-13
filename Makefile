@@ -5,15 +5,15 @@ include .env
 # Only dev is available for now
 # TODO(REDA): add docker-compose.prod.yml files for production servers
 
-.PHONY: server client compose cleardb migrate install setup_minio
+.PHONY: server client hasura compose cleardb migrate install setup_minio
 
 DEV ?= 1
 
 is_hasura_running:
-	docker-compose ps | grep -q "graphql-engine"
+	docker-compose -f docker-compose.dev.yml ps | grep -q "graphql-engine"
 
 is_mino_running:
-	docker-compose ps | grep -q "minio"
+	docker-compose -f docker-compose.dev.yml ps | grep -q "minio"
 
 compose:
 ifeq ($(DEV), 1)
@@ -43,7 +43,28 @@ else
 endif 
 
 cleardb:
-	docker-compose down -v
+ifeq ($(DEV), 1)
+	docker-compose -f docker-compose.dev.yml down -v
+else
+	docker-compose -f docker-compose.prod.yml down -v
+endif
+
+hasura:
+ifeq ($(DEV), 1)
+	@echo 'Starting Development Hasura and postgres'
+	docker-compose -f docker-compose.dev.yml up graphql-engine
+else 
+	@echo 'Cannot start hasura in production, try: make dev hasura'
+endif
+
+postgres:
+ifeq ($(DEV), 1)
+	@echo 'Starting Development Hasura and postgres'
+	docker-compose -f docker-compose.dev.yml up postgres
+else 
+	@echo 'Cannot start postgres in production, try: make dev postgres'
+endif 
+
 
 is_db_outdated: is_hasura_running
 	cd hasura && hasura migrate status | grep -q "Not Present" && cd ..;

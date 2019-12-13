@@ -89,8 +89,19 @@ module.exports = function (ctx) {
 
     devServer: {
       // https: true,
-      port: 8080,
-      open: false // opens browser window automatically
+      // port: 8080,
+      open: false, // opens browser window automatically
+      proxy : {
+        '/': {
+          target: 'http://172.23.0.1:8000', //TODO(Reda): Find a way to get server IP
+          changeOrigin: true
+        }
+        // ,
+        // '/graphql': {
+        //   target: 'http://172.23.0.1:8002/v1/graphql',
+        //   changeOrigin: false
+        // }
+      },
     },
 
     // animations: 'all', // --- includes all animations
