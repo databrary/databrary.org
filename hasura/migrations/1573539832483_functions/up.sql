@@ -11,7 +11,7 @@ CREATE FUNCTION public.add_asset_group() RETURNS trigger
 	    values(group_id, NEW.created_by_id);
     INSERT INTO groups_admins(group_id, user_id)
 	    values(group_id, NEW.created_by_id);
-    INSERT INTO permissions(group_id, permission_id, permissionset_id)
+    INSERT INTO permissions(group_id, permission, permissionset_id)
       VALUES(group_id, 'admin', NEW.permissionset_id);
     RETURN NULL;
   END;

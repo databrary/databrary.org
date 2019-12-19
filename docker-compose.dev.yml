@@ -12,12 +12,12 @@ services:
     environment:
       NODE_ENV: development
     ports:
-      - 8000:8000
-    volumes: 
+        - 8000:8000
+    volumes:
       - ${PWD}/server:/home/node/app
       - /home/node/app/node_modules
       - sessions:/home/node/app/sessions
-    depends_on: 
+    depends_on:
       - graphql-engine
     networks:
       - databrary-network
@@ -30,6 +30,9 @@ services:
     image: databrary_client
     container_name: client
     restart: always
+    env_file: .env
+    environment:
+      NODE_ENV: development
     volumes: 
       - ${PWD}/client:/home/node/app
       - /usr/client/node_modules
@@ -38,7 +41,7 @@ services:
     networks:
       - databrary-network
     depends_on:
-      - graphql-engine
+      - server
     command: yarn run dev
 
   postgres:

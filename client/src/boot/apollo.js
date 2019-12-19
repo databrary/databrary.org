@@ -3,15 +3,14 @@ import { InMemoryCache } from 'apollo-cache-inmemory'
 import VueApollo from 'vue-apollo'
 import fetch from 'node-fetch'
 import { createHttpLink } from 'apollo-link-http'
-// import { Cookies } from 'quasar'
+import network from '../utils/network'
 
-// console.log(Cookies.getAll())
-
+// Use Gateway ip
 export default async ({ app, store, Vue }) => {
   await store.dispatch('auth/loadSession') // TODO move to separate boot? Router?
-
+  const ip = network.getGatewayAddress()
   const httpLink = createHttpLink({
-    uri: 'http://172.32.0.1:8002/v1/graphql',
+    uri: `http://${ip}:${process.env.HASURA_PORT}/v1/graphql`,
     fetch,
     headers: {
       sessionID: store.getters['auth/sessionId']

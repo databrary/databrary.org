@@ -93,12 +93,12 @@ module.exports = function (ctx) {
       open: false, // opens browser window automatically
       proxy : {
         '/': {
-          target: 'http://172.23.0.1:8000', //TODO(Reda): Find a way to get server IP
-          changeOrigin: true
+          target: 'http://172.18.0.1:8000', //TODO(Reda): Find a way to get server IP
+          changeOrigin: false
         }
         // ,
         // '/graphql': {
-        //   target: 'http://172.23.0.1:8002/v1/graphql',
+        //   target: 'http://localhost:8002/v1/graphql',
         //   changeOrigin: false
         // }
       },

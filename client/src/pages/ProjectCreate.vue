@@ -56,7 +56,7 @@ export default {
       // Call to the graphql mutation
       console.log(this.name, mutation(this.name))
       const results = await this.$apollo.mutate(mutation(this.name))
-
+      console.log(`Project Creation results: ${results}`)
       const project = results.data.insert_assets.returning[0]
       this.$router.push({
         path: `/project/${project.id}`

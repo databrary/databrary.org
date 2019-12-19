@@ -1,4 +1,5 @@
 import axios from 'axios'
+import network from '../utils/network'
 
 export default {
   namespaced: true,
@@ -30,12 +31,17 @@ export default {
     loadSession: ({ getters, commit }) => {
       return new Promise(async (resolve, reject) => {
         if (getters.isLoggedIn === null) {
-          const response = await axios({ url: 'http://localhost:8000/session', method: 'GET' })
+          console.log(`Quasar Loading session`)
+          const server_ip = await network.getServerAddressAsync()
+          console.log(`Server IP address is ${server_ip} PORT ${process.env.BASE_PORT}`)
+          const response = await axios({ url: `http://${server_ip}:${process.env.BASE_PORT}/session`, method: 'GET' })
           if (response.data.sessionID) {
+            console.log(`Logged In: Found session ID ${response.data.sessionID} user ID ${response.data.dbId}`)
             commit('logIn')
             commit('setUserId', response.data.dbId)
             commit('setSessionId', response.data.sessionID)
           } else {
+            console.log(`Logged Out: Cannot find a session`)
             commit('logOut')
             commit('setUserId', null)
             commit('setSessionId', null)

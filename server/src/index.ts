@@ -4,7 +4,7 @@ import bodyParser from 'body-parser'
 import cors from 'cors'
 import session from 'express-session'
 import FileStoreSession from 'session-file-store'
-import dns from 'dns'
+// import dns from 'dns'
 // import proxy from 'http-proxy-middleware'
 import proxy from 'express-http-proxy'
 import passport from 'passport'
@@ -98,7 +98,7 @@ async function main () {
     addAuthRoutes(app, passport, sessionMiddleware, JSON.parse(process.env.USE_KEYCLOAK))
     addHasuraRoutes(app, sessionStore)
     addUploadRoutes(app, sessionStore)
-    // app.use('/', proxy('http://localhost:8080/'))
+    // app.use('/', proxy('http://127.23.0.4:8080/'))
 
     app.listen({ port: process.env.APP_PORT }, () =>
       console.log(`Server ready at ${process.env.APP_BASE_URL}`)

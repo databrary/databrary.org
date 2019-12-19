@@ -40,7 +40,8 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
         req.session.authServerId = user.auth_server_id
         req.session.emailPrimary = user.email_primary
         req.session.displayFullName = process.env.DUMMY_USER_FULL_NAME
-        res.redirect(process.env.APP_BASE_URL)
+        // res.redirect(process.env.APP_BASE_URL)
+        res.redirect(`http://localhost:8080`) // redirect to the Frontend entrypoint
       }
     )
   } else {
@@ -72,9 +73,9 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
   app.get('/session',
     session,
     (req: express.Request, res: express.Response) => {
-      console.log(`route: /session`)
       const data = req.session
       data['sessionID'] = req.sessionID
+      console.log(`Session, data ${JSON.stringify(data)}, ID ${data['sessionID']}`)
       res.json(data)
     }
   )
