@@ -4,16 +4,21 @@ include .env
 
 is_hasura_running:
 	docker-compose ps | grep -q "graphql-engine"
-is_mino_running:
+is_minio_running:
 	docker-compose ps | grep -q "minio"
+
+start_docker:
+	docker-compose up -d
+stop_docker:
+	docker-compose down
+cleardb:
+	docker-compose down -v
 
 server:
 	cd server && ts-node-dev src/index.ts && cd ..
 client:
 	cd client && yarn run dev && cd ..
-cleardb:
-	docker rm databraryorg_postgres_1; docker volume rm databraryorg_postgres_data; docker-compose up
-migrate: is_hasura_running
+migrate:
 	cd hasura && hasura migrate apply && hasura console && cd ..
 
 install_docker_compose:
@@ -32,12 +37,10 @@ install: install_docker_compose install_hasura_cli install_minio_cli
 	cd server && yarn && cd ..;
 	cd client && yarn && cd ..;
 
-setup_minio: is_mino_running
-	cd minio;
+setup_minio: is_minio_running
 	mc config host add minio ${MINIO_URL} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY};
-	mc admin config set minio < minioconfig;
+	mc admin config set minio < minio/minioconfig;
 	mc admin service restart minio;
 	mc mb minio/uploads;
 	mc mb minio/cas;
 	mc event add minio/uploads arn:minio:sqs::1:webhook --event put;
-	cd ..;
