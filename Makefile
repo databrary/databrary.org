@@ -1,6 +1,6 @@
 include .env
 
-.PHONY: server client cleardb migrate install setup_minio
+.PHONY: server client cleardb migrate install setup_minio setup_migrations
 
 is_hasura_running:
 	docker-compose ps | grep -q "graphql-engine"
@@ -20,6 +20,8 @@ client:
 	cd client && yarn run dev && cd ..
 migrate:
 	cd hasura && hasura migrate apply && hasura console && cd ..
+docker:
+	docker-compose up
 
 install_docker_compose:
 	sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose &&
@@ -36,6 +38,9 @@ install: install_docker_compose install_hasura_cli install_minio_cli
 	npm install -g @quasar/cli;
 	cd server && yarn && cd ..;
 	cd client && yarn && cd ..;
+
+setup_migrations:
+	cd hasura && hasura migrate apply && cd ..
 
 setup_minio: is_minio_running
 	mc config host add minio ${MINIO_URL} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY};

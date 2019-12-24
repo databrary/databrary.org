@@ -8,18 +8,19 @@ Make sure you have Docker, docker-compose, and yarn installed. Links/instruction
     make install
 
 ## Start docker containers in one terminal where you can see the logs
+    make cleardb
     docker-compose up
 
-## Setup Hasura
-    cd hasura && hasura migrate apply --endpoint  http://localhost:8002  --admin-secret mysecret && cd ..
+## Setup everything; be mindful of startup times
+    make setup_migrations
+    make setup_minio
 
 # Dev env
 
 I open 4 tabs and run the following commands
-
+    make docker
     make server
     make client
-    make cleardb
     make migrate
 
 ## UIs

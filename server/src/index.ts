@@ -97,7 +97,7 @@ async function main () {
 
     addAuthRoutes(app, passport, sessionMiddleware, JSON.parse(process.env.USE_KEYCLOAK))
     addHasuraRoutes(app, sessionStore)
-    addUploadRoutes(app, sessionStore)
+    addUploadRoutes(app, sessionMiddleware)
     app.use('/', proxy(process.env.APP_URL_PROXY))
 
     app.listen({ port: process.env.APP_PORT }, () =>

@@ -14,12 +14,13 @@ let s3Client = new Client({
   useSSL: false // Default is true.
 })
 
-export function routes (app: any, sessionStore: any) {
+export function routes (app: any, session: any) {
   app.post('/sign-upload',
+    session,
     (req: express.Request, res: express.Response) => {
       s3Client.presignedPutObject(
-        '2019',
-        `${req.session.dbId}-${req.body.filename}`,
+        'uploads', // Bucket name
+        `${req.session.dbId}-${req.body.filename}`, // Adding some non-userdefined data
         1000,
         function (e, presignedUrl) {
           if (e) return console.log(e)
