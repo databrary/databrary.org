@@ -20,6 +20,8 @@ client:
 	cd client && yarn run dev && cd ..
 migrate:
 	cd hasura && hasura migrate apply && hasura console && cd ..
+queue:
+	cd server && ts-node-dev bin/worker.ts && cd ..
 docker:
 	docker-compose up
 
