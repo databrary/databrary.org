@@ -23,8 +23,8 @@ I open 4 tabs and run the following commands
     make client
     make migrate
 
-## UIs
+# Browser
 
-Databrary: http://localhost:8000
-Hasura: http://localhost:8002
+Databrary: http://localhost:8000/login
+Hasura: http://localhost:8002 or http://localhost:9695
 Minio: http://localhost:9000

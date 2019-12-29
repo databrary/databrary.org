@@ -1,0 +1,2 @@
+admin_secret: mysecret
+endpoint: http://localhost:8002

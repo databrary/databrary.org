@@ -1,0 +1,14 @@
+query MyQuery ($id: Int){
+  files(
+    where: {
+      id: {
+        _eq: $id
+      }
+    }
+  ) {
+    id
+    name
+    uploaded_by_id
+    asset_id
+  }
+}

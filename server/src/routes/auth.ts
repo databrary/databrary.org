@@ -107,7 +107,6 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
       if (keycloak) {
         url = `http://localhost:8001/auth/realms/databrary.org/protocol/openid-connect/logout?redirect_uri=http://localhost:8000`
       }
-      
       req.session.destroy((err) => {
         if (err) {
           console.log('Error destroying session')
