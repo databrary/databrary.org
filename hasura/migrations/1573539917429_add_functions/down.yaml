@@ -1,3 +1,0 @@
-- args:
-    sql: DROP TRIGGER create_inital_asset_permissions ON public.assets;
-  type: run_sql

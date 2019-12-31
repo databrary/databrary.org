@@ -11,6 +11,7 @@
           foreign_key_constraint_on:
             column: asset_id
             table: files
+      computed_fields: []
       configuration:
         custom_column_names: {}
         custom_root_fields:
@@ -29,7 +30,6 @@
           columns:
           - asset_type
           - name
-          - permissionset_id
           - privacy_type
           set:
             created_by_id: x-hasura-User-Id
@@ -44,28 +44,36 @@
         name: permissionset
         using:
           foreign_key_constraint_on: permissionset_id
-      select_permissions: []
+      select_permissions:
+      - comment: null
+        permission:
+          allow_aggregations: false
+          columns:
+          - asset_type
+          - created_by_id
+          - datetime_created
+          - id
+          - name
+          - permissionset_id
+          - privacy_type
+          computed_fields: []
+          filter:
+            _or:
+            - privacy_type:
+                _eq: public
+            - permissionset:
+                permissions:
+                  permissionset:
+                    permissions:
+                      group:
+                        groups_users:
+                          user_id:
+                            _eq: X-Hasura-User-Id
+        role: user
       table: assets
       update_permissions: []
     - array_relationships: []
-      configuration:
-        custom_column_names: {}
-        custom_root_fields:
-          delete: null
-          insert: null
-          select: null
-          select_aggregate: null
-          select_by_pk: null
-          update: null
-      delete_permissions: []
-      event_triggers: []
-      insert_permissions: []
-      is_enum: true
-      object_relationships: []
-      select_permissions: []
-      table: group_types
-      update_permissions: []
-    - array_relationships: []
+      computed_fields: []
       configuration:
         custom_column_names: {}
         custom_root_fields:
@@ -83,31 +91,8 @@
       select_permissions: []
       table: asset_types
       update_permissions: []
-    - array_relationships:
-      - comment: null
-        name: assets
-        using:
-          foreign_key_constraint_on:
-            column: created_by_id
-            table: assets
-      - comment: null
-        name: uploaded_files
-        using:
-          foreign_key_constraint_on:
-            column: uploaded_by_id
-            table: files
-      - comment: null
-        name: admined_groups
-        using:
-          foreign_key_constraint_on:
-            column: user_id
-            table: groups_admins
-      - comment: null
-        name: groups_users
-        using:
-          foreign_key_constraint_on:
-            column: user_id
-            table: groups_users
+    - array_relationships: []
+      computed_fields: []
       configuration:
         custom_column_names: {}
         custom_root_fields:
@@ -123,9 +108,77 @@
       is_enum: false
       object_relationships: []
       select_permissions: []
-      table: users
+      table: fileobjects
       update_permissions: []
     - array_relationships: []
+      computed_fields: []
+      configuration:
+        custom_column_names: {}
+        custom_root_fields:
+          delete: null
+          insert: null
+          select: null
+          select_aggregate: null
+          select_by_pk: null
+          update: null
+      delete_permissions: []
+      event_triggers: []
+      insert_permissions: []
+      is_enum: false
+      object_relationships:
+      - comment: null
+        name: asset
+        using:
+          foreign_key_constraint_on: asset_id
+      - comment: null
+        name: fileobject
+        using:
+          foreign_key_constraint_on: fileobject_id
+      - comment: null
+        name: uploader
+        using:
+          foreign_key_constraint_on: uploaded_by_id
+      select_permissions: []
+      table: files
+      update_permissions: []
+    - array_relationships:
+      - comment: null
+        name: groups_admins
+        using:
+          foreign_key_constraint_on:
+            column: group_id
+            table: groups_admins
+      - comment: null
+        name: groups_users
+        using:
+          foreign_key_constraint_on:
+            column: group_id
+            table: groups_users
+      - comment: null
+        name: permissions
+        using:
+          foreign_key_constraint_on:
+            column: group_id
+            table: permissions
+      computed_fields: []
+      configuration:
+        custom_column_names: {}
+        custom_root_fields:
+          delete: null
+          insert: null
+          select: null
+          select_aggregate: null
+          select_by_pk: null
+          update: null
+      delete_permissions: []
+      event_triggers: []
+      is_enum: false
+      object_relationships: []
+      select_permissions: []
+      table: groups
+      update_permissions: []
+    - array_relationships: []
+      computed_fields: []
       configuration:
         custom_column_names: {}
         custom_root_fields:
@@ -144,81 +197,7 @@
       table: groups_admins
       update_permissions: []
     - array_relationships: []
-      configuration:
-        custom_column_names: {}
-        custom_root_fields:
-          delete: null
-          insert: null
-          select: null
-          select_aggregate: null
-          select_by_pk: null
-          update: null
-      delete_permissions: []
-      event_triggers: []
-      insert_permissions: []
-      is_enum: false
-      object_relationships:
-      - comment: null
-        name: fileobject
-        using:
-          foreign_key_constraint_on: fileobject_id
-      - comment: null
-        name: asset
-        using:
-          foreign_key_constraint_on: asset_id
-      - comment: null
-        name: uploader
-        using:
-          foreign_key_constraint_on: uploaded_by_id
-      select_permissions: []
-      table: files
-      update_permissions: []
-    - array_relationships:
-      - comment: null
-        name: groups_admins
-        using:
-          foreign_key_constraint_on:
-            column: group_id
-            table: groups_admins
-      - comment: null
-        name: permissions
-        using:
-          foreign_key_constraint_on:
-            column: group_id
-            table: permissions
-      - comment: null
-        name: groups_users
-        using:
-          foreign_key_constraint_on:
-            column: group_id
-            table: groups_users
-      configuration:
-        custom_column_names: {}
-        custom_root_fields:
-          delete: null
-          insert: null
-          select: null
-          select_aggregate: null
-          select_by_pk: null
-          update: null
-      delete_permissions: []
-      event_triggers: []
-      insert_permissions:
-      - comment: null
-        permission:
-          check: {}
-          columns:
-          - name
-          set:
-            created_by_id: x-hasura-User-Id
-            group_type: user
-        role: user
-      is_enum: false
-      object_relationships: []
-      select_permissions: []
-      table: groups
-      update_permissions: []
-    - array_relationships: []
+      computed_fields: []
       configuration:
         custom_column_names: {}
         custom_root_fields:
@@ -244,37 +223,8 @@
       select_permissions: []
       table: groups_users
       update_permissions: []
-    - array_relationships:
-      - comment: null
-        name: assets
-        using:
-          foreign_key_constraint_on:
-            column: permissionset_id
-            table: assets
-      - comment: null
-        name: permissions
-        using:
-          foreign_key_constraint_on:
-            column: permissionset_id
-            table: permissions
-      configuration:
-        custom_column_names: {}
-        custom_root_fields:
-          delete: null
-          insert: null
-          select: null
-          select_aggregate: null
-          select_by_pk: null
-          update: null
-      delete_permissions: []
-      event_triggers: []
-      insert_permissions: []
-      is_enum: false
-      object_relationships: []
-      select_permissions: []
-      table: permissionsets
-      update_permissions: []
     - array_relationships: []
+      computed_fields: []
       configuration:
         custom_column_names: {}
         custom_root_fields:
@@ -290,27 +240,10 @@
       is_enum: true
       object_relationships: []
       select_permissions: []
-      table: privacy_types
+      table: group_types
       update_permissions: []
     - array_relationships: []
-      configuration:
-        custom_column_names: {}
-        custom_root_fields:
-          delete: null
-          insert: null
-          select: null
-          select_aggregate: null
-          select_by_pk: null
-          update: null
-      delete_permissions: []
-      event_triggers: []
-      insert_permissions: []
-      is_enum: true
-      object_relationships: []
-      select_permissions: []
-      table: permission_types
-      update_permissions: []
-    - array_relationships: []
+      computed_fields: []
       configuration:
         custom_column_names: {}
         custom_root_fields:
@@ -336,7 +269,20 @@
       select_permissions: []
       table: permissions
       update_permissions: []
-    - array_relationships: []
+    - array_relationships:
+      - comment: null
+        name: assets
+        using:
+          foreign_key_constraint_on:
+            column: permissionset_id
+            table: assets
+      - comment: null
+        name: permissions
+        using:
+          foreign_key_constraint_on:
+            column: permissionset_id
+            table: permissions
+      computed_fields: []
       configuration:
         custom_column_names: {}
         custom_root_fields:
@@ -352,6 +298,88 @@
       is_enum: false
       object_relationships: []
       select_permissions: []
-      table: fileobjects
+      table: permissionsets
       update_permissions: []
+    - array_relationships: []
+      computed_fields: []
+      configuration:
+        custom_column_names: {}
+        custom_root_fields:
+          delete: null
+          insert: null
+          select: null
+          select_aggregate: null
+          select_by_pk: null
+          update: null
+      delete_permissions: []
+      event_triggers: []
+      insert_permissions: []
+      is_enum: true
+      object_relationships: []
+      select_permissions: []
+      table: permission_types
+      update_permissions: []
+    - array_relationships: []
+      computed_fields: []
+      configuration:
+        custom_column_names: {}
+        custom_root_fields:
+          delete: null
+          insert: null
+          select: null
+          select_aggregate: null
+          select_by_pk: null
+          update: null
+      delete_permissions: []
+      event_triggers: []
+      insert_permissions: []
+      is_enum: true
+      object_relationships: []
+      select_permissions: []
+      table: privacy_types
+      update_permissions: []
+    - array_relationships:
+      - comment: null
+        name: admined_groups
+        using:
+          foreign_key_constraint_on:
+            column: user_id
+            table: groups_admins
+      - comment: null
+        name: assets
+        using:
+          foreign_key_constraint_on:
+            column: created_by_id
+            table: assets
+      - comment: null
+        name: groups_users
+        using:
+          foreign_key_constraint_on:
+            column: user_id
+            table: groups_users
+      - comment: null
+        name: uploaded_files
+        using:
+          foreign_key_constraint_on:
+            column: uploaded_by_id
+            table: files
+      computed_fields: []
+      configuration:
+        custom_column_names: {}
+        custom_root_fields:
+          delete: null
+          insert: null
+          select: null
+          select_aggregate: null
+          select_by_pk: null
+          update: null
+      delete_permissions: []
+      event_triggers: []
+      insert_permissions: []
+      is_enum: false
+      object_relationships: []
+      select_permissions: []
+      table: users
+      update_permissions: []
+    version: 2
   type: replace_metadata
