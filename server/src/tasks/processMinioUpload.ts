@@ -113,7 +113,7 @@ export default async function processMinioUpload (input: object) {
     )
     const fileobjectId = response.returning[0].id
 
-    // Create a fileobjects reference
+    // TODO Update file with fileobject reference
     const responseUpdateFileObject = await adminMutate(
       `${process.cwd()}/../gql/updateFile.gql`,
       fileInfo
