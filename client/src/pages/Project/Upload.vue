@@ -22,6 +22,8 @@ export default {
     }
   },
   mounted: function mounted () {
+    this.projectIdFromRoute = this.$route.params.projectId
+    const that = this
     this.uppy = Uppy()
       .use(Dashboard, {
         inline: true,
@@ -36,8 +38,9 @@ export default {
               'content-type': 'application/json'
             },
             body: JSON.stringify({
-              filename: file.name, // uuid-userid-projectid-filename
-              contentType: file.type
+              filename: file.name,
+              contentType: file.type,
+              projectId: that.projectIdFromRoute
             })
           }).then((response) => {
             // console.log('response', response)

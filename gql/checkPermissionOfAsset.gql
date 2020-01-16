@@ -1,0 +1,5 @@
+query MyQuery ( $id: Int ) {
+  assets(where: {id: {_eq: $id}}) {
+    id
+  }
+}

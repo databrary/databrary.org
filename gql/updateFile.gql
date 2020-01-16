@@ -1,0 +1,13 @@
+mutation MyMutation ($fileobject_id: Int, $uploaded_datetime: Implicit) {
+  __typename
+  update_files(
+    _set: {
+      uploaded_datetime: $uploaded_datetime,
+      fileobject_id: $fileobject_id
+    }
+  ) {
+    returning {
+      id
+    }
+  }
+}

@@ -1,0 +1,18 @@
+query MyQuery {
+  assets(
+    where: {
+      asset_type: {
+        _eq: project
+      }, 
+      id: {
+        _eq: 10
+      }
+    }
+  ) {
+    id
+    privacy_type
+    name
+    datetime_created
+    asset_type
+  }
+}

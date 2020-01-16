@@ -18,6 +18,8 @@ import { routes as addAuthRoutes } from './routes/auth'
 import { routes as addHasuraRoutes } from './routes/hasura'
 import { routes as addUploadRoutes } from './routes/upload'
 
+import { setup as queueSetup } from './queue'
+
 // const memoryStore = new session.MemoryStore()
 
 const app = express()
@@ -99,6 +101,8 @@ async function main () {
     addHasuraRoutes(app, sessionStore)
     addUploadRoutes(app, sessionMiddleware)
     app.use('/', proxy(process.env.APP_URL_PROXY))
+
+    await queueSetup()
 
     app.listen({ port: process.env.APP_PORT }, () =>
       console.log(`Server ready at ${process.env.APP_BASE_URL}`)

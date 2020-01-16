@@ -1,0 +1,17 @@
+mutation ( 
+  $name: String,
+  $uploaded_by_id: Int,
+  $asset_id: Int
+) {
+  insert_files(
+    objects: { 
+      name: $name,
+      uploaded_by_id: $uploaded_by_id,
+      asset_id: $asset_id
+    }
+  ) {
+    returning {
+      id
+    }
+  }
+}

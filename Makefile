@@ -44,7 +44,7 @@ install: install_docker_compose install_hasura_cli install_minio_cli
 setup_migrations:
 	cd hasura && hasura migrate apply && cd ..
 
-setup_minio: is_minio_running
+setup_minio:
 	mc config host add minio ${MINIO_URL} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY};
 	mc admin config set minio < minio/minioconfig;
 	mc admin service restart minio;

@@ -284,6 +284,9 @@ export default {
     citationBuilder
   },
   data: () => ({
+    project: {
+
+    },
     editMode: false,
     editmodeLabel: 'Edit',
     columns: [
