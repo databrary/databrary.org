@@ -1,5 +1,11 @@
 include .env
 
+UNAME := $(shell uname -s)
+# Need to find platform and export docker host ip
+# https://nickjanetakis.com/blog/docker-tip-65-get-your-docker-hosts-ip-address-from-in-a-container
+# if Mac/Win use host.docker.internal
+# if linux find the ip of docker0 when running ip a
+
 .PHONY: server client cleardb migrate install setup_minio setup_migrations
 
 is_hasura_running:
@@ -8,11 +14,23 @@ is_minio_running:
 	docker-compose ps | grep -q "minio"
 
 start_docker:
+ifeq ($(UNAME),Linux)
+	docker-compose -f docker-compose.gnu.yml up -d
+else
 	docker-compose up -d
+endif
 stop_docker:
+ifeq ($(UNAME),Linux)
+	docker-compose -f docker-compose.gnu.yml down
+else
 	docker-compose down
+endif
 cleardb:
+ifeq ($(UNAME),Linux)
+	docker-compose -f docker-compose.gnu.yml down -v
+else
 	docker-compose down -v
+endif
 
 server:
 	cd server && ts-node-dev src/index.ts && cd ..
@@ -23,7 +41,11 @@ migrate:
 queue:
 	cd server && ts-node-dev bin/worker.ts && cd ..
 docker:
+ifeq ($(UNAME),Linux)
+	docker-compose -f docker-compose.gnu.yml up
+else
 	docker-compose up
+endif
 
 install_docker_compose:
 	sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose &&
