@@ -62,7 +62,7 @@ export default {
         query: gql`
           query GetProjectsByUserId($userId: Int!) {
             assets(
-              where: {permissionset: {permissions: {group: {groups_users: {user_id: {_eq: $userId}}}}}},
+              where: {asset_type: {_eq: project}, _and: {created_by_id: {_eq: 1}}}
               order_by: {datetime_created: desc}
             ) {
               id
