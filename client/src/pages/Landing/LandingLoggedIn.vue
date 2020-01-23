@@ -6,7 +6,7 @@
     <div class="q-pa-md">
       <div class="row">
         <div class="col">
-          <q-btn color="primary" to="/project/create" label="Create project" />
+          <q-btn color="primary" :to="{ name: 'createProject' }" label="Create project" />
           <q-scroll-area v-if="projects" :style="{height: ($q.screen.height-250)+'px'}" style="max-width: 400px;">
             <q-list>
               <q-item-label header>Projects</q-item-label>
