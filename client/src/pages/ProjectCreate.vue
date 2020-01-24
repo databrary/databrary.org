@@ -25,6 +25,7 @@
 </template>
 
 <script>
+// TODO(Reda): Add here the wizard for creating a volume
 import mutation from '../graphql/createProject'
 
 export default {

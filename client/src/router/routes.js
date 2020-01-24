@@ -11,7 +11,7 @@ export default function routes (store) {
         {
           path: '',
           component: () => import('pages/LandingPage.vue')
-        },
+        }, // Reda: deactivate project path give access only to children or just change to /project/:id path
         {
           path: '/project',
           component: () => import('layouts/Project.vue'),

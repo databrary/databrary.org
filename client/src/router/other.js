@@ -1,3 +1,4 @@
+// Reda: these routes are examples
 export default function routes (store) {
   return [
     {

@@ -4,7 +4,10 @@
     "target": "es2019",
     "module": "commonjs",
     "moduleResolution": "node",
-    "lib": ["es2015", "dom"],
+    "lib": [
+      "es2015",
+      "dom"
+    ],
     "rootDir": ".",
     "outDir": "dist",
     "allowJs": true,

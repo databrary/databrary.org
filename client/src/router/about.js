@@ -1,3 +1,4 @@
+// Reda: might need to rename paths for this routes
 export default function routes (store) {
   return [
     { path: '/', component: () => import('pages/about/AboutProject.vue') },
