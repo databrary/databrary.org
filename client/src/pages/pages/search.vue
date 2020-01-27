@@ -1,11 +1,17 @@
 <template>
-  <q-page padding class="max-page-width">
+  <q-page
+    padding
+    class="max-page-width"
+  >
     <h4 class="text-weight-light no-margin q-py-md text-center">Search</h4>
     <section class="row">
-      <article
-        class="col-xs-12 col-sm-12 col-md-3"
-      >
-        <q-card class="q-mx-md-sm q-mb-sm" square flat bordered>
+      <article class="col-xs-12 col-sm-12 col-md-3">
+        <q-card
+          class="q-mx-md-sm q-mb-sm"
+          square
+          flat
+          bordered
+        >
           <q-card-section>
             <label>Search</label>
             <q-input
@@ -21,7 +27,10 @@
                 <q-icon name="search" />
               </template>
             </q-input>
-            <q-separator inset spaced />
+            <q-separator
+              inset
+              spaced
+            />
             <label>Start Date</label>
             <q-input
               tabindex="-1"
@@ -42,7 +51,10 @@
               type="date"
               hint
             />
-            <q-separator inset spaced />
+            <q-separator
+              inset
+              spaced
+            />
             <label>Tags</label>
             <q-input
               tabindex="-1"
@@ -58,9 +70,20 @@
         </q-card>
       </article>
       <article class="col-xs-12 col-sm-12 col-md-9">
-        <q-card square flat bordered class="q-mb-sm" v-for="n in 5" :key="n">
+        <q-card
+          square
+          flat
+          bordered
+          class="q-mb-sm"
+          v-for="n in 5"
+          :key="n"
+        >
           <q-card-section>
-            <router-link class="text-primary" :to="'search/' + n" exact>
+            <router-link
+              class="text-primary"
+              :to="'search/' + n"
+              exact
+            >
               <div class="text-h6">Result {{n}}</div>
             </router-link>
           </q-card-section>

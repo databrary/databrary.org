@@ -1,6 +1,9 @@
 <template>
   <div>
-    <q-page padding class="flex text-center">
+    <q-page
+      padding
+      class="flex text-center"
+    >
       <section class="text-center fit">
         <div class="text-weight-thin text-h1 block q-pt-lg">
           <q-avatar size="80px">
@@ -46,16 +49,19 @@
       <!-- Video section -->
       <section>
         <h4 class="text-weight-light no-margin q-py-md">Highlighted Videos</h4>
-        <div
-          class="row q-my-xl q-py-xl justify-center fit no-margin no-padding"
-        >
+        <div class="row q-my-xl q-py-xl justify-center fit no-margin no-padding">
           <div class="col-md-9 col-sm-10">
             <div class="row">
-              <div class="col-md-4 col-sm-6 group" v-for="n in 3" :key="n">
-                <q-card inline class="q-ma-sm">
-                  <q-video
-                    src="https://www.youtube.com/embed/OfIQW6s1-ew"
-                  />
+              <div
+                class="col-md-4 col-sm-6 group"
+                v-for="n in 3"
+                :key="n"
+              >
+                <q-card
+                  inline
+                  class="q-ma-sm"
+                >
+                  <q-video src="https://www.youtube.com/embed/OfIQW6s1-ew" />
                   <q-card-section>
                     Adolph, K. (2018). Excerpt: The organization of exploratory
                     behaviors in infant locomotor planning. Databrary.

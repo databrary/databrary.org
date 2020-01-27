@@ -1,7 +1,7 @@
 <template>
   <div>
     <LandingLoggedIn v-if="isLoggedIn" />
-    <LandingLoggedOut v-else/>
+    <LandingLoggedOut v-else />
   </div>
 </template>
 

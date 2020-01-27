@@ -1,96 +1,106 @@
 <template>
-<q-page padding class="row max-page-width">
-  <div class="col-xs-12 col-sm-12 col-md-9">
-    <q-table
-      :data="data"
-      :columns="columns"
-      row-key="name"
-      :selected-rows-label="getSelectedString"
-      selection="multiple"
-      :selected.sync="selected"
-      flat
-    >
-     <template v-slot:top="props">
-        <div class="col-2 q-table__title">
-          <h5 class="q-ma-none">Contrubutors</h5>
-        </div>
-        <q-space />
-        <div v-if="selected.length <= 5">
-          <q-avatar
-            class="q-ma-xs"
-            size="32px"
-            v-for="(contrib, index) in selected"
-            :key="index"
+  <q-page
+    padding
+    class="row max-page-width"
+  >
+    <div class="col-xs-12 col-sm-12 col-md-9">
+      <q-table
+        :data="data"
+        :columns="columns"
+        row-key="name"
+        :selected-rows-label="getSelectedString"
+        selection="multiple"
+        :selected.sync="selected"
+        flat
+      >
+        <template v-slot:top="props">
+          <div class="col-2 q-table__title">
+            <h5 class="q-ma-none">Contrubutors</h5>
+          </div>
+          <q-space />
+          <div v-if="selected.length <= 5">
+            <q-avatar
+              class="q-ma-xs"
+              size="32px"
+              v-for="(contrib, index) in selected"
+              :key="index"
+            >
+              <img :src="contrib.icon">
+            </q-avatar>
+          </div>
+          <div
+            v-else
+            class="q-pa-sm"
           >
-            <img :src="contrib.icon">
-          </q-avatar>
-        </div>
-        <div v-else class="q-pa-sm">
-          {{selected.length}} users selected
-        </div>
-        <q-select
-          v-if="selected.length >= 1"
-          filled
-          dense
-          v-model="actionOpt"
-          :options="actionOptions"
-          label="Action"
-        />
-        <q-select
-          dense
-          class="q-ml-sm"
-          v-if="actionOpt === 'Permissions' && selected.length >= 1"
-          filled
-          plaecholder="test"
-          v-model="childActionOpt"
-          :options="childActionOptions"
-          label="Action"
-        />
-        <q-btn
-          v-if="selected.length >= 1"
-          label="Run"
-          class="q-ml-sm"
-          color="warning"
-        >
-        </q-btn>
-      </template>
-
-    </q-table>
-  </div>
-  <div class="col-xs-12 col-sm-12 col-md-3 q-pa-sm">
-    <q-card flat bordered class="">
-      <q-card-section>
-        <q-select
-          filled
-          v-model="model"
-          use-input
-          input-debounce="0"
-          use-chips
-          label="Add Contributors"
-          :options="options"
-          @filter="filterFn"
-        >
-          <template v-slot:no-option>
-            <q-item>
-              <q-item-section class="text-grey">
-                No results
-              </q-item-section>
-            </q-item>
-          </template>
-        </q-select>
-        <div class="row justify-end">
+            {{selected.length}} users selected
+          </div>
+          <q-select
+            v-if="selected.length >= 1"
+            filled
+            dense
+            v-model="actionOpt"
+            :options="actionOptions"
+            label="Action"
+          />
+          <q-select
+            dense
+            class="q-ml-sm"
+            v-if="actionOpt === 'Permissions' && selected.length >= 1"
+            filled
+            plaecholder="test"
+            v-model="childActionOpt"
+            :options="childActionOptions"
+            label="Action"
+          />
           <q-btn
-            label="Add Contributor"
-            class="q-mt-sm"
-            color="green"
-            @click="addContributor()"
+            v-if="selected.length >= 1"
+            label="Run"
+            class="q-ml-sm"
+            color="warning"
           >
           </q-btn>
-        </div>
-      </q-card-section>
-    </q-card>
-  </div>
-</q-page>
+        </template>
+
+      </q-table>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-3 q-pa-sm">
+      <q-card
+        flat
+        bordered
+        class=""
+      >
+        <q-card-section>
+          <q-select
+            filled
+            v-model="model"
+            use-input
+            input-debounce="0"
+            use-chips
+            label="Add Contributors"
+            :options="options"
+            @filter="filterFn"
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  No results
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+          <div class="row justify-end">
+            <q-btn
+              label="Add Contributor"
+              class="q-mt-sm"
+              color="green"
+              @click="addContributor()"
+            >
+            </q-btn>
+          </div>
+        </q-card-section>
+      </q-card>
+    </div>
+  </q-page>
 </template>
 <script>
 const stringOptions = [
