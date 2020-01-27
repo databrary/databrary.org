@@ -30,3 +30,6 @@ I open 4 tabs and run the following commands
 Databrary: http://localhost:8000/login
 Hasura: http://localhost:8002 or http://localhost:9695
 Minio: http://localhost:9000
+
+# Important Notes:
+* Minio Client and Minio Docker image need to be compatible, make sure you alwauys have the right Minio Client for the right minio image.
