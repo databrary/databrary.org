@@ -55,6 +55,7 @@ export function routes (app: any, session: any) {
 
   app.post('/webhooks/minio',
     async (req: express.Request, res: express.Response) => {
+      console.log(`Minio webhook`)
       if (!_.isEmpty(req.body)) {
         const fileInfo = req.body.Records[0].s3.object
         await queue('processMinioUpload', fileInfo)
