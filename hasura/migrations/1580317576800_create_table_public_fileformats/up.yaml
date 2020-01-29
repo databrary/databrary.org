@@ -1,0 +1,126 @@
+- args:
+    sql: CREATE TABLE "public"."fileformats"("id" text NOT NULL, "comment" text NOT
+      NULL, PRIMARY KEY ("id") ); COMMENT ON TABLE "public"."fileformats" IS E'Databrary
+      MIME Types';
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('csv', 'Comma-separated values');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('rtf', 'Rich Text format');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('png', 'Portable network graphics');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('pdf', 'Portable document');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('doc', 'Microsoft Word document');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('odf', 'OpenDocument text');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('docx', 'Microsoft Word (Office Open XML) document');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('xls', 'Microsoft Excel spreadsheet');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('ods', 'OpenDocument spreadsheet');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('xlsx', 'Microsoft Excel (Office Open XML) workbook');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('ppt', 'Microsoft PowerPoint presentation');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('odp', 'OpenDocument presentation');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('pptx', 'Microsoft PowerPoint (Office Open XML) presentation');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('opf', 'Datavyu');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('sav', 'SPSS System File');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('its', 'LENA Interpreted Time Segments');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('txt', 'Plain text');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('cha', 'Codes for the Human Analysis of Transcripts');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('chat', 'Codes for the Human Analysis of Transcripts');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('eaf', 'ELAN - Linguistic Annotator');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('pfsx', 'ELAN - Linguistic Annotator');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('etf', 'ELAN - Linguistic Annotator');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('jpg', 'JPEG image');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('jpeg', 'JPEG image');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('webm', 'WebM video');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('mpg', 'MPEG program stream (MPEG-1/MPEG-2 video)');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('mpeg', 'MPEG program stream (MPEG-1/MPEG-2 video)');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('mov', 'QuickTime video');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('mts', 'MPEG transport stream');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('m2ts', 'MPEG transport stream');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('avi', 'Audio Video Interleave');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('wmv', 'Windows Media video');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('dv', 'Digital Interface Format video');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('dif', 'Digital Interface Format video');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('mp4', 'MPEG-4 video');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('wav', 'Waveform audio');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('aac', 'Advanced Audio Coding');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('wma', 'Windows Media audio');
+  type: run_sql
+- args:
+    sql: INSERT INTO "public"."fileformats" VALUES ('mp3', 'MPEG-1 or MPEG-2 audio layer III');
+  type: run_sql
+- args:
+    name: fileformats
+    schema: public
+  type: add_existing_table_or_view

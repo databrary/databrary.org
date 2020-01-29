@@ -67,10 +67,6 @@ services:
   #   depends_on:
   #     - search
 
-
-
- 
-
 volumes:
   minio_events:
   postgres_data:
