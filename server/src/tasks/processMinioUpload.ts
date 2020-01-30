@@ -68,11 +68,13 @@ async function canAccessAsset (id: number) {
 
 export default async function processMinioUpload (input: object) {
 
+  const fileId = _.toInteger(input['key'])
+
   // Get the file object based on the key
   const response = await adminQuery(
     `${process.cwd()}/../gql/getFile.gql`,
     {
-      id: _.toInteger(input['key'])
+      id: fileId
     }
   )
   const file = response[0]
@@ -113,11 +115,17 @@ export default async function processMinioUpload (input: object) {
     )
     const fileobjectId = response.returning[0].id
 
-    // TODO Update file with fileobject reference
+    const uploadedDatetime = new Date().toISOString()
+
     const responseUpdateFileObject = await adminMutate(
-      `${process.cwd()}/../gql/updateFile.gql`,
-      fileInfo
+      `${process.cwd()}/../gql/updateFile.gql`, {
+        fileId: fileId,
+        fileobjectId: fileobjectId,
+        uploadedDatetime: uploadedDatetime
+      }
     )
+
+    console.log(`File ${fileId} processed`)
   }
 
   // // Remove the original file

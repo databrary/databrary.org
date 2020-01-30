@@ -1,13 +1,15 @@
 mutation ( 
   $name: String,
-  $uploaded_by_id: Int,
-  $asset_id: Int
+  $uploadedById: Int,
+  $assetId: Int,
+  $fileFormatId: fileformats_enum
 ) {
   insert_files(
     objects: { 
       name: $name,
-      uploaded_by_id: $uploaded_by_id,
-      asset_id: $asset_id
+      uploadedById: $uploadedById,
+      assetId: $assetId,
+      fileFormatId: $fileFormatId
     }
   ) {
     returning {

@@ -19,6 +19,6 @@ async function runUnit (params) {
 
 export default async function worker (queue: string = 'main') {
   await boss.connect()
-  console.log('connected')
+  console.log('Worker connected')
   await boss.subscribe(queue, runUnit)
 }

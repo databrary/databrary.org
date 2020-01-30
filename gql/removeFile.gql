@@ -1,0 +1,7 @@
+mutation removeFile ($fileId: Int) {
+  delete_files(where: {id: {_eq: fileId}}) {
+    returning {
+      id
+    }
+  }
+}

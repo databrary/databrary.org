@@ -1,4 +1,4 @@
-query MyQuery ( $id: Int ) {
+query checkPermissionOfAsset ( $id: Int ) {
   assets(where: {id: {_eq: $id}}) {
     id
   }

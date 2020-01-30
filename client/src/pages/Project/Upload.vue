@@ -40,6 +40,7 @@ export default {
             body: JSON.stringify({
               filename: file.name,
               contentType: file.type,
+              format: file.extension,
               projectId: that.projectIdFromRoute
             })
           }).then((response) => {
@@ -53,6 +54,8 @@ export default {
               fields: data.fields,
               headers: data.headers
             }
+          }).catch((error) => {
+            console.log(`Uppy error ${error}`)
           })
         }
       })

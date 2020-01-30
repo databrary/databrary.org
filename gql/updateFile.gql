@@ -1,9 +1,9 @@
-mutation MyMutation ($fileobject_id: Int, $uploaded_datetime: Implicit) {
-  __typename
+mutation updateFile ($fileId: Int, $fileobjectId: Int, $uploadedDatetime: timestamp) {
   update_files(
+    where: {id: {_eq: $fileId}},
     _set: {
-      uploaded_datetime: $uploaded_datetime,
-      fileobject_id: $fileobject_id
+      fileobjectId: $fileobjectId,
+      uploadedDatetime: $uploadedDatetime
     }
   ) {
     returning {
