@@ -71,7 +71,7 @@ export default async function processMinioUpload (input: object) {
   const fileId = _.toInteger(input['key'])
 
   // Get the file object based on the key
-  const response = await adminQuery(
+  let response = await adminQuery(
     `${process.cwd()}/../gql/getFile.gql`,
     {
       id: fileId
@@ -102,18 +102,30 @@ export default async function processMinioUpload (input: object) {
     fileExistsInCas = false
   }
 
+  let fileobjectId
+
   if (!fileExistsInCas) {
     // Copy the file from the upoloads folder
     const conds = new CopyConditions()
     conds.setMatchETag(eTag)
     await minioClient.copyObject('cas', fileInfo.sha256, `/uploads/${input['key']}`, conds)
-
     // Create a fileobjects reference
-    const response = await adminMutate(
+    response = await adminMutate(
       `${process.cwd()}/../gql/insertFileObjectOnUpload.gql`, // TODO brittle for a number of reasons
       fileInfo
     )
-    const fileobjectId = response.returning[0].id
+    fileobjectId = response.returning[0].id
+  } else {
+    response = await adminMutate(
+      `${process.cwd()}/../gql/getFileObjectId.gql`, { // TODO brittle for a number of reasons
+        sha256: fileInfo.sha256
+      }
+    )
+    fileobjectId = response[0].id
+  }
+
+  if (fileobjectId != null) {
+    console.log(`File Object ID ${fileobjectId}`)
 
     const uploadedDatetime = new Date().toISOString()
 
