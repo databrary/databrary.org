@@ -60,6 +60,9 @@ passport.use(
     callbackURL: process.env.AUTH_CALLBACK_URL
   },
   function (accesseToken, refreshToken, profile, done) {
+    // This will get called each time a user authenticate through keycloak
+    // const user = Object.assign({}, profile)
+    // console.log(`Passport user ${user}`)
     done(null, profile)
   }
 ))

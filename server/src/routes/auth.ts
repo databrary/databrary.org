@@ -21,6 +21,7 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
     passport.authenticate('keycloak')
   )
 
+  // TODO(Reda): remove user registration from /auth/databrary/callback
   if (keycloak === false) {
     app.get('/auth/databrary/callback',
       session,
@@ -49,7 +50,7 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
       session,
       passport.authenticate('keycloak', { failureRedirect: '/login' }),
       async (req: express.Request, res: express.Response) => {
-      // Try to get the user based on the auth_server_id
+        // Try to get the user based on the auth_server_id
         let user = await getUser(
           req.session.passport.user.id
         )
@@ -92,6 +93,8 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
     }
   )
 
+  // TODO(Reda): dummy user creation should be done over here and only for dev env
+  // TODO(Reda): inconsistency between keycloak and hasura when an error happens during the redirect (invalid url or url not added the realm)
   app.get('/register',
     (req: express.Request, res: express.Response) => {
       const callbackUri = process.env.AUTH_CALLBACK_URL
@@ -111,6 +114,7 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
         if (err) {
           console.log('Error destroying session')
         }
+        res.clearCookie('localhost') // Fixes session-file-store errors
         res.redirect(url)
       })
     }

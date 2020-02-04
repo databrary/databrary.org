@@ -27,5 +27,5 @@ export default async function registerUser (authServerId: string, emailPrimary: 
   if (!response) {
     return null
   }
-  return response
+  return response.data.insert_users.returning[0]
 }
