@@ -7,7 +7,7 @@ import ApolloClient from 'apollo-client'
 
 export function createAdminClient () {
   const headers = {
-    'x-hasura-admin-secret': 'mysecret'
+    'x-hasura-admin-secret': process.env.HASURA_SECRET
   }
 
   headers['X-Hasura-Role'] = 'admin'

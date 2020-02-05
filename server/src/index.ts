@@ -30,10 +30,9 @@ app.use(cors())
 const FileStore = FileStoreSession(session)
 const sessionStore = new FileStore({})
 
-// TODO(Reda): use env variable for session name
 const sessionMiddleware = session({
-  name: 'localhost',
-  secret: 'mySecret',
+  name: process.env.SESSION_NAME,
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
   store: sessionStore

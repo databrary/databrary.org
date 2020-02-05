@@ -6,8 +6,8 @@ import { adminQuery, adminMutate } from '../graphqlClient'
 import { logger } from '@shared'
 
 const minioClient = new Client({
-  endPoint: 'localhost',
-  port: 9000,
+  endPoint: process.env.MINIO_ENDPOINT,
+  port: Number(process.env.MINIO_PORT),
   accessKey: process.env.MINIO_ACCESS_KEY,
   secretKey: process.env.MINIO_SECRET_KEY,
   useSSL: false // Default is true.
@@ -68,7 +68,7 @@ async function canAccessAsset (id: number) {
 }
 
 export default async function processMinioUpload (input: object) {
-
+  logger.debug(`Processing Minio upload for file ${input['key']}`)
   // Get the file object based on the key
   const response = await adminQuery(
     `${process.cwd()}/../gql/getFile.gql`,
