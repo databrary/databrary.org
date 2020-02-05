@@ -3,6 +3,7 @@ import { Client, CopyConditions } from 'minio'
 import _ from 'lodash'
 import '../config'
 import { adminQuery, adminMutate } from '../graphqlClient'
+import { logger } from '@shared'
 
 const minioClient = new Client({
   endPoint: 'localhost',
@@ -87,7 +88,7 @@ export default async function processMinioUpload (input: object) {
   // Get file info
   const fileInfo: FileInfo = await hashAndSizeMinio(minioClient, input['key'])
   if (fileInfo['size'] !== input['size']) {
-    console.log('Size mismatch') // TODO We need an error here
+    logger.error('Size mismatch') // TODO We need an error here
   }
 
   fileInfo.location = 's3://minio-1.nyu.edu/cas'

@@ -6,6 +6,7 @@ import { adminMutate } from '../graphqlClient'
 import queue from '../queue'
 
 import '../config'
+import { logger } from '@shared'
 
 let s3Client = new Client({
   endPoint: 'localhost',
@@ -19,7 +20,7 @@ export function routes (app: any, session: any) {
   app.post('/sign-upload',
     session,
     async (req: express.Request, res: express.Response) => {
-      console.log(req.body)
+      logger.debug(req.body)
       // Create a file object
       const response = await adminMutate(
         `${process.cwd()}/../gql/insertFile.gql`,
@@ -39,7 +40,7 @@ export function routes (app: any, session: any) {
         encodeURIComponent(filename),
         1000,
         function (e, presignedUrl) {
-          if (e) return console.log(e)
+          if (e) return logger.error(e)
           res.json({
             url: presignedUrl,
             method: 'put',

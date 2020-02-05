@@ -2,6 +2,7 @@ import express from 'express'
 import getUser from '../units/getUser'
 import registerUser from '../units/registerUser'
 import '../config'
+import { logger } from '@shared'
 
 function uuid () {
   let s = []
@@ -29,14 +30,14 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
         let user = await getUser(
           process.env.DUMMY_USER_AUTH_SERVER_ID
         )
-        console.log('user', user)
+        logger.debug(`User ${user}`)
         // If the user is null, register the user in the database
         if (user === null) {
           user = await registerUser(
             process.env.DUMMY_USER_AUTH_SERVER_ID,
             process.env.DUMMY_USER_EMAIL
           )
-          console.log('register user', user)
+          logger.debug(`Register User ${user}`)
         }
         req.session.dbId = user.id
         req.session.authServerId = user.auth_server_id
@@ -112,8 +113,9 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
       }
       req.session.destroy((err) => {
         if (err) {
-          console.log('Error destroying session')
+          logger.error('Error destroying session')
         }
+        // TODO(Reda): User the env variable used in the session name middleware
         res.clearCookie('localhost') // Fixes session-file-store errors
         res.redirect(url)
       })

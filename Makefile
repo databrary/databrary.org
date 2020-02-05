@@ -33,13 +33,13 @@ else
 endif
 
 server:
-	cd server && ts-node-dev src/index.ts && cd ..
+	cd server && npm run dev && cd ..
 client:
 	cd client && yarn run dev && cd ..
 migrate:
 	cd hasura && hasura migrate apply && hasura console && cd ..
 queue:
-	cd server && ts-node-dev bin/worker.ts && cd ..
+	cd server && npm run queue && cd ..
 docker:
 ifeq ($(UNAME),Linux)
 	docker-compose -f docker-compose.gnu.yml up

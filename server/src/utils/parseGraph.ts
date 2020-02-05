@@ -6,6 +6,8 @@ import _ from 'lodash'
 const queryAsString = 'mutation {\n  createPost(title: "Title 1")\n}\n'
 const query = gql`${queryAsString}`
 
+// TODO(Reda): Remove this file
+
 const edits = [
   {
     'type': 'mutation',

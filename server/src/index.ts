@@ -19,6 +19,7 @@ import { routes as addHasuraRoutes } from './routes/hasura'
 import { routes as addUploadRoutes } from './routes/upload'
 
 import { setup as queueSetup } from './queue'
+import { logger } from '@shared'
 
 // const memoryStore = new session.MemoryStore()
 
@@ -29,6 +30,7 @@ app.use(cors())
 const FileStore = FileStoreSession(session)
 const sessionStore = new FileStore({})
 
+// TODO(Reda): use env variable for session name
 const sessionMiddleware = session({
   name: 'localhost',
   secret: 'mySecret',
@@ -108,10 +110,10 @@ async function main () {
     await queueSetup()
 
     app.listen({ port: process.env.APP_PORT }, () =>
-      console.log(`Server ready at ${process.env.APP_BASE_URL}`)
+      logger.info(`Server ready at ${process.env.APP_BASE_URL}`)
     )
   } catch (err) {
-    console.log(err)
+    logger.error(err)
   }
 }
 

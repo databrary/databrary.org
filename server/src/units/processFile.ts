@@ -1,5 +1,5 @@
 import { Client } from 'minio'
-
+// TODO(Reda): remove this file
 import {
   MINIO_ACCESS_KEY,
   MINIO_SECRET_KEY
