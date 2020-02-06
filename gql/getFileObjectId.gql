@@ -1,0 +1,11 @@
+query getFileObjectId ($sha256: String) {
+  fileobjects(
+      where: {
+        sha256: {
+         _eq: $sha256
+        }
+      }
+  ) {
+    id
+  }
+}
