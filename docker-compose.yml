@@ -38,24 +38,27 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
 
-  # keycloak:
-  #   image: jboss/keycloak
-  #   environment:
-  #     DB_VENDOR: POSTGRES
-  #     DB_ADDR: postgres
-  #     DB_DATABASE: ${KEYCLOAK_DATABASE}
-  #     DB_USER: ${POSTGRES_USER}
-  #     DB_SCHEMA: public
-  #     DB_PASSWORD: ${POSTGRES_PASSWORD}
-  #     KEYCLOAK_USER: ${KEYCLOAK_USERNAME}
-  #     KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
-  #     # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
-  #     #JDBC_PARAMS: "ssl=true"
-  #   ports:
-  #     - ${KEYCLOAK_PORT}:8080
-  #   depends_on:
-  #     - postgres
-  #   restart: always
+  keycloak:
+    image: jboss/keycloak
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: ${KEYCLOAK_DATABASE}
+      DB_USER: ${POSTGRES_USER}
+      DB_SCHEMA: public
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_USER: ${KEYCLOAK_USERNAME}
+      KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
+      KEYCLOAK_IMPORT: /opt/jboss/keycloak/realm-export.json
+      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
+      #JDBC_PARAMS: "ssl=true"
+    volumes: 
+      - ./server/realm-export.json:/opt/jboss/keycloak/realm-export.json
+    ports:
+      - ${KEYCLOAK_PORT}:8080
+    depends_on:
+      - postgres
+    restart: always
   
   # dejavu:
   #   image: appbaseio/dejavu
