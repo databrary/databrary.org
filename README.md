@@ -20,16 +20,23 @@ Make sure you have Docker, docker-compose, and yarn installed. Links/instruction
 # Dev env
 
 I open 4 tabs and run the following commands
+
     make docker
-    make server
+    make server DEV=1 // DEV IS IMPORTANT,SEE NOTES
     make client
     make migrate
 
+**Notes:**
+
+the following command will run the server in production mode 
+
+    make server
+
 # Browser
 
-Databrary: http://localhost:8000/login
-Hasura: http://localhost:8002 or http://localhost:9695
-Minio: http://localhost:9000
+* Databrary: http://localhost:8000/login
+* Hasura: http://localhost:8002 if you wan to run hasura in migaration mode http://localhost:9695
+* Minio: http://localhost:9000
 
 # Important Notes:
 * Minio Client and Minio Docker image need to be compatible, make sure you alwauys have the right Minio Client for the right minio image.

@@ -32,7 +32,7 @@ services:
       - file_data:/data
       - minio_events:/events
     ports:
-      - "9000:9000"
+      - "${MINIO_PORT}:9000"
     command: server /data
     environment:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}

@@ -3,9 +3,11 @@ import { createHttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import ApolloClient from 'apollo-client'
 
+// TODO(Reda):Update uri according to the env var
+
 export function createAdminClient () {
   const headers = {
-    'x-hasura-admin-secret': 'mysecret'
+    'x-hasura-admin-secret': process.env.HASURA_SECRET
   }
 
   headers['X-Hasura-Role'] = 'admin'

@@ -1,5 +1,6 @@
 import client from '../graphqlClient'
 import { gql } from 'apollo-server-express'
+import { logger } from '@shared'
 
 const mutation = gql`
   mutation MyMutation ($authServerId: String!, $emailPrimary: String!) {
@@ -17,6 +18,7 @@ const mutation = gql`
   }
 `
 export default async function registerUser (authServerId: string, emailPrimary: string) {
+  logger.debug(`Registering User ${authServerId}`)
   const response = await client.mutate({
     mutation,
     variables: {

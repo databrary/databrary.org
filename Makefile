@@ -31,21 +31,26 @@ ifeq ($(UNAME),Linux)
 else
 	docker-compose down -v
 endif
-
-server:
-	cd server && ts-node-dev src/index.ts && cd ..
-client:
-	cd client && yarn run dev && cd ..
-migrate:
-	cd hasura && hasura migrate apply && hasura console && cd ..
-queue:
-	cd server && ts-node-dev bin/worker.ts && cd ..
 docker:
 ifeq ($(UNAME),Linux)
 	docker-compose -f docker-compose.gnu.yml up
 else
 	docker-compose up
 endif
+server:
+ifdef DEV
+	@echo "Running development server"
+	cd server && npm run dev -- --env=dev && cd ..
+else
+	@echo "Running production server"
+	cd server && npm run dev && cd ..
+endif
+client:
+	cd client && npm run dev && cd ..
+migrate:
+	cd hasura && hasura migrate apply && hasura console && cd ..
+queue:
+	cd server && npm run queue && cd ..
 
 install_docker_compose:
 	sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose &&

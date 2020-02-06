@@ -3,10 +3,11 @@ import { Client, CopyConditions } from 'minio'
 import _ from 'lodash'
 import '../config'
 import { adminQuery, adminMutate } from '../graphqlClient'
+import { logger } from '@shared'
 
 const minioClient = new Client({
-  endPoint: 'localhost',
-  port: 9000,
+  endPoint: process.env.MINIO_ENDPOINT,
+  port: Number(process.env.MINIO_PORT),
   accessKey: process.env.MINIO_ACCESS_KEY,
   secretKey: process.env.MINIO_SECRET_KEY,
   useSSL: false // Default is true.
@@ -68,6 +69,7 @@ async function canAccessAsset (id: number) {
 
 export default async function processMinioUpload (input: object) {
 
+  logger.debug(`Processing Minio upload for file ${input['key']}`)
   const fileId = _.toInteger(input['key'])
 
   // Get the file object based on the key
@@ -89,7 +91,7 @@ export default async function processMinioUpload (input: object) {
   // Get file info
   const fileInfo: FileInfo = await hashAndSizeMinio(minioClient, input['key'])
   if (fileInfo['size'] !== input['size']) {
-    console.log('Size mismatch') // TODO We need an error here
+    logger.error('Size mismatch') // TODO We need an error here
   }
 
   fileInfo.location = 's3://minio-1.nyu.edu/cas'

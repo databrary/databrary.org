@@ -6,6 +6,7 @@ import { adminMutate } from '../graphqlClient'
 import queue from '../queue'
 
 import '../config'
+import { logger } from '@shared'
 
 let s3Client = new Client({
   endPoint: 'localhost',
@@ -21,6 +22,7 @@ export function routes (app: any, session: any) {
     async (req: express.Request, res: express.Response) => {
       // Create a file object
       try {
+        logger.debug(JSON.stringify(req.body))
         const bucketFound = await s3Client.bucketExists('uploads')
         const response = await adminMutate(
           `${process.cwd()}/../gql/insertFile.gql`,
@@ -32,6 +34,7 @@ export function routes (app: any, session: any) {
           }
         )
         // Get the unique id of the upload object and make that the filename
+        // TODO(Reda): Fix the return of the gql query getFileId 
         const filename = response.returning[0].id
         if (bucketFound) {
           // Send signed url
@@ -53,6 +56,7 @@ export function routes (app: any, session: any) {
             ) 
         } else {
           // TODO(Reda): throw an error to stop the front end uppy upload
+          // TODO(Reda): Fix the return of the gql mutation removeFile
           const responseUpdateFileObject = await adminMutate(
             `${process.cwd()}/../gql/removeFile.gql`, {
               fileId: response.returning[0].id
