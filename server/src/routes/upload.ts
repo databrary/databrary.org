@@ -20,37 +20,52 @@ export function routes (app: any, session: any) {
   app.post('/sign-upload',
     session,
     async (req: express.Request, res: express.Response) => {
-      logger.debug(req.body)
       // Create a file object
-      const response = await adminMutate(
-        `${process.cwd()}/../gql/insertFile.gql`,
-        {
-          name: decodeURIComponent(req.body.filename),
-          uploaded_by_id: req.session.dbId,
-          asset_id: req.body.projectId
-        }
-      )
-
-      // Get the unique id of the upload object and make that the filename
-      const filename = response.returning[0].id
-
-      // Send signed url
-      s3Client.presignedPutObject(
-        'uploads', // Bucket name
-        encodeURIComponent(filename),
-        1000,
-        function (e, presignedUrl) {
-          if (e) return logger.error(e)
-          res.json({
-            url: presignedUrl,
-            method: 'put',
-            fields: [],
-            headers: {
-              'content-type': req.body.contentType
+      try {
+        logger.debug(JSON.stringify(req.body))
+        const bucketFound = await s3Client.bucketExists('uploads')
+        const response = await adminMutate(
+          `${process.cwd()}/../gql/insertFile.gql`,
+          {
+            name: decodeURIComponent(req.body.filename),
+            uploadedById: req.session.dbId,
+            assetId: req.body.projectId,
+            fileFormatId: req.body.format
+          }
+        )
+        // Get the unique id of the upload object and make that the filename
+        // TODO(Reda): Fix the return of the gql query getFileId 
+        const filename = response.returning[0].id
+        if (bucketFound) {
+          // Send signed url
+          s3Client.presignedPutObject(
+              'uploads', // Bucket name
+              encodeURIComponent(filename),
+              1000,
+              function (e, presignedUrl) {
+                if (e) return console.log(e)
+                res.json({
+                  url: presignedUrl,
+                  method: 'put',
+                  fields: [],
+                  headers: {
+                    'content-type': req.body.contentType
+                  }
+                })
+              }
+            ) 
+        } else {
+          // TODO(Reda): throw an error to stop the front end uppy upload
+          // TODO(Reda): Fix the return of the gql mutation removeFile
+          const responseUpdateFileObject = await adminMutate(
+            `${process.cwd()}/../gql/removeFile.gql`, {
+              fileId: response.returning[0].id
             }
-          })
+          )
         }
-      )
+      } catch (error) {
+        console.log(error)
+      }
     }
   )
 

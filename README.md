@@ -37,3 +37,6 @@ the following command will run the server in production mode
 * Databrary: http://localhost:8000/login
 * Hasura: http://localhost:8002 if you wan to run hasura in migaration mode http://localhost:9695
 * Minio: http://localhost:9000
+
+# Important Notes:
+* Minio Client and Minio Docker image need to be compatible, make sure you alwauys have the right Minio Client for the right minio image.

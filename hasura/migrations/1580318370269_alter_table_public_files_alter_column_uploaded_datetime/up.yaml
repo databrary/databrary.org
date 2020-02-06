@@ -1,0 +1,9 @@
+- args:
+    sql: ALTER TABLE "public"."files" ALTER COLUMN "uploaded_datetime" TYPE timestamp;
+  type: run_sql
+- args:
+    sql: COMMENT ON COLUMN "public"."files"."uploaded_datetime" IS E''
+  type: run_sql
+- args:
+    sql: alter table "public"."files" rename column "uploaded_datetime" to "uploadedDatetime";
+  type: run_sql

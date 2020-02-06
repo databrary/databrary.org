@@ -1,4 +1,4 @@
-query MyQuery ($id: Int){
+query getFile ($id: Int){
   files(
     where: {
       id: {
@@ -8,7 +8,7 @@ query MyQuery ($id: Int){
   ) {
     id
     name
-    uploaded_by_id
-    asset_id
+    uploadedById
+    assetId
   }
 }
