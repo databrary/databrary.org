@@ -13,7 +13,7 @@ require('@uppy/webcam/dist/style.css')
 require('@uppy/url/dist/style.css')
 
 export default {
-  name: 'PageId',
+  name: 'FileUploader',
   data: function data () {
     return {
       uppy: ''

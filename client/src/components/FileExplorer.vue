@@ -1,7 +1,7 @@
 <template>
   <section class="row q-py-lg">
     <q-toolbar class="no-padding bg-white text-dark q-mt-sm">
-      <q-toolbar-title>Data</q-toolbar-title>
+      <q-toolbar-title>Files</q-toolbar-title>
       <q-btn
         flat
         icon="cloud_upload"
@@ -101,14 +101,7 @@
       </q-card>
     </q-dialog>
     <q-dialog v-model="fileUploadDialog" position="bottom">
-      <q-linear-progress :value="0.6" color="pink" />
-      <q-uploader
-        url="http://localhost:4444/upload"
-        label="Upload Files"
-        multiple
-        batch
-        style="max-width: 1000px"
-      />
+      <FileUploader />
     </q-dialog>
     <div class="col-xs-12 col-sm-12 col-md-12">
       <q-splitter v-model="splitterModel" style="height: 400px">
@@ -159,9 +152,13 @@
 <script>
 import { date } from 'quasar'
 import gql from 'graphql-tag'
+import FileUploader from './FileUploader'
 
 export default {
   name: 'FileExplorer',
+  components: {
+    FileUploader
+  },
   data: () => ({
     datetimeCreated: null,
     pagination: {

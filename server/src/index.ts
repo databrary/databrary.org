@@ -35,7 +35,10 @@ const sessionMiddleware = session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
-  store: sessionStore
+  store: sessionStore,
+  cookie: {
+    maxAge: 30 * 24 * 60 * 60 * 1000
+  }
 })
 
 app.use(passport.initialize())

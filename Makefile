@@ -1,5 +1,7 @@
 include .env
 
+# TODO differentiate WSL Linux and Linux see:
+# https://stackoverflow.com/questions/38086185/how-to-check-if-a-program-is-run-in-bash-on-ubuntu-on-windows-and-not-just-plain
 UNAME := $(shell uname -s)
 # Need to find platform and export docker host ip
 # https://nickjanetakis.com/blog/docker-tip-65-get-your-docker-hosts-ip-address-from-in-a-container
@@ -34,7 +36,7 @@ endif
 docker:
 ifeq ($(UNAME),Linux)
 	docker-compose -f docker-compose.gnu.yml up
-else
+else 
 	docker-compose up
 endif
 server:
@@ -60,13 +62,15 @@ install_hasura_cli:
 install_minio_cli:
 	sudo curl -L https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/ &&
 	sudo chmod +x /usr/local/bin/mc;
-install: install_docker_compose install_hasura_cli install_minio_cli
+install_js_clis:
 	npm install -g yarn;
 	npm install -g typescript;
 	npm install -g ts-node-dev;
 	npm install -g @quasar/cli;
+install_js_packages:
 	cd server && yarn && cd ..;
 	cd client && yarn && cd ..;
+install: install_docker_compose install_hasura_cli install_minio_cli install_js_clis install_js_packages
 
 setup_migrations:
 	cd hasura && hasura migrate apply && cd ..
