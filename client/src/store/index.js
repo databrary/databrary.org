@@ -1,7 +1,10 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import auth from './auth'
+import pathify from './pathify'
+
+import app from './app'
+// import auth from './auth'
 
 Vue.use(Vuex)
 
@@ -12,8 +15,11 @@ Vue.use(Vuex)
 
 export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
+    plugins: [ pathify.plugin ],
+
     modules: {
-      auth
+      // auth,
+      app
     },
 
     // enable strict mode (adds overhead!)

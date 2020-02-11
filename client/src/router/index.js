@@ -14,13 +14,16 @@ export default function ({ store, ssrContext }) {
   const Router = new VueRouter({
     scrollBehavior: () => ({ x: 0, y: 0 }),
     routes: routes(store),
-
     // Leave these as is and change from quasar.conf.js instead!
     // quasar.conf.js -> build -> vueRouterMode
     // quasar.conf.js -> build -> publicPath
     mode: process.env.VUE_ROUTER_MODE,
     base: process.env.VUE_ROUTER_BASE
   })
-
+  // TODO Probably should remove this; trying diff strategy
+  // Router.beforeEach((to, from, next) => {
+  //   console.log('authenticated')
+  //   next()
+  // })
   return Router
 }

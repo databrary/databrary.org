@@ -11,7 +11,7 @@ services:
       - ${POSTGRES_PORT}:5432
     restart: always
     volumes:
-      - ./docker-scripts/init.sql:/docker-entrypoint-initdb.d/1-init.sql
+      - ./docker-scripts/:/docker-entrypoint-initdb.d/
       - postgres_data:/var/lib/postgresql/data
 
   graphql-engine:

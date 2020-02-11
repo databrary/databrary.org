@@ -6,6 +6,8 @@
 </template>
 
 <script>
+import { get } from 'vuex-pathify'
+
 import LandingLoggedIn from './Landing/LandingLoggedIn.vue'
 import LandingLoggedOut from './Landing/LandingLoggedOut.vue'
 
@@ -16,7 +18,7 @@ export default {
     LandingLoggedOut
   },
   computed: {
-    isLoggedIn () { return this.$store.getters['auth/isLoggedIn'] }
+    isLoggedIn: get('app/isLoggedIn')
   }
 }
 </script>

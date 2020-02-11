@@ -37,7 +37,7 @@ const sessionMiddleware = session({
   saveUninitialized: true,
   store: sessionStore,
   cookie: {
-    maxAge: 30 * 24 * 60 * 60 * 1000
+    maxAge: 30 * 24 * 60 * 60 * 1000 // TODO come up with a reasonable number here; this is a month in ms
   }
 })
 

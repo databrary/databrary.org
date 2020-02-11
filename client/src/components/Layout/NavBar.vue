@@ -212,16 +212,18 @@
 </template>
 
 <script>
+import { sync } from 'vuex-pathify'
+
 export default {
   computed: {
-    isLoggedIn () { return this.$store.getters['auth/isLoggedIn'] },
+    isLoggedIn: sync('app/isLoggedIn'),
     loginUrl () {
       return `http://localhost:8000/login?redirect=${encodeURIComponent(window.location.href)}`
     }
   },
   methods: {
     logout () {
-      this.$store.commit('auth/logOut')
+      this.isLoggedIn = false
     },
     toggleDrawer () {
       this.$emit('toggleDrawer')

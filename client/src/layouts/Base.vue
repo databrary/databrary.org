@@ -22,7 +22,9 @@
 </template>
 
 <script>
+import { sync } from 'vuex-pathify'
 import { openURL } from 'quasar'
+import axios from 'axios'
 import NavBar from '../components/Layout/NavBar.vue'
 
 export default {
@@ -36,14 +38,40 @@ export default {
       year: null
     }
   },
+  computed: {
+    isLoggedIn: sync('app/isLoggedIn'),
+    userId: sync('app/dbId'),
+    sessionId: sync('app/sessionId')
+  },
+  async created () {
+    this.year = (new Date()).getFullYear()
+    await this.fetchData()
+  },
+  watch: {
+    $route: 'fetchData'
+  },
   methods: {
+    async fetchData () {
+      if (this.isLoggedIn === null) {
+        const response = await axios({ url: 'http://localhost:8000/session', method: 'GET' })
+        if (response.data.sessionID) {
+          this.isLoggedIn = true
+          this.userId = response.data.dbId
+          this.sessionId = response.data.sessionID
+        } else {
+          this.isLoggedIn = false
+          this.userId = null
+          this.sessionId = null
+          openURL('http://localhost:8000/login')
+        }
+      } else if (this.isLoggedIn === false) {
+        openURL('http://localhost:8000/login')
+      }
+    },
     openURL,
     toggleDrawer () {
       this.leftDrawerOpen = !this.leftDrawerOpen
     }
-  },
-  created () {
-    this.year = (new Date()).getFullYear()
   }
 }
 </script>
