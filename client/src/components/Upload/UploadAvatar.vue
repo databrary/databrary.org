@@ -29,8 +29,6 @@ export default {
     }
   },
   mounted: function mounted () {
-    this.projectIdFromRoute = this.$route.params.projectId
-    const that = this
     this.uppy = Uppy({
       id: 'AvatarUploader',
       allowMultipleUploads: false,
@@ -67,8 +65,7 @@ export default {
           body: JSON.stringify({
             filename: file.name,
             contentType: file.type,
-            format: file.extension,
-            projectId: that.projectIdFromRoute
+            format: file.extension
           })
         }).then((response) => {
           // console.log('response', response)
