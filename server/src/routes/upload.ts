@@ -34,7 +34,7 @@ export function routes (app: any, session: any) {
           }
         )
         // Get the unique id of the upload object and make that the filename
-        // TODO(Reda): Fix the return of the gql query getFileId 
+        // TODO(Reda): Fix the return of the gql query getFileId
         const filename = response.returning[0].id
         if (bucketFound) {
           // Send signed url
@@ -53,7 +53,7 @@ export function routes (app: any, session: any) {
                   }
                 })
               }
-            ) 
+            )
         } else {
           // TODO(Reda): throw an error to stop the front end uppy upload
           // TODO(Reda): Fix the return of the gql mutation removeFile
