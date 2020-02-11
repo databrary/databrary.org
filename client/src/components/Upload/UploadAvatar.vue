@@ -56,7 +56,7 @@ export default {
       plugins: ['Webcam']
     }).use(AwsS3, {
       getUploadParameters (file) {
-        return fetch('/sign-upload', {
+        return fetch('/sign-avatar-upload', {
           method: 'post',
           headers: {
             accept: 'application/json',
