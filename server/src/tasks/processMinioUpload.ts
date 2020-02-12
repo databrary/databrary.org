@@ -1,9 +1,8 @@
-import crypto from 'crypto'
-import { Client, CopyConditions } from 'minio'
 import _ from 'lodash'
-import '../config'
+import { Client, CopyConditions } from 'minio'
 import { adminQuery, adminMutate } from '../graphqlClient'
 import { logger } from '@shared'
+import { IFileInfo, canAccessAsset, hashAndSizeMinio } from '@utils'
 
 const minioClient = new Client({
   endPoint: process.env.MINIO_ENDPOINT,
@@ -12,60 +11,6 @@ const minioClient = new Client({
   secretKey: process.env.MINIO_SECRET_KEY,
   useSSL: false // Default is true.
 })
-
-interface FileInfo {
-  size: number
-  md5: string
-  sha1: string
-  sha256: string
-  location?: string
-}
-
-function hashAndSizeMinio (client: Client, decodedKey: string): Promise<FileInfo> {
-  return new Promise((resolve, reject) => {
-    const hashSha256 = crypto.createHash('sha256')
-    const hashMd5 = crypto.createHash('md5')
-    const hashSha1 = crypto.createHash('sha1') // todo check this
-    let size = 0
-
-    client.getObject('uploads', decodedKey, function (err, dataStream) {
-      if (err) { reject(err) }
-
-      dataStream.on('data', function (chunk) {
-        size += chunk.length
-        hashMd5.update(chunk)
-        hashSha1.update(chunk)
-        hashSha256.update(chunk)
-      })
-
-      dataStream.on('end', function () {
-        const md5 = hashMd5.digest().toString('hex')
-        const sha1 = hashSha1.digest().toString('hex')
-        const sha256 = hashSha256.digest().toString('hex')
-        resolve({
-          size,
-          md5,
-          sha1,
-          sha256
-        })
-      })
-
-      dataStream.on('error', function (err) {
-        reject(err)
-      })
-    })
-  })
-}
-
-async function canAccessAsset (id: number) {
-  const response = await adminQuery(
-    `${process.cwd()}/../gql/checkPermissionOfAsset.gql`,
-    {
-      id
-    }
-  )
-  return !_.isEmpty(response)
-}
 
 export default async function processMinioUpload (input: object) {
 
@@ -89,7 +34,7 @@ export default async function processMinioUpload (input: object) {
   const eTag = input['eTag']
 
   // Get file info
-  const fileInfo: FileInfo = await hashAndSizeMinio(minioClient, input['key'])
+  const fileInfo: IFileInfo = await hashAndSizeMinio(minioClient, input['key'])
   if (fileInfo['size'] !== input['size']) {
     logger.error('Size mismatch') // TODO We need an error here
   }

@@ -1,7 +1,7 @@
 import fetch from 'node-fetch'
+import ApolloClient from 'apollo-client'
 import { createHttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
-import ApolloClient from 'apollo-client'
 
 // TODO(Reda):Update uri according to the env var
 

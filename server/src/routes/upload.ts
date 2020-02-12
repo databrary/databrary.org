@@ -1,14 +1,11 @@
-import express from 'express'
-import { Client } from 'minio'
 import _ from 'lodash'
-import { adminMutate } from '../graphqlClient'
-
+import express from 'express'
 import queue from '../queue'
-
-import '../config'
+import { adminMutate } from '../graphqlClient'
+import { Client } from 'minio'
 import { logger } from '@shared'
 
-let s3Client = new Client({
+let minioClient = new Client({
   endPoint: 'localhost',
   port: 9000,
   accessKey: process.env.MINIO_ACCESS_KEY,
@@ -17,13 +14,13 @@ let s3Client = new Client({
 })
 
 async function processAvatarUpload (input: object) {
-          // TODO process here the avatar upload
-          // hash and size the file 
-          // check if exist
-          // process original and small format of the picture and rename
-          // Copy to cas
-          // Get userID
-          // update users table with the reference to the avatar
+  // TODO process here the avatar upload
+  // hash and size the file
+  // check if exist
+  // process original and small format of the picture and rename
+  // Copy to cas
+  // Get userID
+  // update users table with the reference to the avatar
 }
 
 export function routes (app: any, session: any) {
@@ -33,7 +30,7 @@ export function routes (app: any, session: any) {
       // Create a file object
       try {
         logger.debug(JSON.stringify(req.body))
-        const bucketFound = await s3Client.bucketExists('uploads')
+        const bucketFound = await minioClient.bucketExists('uploads')
         const response = await adminMutate(
           `${process.cwd()}/../gql/insertFile.gql`,
           {
@@ -48,7 +45,7 @@ export function routes (app: any, session: any) {
         const filename = response.returning[0].id
         if (bucketFound) {
           // Send signed url
-          s3Client.presignedPutObject(
+          minioClient.presignedPutObject(
               'uploads', // Bucket name
               encodeURIComponent(filename),
               1000,
@@ -85,12 +82,12 @@ export function routes (app: any, session: any) {
       // Create a file object
       try {
         logger.debug(JSON.stringify(req.body))
-        const bucketFound = await s3Client.bucketExists('avatars')
+        const bucketFound = await minioClient.bucketExists('avatars')
         // Get the unique id of the upload object and make that the filename
         // TODO(Reda): Fix the return of the gql query getFileId
         if (bucketFound) {
           // Send signed url
-          s3Client.presignedPutObject(
+          minioClient.presignedPutObject(
             'avatars', // Bucket name
             req.body.filename,
             1000,

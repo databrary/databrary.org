@@ -1,9 +1,8 @@
-import { createAdminClient } from './utils/createGqlClient'
-import { importSchema } from 'graphql-import'
-import gql from 'graphql-tag'
 import _ from 'lodash'
+import gql from 'graphql-tag'
 import fs from 'fs-extra'
 import { logger } from '@shared'
+import { createAdminClient } from '@utils'
 
 const client = createAdminClient()
 const cache = {}

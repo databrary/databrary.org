@@ -1,8 +1,8 @@
-import { introspectSchema, makeExecutableSchema, makeRemoteExecutableSchema, mergeSchemas } from 'graphql-tools'
-import { HttpLink } from 'apollo-link-http'
+import * as _ from 'lodash'
 import fetch from 'node-fetch'
 import pMap from 'p-map'
-import * as _ from 'lodash'
+import { introspectSchema, makeExecutableSchema, makeRemoteExecutableSchema, mergeSchemas } from 'graphql-tools'
+import { HttpLink } from 'apollo-link-http'
 
 export async function mergeSchemaList (schemas: any) {
   const executableSchemas = await pMap(schemas, async (schema: any) => {
