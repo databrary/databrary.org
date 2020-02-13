@@ -1,10 +1,14 @@
 <template>
   <q-layout  view="hHh lpr fFf">
+
     <q-header style="min-width:320px" reveal bordered>
       <NavBar @toggleDrawer="toggleDrawer"/>
     </q-header>
 
     <q-page-container>
+      <q-banner v-if="isBackendDisconnected" inline-actions class="text-white bg-red">
+        Disconnected from the backend. Start the server or change the port.
+    </q-banner>
       <router-view />
     </q-page-container>
 
@@ -35,7 +39,8 @@ export default {
   data () {
     return {
       leftDrawerOpen: false, // this.$q.platform.is.desktop,
-      year: null
+      year: null,
+      isBackendDisconnected: false
     }
   },
   computed: {
@@ -52,20 +57,29 @@ export default {
   },
   methods: {
     async fetchData () {
-      if (this.isLoggedIn === null) {
-        const response = await axios({ url: 'http://localhost:8000/session', method: 'GET' })
-        if (response.data.sessionID) {
-          this.isLoggedIn = true
-          this.userId = response.data.dbId
-          this.sessionId = response.data.sessionID
-        } else {
-          this.isLoggedIn = false
-          this.userId = null
-          this.sessionId = null
-          openURL('http://localhost:8000/login')
+      if (
+        this.isLoggedIn === null ||
+        (this.isLoggedIn === true && this.userId === null)
+      ) {
+        try {
+          const response = await axios({ url: '/session', method: 'GET' })
+          console.log(response.data)
+          if (response.data['dbId']) {
+            this.isLoggedIn = true
+            this.userId = response.data.dbId
+            this.sessionId = response.data.sessionID
+            console.log(`Got sessionid ${this.sessionId}`)
+          } else {
+            this.isLoggedIn = false
+            this.userId = null
+            this.sessionId = null
+          }
+        } catch (error) { // TODO specify the error
+          this.isBackendDisconnected = true
         }
       } else if (this.isLoggedIn === false) {
-        openURL('http://localhost:8000/login')
+        this.userId = null
+        this.sessionId = null
       }
     },
     openURL,

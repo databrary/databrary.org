@@ -8,13 +8,12 @@ import { createHttpLink } from 'apollo-link-http'
 // console.log(Cookies.getAll())
 
 export default async ({ app, store, Vue }) => {
-  await store.dispatch('auth/loadSession') // TODO move to separate boot? Router?
-
+  console.log('apollo sessionid', store.getters['app/sessionId'])
   const httpLink = createHttpLink({
     uri: 'http://localhost:8002/v1/graphql',
     fetch,
     headers: {
-      sessionID: store.getters['auth/sessionId']
+      sessionID: store.getters['app/sessionId']
     }
   })
 

@@ -89,13 +89,14 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
 
   app.get('/login',
     (req: express.Request, res: express.Response) => {
-      const redirectUri = req.query && req.query.redirect ? req.query.redirect : process.env.APP_BASE_URL
-      const callbackUri = process.env.AUTH_CALLBACK_URL
-      let url = callbackUri
-      if (keycloak === true) {
-        url = `http://${keycloakEndpoint}:${keycloakPort}/auth/realms/${keycloakRealm}/protocol/openid-connect/auth?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
+      if (keycloak === false) {
+        res.redirect(`http://localhost:8000/auth/databrary/callback`)
+        return
       }
 
+      const redirectUri = req.query && req.query.redirect ? req.query.redirect : process.env.APP_BASE_URL
+      const callbackUri = process.env.AUTH_CALLBACK_URL
+      url = `http://${keycloakEndpoint}:${keycloakPort}/auth/realms/${keycloakRealm}/protocol/openid-connect/auth?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
       res.redirect(url)
     }
   )
@@ -114,7 +115,7 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
     session,
     (req: express.Request, res: express.Response) => {
       let url = process.env.APP_BASE_URL
-      if (keycloak) {
+      if (keycloak === true) {
         url = `http://${keycloakEndpoint}:${keycloakPort}/auth/realms/${keycloakRealm}/protocol/openid-connect/logout?redirect_uri=http://localhost:8000`
       }
       req.session.destroy((err) => {

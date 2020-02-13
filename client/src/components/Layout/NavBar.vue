@@ -213,6 +213,7 @@
 
 <script>
 import { sync } from 'vuex-pathify'
+// import { openURL } from 'quasar'
 
 export default {
   computed: {
@@ -223,7 +224,7 @@ export default {
   },
   methods: {
     logout () {
-      this.isLoggedIn = false
+      window.location.href = 'http://localhost:8000/logout'
     },
     toggleDrawer () {
       this.$emit('toggleDrawer')
