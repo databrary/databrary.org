@@ -14,13 +14,11 @@ import { mergeSchemaList } from '@utils'
 import { AppModule } from './modules'
 
 import { routes as addAuthRoutes } from './routes/auth'
-import { routes as addHasuraRoutes } from './routes/hasura'
+import { routes as addWebhooksRoutes } from './routes/webhooks'
 import { routes as addUploadRoutes } from './routes/upload'
 
 import { setup as queueSetup } from './queue'
 import { logger } from '@shared'
-
-// const memoryStore = new session.MemoryStore()
 
 const app = express()
 
@@ -29,14 +27,14 @@ app.use(cors())
 const FileStore = FileStoreSession(session)
 const sessionStore = new FileStore({})
 
-const sessionMiddleware = session({
+let sessionMiddleware = session({
   name: process.env.SESSION_NAME,
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
   store: sessionStore
 })
-
+app.use(sessionMiddleware)
 app.use(passport.initialize())
 app.use(passport.session())
 
@@ -101,8 +99,9 @@ async function main () {
     server.applyMiddleware({ app, path: '/v1/graphql' })
 
     addAuthRoutes(app, passport, sessionMiddleware, JSON.parse(process.env.USE_KEYCLOAK))
-    addHasuraRoutes(app, sessionStore)
+    addWebhooksRoutes(app, sessionStore)
     addUploadRoutes(app, sessionMiddleware)
+
     app.use('/', proxy(process.env.APP_URL_PROXY))
 
     await queueSetup()

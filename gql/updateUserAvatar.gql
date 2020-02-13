@@ -1,0 +1,8 @@
+mutation updateUserAvatar($userId: Int!, $fileObjectId: Int!) {
+  update_users(
+    where: {id: {_eq: $userId}}, 
+    _set: {fileObjectId: $fileObjectId}
+  ) {
+    returning id
+  }
+}

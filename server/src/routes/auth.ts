@@ -53,13 +53,15 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
             req.session.passport.user.id,
             req.session.passport.user.email
           )
+
+          logger.debug(`Register User ${JSON.stringify(user)}`)
         }
-        logger.debug(`Register User ${JSON.stringify(user)}`)
         // Set session information based upon the user or registered user
         req.session.dbId = user.id
         req.session.authServerId = user.auth_server_id
         req.session.emailPrimary = user.email_primary
         req.session.displayFullName = user.display_full_name
+        logger.info(`Authentication done`)
         res.redirect(process.env.APP_BASE_URL)
       }
     )

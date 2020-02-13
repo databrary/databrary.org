@@ -1,27 +1,8 @@
 import _ from 'lodash'
 import express from 'express'
-import queue from '../queue'
 import { adminMutate } from '../graphqlClient'
-import { Client } from 'minio'
 import { logger } from '@shared'
-
-let minioClient = new Client({
-  endPoint: 'localhost',
-  port: 9000,
-  accessKey: process.env.MINIO_ACCESS_KEY,
-  secretKey: process.env.MINIO_SECRET_KEY,
-  useSSL: false // Default is true.
-})
-
-async function processAvatarUpload (input: object) {
-  // TODO process here the avatar upload
-  // hash and size the file
-  // check if exist
-  // process original and small format of the picture and rename
-  // Copy to cas
-  // Get userID
-  // update users table with the reference to the avatar
-}
+import { getMinioClient, bucketExists } from '@utils'
 
 export function routes (app: any, session: any) {
   app.post('/sign-upload',
@@ -30,7 +11,7 @@ export function routes (app: any, session: any) {
       // Create a file object
       try {
         logger.debug(JSON.stringify(req.body))
-        const bucketFound = await minioClient.bucketExists('uploads')
+        const bucketFound = await bucketExists('uploads')
         const response = await adminMutate(
           `${process.cwd()}/../gql/insertFile.gql`,
           {
@@ -45,7 +26,7 @@ export function routes (app: any, session: any) {
         const filename = response.returning[0].id
         if (bucketFound) {
           // Send signed url
-          minioClient.presignedPutObject(
+          getMinioClient().presignedPutObject(
               'uploads', // Bucket name
               encodeURIComponent(filename),
               1000,
@@ -82,12 +63,12 @@ export function routes (app: any, session: any) {
       // Create a file object
       try {
         logger.debug(JSON.stringify(req.body))
-        const bucketFound = await minioClient.bucketExists('avatars')
+        const bucketFound = await bucketExists('avatars')
         // Get the unique id of the upload object and make that the filename
         // TODO(Reda): Fix the return of the gql query getFileId
         if (bucketFound) {
           // Send signed url
-          minioClient.presignedPutObject(
+          getMinioClient().presignedPutObject(
             'avatars', // Bucket name
             req.body.filename,
             1000,
@@ -107,23 +88,6 @@ export function routes (app: any, session: any) {
       } catch (error) {
         console.log(error)
       }
-    }
-  )
-
-  app.post('/webhooks/minio',
-    async (req: express.Request, res: express.Response) => {
-      if (!_.isEmpty(req.body)) {
-        const minioBucket = req.body.Records[0].s3.bucket
-        const fileInfo = req.body.Records[0].s3.object
-        if (minioBucket.name === 'uploads') {
-          logger.debug('Uploads bucket PUT event')
-          await queue('processMinioUpload', fileInfo)
-        } else if (minioBucket.name === 'avatars') {
-          logger.debug('Avatars bucket PUT event')
-          await processAvatarUpload(fileInfo)
-        }
-      }
-      res.send('done')
     }
   )
 }

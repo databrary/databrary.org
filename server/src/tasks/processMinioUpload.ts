@@ -1,16 +1,7 @@
 import _ from 'lodash'
-import { Client, CopyConditions } from 'minio'
 import { adminQuery, adminMutate } from '../graphqlClient'
 import { logger } from '@shared'
-import { IFileInfo, canAccessAsset, hashAndSizeMinio } from '@utils'
-
-const minioClient = new Client({
-  endPoint: process.env.MINIO_ENDPOINT,
-  port: Number(process.env.MINIO_PORT),
-  accessKey: process.env.MINIO_ACCESS_KEY,
-  secretKey: process.env.MINIO_SECRET_KEY,
-  useSSL: false // Default is true.
-})
+import { copyObject, IFileInfo, canAccessAsset, hashAndSizeMinio, fileExists } from '@utils'
 
 export default async function processMinioUpload (input: object) {
 
@@ -31,37 +22,29 @@ export default async function processMinioUpload (input: object) {
     return
   }
 
-  const eTag = input['eTag']
-
   // Get file info
-  const fileInfo: IFileInfo = await hashAndSizeMinio(minioClient, input['key'])
+  const fileInfo: IFileInfo = await hashAndSizeMinio('uploads', input['key'])
   if (fileInfo['size'] !== input['size']) {
     logger.error('Size mismatch') // TODO We need an error here
   }
 
   fileInfo.location = 's3://minio-1.nyu.edu/cas'
 
-  let fileExistsInCas: boolean
-  try {
-    await minioClient.statObject('cas', fileInfo.sha256)
-    fileExistsInCas = true
-  } catch (err) {
-    fileExistsInCas = false
-  }
+  const fileExistsInCas = await fileExists('cas', fileInfo.sha256)
 
   let fileobjectId
 
   if (!fileExistsInCas) {
-    // Copy the file from the upoloads folder
-    const conds = new CopyConditions()
-    conds.setMatchETag(eTag)
-    await minioClient.copyObject('cas', fileInfo.sha256, `/uploads/${input['key']}`, conds)
-    // Create a fileobjects reference
-    response = await adminMutate(
-      `${process.cwd()}/../gql/insertFileObjectOnUpload.gql`, // TODO brittle for a number of reasons
-      fileInfo
-    )
-    fileobjectId = response.returning[0].id
+
+    const fileCopied = await copyObject('cas', fileInfo.sha256, `/uploads/${input['key']}`, input['eTag'])
+    if (fileCopied) {
+      // Create a fileobjects reference
+      response = await adminMutate(
+        `${process.cwd()}/../gql/insertFileObjectOnUpload.gql`, // TODO brittle for a number of reasons
+        fileInfo
+      )
+      fileobjectId = response.returning[0].id
+    }
   } else {
     response = await adminMutate(
       `${process.cwd()}/../gql/getFileObjectId.gql`, { // TODO brittle for a number of reasons
@@ -72,7 +55,7 @@ export default async function processMinioUpload (input: object) {
   }
 
   if (fileobjectId != null) {
-    console.log(`File Object ID ${fileobjectId}`)
+    logger.info(`File Object ID ${fileobjectId}`)
 
     const uploadedDatetime = new Date().toISOString()
 
@@ -84,7 +67,7 @@ export default async function processMinioUpload (input: object) {
       }
     )
 
-    console.log(`File ${fileId} processed`)
+    logger.info(`File ${fileId} processed`)
   }
 
   // // Remove the original file
