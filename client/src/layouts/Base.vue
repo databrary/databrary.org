@@ -50,13 +50,13 @@ export default {
   },
   async created () {
     this.year = (new Date()).getFullYear()
-    await this.fetchData()
+    await this.syncSessionAndStore()
   },
   watch: {
-    $route: 'fetchData'
+    $route: 'syncSessionAndStore'
   },
   methods: {
-    async fetchData () {
+    async syncSessionAndStore () {
       if (
         this.isLoggedIn === null ||
         (this.isLoggedIn === true && this.userId === null)
@@ -68,7 +68,6 @@ export default {
             this.isLoggedIn = true
             this.userId = response.data.dbId
             this.sessionId = response.data.sessionID
-            console.log(`Got sessionid ${this.sessionId}`)
           } else {
             this.isLoggedIn = false
             this.userId = null

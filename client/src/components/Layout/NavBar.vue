@@ -179,7 +179,7 @@
             </q-item-section>
           </q-item>
           <q-separator inset/>
-          <q-item @click='logout' clickable v-close-popup>
+          <q-item @click='onClickLogout' clickable v-close-popup>
             <q-item-section>
               <q-item-label>
                 <q-icon name="lock" class="q-pr-sm"/>Logout
@@ -223,7 +223,7 @@ export default {
     }
   },
   methods: {
-    logout () {
+    onClickLogout () {
       window.location.href = 'http://localhost:8000/logout'
     },
     toggleDrawer () {
