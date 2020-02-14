@@ -2,10 +2,10 @@ import _ from 'lodash'
 import express from 'express'
 import { adminMutate } from '../graphqlClient'
 import queue from '../queue'
-import { logger } from '@shared'
+import { logger, getSessionUserId } from '@shared'
 import { copyObject, IFileInfo, hashAndSizeMinio, fileExists } from '@utils'
 
-async function processAvatarUpload (input: object, authServerId: string) {
+async function processAvatarUpload (input: object, authServerId: any) {
   // TODO process here the avatar upload
   // const fileId = _.toInteger(input['key'])
   // hash and size the file
@@ -55,52 +55,60 @@ async function processAvatarUpload (input: object, authServerId: string) {
   }
 }
 
-export function routes (app: any, sessionStore: any) {
+export function routes (app: any, sessionStore: any, session: any) {
   app.get('/auth/webhook',
-    (req: express.Request, res: express.Response) => {
+    session,
+    async (req: express.Request, res: express.Response) => {
       const sessionId = req.get('sessionID')
-      sessionStore.get(sessionId, (err, data) => {
-      // logger.debug(`Hasura webhook session: ${JSON.stringify(req.get('sessionID'))} dbId: ${JSON.stringify(req.get('dbId'))}`)
-        if (err) {
-          logger.error(`Hasura Authentication error ${err}`)
-        }
-        if (data.dbId) {
-          res.json({
-            'X-Hasura-Admin-Secret': 'mysecret',
-            'X-Hasura-Role': 'user',
-            'X-Hasura-User-Id': `${data.dbId}`
-          })
-        } else {
-          logger.error(`Hasura webhook cannot find session info`)
-          res.json({
-            'X-Hasura-Admin-Secret': 'mysecret',
-            'X-Hasura-Role': 'anonymous_user'
-          })
-        }
-      })
+      logger.debug(`Hasura ${req.sessionID}`)
+      const dbId = await getSessionUserId(sessionId)
+      if (dbId) {
+        res.json({
+          'X-Hasura-Admin-Secret': 'mysecret',
+          'X-Hasura-Role': 'user',
+          'X-Hasura-User-Id': `${dbId}`
+        })
+      } else {
+        logger.error(`Hasura webhook cannot find session info`)
+        res.json({
+          'X-Hasura-Admin-Secret': 'mysecret',
+          'X-Hasura-Role': 'anonymous_user'
+        })
+      }
     }
   )
 
   app.post('/webhooks/minio',
+    session,
     async (req: express.Request, res: express.Response) => {
       if (!_.isEmpty(req.body)) {
         const minioBucket = req.body.Records[0].s3.bucket
         const fileInfo = req.body.Records[0].s3.object
         if (minioBucket.name === 'uploads') {
-          logger.debug('Uploads bucket PUT event')
           await queue('processMinioUpload', fileInfo)
         } else if (minioBucket.name === 'avatars') {
-          logger.debug('Avatars bucket PUT event')
-          logger.debug(`avatar webhook ${JSON.stringify(req.session)}`)
           const sessionId = req.get('sessionID')
-          sessionStore.get(sessionId, (err, data) => {
-            if (err) {
-              logger.error(`Minio webhook cannot get session store data ${err}`)
-            }
-            if (data.dbId) {
-              logger.debug(`avatar webhook ${JSON.stringify(data)}`)
-            }
-          })
+          logger.debug(`Hasura ${req.sessionID}`)
+          // const dbId = await getSessionUserId(sessionId)
+          // if (dbId) {
+          //   await processAvatarUpload(fileInfo, dbId)
+          // }
+          // const dbId = await getSessionUserId(sessionId)
+          // logger.debug(`Redis key ${JSON.stringify(req.session.key)}`)
+          // const sessions = await getAllActiveSessions()
+          // logger.debug(`sessions ${JSON.stringify(sessions)}`)
+          // const fileInfo = req.body.Records[0].s3.object
+          // logger.debug(`avatar webhook ${JSON.stringify(req.body.Records[0].s3)}`)
+          // const sessionId = req.get('sessionID')
+          // logger.debug(`avatar webhook session Id ${sessionId}`)
+          // sessionStore.get(sessionId, (err, data) => {
+          //   if (err) {
+          //     logger.error(`Minio webhook cannot get session store data ${err}`)
+          //   }
+          //   if (data.dbId) {
+          //     logger.debug(`avatar webhook ${JSON.stringify(data)}`)
+          //   }
+          // })
           // if (req.session.dbId) {
           //   await processAvatarUpload(fileInfo, req.session.dbId)
           // } else {

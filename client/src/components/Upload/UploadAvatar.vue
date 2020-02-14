@@ -29,6 +29,7 @@ export default {
     }
   },
   mounted: function mounted () {
+    // TODO(Reda): Clear Dashboard data
     this.uppy = Uppy({
       id: 'AvatarUploader',
       allowMultipleUploads: false,

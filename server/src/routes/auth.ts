@@ -57,10 +57,13 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
           logger.debug(`Register User ${JSON.stringify(user)}`)
         }
         // Set session information based upon the user or registered user
-        req.session.dbId = user.id
-        req.session.authServerId = user.auth_server_id
-        req.session.emailPrimary = user.email_primary
-        req.session.displayFullName = user.display_full_name
+        let key = {
+          'dbId': user.id,
+          'authServerId': user.auth_server_id,
+          'emailPrimary': user.email_primary,
+          'displayFullName': user.display_full_name
+        }
+        req.session.key = key
         logger.info(`Authentication done`)
         res.redirect(process.env.APP_BASE_URL)
       }
@@ -72,20 +75,25 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
     (req: express.Request, res: express.Response) => {
       const data = req.session
       data['sessionID'] = req.sessionID
+      logger.debug(`Loading session ${req.sessionID}`)
       res.json(data)
     }
   )
 
   app.get('/login',
+    session,
     (req: express.Request, res: express.Response) => {
-      const redirectUri = req.query && req.query.redirect ? req.query.redirect : process.env.APP_BASE_URL
-      const callbackUri = process.env.AUTH_CALLBACK_URL
-      let url = callbackUri
-      if (keycloak === true) {
-        url = `http://${keycloakEndpoint}:${keycloakPort}/auth/realms/${keycloakRealm}/protocol/openid-connect/auth?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
+      let url
+      if (!req.session.key){
+        const redirectUri = req.query && req.query.redirect ? req.query.redirect : process.env.APP_BASE_URL
+        const callbackUri = process.env.AUTH_CALLBACK_URL
+        url = callbackUri
+        if (keycloak === true) {
+          url = `http://${keycloakEndpoint}:${keycloakPort}/auth/realms/${keycloakRealm}/protocol/openid-connect/auth?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
+        }
+        res.redirect(url)
       }
-
-      res.redirect(url)
+      res.redirect('/')
     }
   )
 
@@ -93,9 +101,12 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
   // TODO(Reda): inconsistency between keycloak and hasura when an error happens during the redirect (invalid url or url not added the realm)
   app.get('/register',
     (req: express.Request, res: express.Response) => {
-      const callbackUri = process.env.AUTH_CALLBACK_URL
-      const url = `http://${keycloakEndpoint}:${keycloakPort}/auth/realms/${keycloakRealm}/protocol/openid-connect/registrations?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
-      res.redirect(url)
+      if (!req.session.key) {
+        const callbackUri = process.env.AUTH_CALLBACK_URL
+        const url = `http://${keycloakEndpoint}:${keycloakPort}/auth/realms/${keycloakRealm}/protocol/openid-connect/registrations?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
+        res.redirect(url)
+      }
+      res.redirect('/')
     }
   )
 
