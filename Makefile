@@ -79,6 +79,8 @@ setup_minio:
 	mc config host add minio ${MINIO_URL} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY};
 	mc admin config set minio < minio/minioconfig;
 	mc admin service restart minio;
-	mc mb minio/uploads;
-	mc mb minio/cas;
-	mc event add minio/uploads arn:minio:sqs::1:webhook --event put;
+	mc mb -p minio/uploads;
+	mc mb -p minio/cas;
+	mc mb -p minio/avatars;
+	mc event add minio/uploads arn:minio:sqs::1:webhook -p --event put;
+	mc event add minio/avatars arn:minio:sqs::1:webhook -p --event put;

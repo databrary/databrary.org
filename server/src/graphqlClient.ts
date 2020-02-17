@@ -1,9 +1,8 @@
-import { createAdminClient } from './utils/createGqlClient'
-import { importSchema } from 'graphql-import'
-import gql from 'graphql-tag'
 import _ from 'lodash'
+import gql from 'graphql-tag'
 import fs from 'fs-extra'
 import { logger } from '@shared'
+import { createAdminClient } from '@utils'
 
 const client = createAdminClient()
 const cache = {}
@@ -17,6 +16,7 @@ export async function adminQuery (
   logger.debug('Running Admin Query')
   if (cache[path] === undefined) {
     const fileContent = await fs.readFile(path)
+    logger.debug(`${fileContent}`)
     cache[path] = gql`${fileContent}`
   }
   const response = await adminClient.query({
@@ -33,6 +33,7 @@ export async function adminMutate (
   logger.debug('Running Admin Mutate')
   if (cache[path] === undefined) {
     const fileContent = await fs.readFile(path)
+    logger.debug(`${fileContent}`)
     cache[path] = gql`${fileContent}`
   }
   const response = await adminClient.mutate({

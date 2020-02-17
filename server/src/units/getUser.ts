@@ -1,10 +1,10 @@
+import _ from 'lodash'
 import client from '../graphqlClient'
 import { gql } from 'apollo-server-express'
-import _ from 'lodash'
 import { logger } from '@shared'
 
 const query = gql`
-  query MyQuery($authServerId: String!) {
+  query getUser($authServerId: String!) {
     users(
       where: {
         auth_server_id: {
@@ -19,7 +19,7 @@ const query = gql`
     }
   }
 `
-export default async function getUser (authServerId: string) {
+export async function getUser (authServerId: string) {
   logger.debug(`Getting User ID for ${authServerId}`)
   const response = await client.query({
     query: query,

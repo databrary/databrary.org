@@ -64,6 +64,16 @@ services:
       - postgres
     restart: always
   
+  redis:
+    image: redis:alpine
+    container_name: sessions
+    ports:
+      - 9379:6379
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ./server/sessions:/sessions
+    restart: always
+
   # dejavu:
   #   image: appbaseio/dejavu
   #   restart: unless-stopped
@@ -73,10 +83,6 @@ services:
   #     - 1358:1358
   #   depends_on:
   #     - search
-
-
-
- 
 
 volumes:
   minio_events:

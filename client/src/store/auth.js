@@ -33,7 +33,7 @@ export default {
           const response = await axios({ url: 'http://localhost:8000/session', method: 'GET' })
           if (response.data.sessionID) {
             commit('logIn')
-            commit('setUserId', response.data.dbId)
+            commit('setUserId', response.data.key.dbId)
             commit('setSessionId', response.data.sessionID)
           } else {
             commit('logOut')

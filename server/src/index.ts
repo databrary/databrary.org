@@ -1,36 +1,34 @@
-import * as _ from 'lodash'
 import './config'
+import * as _ from 'lodash'
 import express from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import session from 'express-session'
-import FileStoreSession from 'session-file-store'
-// import proxy from 'http-proxy-middleware'
 import proxy from 'express-http-proxy'
 import passport from 'passport'
 import { Strategy as KeycloakStrategy } from 'passport-keycloak-oauth2-oidc'
 import { ApolloServer } from 'apollo-server-express'
 
-import { mergeSchemaList } from './utils/mergeSchemaList'
+import { mergeSchemaList } from '@utils'
 import { AppModule } from './modules'
 
 import { routes as addAuthRoutes } from './routes/auth'
-import { routes as addHasuraRoutes } from './routes/hasura'
+import { routes as addWebhooksRoutes } from './routes/webhooks'
 import { routes as addUploadRoutes } from './routes/upload'
 
 import { setup as queueSetup } from './queue'
-import { logger } from '@shared'
+import { logger, sessionStore } from '@shared'
 
-// const memoryStore = new session.MemoryStore()
+// API keys and Passport configuration
+// import * as passportConfig from './config/passport'
 
 const app = express()
 
 app.use(cors())
 
-const FileStore = FileStoreSession(session)
-const sessionStore = new FileStore({})
-
-const sessionMiddleware = session({
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
+let sessionMiddleware = session({
   name: process.env.SESSION_NAME,
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -40,9 +38,35 @@ const sessionMiddleware = session({
     maxAge: 30 * 24 * 60 * 60 * 1000 // TODO come up with a reasonable number here; this is a month in ms
   }
 })
-
+app.use(sessionMiddleware)
+// app.use(session({
+//   name: process.env.SESSION_NAME,
+//   secret: process.env.SESSION_SECRET,
+//   resave: false,
+//   saveUninitialized: true,
+//   store: sessionStore
+// }))
 app.use(passport.initialize())
 app.use(passport.session())
+
+// app.use((req, res, next) => {
+//   res.locals.user = req.user
+//   next()
+// })
+// app.use((req, res, next) => {
+//   // After successful login, redirect back to the intended page
+//   if (!req.user &&
+//     req.path !== '/login' &&
+//     req.path !== '/signup' &&
+//     !req.path.match(/^\/auth/) &&
+//     !req.path.match(/\./)) {
+//     req.session.returnTo = req.path
+//   } else if (req.user &&
+//     req.path == '/account') {
+//     req.session.returnTo = req.path
+//   }
+//   next()
+// })
 
 passport.serializeUser((user, done) => {
   done(null, user)
@@ -65,15 +89,16 @@ passport.use(
   },
   function (accesseToken, refreshToken, profile, done) {
     // This will get called each time a user authenticate through keycloak
-    // const user = Object.assign({}, profile)
-    // console.log(`Passport user ${user}`)
+    const user = Object.assign({}, profile)
+    console.log(`Passport user ${user}`)
     done(null, profile)
   }
 ))
 
+// export default app
+
 async function main () {
   try {
-    app.use(bodyParser.json())
 
     // app.use('/v1/graphql', function (req, res, next) {
     //   console.log('Request Type:', req.originalUrl, req.method, req.body)
@@ -105,10 +130,15 @@ async function main () {
     server.applyMiddleware({ app, path: '/v1/graphql' })
 
     addAuthRoutes(app, passport, sessionMiddleware, JSON.parse(process.env.USE_KEYCLOAK))
-    addHasuraRoutes(app, sessionStore)
+    addWebhooksRoutes(app, sessionStore, sessionMiddleware)
     addUploadRoutes(app, sessionMiddleware)
+
     app.use('/', proxy(process.env.APP_URL_PROXY))
 
+    // Auth routes
+    // app.use('/login', sessionMiddleware, authController.getlogin)
+
+    // Auth callback
     await queueSetup()
 
     app.listen({ port: process.env.APP_PORT }, () =>
