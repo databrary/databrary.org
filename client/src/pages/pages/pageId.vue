@@ -256,14 +256,7 @@
                       <div class="text-h4 q-mb-md">
                         {{ getKey(data[index], selected) }}
                       </div>
-                      <iframe
-                        class="dataView"
-                        width="100%"
-                        height="300px"
-                        src="https://www.youtube.com/embed/owsfdh4gxyc"
-                        frameborder="0"
-                        allowfullscreen
-                      />
+                      <q-skeleton height="150px" square />
                     </q-tab-panel>
                   </q-tab-panels>
                 </template>

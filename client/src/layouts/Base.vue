@@ -28,6 +28,7 @@
 <script>
 import { sync } from 'vuex-pathify'
 import { openURL } from 'quasar'
+import _ from 'lodash'
 import axios from 'axios'
 import NavBar from '../components/Layout/NavBar.vue'
 
@@ -57,14 +58,15 @@ export default {
   },
   methods: {
     async syncSessionAndStore () {
+      console.log('this.isLoggedIn', this.isLoggedIn, this.userId, this.sessionId)
       if (
         this.isLoggedIn === null ||
         (this.isLoggedIn === true && this.userId === null)
       ) {
         try {
           const response = await axios({ url: '/session', method: 'GET' })
-          console.log(response.data)
-          if (response.data['dbId']) {
+          if (_.get(response.data, 'dbId') !== undefined) {
+            console.log(`Session repsonse`, response.data, response.data.dbId)
             this.isLoggedIn = true
             this.userId = response.data.dbId
             this.sessionId = response.data.sessionID
