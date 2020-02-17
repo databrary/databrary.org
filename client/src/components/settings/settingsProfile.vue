@@ -19,50 +19,19 @@
         <img src="https://cdn.quasar-framework.org/img/avatar2.jpg">
       </q-avatar>
       <br>
-      <q-btn
-        flat
-        class="q-my-sm"
-        color="primary"
-        label="Change profile picture"
-        @click="promptDialogPicture = true"
-      />
-      <q-dialog v-model="promptDialogPicture" persistent>
-        <q-card>
-          <q-card-section>
-            <div class="text-h6">Upload new profile picture</div>
-          </q-card-section>
-
-          <q-card-section class="q-pb-none">
-            <q-uploader
-              url="http://localhost:4444/upload"
-              label="Uploader"
-              accept=".jpg, image/*"
-              class="fit"
-              flat
-            />
-         </q-card-section>
-
-          <q-card-actions align="right" class="text-primary">
-            <q-btn
-              color="info"
-              flat
-              label="use Gravatar instead"
-              @click="promptDialogPicture = false"
-            />
-            <q-btn flat label="Confirm" @click="promptDialogPicture = false"/>
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
+      <div class="q-my-sm">
+        <AvatarUploader/>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import AvatarUploader from '../Upload/UploadAvatar.vue'
 export default {
-  data () {
-    return {
-      promptDialogPicture: false
-    }
+  name: 'SettingsProfile',
+  components: {
+    AvatarUploader
   }
 }
 </script>

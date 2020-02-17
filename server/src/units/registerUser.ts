@@ -3,7 +3,7 @@ import { gql } from 'apollo-server-express'
 import { logger } from '@shared'
 
 const mutation = gql`
-  mutation MyMutation ($authServerId: String!, $emailPrimary: String!) {
+  mutation registerUser($authServerId: String!, $emailPrimary: String!) {
     insert_users(objects: {
       auth_server_id: $authServerId,
       email_primary: $emailPrimary,
@@ -17,7 +17,7 @@ const mutation = gql`
     }
   }
 `
-export default async function registerUser (authServerId: string, emailPrimary: string) {
+export async function registerUser (authServerId: string, emailPrimary: string) {
   logger.debug(`Registering User ${authServerId}`)
   const response = await client.mutate({
     mutation,

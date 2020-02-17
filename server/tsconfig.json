@@ -17,6 +17,12 @@
     "paths": {
       "@shared": [
         "src/shared"
+      ],
+      "@utils": [
+        "src/utils"
+      ],
+      "@units": [
+        "src/units"
       ]
     },
     "types": [

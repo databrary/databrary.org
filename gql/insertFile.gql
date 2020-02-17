@@ -1,9 +1,9 @@
 # TODO(Reda): change fileFormatID to fileformats_enum to restrict the format upload
 mutation ( 
-  $name: String,
-  $uploadedById: Int,
-  $assetId: Int,
-  $fileFormatId: String
+  $name: String!,
+  $uploadedById: Int!,
+  $assetId: Int!,
+  $fileFormatId: String!
 ) {
   insert_files(
     objects: { 
