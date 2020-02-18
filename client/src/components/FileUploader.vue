@@ -42,10 +42,10 @@ export default {
               projectId: that.projectIdFromRoute
             })
           }).then((response) => {
-            // console.log('response', response)
+            console.log('response', response)
             return response.json()
           }).then((data) => {
-            // console.log('data', data)
+            console.log('data', data)
             return {
               method: data.method,
               url: data.url,

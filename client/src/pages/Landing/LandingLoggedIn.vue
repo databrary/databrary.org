@@ -39,8 +39,9 @@
 </template>
 
 <script>
+import { sync } from 'vuex-pathify'
 import { date } from 'quasar'
-// import gql from 'graphql-tag'
+import gql from 'graphql-tag'
 
 export default {
   name: 'LandingLoggedIn',
@@ -50,6 +51,9 @@ export default {
       projects: []
     }
   },
+  computed: {
+    userId: sync('app/dbId')
+  },
   watch: {
     '$route': 'fetchData' // TODO I need to propogate this from pages/LandingPage.vue
   },
@@ -58,24 +62,24 @@ export default {
   },
   methods: {
     async fetchData () {
-      // const result = await this.$apollo.query({
-      //   query: gql`
-      //     query GetProjectsByUserId($userId: Int!) {
-      //       assets(
-      //         where: {asset_type: {_eq: project}, _and: {created_by_id: {_eq: 1}}}
-      //         order_by: {datetime_created: desc}
-      //       ) {
-      //         id
-      //         name
-      //         datetime_created
-      //       }
-      //     }
-      //   `,
-      //   variables: {
-      //     userId: this.$store.getters['auth/userId']
-      //   }
-      // })
-      // this.projects = result.data.assets
+      const result = await this.$apollo.query({
+        query: gql`
+          query GetProjectsByUserId($userId: Int!) {
+            assets(
+              where: {asset_type: {_eq: project}, _and: {created_by_id: {_eq: 1}}}
+              order_by: {datetime_created: desc}
+            ) {
+              id
+              name
+              datetime_created
+            }
+          }
+        `,
+        variables: {
+          userId: this.userId
+        }
+      })
+      this.projects = result.data.assets
     }
   }
 }

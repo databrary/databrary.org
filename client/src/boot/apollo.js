@@ -4,9 +4,6 @@ import VueApollo from 'vue-apollo'
 import fetch from 'node-fetch'
 import { createHttpLink } from 'apollo-link-http'
 import { setContext } from 'apollo-link-context'
-// import { Cookies } from 'quasar'
-
-// console.log(Cookies.getAll())
 
 export default async ({ app, store, Vue }) => {
   const httpLink = createHttpLink({
@@ -16,6 +13,7 @@ export default async ({ app, store, Vue }) => {
 
   // We're using apollo-link-context to dynamically set the header
   const authLink = setContext((_) => {
+    console.log('*****', store.getters['app/sessionId'])
     return {
       headers: {
         sessionID: store.getters['app/sessionId']
