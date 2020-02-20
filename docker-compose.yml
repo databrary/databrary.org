@@ -43,7 +43,7 @@ services:
       MINIO_NOTIFY_WEBHOOK_QUEUE_LIMIT: 10000
 
   keycloak:
-    image: jboss/keycloak
+    image: jboss/keycloak:6.0.1
     environment:
       DB_VENDOR: POSTGRES
       DB_ADDR: postgres
@@ -53,7 +53,7 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       KEYCLOAK_USER: ${KEYCLOAK_USERNAME}
       KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
-      # KEYCLOAK_IMPORT: /opt/jboss/keycloak/realm-export.json
+      KEYCLOAK_IMPORT: /opt/jboss/keycloak/realm-export.json
       # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
       #JDBC_PARAMS: "ssl=true"
     volumes: 
