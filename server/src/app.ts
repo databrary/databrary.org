@@ -13,8 +13,9 @@ import { routes as addAuthRoutes } from './routes/auth'
 import { routes as addWebhooksRoutes } from './routes/webhooks'
 import { routes as addUploadRoutes } from './routes/upload'
 
-import { setup as queueSetup } from './queue'
 import { stream ,logger, sessionStore } from '@shared'
+import { getUser, registerUser } from '@units'
+
 
 // API keys and Passport configuration
 
@@ -40,13 +41,6 @@ let sessionMiddleware = session({
   }
 })
 app.use(sessionMiddleware)
-// app.use(session({
-//   name: process.env.SESSION_NAME,
-//   secret: process.env.SESSION_SECRET,
-//   resave: false,
-//   saveUninitialized: true,
-//   store: sessionStore
-// }))
 app.use(passport.initialize())
 app.use(passport.session())
 
@@ -69,33 +63,30 @@ passport.use(
     authServerURL: process.env.AUTH_SERVER_URL,
     callbackURL: process.env.AUTH_CALLBACK_URL
   },
-  function (accesseToken, refreshToken, profile, done) {
-    // This will get called each time a user authenticate through keycloak
-    const user = Object.assign({}, profile)
-    console.log(`Passport user ${user}`)
-    done(null, profile)
-  }
+    async (req: any, accesseToken, refreshToken, profile, done) => {
+      // register user if found in keycloak and not found in db
+      let user = await getUser(
+        profile.id
+      )
+      // If the user is null, register the user in the database
+      if (user === null) {
+        user = await registerUser(
+          profile.id,
+          profile.email
+        )
+
+        logger.debug(`Register User ${JSON.stringify(user)}`)
+      }
+      // persisting dbId value with profile
+      profile.dbId = user.id
+      done(null, profile)
+    }
 ))
+ 
+addAuthRoutes(app, passport, sessionMiddleware, JSON.parse(process.env.USE_KEYCLOAK))
+addWebhooksRoutes(app, sessionStore, sessionMiddleware)
+addUploadRoutes(app, sessionMiddleware)
 
-// export default app
+app.use('/', proxy(process.env.APP_URL_PROXY))
 
-async function main () {
-  try {
-    addAuthRoutes(app, passport, sessionMiddleware, JSON.parse(process.env.USE_KEYCLOAK))
-    addWebhooksRoutes(app, sessionStore, sessionMiddleware)
-    addUploadRoutes(app, sessionMiddleware)
-
-    app.use('/', proxy(process.env.APP_URL_PROXY))
-
-    await queueSetup()
-
-    app.listen({ port: process.env.APP_PORT }, () =>
-      logger.info(`Server is running at http://localhost:${app.get('port')} in ${app.get('env')} mode`)
-    )
-  } catch (err) {
-    logger.error(err)
-  }
-}
-
-// tslint:disable-next-line: no-floating-promises
-main()
+export default app

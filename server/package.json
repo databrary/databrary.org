@@ -71,7 +71,7 @@
   "scripts": {
     "build": "node ./util/build.js",
     "prod": "node -r module-alias/register ./dist",
-    "dev": "ts-node-dev -r tsconfig-paths/register src/index.ts",
+    "dev": "ts-node-dev -r tsconfig-paths/register src/server.ts",
     "queue": "ts-node-dev -r tsconfig-paths/register bin/worker.ts",
     "lint": "tslint --project \"tsconfig.json\"",
     "docker-fresh": "docker system prune && docker volume prune",
