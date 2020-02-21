@@ -1,3 +1,2 @@
 export * from './Logger'
-export * from '../config/redis'
-// export * from './minioClient'
+export * from './redis'
