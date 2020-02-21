@@ -33,4 +33,4 @@ if (result.error) {
   throw result.error
 }
 
-logger.debug(`Server ${options.env === 'dev' ? 'development' : 'production'} env variables loaded`)
+// TODO(Reda): Add stop process if env variables not found

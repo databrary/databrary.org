@@ -1,3 +1,4 @@
 export * from './createGqlClient'
-export * from './mergeSchemaList'
-export * from './files'
+export * from './filesUtils'
+export * from './minioUtils'
+export * from './utils'

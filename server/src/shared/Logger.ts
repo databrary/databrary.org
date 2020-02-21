@@ -3,7 +3,7 @@ const { File, Console } = transports
 
 // Init Logger
 const winstonLogger = createLogger({
-  level: 'debug'
+  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug'
 })
 
 /**
@@ -47,6 +47,13 @@ if (process.env.NODE_ENV === 'production') {
     )
   })
   winstonLogger.add(consoleTransport)
+}
+
+// Export stream
+export const stream = {
+  write: (message) => {
+    winstonLogger.info(message)
+  }
 }
 
 // Export logger
