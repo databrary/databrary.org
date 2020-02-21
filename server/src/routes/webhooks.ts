@@ -8,7 +8,6 @@ export function routes (app: any, sessionStore: any, session: any) {
     session,
     async (req: express.Request, res: express.Response) => {
       const sessionId = req.get('sessionID')
-      logger.debug(`Hasura ${req.sessionID}`)
       const dbId = await getSessionUserId(sessionId)
       if (dbId) {
         res.json({

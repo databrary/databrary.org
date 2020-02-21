@@ -6,6 +6,7 @@ import cors from 'cors'
 import session from 'express-session'
 import proxy from 'express-http-proxy'
 import passport from 'passport'
+import morgan from 'morgan'
 import { Strategy as KeycloakStrategy } from 'passport-keycloak-oauth2-oidc'
 
 import { routes as addAuthRoutes } from './routes/auth'
@@ -13,14 +14,19 @@ import { routes as addWebhooksRoutes } from './routes/webhooks'
 import { routes as addUploadRoutes } from './routes/upload'
 
 import { setup as queueSetup } from './queue'
-import { logger, sessionStore } from '@shared'
+import { stream ,logger, sessionStore } from '@shared'
 
 // API keys and Passport configuration
 
 const app = express()
 
-app.use(cors())
+app.set('port', process.env.APP_PORT)
 
+app.use(cors())
+app.use(morgan('combined', {
+  skip: (req, res) => { return res.statusCode === 304 },
+  stream
+}))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 let sessionMiddleware = session({
@@ -81,11 +87,10 @@ async function main () {
 
     app.use('/', proxy(process.env.APP_URL_PROXY))
 
-    // Auth callback
     await queueSetup()
 
     app.listen({ port: process.env.APP_PORT }, () =>
-      logger.info(`Server ready at ${process.env.APP_BASE_URL}`)
+      logger.info(`Server is running at http://localhost:${app.get('port')} in ${app.get('env')} mode`)
     )
   } catch (err) {
     logger.error(err)
