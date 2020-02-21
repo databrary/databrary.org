@@ -84,14 +84,14 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
     session,
     (req: express.Request, res: express.Response) => {
       let url
-      if (!req.session.key){
+      if (!req.session.key) {
         const redirectUri = req.query && req.query.redirect ? req.query.redirect : process.env.APP_BASE_URL
         const callbackUri = process.env.AUTH_CALLBACK_URL
         url = callbackUri
         if (keycloak === true) {
           url = `http://${keycloakEndpoint}:${keycloakPort}/auth/realms/${keycloakRealm}/protocol/openid-connect/auth?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
         }
-        res.redirect(url)
+        return res.redirect(url)
       }
       res.redirect('/')
     }
@@ -104,7 +104,7 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
       if (!req.session.key) {
         const callbackUri = process.env.AUTH_CALLBACK_URL
         const url = `http://${keycloakEndpoint}:${keycloakPort}/auth/realms/${keycloakRealm}/protocol/openid-connect/registrations?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
-        res.redirect(url)
+        return res.redirect(url)
       }
       res.redirect('/')
     }
