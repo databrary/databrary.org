@@ -1,5 +1,5 @@
 import express from 'express'
-import { getUser, registerUser } from '@units'
+import { getUserByAuthId, registerUser } from '@units'
 import { uuid } from '@utils'
 import { logger } from '@shared'
 
@@ -18,7 +18,7 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
     app.get('/auth/databrary/callback',
       session,
       async (req: express.Request, res: express.Response) => {
-        let user = await getUser(
+        let user = await getUserByAuthId(
           process.env.DUMMY_USER_AUTH_SERVER_ID
         )
         logger.debug(`User ${JSON.stringify(user)}`)
@@ -43,29 +43,9 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
       session,
       passport.authenticate('keycloak', { failureRedirect: '/login' }),
       async (req: express.Request, res: express.Response) => {
-        // Try to get the user based on the auth_server_id
-        let user = await getUser(
-          req.session.passport.user.id
-        )
-        // If the user is null, register the user in the database
-        if (user === null) {
-          user = await registerUser(
-            req.session.passport.user.id,
-            req.session.passport.user.email
-          )
-
-          logger.debug(`Register User ${JSON.stringify(user)}`)
+        if (req.user) {
+          res.redirect('/')
         }
-        // Set session information based upon the user or registered user
-        let key = {
-          'dbId': user.id,
-          'authServerId': user.auth_server_id,
-          'emailPrimary': user.email_primary,
-          'displayFullName': user.display_full_name
-        }
-        req.session.key = key
-        logger.info(`Authentication done`)
-        res.redirect(process.env.APP_BASE_URL)
       }
     )
   }
@@ -73,21 +53,21 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
   app.get('/session',
     session,
     (req: express.Request, res: express.Response) => {
-      const data = req.session
-      data['sessionID'] = req.sessionID
-      logger.debug(`Loading session ${req.sessionID}`)
-      res.json(data)
+      let response = { 'sessionID': req.sessionID }
+      if (req.user) {
+        // user found.
+        response['dbId'] = req.user['dbId']
+      }
+      res.json(response)
     }
   )
-
   app.get('/login',
     session,
     (req: express.Request, res: express.Response) => {
-      let url
-      if (!req.session.key) {
+      if (!req.user) {
         const redirectUri = req.query && req.query.redirect ? req.query.redirect : process.env.APP_BASE_URL
         const callbackUri = process.env.AUTH_CALLBACK_URL
-        url = callbackUri
+        let url = process.env.AUTH_CALLBACK_URL
         if (keycloak === true) {
           url = `http://${keycloakEndpoint}:${keycloakPort}/auth/realms/${keycloakRealm}/protocol/openid-connect/auth?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
         }
@@ -97,16 +77,17 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
     }
   )
 
-  // TODO(Reda): dummy user creation should be done over here and only for dev env
   // TODO(Reda): inconsistency between keycloak and hasura when an error happens during the redirect (invalid url or url not added the realm)
   app.get('/register',
     (req: express.Request, res: express.Response) => {
-      if (!req.session.key) {
+      let url = process.env.AUTH_CALLBACK_URL
+      if (!req.user) {
         const callbackUri = process.env.AUTH_CALLBACK_URL
-        const url = `http://${keycloakEndpoint}:${keycloakPort}/auth/realms/${keycloakRealm}/protocol/openid-connect/registrations?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
-        return res.redirect(url)
+        if (keycloak === true) {
+          url = `http://${keycloakEndpoint}:${keycloakPort}/auth/realms/${keycloakRealm}/protocol/openid-connect/registrations?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
+        }
       }
-      res.redirect('/')
+      res.redirect(url)
     }
   )
 
@@ -117,11 +98,11 @@ export function routes (app: any, passport: any, session: any, keycloak: boolean
       if (keycloak === true) {
         url = `http://${keycloakEndpoint}:${keycloakPort}/auth/realms/${keycloakRealm}/protocol/openid-connect/logout?redirect_uri=http://localhost:8000`
       }
+      req.logout()
       req.session.destroy((err) => {
         if (err) {
           logger.error('Error destroying session')
         }
-
         res.clearCookie(process.env.SESSION_NAME) // Fixes session-file-store errors
         res.redirect(url)
       })

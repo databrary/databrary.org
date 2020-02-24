@@ -11,8 +11,8 @@ export function getSessionUserId (sessionId: string) {
     store.get(sessionId, (error, data) => {
       if (error) {
         reject(error)
-      } else if (data.key) {
-        resolve(data.key.dbId)
+      } else if (data.passport.user.dbId) {
+        resolve(data.passport.user.dbId)
       } else {
         reject(`Cannot find user id for ${sessionId} session`)
       }

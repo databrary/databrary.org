@@ -14,8 +14,7 @@ import { routes as addWebhooksRoutes } from './routes/webhooks'
 import { routes as addUploadRoutes } from './routes/upload'
 
 import { stream ,logger, sessionStore } from '@shared'
-import { getUser, registerUser } from '@units'
-
+import { getUserByAuthId, registerUser } from '@units'
 
 // API keys and Passport configuration
 
@@ -54,6 +53,7 @@ passport.deserializeUser((id, done) => {
 })
 
 passport.use(
+  'keycloak',
   new KeycloakStrategy({
     clientID: process.env.KEYCLOAK_CLIENT_ID,
     realm: process.env.KEYCLOAK_REALM,
@@ -63,9 +63,9 @@ passport.use(
     authServerURL: process.env.AUTH_SERVER_URL,
     callbackURL: process.env.AUTH_CALLBACK_URL
   },
-    async (req: any, accesseToken, refreshToken, profile, done) => {
+    async (accesseToken, refreshToken, profile, done) => {
       // register user if found in keycloak and not found in db
-      let user = await getUser(
+      let user = await getUserByAuthId(
         profile.id
       )
       // If the user is null, register the user in the database
@@ -75,14 +75,21 @@ passport.use(
           profile.email
         )
 
-        logger.debug(`Register User ${JSON.stringify(user)}`)
+        logger.debug(`Registered User ${JSON.stringify(user)}`)
+      } else {
+        logger.debug(`Found User ${JSON.stringify(user)} in Database`)
       }
-      // persisting dbId value with profile
-      profile.dbId = user.id
-      done(null, profile)
+
+      if (user) {
+        // persisting dbId value with profile
+        profile.dbId = user.id
+        done(null, profile)
+      } else {
+        done(null, false, { message: 'Cannot log in user.' })
+      }
     }
 ))
- 
+
 addAuthRoutes(app, passport, sessionMiddleware, JSON.parse(process.env.USE_KEYCLOAK))
 addWebhooksRoutes(app, sessionStore, sessionMiddleware)
 addUploadRoutes(app, sessionMiddleware)
