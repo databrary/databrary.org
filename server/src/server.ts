@@ -7,8 +7,8 @@ async function main () {
     await queueSetup()
 
     app.listen({ port: process.env.APP_PORT }, () =>
-            logger.info(`Server is running at http://localhost:${app.get('port')} in ${app.get('env')} mode`)
-        )
+      logger.info(`Server is running at http://localhost:${app.get('port')} in ${app.get('env')} mode`)
+    )
   } catch (err) {
     logger.error(err)
   }

@@ -22,8 +22,6 @@ if (result.error) {
   throw result.error
 }
 
-logger.debug(`Docker env variables loaded`)
-
 // Set the server env file
 result = config({
   path: resolve(__dirname, `../env/${options.env}.env`)

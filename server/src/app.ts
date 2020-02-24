@@ -5,18 +5,14 @@ import bodyParser from 'body-parser'
 import cors from 'cors'
 import session from 'express-session'
 import proxy from 'express-http-proxy'
-import passport from 'passport'
 import morgan from 'morgan'
-import { Strategy as KeycloakStrategy } from 'passport-keycloak-oauth2-oidc'
+import passport from 'passport'
 
-import { routes as addAuthRoutes } from './routes/auth'
-import { routes as addWebhooksRoutes } from './routes/webhooks'
-import { routes as addUploadRoutes } from './routes/upload'
+import * as authController from './controllers/authController'
+import * as webhooksController from './controllers/webhooksController'
+import * as uploadController from './controllers/uploadController'
 
-import { stream ,logger, sessionStore } from '@shared'
-import { getUserByAuthId, registerUser } from '@units'
-
-// API keys and Passport configuration
+import { stream, sessionStore, isAuthenticated } from '@shared'
 
 const app = express()
 
@@ -27,9 +23,11 @@ app.use(morgan('combined', {
   skip: (req, res) => { return res.statusCode === 304 },
   stream
 }))
+
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-let sessionMiddleware = session({
+
+app.use(session({
   name: process.env.SESSION_NAME,
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -38,61 +36,30 @@ let sessionMiddleware = session({
   cookie: {
     maxAge: 30 * 24 * 60 * 60 * 1000 // TODO come up with a reasonable number here; this is a month in ms
   }
-})
-app.use(sessionMiddleware)
+}))
+
 app.use(passport.initialize())
 app.use(passport.session())
 
-passport.serializeUser((user, done) => {
-  done(null, user)
-})
+// Auth Callbacks
+app.use('/auth/databrary/callback',
+          passport.authenticate('keycloak', { failureRedirect: '/login' }),
+          authController.authCallback)
+// Auth routes
+app.use('/session', authController.getSession)
+app.use('/login', authController.login)
+app.use('/register', authController.register)
+app.use('/logout', authController.logout)
 
-passport.deserializeUser((id, done) => {
-  // TODO Should I put database logic here? How many times would this be called? Memoized somehow?
-  done(null, id)
-})
+// Upload routes
+// TODO(Reda): Add isAuthenticated as middleware instead of checking in the route
+app.use('/sign-upload', isAuthenticated, uploadController.signUpload)
+app.use('/sign-avatar-upload', uploadController.signAvatarUpload)
 
-passport.use(
-  'keycloak',
-  new KeycloakStrategy({
-    clientID: process.env.KEYCLOAK_CLIENT_ID,
-    realm: process.env.KEYCLOAK_REALM,
-    publicClient: 'false',
-    clientSecret: process.env.KEYCLOAK_CLIENT_SECRET,
-    sslRequired: 'none',
-    authServerURL: process.env.AUTH_SERVER_URL,
-    callbackURL: process.env.AUTH_CALLBACK_URL
-  },
-    async (accesseToken, refreshToken, profile, done) => {
-      // register user if found in keycloak and not found in db
-      let user = await getUserByAuthId(
-        profile.id
-      )
-      // If the user is null, register the user in the database
-      if (user === null) {
-        user = await registerUser(
-          profile.id,
-          profile.email
-        )
-
-        logger.debug(`Registered User ${JSON.stringify(user)}`)
-      } else {
-        logger.debug(`Found User ${JSON.stringify(user)} in Database`)
-      }
-
-      if (user) {
-        // persisting dbId value with profile
-        profile.dbId = user.id
-        done(null, profile)
-      } else {
-        done(null, false, { message: 'Cannot log in user.' })
-      }
-    }
-))
-
-addAuthRoutes(app, passport, sessionMiddleware, JSON.parse(process.env.USE_KEYCLOAK))
-addWebhooksRoutes(app, sessionStore, sessionMiddleware)
-addUploadRoutes(app, sessionMiddleware)
+// Webhooks routes
+app.use('/auth/webhook', webhooksController.authWebhook)
+// TODO(Reda): Add isAuthenticated as middleware instead of checking in the route
+app.use('/webhooks/minio', webhooksController.minioWebhook)
 
 app.use('/', proxy(process.env.APP_URL_PROXY))
 

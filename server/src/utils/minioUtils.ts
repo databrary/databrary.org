@@ -6,8 +6,8 @@ import { logger } from '@shared'
 import { IFileInfo } from '@utils'
 
 let minioClient = new Client({
-  endPoint: 'localhost',
-  port: 9000,
+  endPoint: process.env.MINIO_ENDPOINT,
+  port: _.toInteger(process.env.MINIO_PORT),
   accessKey: process.env.MINIO_ACCESS_KEY,
   secretKey: process.env.MINIO_SECRET_KEY,
   useSSL: false // Default is true.
@@ -50,7 +50,7 @@ export function hashAndSizeMinio (bucket: string, decodedKey: string): Promise<I
 
 export async function canAccessAsset (id: number) {
   const response = await adminQuery(
-        `${process.cwd()}/../gql/checkPermissionOfAsset.gql`,
+    `${process.cwd()}/../gql/checkPermissionOfAsset.gql`,
     {
       id
     })
