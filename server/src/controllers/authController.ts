@@ -1,18 +1,24 @@
 import { Request, Response, NextFunction } from 'express'
 import { uuid } from '@utils'
-import { logger } from '@shared'
-import passport = require('passport')
+import { logger, loginTestUser } from '@shared'
 
 const keycloakRealm = process.env.KEYCLOAK_REALM
 const keycloakEndpoint = process.env.KEYCLOAK_ENDPOINT
 const keycloakPort = process.env.KEYCLOAK_PORT
 const keycloak = process.env.USE_KEYCLOAK === 'true'
 
-export const login = (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
     if (keycloak) {
       // Callback is set in KeycloakStrategy
       return res.redirect('/auth/keycloak')
+    } else {
+      const user = await loginTestUser()
+      if (user) {
+        req.logIn(user , (err) => {
+          if (err) { return next(err) }
+        })
+      }
     }
   }
   res.redirect('/')
@@ -54,6 +60,12 @@ export const getSession = (req: Request, res: Response) => {
 }
 
 export const authCallback = (req: Request, res: Response) => {
+  if (req.user) {
+    return res.redirect('/')
+  }
+}
+
+export const authDatabraryCallback = (req: Request, res: Response) => {
   if (req.user) {
     return res.redirect('/')
   }

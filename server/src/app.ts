@@ -44,22 +44,23 @@ app.use(passport.session())
 // Auth Callbacks
 app.get('/auth/keycloak',
   passport.authenticate('keycloak', { scope: ['profile'] }))
-app.use('/auth/keycloak/callback',
+app.get('/auth/keycloak/callback',
           passport.authenticate('keycloak', { failureRedirect: '/login' }),
           authController.authCallback)
+
 // Auth routes
-app.use('/session', authController.getSession)
-app.use('/login', authController.login)
-app.use('/register', authController.register)
-app.use('/logout', authController.logout)
+app.get('/session', authController.getSession)
+app.get('/login', authController.login)
+app.get('/register', authController.register)
+app.get('/logout', authController.logout)
 
 // Upload routes
-app.use('/sign-upload', isAuthenticated, uploadController.signUpload)
-app.use('/sign-avatar-upload', isAuthenticated, uploadController.signAvatarUpload)
+app.post('/sign-upload', uploadController.signUpload)
+app.post('/sign-avatar-upload', uploadController.signAvatarUpload)
 
 // Webhooks routes
-app.use('/auth/webhook', webhooksController.authWebhook)
-app.use('/webhooks/minio', webhooksController.minioWebhook)
+app.get('/auth/webhook', webhooksController.authWebhook)
+app.post('/webhooks/minio', webhooksController.minioWebhook)
 
 app.use('/', proxy(process.env.APP_URL_PROXY))
 

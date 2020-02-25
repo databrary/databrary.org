@@ -50,6 +50,7 @@ passport.use(
       }
     } catch (error) {
       logger.error(error)
+      done(null, false)
     }
   }
 ))
@@ -59,4 +60,32 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
     return next()
   }
   res.redirect('/login')
+}
+
+export const loginTestUser = async () => {
+  try {
+    let user = await getUserByAuthId(
+      process.env.DUMMY_USER_AUTH_SERVER_ID)
+
+    // If the user is null, register the user in the database
+    if (user === null) {
+      user = await registerUser(
+        process.env.DUMMY_USER_AUTH_SERVER_ID,
+        process.env.DUMMY_USER_EMAIL)
+
+      logger.debug(`Registered Dummy User ${JSON.stringify(user)}`)
+    } else {
+      logger.debug(`Found Dummy User ${JSON.stringify(user)} in Database`)
+    }
+
+    if (user) {
+      // change id property to dbId
+      user['dbId'] = user['id']
+      return user
+    } else {
+      logger.error(`Cannot login and/or register user`)
+    }
+  } catch (error) {
+    logger.error(error)
+  }
 }
