@@ -25,28 +25,31 @@ passport.use(
     callbackURL: process.env.AUTH_CALLBACK_URL
   }, async (accesseToken, refreshToken, profile, done) => {
     // register user if found in keycloak and not found in db
-    logger.debug(`Profile ${profile}`)
-    let user = await getUserByAuthId(
-          profile.id
-        )
-    // If the user is null, register the user in the database
-    if (user === null) {
-      user = await registerUser(
-                    profile.id,
-                    profile.email
-                )
+    logger.debug(`Profile ${JSON.stringify(profile)}`)
+    try {
+      let user = await getUserByAuthId(
+                    profile.id)
 
-      logger.debug(`Registered User ${JSON.stringify(user)}`)
-    } else {
-      logger.debug(`Found User ${JSON.stringify(user)} in Database`)
-    }
+      // If the user is null, register the user in the database
+      if (user === null) {
+        user = await registerUser(
+                profile.id,
+                profile.email)
 
-    if (user) {
-      // persisting dbId value with profile
-      profile.dbId = user.id
-      done(null, profile)
-    } else {
-      done(null, false, { message: 'Cannot log in user.' })
+        logger.debug(`Registered User ${JSON.stringify(user)}`)
+      } else {
+        logger.debug(`Found User ${JSON.stringify(user)} in Database`)
+      }
+
+      if (user) {
+        // persisting dbId value with profile
+        profile.dbId = user.id
+        done(null, profile)
+      } else {
+        done(null, false, { message: 'Cannot log in user.' })
+      }
+    } catch (error) {
+      logger.error(error)
     }
   }
 ))

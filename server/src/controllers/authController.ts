@@ -10,14 +10,10 @@ const keycloak = process.env.USE_KEYCLOAK === 'true'
 
 export const login = (req: Request, res: Response) => {
   if (!req.user) {
-    const redirectUri = req.query && req.query.redirect ? req.query.redirect : process.env.APP_BASE_URL
-    const callbackUri = process.env.AUTH_CALLBACK_URL
-    let url = process.env.AUTH_CALLBACK_URL
     if (keycloak) {
-      logger.debug(`Launching Keycloak`)
-      url = `http://${keycloakEndpoint}:${keycloakPort}/auth/realms/${keycloakRealm}/protocol/openid-connect/auth?client_id=client&state=${uuid()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`
+      // Callback is set in KeycloakStrategy
+      return res.redirect('/auth/keycloak')
     }
-    return res.redirect(url)
   }
   res.redirect('/')
 }

@@ -13,14 +13,14 @@ export const authWebhook = async (req: Request, res: Response) => {
         'X-Hasura-Role': 'user',
         'X-Hasura-User-Id': `${dbId}`
       })
+    } else {
+      res.json({
+        'X-Hasura-Admin-Secret': 'mysecret',
+        'X-Hasura-Role': 'anonymous_user'
+      })
     }
   } catch (error) {
-    logger.error(`Hasura webhook: ${error}`)
-  } finally {
-    res.json({
-      'X-Hasura-Admin-Secret': 'mysecret',
-      'X-Hasura-Role': 'anonymous_user'
-    })
+    logger.error(`Auth Webhook: ${error}`)
   }
 }
 

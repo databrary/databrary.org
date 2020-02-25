@@ -60,6 +60,7 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
+    "passport-local": "^1.0.0",
     "ts-node": "^8.4.1",
     "ts-node-dev": "^1.0.0-pre.43",
     "tsconfig-paths": "^3.9.0",

@@ -474,7 +474,7 @@
       "redirectUris": [
         "",
         "http://localhost:8000/logout",
-        "http://localhost:8000/auth/databrary/callback",
+        "http://localhost:8000/auth/keycloak/callback",
         "http://localhost:8000"
       ],
       "webOrigins": [

@@ -42,7 +42,9 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 // Auth Callbacks
-app.use('/auth/databrary/callback',
+app.get('/auth/keycloak',
+  passport.authenticate('keycloak', { scope: ['profile'] }))
+app.use('/auth/keycloak/callback',
           passport.authenticate('keycloak', { failureRedirect: '/login' }),
           authController.authCallback)
 // Auth routes
@@ -52,13 +54,11 @@ app.use('/register', authController.register)
 app.use('/logout', authController.logout)
 
 // Upload routes
-// TODO(Reda): Add isAuthenticated as middleware instead of checking in the route
 app.use('/sign-upload', isAuthenticated, uploadController.signUpload)
-app.use('/sign-avatar-upload', uploadController.signAvatarUpload)
+app.use('/sign-avatar-upload', isAuthenticated, uploadController.signAvatarUpload)
 
 // Webhooks routes
 app.use('/auth/webhook', webhooksController.authWebhook)
-// TODO(Reda): Add isAuthenticated as middleware instead of checking in the route
 app.use('/webhooks/minio', webhooksController.minioWebhook)
 
 app.use('/', proxy(process.env.APP_URL_PROXY))
