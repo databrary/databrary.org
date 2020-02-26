@@ -5,6 +5,8 @@ const state = {
   dbId: null,
   authServerId: null,
   emailPrimary: null,
+  thumbnail: null,
+  gravatar: null,
   displayFullName: null,
   sessionId: null,
   version: 1

@@ -16,7 +16,7 @@
     <div class="order-sm-first order-md-last col-xs-12 col-sm-12 col-md-4 q-pa-sm text-center">
       <div class="text-h5 q-my-sm">Profile picture</div>
       <q-avatar  size="100px">
-        <img src="https://cdn.quasar-framework.org/img/avatar2.jpg">
+        <img :src="gravatar">
       </q-avatar>
       <br>
       <div class="q-my-sm">
@@ -27,11 +27,15 @@
 </template>
 
 <script>
+import { get } from 'vuex-pathify'
 import AvatarUploader from '../Upload/UploadAvatar.vue'
 export default {
   name: 'SettingsProfile',
   components: {
     AvatarUploader
+  },
+  computed: {
+    gravatar: get('app/gravatar')
   }
 }
 </script>

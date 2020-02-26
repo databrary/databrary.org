@@ -167,7 +167,7 @@
         class="text-weight-light text-grey-8"
       >
         <q-avatar  size="32px">
-          <img src="https://cdn.quasar.dev/img/avatar1.jpg">
+          <img :src="thumbnail" >
         </q-avatar>
         <q-menu>
           <q-list style="min-width: 200px">
@@ -212,12 +212,13 @@
 </template>
 
 <script>
-import { sync } from 'vuex-pathify'
+import { sync, get } from 'vuex-pathify'
 // import { openURL } from 'quasar'
 
 export default {
   computed: {
     isLoggedIn: sync('app/isLoggedIn'),
+    thumbnail: get('app/thumbnail'),
     loginUrl () {
       return `http://localhost:8000/login?redirect=${encodeURIComponent(window.location.href)}`
     }
