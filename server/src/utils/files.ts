@@ -67,16 +67,7 @@ export function hashAndSizeMinio (bucket: string, decodedKey: string): Promise<I
   })
 }
 
-export async function canAccessAsset (id: number) {
-  const response = await adminQuery(
-    `${process.cwd()}/../gql/checkPermissionOfAsset.gql`,
-    {
-      id
-    })
-  return !_.isEmpty(response)
-}
-
-export async function fileExists(bucket: string, sha256: string) {
+export async function fileExists (bucket: string, sha256: string) {
   try {
     await minioClient.statObject(bucket, sha256)
   } catch (err) {
@@ -86,7 +77,7 @@ export async function fileExists(bucket: string, sha256: string) {
   return true
 }
 
-export async function bucketExists(bucket: string) {
+export async function bucketExists (bucket: string) {
   try {
     await minioClient.bucketExists(bucket)
   } catch (err) {
@@ -96,7 +87,7 @@ export async function bucketExists(bucket: string) {
   return true
 }
 
-export async function copyObject(destinationBucket: string, sha256: string, sourceFile: string, eTag: string){
+export async function copyObject (destinationBucket: string, sha256: string, sourceFile: string, eTag: string) {
   // Copy the file from the upoloads folder
   try {
     const conds = new CopyConditions()
@@ -109,6 +100,6 @@ export async function copyObject(destinationBucket: string, sha256: string, sour
   return true
 }
 
-export function getMinioClient() {
+export function getMinioClient () {
   return minioClient
 }

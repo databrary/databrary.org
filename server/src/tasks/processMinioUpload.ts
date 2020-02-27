@@ -1,30 +1,51 @@
 import _ from 'lodash'
 import { adminQuery, adminMutate } from '../graphqlClient'
 import { logger } from '@shared'
-import { copyObject, IFileInfo, canAccessAsset, hashAndSizeMinio, fileExists } from '@utils'
+import { copyObject, IFileInfo, hashAndSizeMinio, fileExists } from '@utils'
 
-export default async function processMinioUpload (input: object) {
+export async function getAsset (id: number) {
+  const response = await adminQuery(
+    `${process.cwd()}/../gql/getAssetById.gql`,
+    {
+      id
+    })
+  if (_.isEmpty(response)) {
+    return null
+  }
+  return response.data.assets[0]
+}
 
-  logger.debug(`Processing Minio upload for file ${input['key']}`)
-  const fileId = _.toInteger(input['key'])
+async function getFileId (input: any) {
+  // Converts the key--the filename as a string--to an integer
+  // representing the row id in the File table
+  return _.toInteger(input.key)
+}
 
-  // Get the file object based on the key
+async function getFileById (id: number) {
   let response = await adminQuery(
     `${process.cwd()}/../gql/getFile.gql`,
     {
-      id: fileId
+      id
     }
   )
-  const file = response[0]
+  const file = response.returning[0]
+  return
+}
 
-  const hasPermission = await canAccessAsset(file.asset_id)
-  if (!hasPermission) {
+export default async function processMinioUpload (input: any) {
+  logger.debug(`Processing Minio upload for file ${input.key}`)
+
+  const fileId = await getFileId(input)
+  const file: any = await getFileById(fileId)
+  const parentAsset = await getAsset(file.asset_id)
+  if (parentAsset === null) {
+    // No permission
     return
   }
 
   // Get file info
-  const fileInfo: IFileInfo = await hashAndSizeMinio('uploads', input['key'])
-  if (fileInfo['size'] !== input['size']) {
+  const fileInfo: IFileInfo = await hashAndSizeMinio('uploads', _.toString(fileId))
+  if (fileInfo.size !== input.size) {
     logger.error('Size mismatch') // TODO We need an error here
   }
 
@@ -32,7 +53,8 @@ export default async function processMinioUpload (input: object) {
 
   const fileExistsInCas = await fileExists('cas', fileInfo.sha256)
 
-  let fileobjectId
+  let fileobjectId: number
+  let response: any
 
   if (!fileExistsInCas) {
 
@@ -46,7 +68,7 @@ export default async function processMinioUpload (input: object) {
       fileobjectId = response.returning[0].id
     }
   } else {
-    response = await adminMutate(
+    response = await adminQuery(
       `${process.cwd()}/../gql/getFileObjectId.gql`, { // TODO brittle for a number of reasons
         sha256: fileInfo.sha256
       }

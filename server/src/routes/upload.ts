@@ -18,7 +18,7 @@ export function routes (app: any, session: any) {
             {
               name: decodeURIComponent(req.body.filename),
               uploadedById: req.session.key['dbId'],
-              assetId: req.body.projectId,
+              assetId: req.body.projectId, // parentId
               fileFormatId: req.body.format
             }
           )

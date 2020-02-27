@@ -33,7 +33,7 @@ export async function adminMutate (
   logger.debug('Running Admin Mutate')
   if (cache[path] === undefined) {
     const fileContent = await fs.readFile(path)
-    logger.debug(`${fileContent}`)
+    // logger.debug(`${fileContent}`)
     cache[path] = gql`${fileContent}`
   }
   const response = await adminClient.mutate({

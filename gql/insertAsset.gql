@@ -1,0 +1,24 @@
+# TODO(Reda): change fileFormatID to fileformats_enum to restrict the format upload
+mutation ( 
+  $name: String!,
+  $assetType: String!,
+  $createdById: Int!,
+  $permissionsetId: Int,
+  $privacyType: String,
+  $parentId: Int,
+) {
+  insert_files(
+    objects: { 
+      name: $name,
+      asset_type: $assetType,
+      created_by_id: $createdById,
+      permissionset_id: $permissionsetId,
+      privacy_type: $privacyType,
+      parentId: $parentId
+    }
+  ) {
+    returning {
+      id
+    }
+  }
+}

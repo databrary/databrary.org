@@ -204,7 +204,7 @@
     "webhook": {
       "1": {
         "enable": true,
-        "endpoint": "http://localhost:8000/webhooks/minio",
+        "endpoint": "http://host.docker.internal:8000/webhooks/minio",
         "queueDir": "/events",
         "queueLimit": 10
       }

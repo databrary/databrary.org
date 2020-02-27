@@ -79,8 +79,9 @@ export function routes (app: any, sessionStore: any, session: any) {
   )
 
   app.post('/webhooks/minio',
-    session,
+    // session,
     async (req: express.Request, res: express.Response) => {
+      logger.debug('webhook/minio')
       if (!_.isEmpty(req.body)) {
         const minioBucket = req.body.Records[0].s3.bucket
         const fileInfo = req.body.Records[0].s3.object

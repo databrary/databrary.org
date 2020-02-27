@@ -1,0 +1,12 @@
+query getAssetById ( $id: Int ) {
+  assets(where: {id: {_eq: $id}}) {
+    id
+    asset_type
+    name
+    created_by_id
+    datetime_created
+    permissionset_id
+    privacy_type
+    parentId
+  }
+}
