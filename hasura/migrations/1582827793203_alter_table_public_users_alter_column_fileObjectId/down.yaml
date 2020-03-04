@@ -1,0 +1,9 @@
+- args:
+    sql: ALTER TABLE "public"."users" ALTER COLUMN "fileObjectId" TYPE integer;
+  type: run_sql
+- args:
+    sql: COMMENT ON COLUMN "public"."users"."fileObjectId" IS E'null'
+  type: run_sql
+- args:
+    sql: alter table "public"."users" rename column "avatarId" to "fileObjectId";
+  type: run_sql

@@ -1,0 +1,6 @@
+- args:
+    sql: "\n             alter table \"public\".\"users\" drop constraint \"users_fileObjectId_fkey\",\n
+      \            add constraint \"users_avatarId_fkey\"\n             foreign key
+      (\"avatarId\")\n             references \"public\".\"assets\"\n             (\"id\")
+      on update no action on delete cascade;\n      "
+  type: run_sql

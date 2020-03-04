@@ -5,7 +5,7 @@ export default function createProject (name) {
     mutation: gql`
       mutation ($name: String!) {
         insert_assets(
-          objects: { 
+          objects: {
             name: $name,
             asset_type: project,
             privacy_type: private

@@ -1,7 +1,8 @@
 import _ from 'lodash'
 import queue from '../queue'
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response } from 'express'
 import { logger, getSessionUserId } from '@shared'
+import { processAvatarUpload } from '@utils'
 
 export const authWebhook = async (req: Request, res: Response) => {
   const sessionId = req.get('sessionID')
@@ -27,11 +28,11 @@ export const authWebhook = async (req: Request, res: Response) => {
 export const minioWebhook = async (req: Request, res: Response) => {
   if (!_.isEmpty(req.body)) {
     const minioBucket = req.body.Records[0].s3.bucket
-    const fileInfo = req.body.Records[0].s3.object
+    const minioObject = req.body.Records[0].s3.object
     if (minioBucket.name === 'uploads') {
-      await queue('processMinioUpload', fileInfo)
+      await queue('processMinioUpload', minioObject)
     } else if (minioBucket.name === 'avatars') {
-                // Add avatar upload here
+      await processAvatarUpload(minioObject)
     }
   }
   res.send('done')

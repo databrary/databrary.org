@@ -1,4 +1,5 @@
 import * as _ from 'lodash'
+import { adminQuery } from '../graphqlClient'
 import { Request, Response, NextFunction } from 'express'
 import { uuid, getGravatarURL } from '@utils'
 import { logger, loginTestUser } from '@shared'
@@ -57,20 +58,37 @@ export const getSession = (req: Request, res: Response) => {
     // user found.
     response['dbId'] = req.user['dbId']
     // if we already computer the gravatar url
-    if (!_.get(req.user, 'gravatarURL')) {
-      const gravatarURL = {
-        'thumbnail': getGravatarURL(req.user['email'], 32),
-        'large': getGravatarURL(req.user['email'], 200)
-      }
-      req.user['gravatarURL'] = gravatarURL
+    if (_.get(req.user, 'gravatarURL')) {
+      response['gravatarURL'] = req.user['gravatarURL']
     }
-    response['gravatarURL'] = req.user['gravatarURL']
   }
   res.json(response)
 }
 
-export const authCallback = (req: Request, res: Response) => {
+export const authCallback = async (req: Request, res: Response) => {
   if (req.user) {
+    // We create an empty avatar asset
+    const response = await adminQuery(
+      `${process.cwd()}/../gql/getAvatarAsset.gql`,
+      {
+        dbId: req.user['dbId']
+      }
+    )
+
+    let gravatarURL = {
+      'thumbnail': getGravatarURL(req.user['email'], 32),
+      'large': getGravatarURL(req.user['email'], 400)
+    }
+    if (!_.isEmpty(response[0].files)) {
+      // If we found profile pictures in our database we
+      // replace the gravatar by the picture
+      // TODO(Reda): Get fileObjectId url
+      gravatarURL = {
+        'thumbnail': getGravatarURL(req.user['email'], 32),
+        'large': getGravatarURL(req.user['email'], 400)
+      }
+    }
+    req.user['gravatarURL'] = gravatarURL
     return res.redirect('/')
   }
 }

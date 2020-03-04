@@ -5,7 +5,7 @@ import { adminMutate ,adminQuery } from '../graphqlClient'
 import { logger } from '@shared'
 import { IFileInfo } from '@utils'
 
-let minioClient = new Client({
+const minioClient = new Client({
   endPoint: process.env.MINIO_ENDPOINT,
   port: _.toInteger(process.env.MINIO_PORT),
   accessKey: process.env.MINIO_ACCESS_KEY,
@@ -61,7 +61,7 @@ export async function fileExists (bucket: string, sha256: string) {
   try {
     await minioClient.statObject(bucket, sha256)
   } catch (err) {
-    logger.error(`fileExists error: ${err}`)
+    logger.error(`File Not Found: ${err}`)
     return false
   }
   return true
@@ -92,54 +92,4 @@ export async function copyObject (destinationBucket: string, sha256: string, sou
 
 export function getMinioClient () {
   return minioClient
-}
-
-export async function processAvatarUpload (input: object, authServerId: any) {
-    // TODO process here the avatar upload
-    // const fileId = _.toInteger(input['key'])
-    // hash and size the file
-  const fileInfo: IFileInfo = await hashAndSizeMinio('uploads', input['key'])
-  if (fileInfo['size'] !== input['size']) {
-    logger.error('Size mismatch') // TODO We need an error here
-  }
-    // check if exist
-  fileInfo.location = 's3://minio-1.nyu.edu/cas'
-
-  const fileExistsInCas = await fileExists('cas', fileInfo.sha256)
-
-  let fileobjectId
-  let response
-
-  if (!fileExistsInCas) {
-    const fileCopied = await copyObject('cas', fileInfo.sha256, `/avatars/${input['key']}`, input['eTag'])
-    if (fileCopied) {
-            // process original and small format of the picture and rename
-      response = await adminMutate(
-                `${process.cwd()}/../gql/insertFileObjectOnUpload.gql`, // TODO brittle for a number of reasons
-                fileInfo
-            )
-      fileobjectId = response.returning[0].id
-
-    }
-  } else {
-    response = await adminMutate(
-            `${process.cwd()}/../gql/getFileObjectId.gql`, { // TODO brittle for a number of reasons
-              sha256: fileInfo.sha256
-            }
-        )
-    fileobjectId = response[0].id
-  }
-
-  if (fileobjectId != null) {
-    logger.info(`File Object ID ${fileobjectId}`)
-    response = await adminMutate(
-            `${process.cwd()}/../gql/updateUserAvatar.gql`,
-      {
-        authServerId: authServerId,
-        fileobjectId: fileobjectId
-      }
-        )
-
-    logger.info(`User ${authServerId} processed`)
-  }
 }

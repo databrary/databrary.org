@@ -5,9 +5,9 @@ import { copyObject, IFileInfo, canAccessAsset, hashAndSizeMinio, fileExists } f
 
 export default async function processMinioUpload (input: object) {
 
-  logger.debug(`Processing Minio upload for file ${input['key']}`)
+  logger.debug(`Processing Minio upload for file ${JSON.stringify(input)}`)
   const fileId = _.toInteger(input['key'])
-
+  logger.debug(`Input Key ${input['key']} and fieldId ${fileId}`)
   // Get the file object based on the key
   let response = await adminQuery(
     `${process.cwd()}/../gql/getFile.gql`,
@@ -69,8 +69,4 @@ export default async function processMinioUpload (input: object) {
 
     logger.info(`File ${fileId} processed`)
   }
-
-  // // Remove the original file
-  // await minioClient.removeObject('uploads', decodedKey)
-
 }
