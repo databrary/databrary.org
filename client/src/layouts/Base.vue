@@ -47,7 +47,9 @@ export default {
   computed: {
     isLoggedIn: sync('app/isLoggedIn'),
     userId: sync('app/dbId'),
-    sessionId: sync('app/sessionId')
+    sessionId: sync('app/sessionId'),
+    thumbnail: sync('app/thumbnail'),
+    gravatar: sync('app/gravatar')
   },
   async created () {
     this.year = (new Date()).getFullYear()
@@ -66,14 +68,17 @@ export default {
         try {
           const response = await axios({ url: '/session', method: 'GET' })
           if (_.get(response.data, 'dbId') !== undefined) {
-            console.log(`Session repsonse`, response.data, response.data.dbId)
+            console.log(`Session repsonse`, response.data)
             this.isLoggedIn = true
             this.userId = response.data.dbId
             this.sessionId = response.data.sessionID
+            this.thumbnail = response.data.gravatarURL.thumbnail
+            this.gravatar = response.data.gravatarURL.large
           } else {
             this.isLoggedIn = false
             this.userId = null
             this.sessionId = null
+            this.thumbnail = null
           }
         } catch (error) { // TODO specify the error
           this.isBackendDisconnected = true

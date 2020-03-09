@@ -18,7 +18,6 @@ export default function (/* { ssrContext } */) {
     plugins: [ pathify.plugin ],
 
     modules: {
-      // auth,
       app
     },
 

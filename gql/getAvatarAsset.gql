@@ -1,0 +1,12 @@
+query getAvatarAsset (
+    $dbId: Int!
+) {
+  assets(
+      where: {
+          created_by_id: {_eq: $dbId}, 
+          asset_type: {_eq: avatar}
+        }
+    ) {
+        id
+    }
+}
