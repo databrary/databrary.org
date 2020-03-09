@@ -65,10 +65,10 @@ export default {
       ) {
         try {
           const response = await axios({ url: '/session', method: 'GET' })
-          if (_.get(response.data.key, 'dbId') !== undefined) {
+          if (_.get(response.data, 'dbId') !== undefined) {
             console.log(`Session repsonse`, response.data, response.data.dbId)
             this.isLoggedIn = true
-            this.userId = response.data.key.dbId
+            this.userId = response.data.dbId
             this.sessionId = response.data.sessionID
           } else {
             this.isLoggedIn = false

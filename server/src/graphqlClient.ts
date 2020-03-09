@@ -16,7 +16,6 @@ export async function adminQuery (
   logger.debug('Running Admin Query')
   if (cache[path] === undefined) {
     const fileContent = await fs.readFile(path)
-    logger.debug(`${fileContent}`)
     cache[path] = gql`${fileContent}`
   }
   const response = await adminClient.query({
@@ -33,7 +32,6 @@ export async function adminMutate (
   logger.debug('Running Admin Mutate')
   if (cache[path] === undefined) {
     const fileContent = await fs.readFile(path)
-    logger.debug(`${fileContent}`)
     cache[path] = gql`${fileContent}`
   }
   const response = await adminClient.mutate({

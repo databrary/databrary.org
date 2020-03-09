@@ -66,7 +66,7 @@ export default {
         query: gql`
           query GetProjectsByUserId($userId: Int!) {
             assets(
-              where: {asset_type: {_eq: project}, _and: {created_by_id: {_eq: 1}}}
+              where: {asset_type: {_eq: project}, _and: {created_by_id: {_eq: $userId}}}
               order_by: {datetime_created: desc}
             ) {
               id

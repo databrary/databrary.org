@@ -18,7 +18,6 @@ const mutation = gql`
   }
 `
 export async function registerUser (authServerId: string, emailPrimary: string) {
-  logger.debug(`Registering User ${authServerId}`)
   const response = await client.mutate({
     mutation,
     variables: {
