@@ -43,6 +43,7 @@
     "graphql-tag-pluck": "^0.8.3",
     "http-proxy-middleware": "^0.20.0",
     "js-yaml": "^3.13.1",
+    "keycloak-admin": "^1.13.0",
     "keycloak-connect": "^7.0.0",
     "lodash": "^4.17.15",
     "minio": "^7.0.12",

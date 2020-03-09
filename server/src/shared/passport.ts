@@ -1,8 +1,14 @@
 import passport from 'passport'
+import KcAdminClient from 'keycloak-admin'
 import { Request, Response, NextFunction } from 'express'
 import { Strategy as KeycloakStrategy } from 'passport-keycloak-oauth2-oidc'
 import { getUserByAuthId, registerUser } from '@units'
 import { logger } from '@shared'
+
+const kcAdminClient = new KcAdminClient({
+  baseUrl: `http://${process.env.KEYCLOAK_ENDPOINT}:${[process.env.KEYCLOAK_PORT]/auth}`,
+  realmName: 'master'
+})
 
 passport.serializeUser((user, done) => {
   done(null, user)
@@ -69,6 +75,28 @@ export const loginTestUser = async () => {
 
     // If the user is null, register the user in the database
     if (user === null) {
+      await kcAdminClient.auth({
+        username: process.env.KEYCLOAK_USERNAME,
+        password: process.env.KEYCLOAK_PASSWORD,
+        clientId: 'admin-cli',
+        grantType: 'password'
+      })
+
+      kcAdminClient.setConfig({
+        realmName: process.env.KEYCLOAK_REALM
+      })
+
+      const keycloakUser = await kcAdminClient.users.create({
+        username: process.env.DUMMY_USER_EMAIL,
+        email: process.env.DUMMY_USER_EMAIL,
+        enabled: true,
+        emailVerified: true
+      })
+
+      user = await registerUser(
+        keycloakUser.id,
+        process.env.DUMMY_USER_EMAIL)
+
       user = await registerUser(
         process.env.DUMMY_USER_AUTH_SERVER_ID,
         process.env.DUMMY_USER_EMAIL)
