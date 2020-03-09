@@ -5,21 +5,21 @@ include .env
 UNAME := $(shell uname -s)
 SYSTEM = Linux
 
-ifeq ( $(UNAME), Linux )
-	ifdef WSL
-		SYSTEM = 'WSL'
-	endif
+ifeq ($(UNAME),Linux)
+ifdef $(WSL)
+	SYSTEM = 'WSL'
+endif
 else
-	ifeq ( $(UNAME), Darwin )
-		SYSTEM = 'Mac'
-	else
-		SYSTEM = 'Windows'
-	endif
+ifeq ($(UNAME),Darwin)
+	SYSTEM = 'Mac'
+else
+	SYSTEM = 'Windows'
+endif
 endif
 
 DOCKER_HOST_IP = host.docker.internal
-ifeq ( $(SYSTEM), Linux )
-	DOCKER_HOST_IP=$(ip -4 addr show docker0 | grep -Po 'inet \K[\d.]+')
+ifeq ($(SYSTEM),Linux) 
+	DOCKER_HOST_IP=$(shell ip -4 addr show docker0 | grep -Po 'inet \K[\d.]+')
 endif
 
 # Need to find platform and export docker host ip
@@ -41,7 +41,7 @@ stop_docker:
 cleardb:
 	docker-compose down -v
 docker:
-	docker-compose up
+	DOCKER_HOST_IP=$(DOCKER_HOST_IP) docker-compose up 
 server:
 ifdef DEV
 	@echo "Running development server"
@@ -83,7 +83,7 @@ setup_migrations:
 
 setup_minio:
 	mc config host add minio ${MINIO_URL} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
-ifeq ( $(SYSTEM), Linux )
+ifeq ($(SYSTEM),Linux)
 	mc admin config set minio/ notify_webhook:1 endpoint="http://${DOCKER_HOST_IP}:8000/webhooks/minio" queue_dir="/events" queue_limit="10000"
 else
 	mc admin config set minio/ notify_webhook:1 endpoint="http://host.docker.internal:8000/webhooks/minio" queue_dir="/events" queue_limit="10000"
