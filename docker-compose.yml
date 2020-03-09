@@ -27,7 +27,7 @@ services:
       HASURA_GRAPHQL_AUTH_HOOK: http://host.docker.internal:8000/${HASURA_WEBHOOK}
 
   minio:
-    image: minio/minio:RELEASE.2019-10-12T01-39-57Z
+    image: minio/minio:latest
     volumes:
       - file_data:/data
       - minio_events:/events
@@ -37,10 +37,6 @@ services:
     environment:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-      MINIO_NOTIFY_WEBHOOK_ENABLE: "on"
-      MINIO_NOTIFY_WEBHOOK_ENDPOINT: http://host.docker.internal:8000/webhooks/minio
-      MINIO_NOTIFY_WEBHOOK_QUEUE_DIR: "/events"
-      MINIO_NOTIFY_WEBHOOK_QUEUE_LIMIT: 10000
 
   keycloak:
     image: jboss/keycloak:6.0.1
@@ -68,7 +64,7 @@ services:
     image: redis:alpine
     container_name: sessions
     ports:
-      - 9379:6379
+      - 6379:6379
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - ./server/sessions:/sessions
