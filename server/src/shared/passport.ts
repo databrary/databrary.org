@@ -2,11 +2,11 @@ import passport from 'passport'
 import KcAdminClient from 'keycloak-admin'
 import { Request, Response, NextFunction } from 'express'
 import { Strategy as KeycloakStrategy } from 'passport-keycloak-oauth2-oidc'
-import { getUserByAuthId, registerUser } from '@units'
+import { getUserByAuthId, getUserByEmail, registerUser } from '@units'
 import { logger } from '@shared'
 
 const kcAdminClient = new KcAdminClient({
-  baseUrl: `http://${process.env.KEYCLOAK_ENDPOINT}:${[process.env.KEYCLOAK_PORT]/auth}`,
+  baseUrl: `http://${process.env.KEYCLOAK_ENDPOINT}:${process.env.KEYCLOAK_PORT}/auth`,
   realmName: 'master'
 })
 
@@ -70,8 +70,8 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
 
 export const loginTestUser = async () => {
   try {
-    let user = await getUserByAuthId(
-      process.env.DUMMY_USER_AUTH_SERVER_ID)
+    let user = await getUserByEmail(
+      process.env.DUMMY_USER_EMAIL)
 
     // If the user is null, register the user in the database
     if (user === null) {
