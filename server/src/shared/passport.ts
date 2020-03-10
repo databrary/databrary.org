@@ -90,16 +90,24 @@ export const loginTestUser = async () => {
         username: process.env.DUMMY_USER_EMAIL,
         email: process.env.DUMMY_USER_EMAIL,
         enabled: true,
-        emailVerified: true
+        emailVerified: true,
+        firstName: 'Test',
+        lastName: 'Testerson'
+      })
+
+      await kcAdminClient.users.resetPassword({
+        id: keycloakUser.id,
+        credential: {
+          temporary: false,
+          type: 'password',
+          value: 'test'
+        }
       })
 
       user = await registerUser(
         keycloakUser.id,
-        process.env.DUMMY_USER_EMAIL)
-
-      user = await registerUser(
-        process.env.DUMMY_USER_AUTH_SERVER_ID,
-        process.env.DUMMY_USER_EMAIL)
+        process.env.DUMMY_USER_EMAIL
+      )
 
       logger.debug(`Registered Dummy User ${JSON.stringify(user)}`)
     } else {
@@ -114,6 +122,6 @@ export const loginTestUser = async () => {
       logger.error(`Cannot login and/or register user`)
     }
   } catch (error) {
-    logger.error(error)
+    logger.error(`Error while creating a dummy keycloak user${error}`)
   }
 }
