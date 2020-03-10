@@ -1,6 +1,5 @@
 import { resolve } from 'path'
 import { config } from 'dotenv'
-import { logger } from '@shared'
 import commandLineArgs from 'command-line-args'
 
 // Setup command line options
@@ -30,5 +29,7 @@ result = config({
 if (result.error) {
   throw result.error
 }
+
+export const dev = options !== 'prod'
 
 // TODO(Reda): Add stop process if env variables not found

@@ -2,7 +2,8 @@ import * as _ from 'lodash'
 import { adminQuery } from '../graphqlClient'
 import { Request, Response, NextFunction } from 'express'
 import { uuid, getGravatarURL } from '@utils'
-import { logger, loginTestUser } from '@shared'
+import { logger, loginTestUser, registerTestUser } from '@shared'
+import { dev } from '../config'
 
 const keycloakRealm = process.env.KEYCLOAK_REALM
 const keycloakEndpoint = process.env.KEYCLOAK_ENDPOINT
@@ -12,6 +13,10 @@ const keycloak = process.env.USE_KEYCLOAK === 'true'
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
     if (keycloak) {
+      if (dev) {
+        await registerTestUser()
+      }
+
       // Callback is set in KeycloakStrategy
       return res.redirect('/auth/keycloak')
     } else {

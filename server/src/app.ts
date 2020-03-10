@@ -8,11 +8,11 @@ import proxy from 'express-http-proxy'
 import morgan from 'morgan'
 import passport from 'passport'
 
-import * as authController from './controllers/authController'
-import * as webhooksController from './controllers/webhooksController'
-import * as uploadController from './controllers/uploadController'
+import * as authController from './controllers/auth'
+import * as webhooksController from './controllers/webhooks'
+import * as uploadController from './controllers/upload'
 
-import { stream, sessionStore, isAuthenticated } from '@shared'
+import { stream, sessionStore } from '@shared'
 
 const app = express()
 
