@@ -22,7 +22,7 @@ export default {
     }
   },
   mounted: function mounted () {
-    this.projectIdFromRoute = this.$route.params.projectId
+    this.projectIdFromRoute = parseInt(this.$route.params.projectId) // String to integer
     const that = this
     this.uppy = Uppy({
       id: 'FilesUploader'

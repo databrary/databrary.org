@@ -2,7 +2,7 @@ I know there are credentials in this repo. They will all be hidden as soon as th
 
 # Install Steps
 
-Make sure you have Docker, docker-compose, and yarn installed. Links/instructions coming soon.
+```make install``` will install several pieces of software on your machine. Mac users must have brew installed.
 
 **Note:** If you are on Linux environnement, copy ```scripts/docker_host.sh``` to ```/etc/profile.d/``` and log out from your current session.
 
