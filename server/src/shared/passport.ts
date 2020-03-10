@@ -68,44 +68,60 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
   res.redirect('/login')
 }
 
+export const registerTestUser = async () => {
+  let user = await getUserByEmail(
+    process.env.DUMMY_USER_EMAIL
+  )
+
+  // If the user is null, register the user in the database
+  if (user === null && process.env.USE_KEYCLOAK === 'true') {
+
+    await kcAdminClient.auth({
+      username: process.env.KEYCLOAK_USERNAME,
+      password: process.env.KEYCLOAK_PASSWORD,
+      clientId: 'admin-cli',
+      grantType: 'password'
+    })
+
+    kcAdminClient.setConfig({
+      realmName: process.env.KEYCLOAK_REALM
+    })
+
+    const keycloakUser = await kcAdminClient.users.create({
+      username: process.env.DUMMY_USER_EMAIL,
+      email: process.env.DUMMY_USER_EMAIL,
+      enabled: true,
+      emailVerified: true,
+      firstName: 'Test',
+      lastName: 'Testerson'
+    })
+
+    await kcAdminClient.users.resetPassword({
+      id: keycloakUser.id,
+      credential: {
+        temporary: false,
+        type: 'password',
+        value: 'test'
+      }
+    })
+
+    user = await registerUser(
+      keycloakUser.id,
+      process.env.DUMMY_USER_EMAIL
+    )
+  }
+}
+
 export const loginTestUser = async () => {
   try {
-    let user = await getUserByEmail(
-      process.env.DUMMY_USER_EMAIL)
+    let user = await getUserByAuthId(
+      process.env.DUMMY_USER_AUTH_SERVER_ID
+    )
 
     // If the user is null, register the user in the database
     if (user === null) {
-      await kcAdminClient.auth({
-        username: process.env.KEYCLOAK_USERNAME,
-        password: process.env.KEYCLOAK_PASSWORD,
-        clientId: 'admin-cli',
-        grantType: 'password'
-      })
-
-      kcAdminClient.setConfig({
-        realmName: process.env.KEYCLOAK_REALM
-      })
-
-      const keycloakUser = await kcAdminClient.users.create({
-        username: process.env.DUMMY_USER_EMAIL,
-        email: process.env.DUMMY_USER_EMAIL,
-        enabled: true,
-        emailVerified: true,
-        firstName: 'Test',
-        lastName: 'Testerson'
-      })
-
-      await kcAdminClient.users.resetPassword({
-        id: keycloakUser.id,
-        credential: {
-          temporary: false,
-          type: 'password',
-          value: 'test'
-        }
-      })
-
       user = await registerUser(
-        keycloakUser.id,
+        process.env.DUMMY_USER_AUTH_SERVER_ID,
         process.env.DUMMY_USER_EMAIL
       )
 
@@ -122,6 +138,6 @@ export const loginTestUser = async () => {
       logger.error(`Cannot login and/or register user`)
     }
   } catch (error) {
-    logger.error(`Error while creating a dummy keycloak user${error}`)
+    logger.error(error)
   }
 }
