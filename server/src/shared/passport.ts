@@ -39,8 +39,11 @@ passport.use(
       // If the user is null, register the user in the database
       if (user === null) {
         user = await registerUser(
-                profile.id,
-                profile.email)
+          profile.id,
+          profile.email,
+          profile._json.given_name,
+          profile._json.family_name
+        )
 
         logger.debug(`Registered User ${JSON.stringify(user)}`)
       } else {
@@ -104,11 +107,6 @@ export const registerTestUser = async () => {
         value: 'test'
       }
     })
-
-    user = await registerUser(
-      keycloakUser.id,
-      process.env.DUMMY_USER_EMAIL
-    )
   }
 }
 
@@ -122,7 +120,9 @@ export const loginTestUser = async () => {
     if (user === null) {
       user = await registerUser(
         process.env.DUMMY_USER_AUTH_SERVER_ID,
-        process.env.DUMMY_USER_EMAIL
+        process.env.DUMMY_USER_EMAIL,
+        'Test',
+        'Testerson'
       )
 
       logger.debug(`Registered Dummy User ${JSON.stringify(user)}`)

@@ -1,0 +1,25 @@
+- args:
+    permission:
+      allow_upsert: true
+      check:
+        id:
+          _eq: X-Hasura-User-Id
+      columns:
+      - bio
+      - citation_name
+      - datetime_registered
+      - display_full_name
+      - email_primary
+      - first_name
+      - last_name
+      - middle_name
+      - urls
+      localPresets:
+      - key: ""
+        value: ""
+      set: {}
+    role: user
+    table:
+      name: users
+      schema: public
+  type: create_insert_permission

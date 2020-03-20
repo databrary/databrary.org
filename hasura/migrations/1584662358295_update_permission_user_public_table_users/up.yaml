@@ -1,0 +1,23 @@
+- args:
+    permission:
+      columns:
+      - bio
+      - citation_name
+      - display_full_name
+      - email_primary
+      - first_name
+      - last_name
+      - middle_name
+      - urls
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+      localPresets:
+      - key: ""
+        value: ""
+      set: {}
+    role: user
+    table:
+      name: users
+      schema: public
+  type: create_update_permission
