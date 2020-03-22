@@ -116,6 +116,13 @@
 import { get } from 'vuex-pathify'
 import gql from 'graphql-tag'
 import AvatarUploader from '../Upload/UploadAvatar.vue'
+
+// TODO(Reda): Enable profile saving only when fields changed
+// TODO(Reda): Add "Use Gravatar" button bellow Change Profile Picture
+// TODO(Reda): Change display name input's icon to reset
+// TODO(Reda): Fix vuex state persist between pages refresh
+// https://forum.vuejs.org/t/vuex-state-is-undefined-when-refresh-page/42702
+// https://stackoverflow.com/questions/43027499/vuex-state-on-page-refresh
 export default {
   name: 'SettingsProfile',
   data () {
@@ -190,7 +197,6 @@ export default {
       this.displayFullName = result.data.users[0].display_full_name
       if (result.data.users[0].urls !== null &&
         result.data.users[0].urls.length > 0) {
-        console.log(`saving hasura urls ${typeof result.data.users[0].urls}`)
         this.urls = result.data.users[0].urls
       }
       console.log(`profile ${JSON.stringify(result.data)}`)

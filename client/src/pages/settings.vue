@@ -26,35 +26,10 @@
           indicator-color="primary"
           dense
         >
-          <!-- <div class="text-h6 text-weight-light text-center">Personal settings</div> -->
           <q-tab name="profile" class="q-px-sm" label="Profile" />
           <q-tab name="account" class="q-px-sm" label="Account" />
           <q-tab name="emails" class="q-px-sm" label="Emails" />
           <q-tab name="security" class="q-px-sm" label="Security" />
-          <!-- <q-btn-dropdown auto-close flat label="Personal settings">
-            <q-list link>
-              <q-item clickable @click="tab = 'profile'">
-                <q-item-section>
-                  <q-item-section>Profile</q-item-section>
-                </q-item-section>
-              </q-item>
-              <q-item clickable @click="tab = 'account'">
-                <q-item-section>
-                  <q-item-section>Account</q-item-section>
-                </q-item-section>
-              </q-item>
-              <q-item clickable @click="tab = 'emails'">
-                <q-item-section>
-                  <q-item-section>Email</q-item-section>
-                </q-item-section>
-              </q-item>
-              <q-item clickable @click="tab = 'security'">
-                <q-item-section>
-                  <q-item-section>Security</q-item-section>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-btn-dropdown> -->
         </q-tabs>
       </div>
       <div class="col-md-9 col-sm-12  col-xs-12">
@@ -95,7 +70,6 @@
 </template>
 
 <script>
-
 import SettingsProfile from '../components/settings/settingsProfile.vue'
 import SettingsAccount from '../components/settings/settingsAccount.vue'
 import SettingsEmails from '../components/settings/settingsEmails.vue'

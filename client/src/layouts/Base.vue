@@ -68,7 +68,7 @@ export default {
         try {
           const response = await axios({ url: '/session', method: 'GET' })
           if (_.get(response.data, 'dbId') !== undefined) {
-            console.log(`Session repsonse`, response.data)
+            console.log(`Session repsonse`, JSON.stringify(response.data))
             this.isLoggedIn = true
             this.userId = response.data.dbId
             this.sessionId = response.data.sessionID
@@ -79,6 +79,7 @@ export default {
             this.userId = null
             this.sessionId = null
             this.thumbnail = null
+            this.gravatar = null
           }
         } catch (error) { // TODO specify the error
           this.isBackendDisconnected = true
