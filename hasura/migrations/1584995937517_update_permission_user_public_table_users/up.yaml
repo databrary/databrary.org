@@ -1,0 +1,18 @@
+- args:
+    permission:
+      allow_aggregations: false
+      columns:
+      - datetime_registered
+      - display_full_name
+      - email_primary
+      - emails
+      - id
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+      limit: null
+    role: user
+    table:
+      name: users
+      schema: public
+  type: create_select_permission
