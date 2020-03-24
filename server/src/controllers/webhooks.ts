@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import queue from '../queue'
 import { Request, Response } from 'express'
-import { logger, getSessionUserId } from '@shared'
+import { logger, getSessionUserId, updateUsersPrimaryEmail } from '@shared'
 import { processAvatarUpload } from '@utils'
 
 export const authWebhook = async (req: Request, res: Response) => {
@@ -33,6 +33,19 @@ export const minioWebhook = async (req: Request, res: Response) => {
       await queue('processMinioUpload', minioObject)
     } else if (minioBucket.name === 'avatars') {
       await processAvatarUpload(minioObject)
+    }
+  }
+  res.send('done')
+}
+
+export const emailWebhook = async (req: Request, res: Response) => {
+  if (!_.isEmpty(req.body)) {
+    try {
+      const authServerId = req.body.event.data.new.auth_server_id
+      const primaryEmail = req.body.event.data.new.email_primary
+      await updateUsersPrimaryEmail(authServerId, primaryEmail)
+    } catch (error) {
+      logger.error(error)
     }
   }
   res.send('done')

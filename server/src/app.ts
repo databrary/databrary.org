@@ -61,6 +61,7 @@ app.post('/sign-avatar-upload', uploadController.signAvatarUpload)
 // Webhooks routes
 app.get('/auth/webhook', webhooksController.authWebhook)
 app.post('/webhooks/minio', webhooksController.minioWebhook)
+app.post('/webhooks/email', webhooksController.emailWebhook)
 
 app.use('/', proxy(process.env.APP_URL_PROXY))
 

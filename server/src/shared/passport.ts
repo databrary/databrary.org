@@ -5,6 +5,13 @@ import { Strategy as KeycloakStrategy } from 'passport-keycloak-oauth2-oidc'
 import { getUserByAuthId, getUserByEmail, registerUser } from '@units'
 import { logger } from '@shared'
 
+const credentials = {
+  username: process.env.KEYCLOAK_USERNAME,
+  password: process.env.KEYCLOAK_PASSWORD,
+  clientId: 'admin-cli',
+  grantType: 'password'
+}
+
 const kcAdminClient = new KcAdminClient({
   baseUrl: `http://${process.env.KEYCLOAK_ENDPOINT}:${process.env.KEYCLOAK_PORT}/auth`,
   realmName: 'master'
@@ -78,12 +85,7 @@ export const registerTestUser = async () => {
   // If the user is null, register the user in the database
   if (user === null && process.env.USE_KEYCLOAK === 'true') {
 
-    await kcAdminClient.auth({
-      username: process.env.KEYCLOAK_USERNAME,
-      password: process.env.KEYCLOAK_PASSWORD,
-      clientId: 'admin-cli',
-      grantType: 'password'
-    })
+    await kcAdminClient.auth(credentials)
 
     kcAdminClient.setConfig({
       realmName: process.env.KEYCLOAK_REALM
@@ -143,5 +145,26 @@ export const loginTestUser = async () => {
     }
   } catch (error) {
     logger.error(error)
+  }
+}
+
+export const updateUsersPrimaryEmail = async (authServerId: string, primaryEmail: string) => {
+  logger.info(`Processing Email event id ${authServerId} Email ${primaryEmail}`)
+  if (process.env.USE_KEYCLOAK === 'true') {
+    logger.debug(`Keycloak username ${process.env.KEYCLOAK_USERNAME} , password ${process.env.KEYCLOAK_PASSWORD}`)
+    await kcAdminClient.auth(credentials)
+
+    logger.debug(`Updating user ${authServerId} email's`)
+    await kcAdminClient.users.update(
+      { id: authServerId,
+        realm: process.env.KEYCLOAK_REALM
+      },
+      {
+        username: primaryEmail,
+        email: primaryEmail,
+        emailVerified: false
+      }
+    )
+    logger.debug(`user ${authServerId} email update to ${primaryEmail}`)
   }
 }
