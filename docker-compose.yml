@@ -25,6 +25,7 @@ services:
       HASURA_GRAPHQL_ENABLE_CONSOLE: ${HASURA_ENABLE_CONSOLE}
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
       HASURA_GRAPHQL_AUTH_HOOK: http://${DOCKER_HOST_IP}:8000/${HASURA_WEBHOOK}
+      EMAIL_WEBHOOK: http://${DOCKER_HOST_IP}:8000/${UPDATE_EMAIL_WEBHOOK}
 
   minio:
     image: minio/minio:latest

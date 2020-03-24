@@ -1,0 +1,17 @@
+- args:
+    enable_manual: false
+    headers: []
+    name: updatePrimaryEmail
+    replace: true
+    retry_conf:
+      interval_sec: 10
+      num_retries: 0
+      timeout_sec: 60
+    table:
+      name: users
+      schema: public
+    update:
+      columns:
+      - email_primary
+    webhook_from_env: EMAIL_WEBHOOK
+  type: create_event_trigger
