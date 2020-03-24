@@ -72,23 +72,75 @@ export default {
     isPrimary: function (index) {
       return this.emails[index] === this.primaryEmail
     },
-    setPrimaryEmail: function () {
+    async setPrimaryEmail () {
       if (this.updatePrimaryEmail !== this.primaryEmail) {
         this.primaryEmail = this.updatePrimaryEmail
       }
+      const result = await this.$apollo.mutate({
+        mutation: gql`
+          mutation SetPrimaryEmail ($userId: Int!, $primaryEmail: String!) {
+            update_users(
+              where: {id: {_eq: $userId}}, 
+              _set: {email_primary: $primaryEmail}
+            ) {
+              returning {
+                email_primary
+              }
+            }
+          }
+        `,
+        variables: {
+          userId: this.userId,
+          primaryEmail: this.primaryEmail
+        }
+      })
+      this.primaryEmail = result.data.update_users.returning[0].email_primary
+      // TODO(Reda) Logout the user
     },
-    addEmail: function () {
+    async addEmail () {
       if (this.email.length > 0) {
         if (!this.emails.includes(this.email) && isEmail(this.email)) {
           this.emails.push(this.email)
           this.email = ''
+          try {
+            await this.setEmails()
+          } catch (error) {
+            console.error(error)
+          }
         }
       }
     },
-    removeEmail: function (index) {
+    async removeEmail (index) {
       if (!this.isPrimary(index)) {
         this.emails.splice(index, 1)
+        try {
+          await this.setEmails()
+        } catch (error) {
+          console.error(error)
+        }
       }
+    },
+    async setEmails () {
+      const result = await this.$apollo.mutate({
+        mutation: gql`
+          mutation SetPrimaryEmail ($userId: Int!, $emails: jsonb!) {
+            update_users(
+              where: {id: {_eq: $userId}}, 
+              _set: {emails: $emails}
+            ) {
+              returning {
+                emails
+              }
+            }
+          }
+        `,
+        variables: {
+          userId: this.userId,
+          emails: this.emails
+        }
+      })
+
+      this.emails = result.data.update_users.returning[0].emails
     },
     async getUserEmails () {
       const result = await this.$apollo.query({
