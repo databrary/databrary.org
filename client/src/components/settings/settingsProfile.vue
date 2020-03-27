@@ -177,11 +177,10 @@ export default {
           query GetUserProfile($userId: Int!) {
             users(where: {id: {_eq: $userId}}) {
               bio
-              citation_name
-              display_full_name
-              first_name
-              last_name
-              middle_name
+              displayFullName
+              givenName
+              familyName
+              additionalName
               urls
             }
           }
@@ -191,10 +190,10 @@ export default {
         }
       })
       this.bio = result.data.users[0].bio
-      this.firstName = result.data.users[0].first_name
-      this.lastName = result.data.users[0].last_name
-      this.middleName = result.data.users[0].middle_name
-      this.displayFullName = result.data.users[0].display_full_name
+      this.firstName = result.data.users[0].givenName
+      this.lastName = result.data.users[0].familyName
+      this.middleName = result.data.users[0].additionalName
+      this.displayFullName = result.data.users[0].displayFullName
       if (result.data.users[0].urls !== null &&
         result.data.users[0].urls.length > 0) {
         this.urls = result.data.users[0].urls
@@ -210,20 +209,18 @@ export default {
               $lastName: String!, 
               $firstName: String!, 
               $middleName: String!, 
-              $bio: String, 
-              $citationName: String!, 
+              $bio: String,
               $displayFullName: String!, 
               $urls: jsonb!) 
             {
               update_users(
                 where: {id: {_eq: $userId}}, 
                 _set: {
-                  last_name: $lastName, 
-                  first_name: $firstName,
-                  middle_name: $middleName, 
-                  bio: $bio, 
-                  citation_name: $citationName, 
-                  display_full_name: $displayFullName,  
+                  familyName: $lastName, 
+                  givenName: $firstName,
+                  additionalName: $middleName, 
+                  bio: $bio,
+                  displayFullName: $displayFullName,  
                   urls: $urls
                 }
               ) 
@@ -239,7 +236,6 @@ export default {
             lastName: this.lastName,
             firstName: this.firstName,
             middleName: this.middleName,
-            citationName: this.citationName,
             displayFullName: this.displayFullName,
             bio: this.bio,
             urls: this.urls

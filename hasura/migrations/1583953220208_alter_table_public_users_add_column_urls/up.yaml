@@ -1,3 +1,0 @@
-- args:
-    sql: ALTER TABLE "public"."users" ADD COLUMN "urls" jsonb NULL;
-  type: run_sql
