@@ -7,6 +7,12 @@
         color="primary"
         label="Change profile picture"
       />
+      <q-btn
+        flat
+        class="q-my-sm"
+        color="primary"
+        label="Use my Gravatar"
+      />
   </div>
 </template>
 
