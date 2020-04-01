@@ -26,10 +26,8 @@
 </template>
 
 <script>
-import { sync } from 'vuex-pathify'
+import { get } from 'vuex-pathify'
 import { openURL } from 'quasar'
-import _ from 'lodash'
-import axios from 'axios'
 import NavBar from '../components/Layout/NavBar.vue'
 
 export default {
@@ -40,55 +38,16 @@ export default {
   data () {
     return {
       leftDrawerOpen: false, // this.$q.platform.is.desktop,
-      year: null,
-      isBackendDisconnected: false
+      year: null
     }
   },
   computed: {
-    isLoggedIn: sync('app/isLoggedIn'),
-    userId: sync('app/dbId'),
-    sessionId: sync('app/sessionId'),
-    thumbnail: sync('app/thumbnail'),
-    gravatar: sync('app/gravatar')
+    isBackendDisconnected: get('app/isBackendDisconnected')
   },
   async created () {
     this.year = (new Date()).getFullYear()
-    await this.syncSessionAndStore()
-  },
-  watch: {
-    $route: 'syncSessionAndStore'
   },
   methods: {
-    async syncSessionAndStore () {
-      console.log('this.isLoggedIn', this.isLoggedIn, this.userId, this.sessionId)
-      if (
-        this.isLoggedIn === null ||
-        (this.isLoggedIn === true && this.userId === null)
-      ) {
-        try {
-          const response = await axios({ url: '/session', method: 'GET' })
-          if (_.get(response.data, 'dbId') !== undefined) {
-            console.log(`Session repsonse`, JSON.stringify(response.data))
-            this.isLoggedIn = true
-            this.userId = response.data.dbId
-            this.sessionId = response.data.sessionID
-            this.thumbnail = response.data.gravatarURL.thumbnail
-            this.gravatar = response.data.gravatarURL.large
-          } else {
-            this.isLoggedIn = false
-            this.userId = null
-            this.sessionId = null
-            this.thumbnail = null
-            this.gravatar = null
-          }
-        } catch (error) { // TODO specify the error
-          this.isBackendDisconnected = true
-        }
-      } else if (this.isLoggedIn === false) {
-        this.userId = null
-        this.sessionId = null
-      }
-    },
     openURL,
     toggleDrawer () {
       this.leftDrawerOpen = !this.leftDrawerOpen

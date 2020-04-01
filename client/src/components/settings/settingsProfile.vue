@@ -195,15 +195,12 @@
 </template>
 
 <script>
-import { get } from 'vuex-pathify'
+import { sync, get } from 'vuex-pathify'
 import _ from 'lodash'
 import gql from 'graphql-tag'
 import AvatarUploader from '../Upload/UploadAvatar.vue'
 
 // TODO(Reda): Add "Use Gravatar" button bellow Change Profile Picture
-// TODO(Reda): Fix vuex state persist between pages refresh
-// https://forum.vuejs.org/t/vuex-state-is-undefined-when-refresh-page/42702
-// https://stackoverflow.com/questions/43027499/vuex-state-on-page-refresh
 
 export default {
   name: 'SettingsProfile',
@@ -219,8 +216,7 @@ export default {
       },
       url: '',
       urlLabel: '',
-      saving: false,
-      saved: true
+      saving: false
     }
   },
   components: {
@@ -229,6 +225,7 @@ export default {
   computed: {
     gravatar: get('app/gravatar'),
     userId: get('app/dbId'),
+    saved: sync('profile/isSaved'),
     citationName: function () {
       return this.buildCitationName()
     }
@@ -238,7 +235,6 @@ export default {
   },
   methods: {
     async getProfile () {
-      console.log(`Get Profile Data`)
       const result = await this.$apollo.query({
         query: gql`
           query GetUserProfile($userId: Int!) {
@@ -273,7 +269,6 @@ export default {
     },
     addUrl: function () {
       if (this.url.length > 0) {
-        // TODO(Reda): Check if the key exists
         const index = _.findIndex(this.profile.urls, (url) => { return url.label.toLowerCase() === this.urlLabel.toLowerCase() })
         if (index < 0) {
           this.profile.urls.push({

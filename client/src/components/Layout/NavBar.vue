@@ -212,12 +212,11 @@
 </template>
 
 <script>
-import { sync, get } from 'vuex-pathify'
-// import { openURL } from 'quasar'
+import { get } from 'vuex-pathify'
 
 export default {
   computed: {
-    isLoggedIn: sync('app/isLoggedIn'),
+    isLoggedIn: get('app/isLoggedIn'),
     thumbnail: get('app/thumbnail'),
     loginUrl () {
       return `http://localhost:8000/login?redirect=${encodeURIComponent(window.location.href)}`

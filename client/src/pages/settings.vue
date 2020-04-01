@@ -70,6 +70,7 @@
 </template>
 
 <script>
+import { get } from 'vuex-pathify'
 import SettingsProfile from '../components/settings/settingsProfile.vue'
 import SettingsAccount from '../components/settings/settingsAccount.vue'
 import SettingsEmails from '../components/settings/settingsEmails.vue'
@@ -90,11 +91,14 @@ export default {
   watch: {
     tab (newTab, oldTab) {
       if (oldTab === 'profile') {
-        if (!this.$refs.SettingsProfile.saved) {
+        if (!this.isProfileSaved) {
           this.confirm(newTab, oldTab)
         }
       }
     }
+  },
+  computed: {
+    isProfileSaved: get('profile/isSaved')
   },
   methods: {
     confirm (newTab, oldTab) {
