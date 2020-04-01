@@ -23,7 +23,6 @@ export default function routes (store) {
     },
     { path: '/search', component: () => import('pages/pages/search.vue') },
     { path: '/notifications', component: () => import('pages/notifications.vue') },
-    { path: '/settings', component: () => import('pages/settings.vue') },
     { path: '/news', component: () => import('pages/news.vue') }
   ]
 }

@@ -1,11 +1,11 @@
 <template>
   <div class="row">
-    <form @submit.prevent="saveProfile" class="col-xs-12 col-sm-12 col-md-8">
+    <form @submit.prevent="save" @change="saved = false" class="col-xs-12 col-sm-12 col-md-8">
       <div class="q-mb-md">
         <div class="row">
           <div class="col-10 text-h4">Profile</div>
           <div class="col-2 text-right">
-            <q-btn type="submit" color="primary" :loading="saving" label="save" >
+            <q-btn type="submit" color="primary" :loading="saving" :disabled="saved" label="save" >
               <template v-slot:loading>
                 <q-spinner-facebook />
               </template>
@@ -45,16 +45,16 @@
       <div class="row">
         <q-input
           v-model.trim="profile.displayFullName"
-          class="col-5 q-my-sm"
+          class="col-6 q-my-sm"
           label="Display Name:"
           dense
           outlined
-          clear-icon="close"
+          clear-icon="update"
           @clear="buildDefaultDisplayName"
           clearable
           :rules="[val => !!val || 'Field is required']"
         />
-        <p class="text-italic text-justify col-7 q-px-md q-my-sm">
+        <p class="input-description col-6 q-px-md q-my-sm">
           This is how others on Databrary will see your name, you can edit this to your liking.
         </p>
       </div>
@@ -62,7 +62,7 @@
       <div class="row">
         <q-input
           v-model="citationName"
-          class="col-5 q-my-sm"
+          class="col-6 q-my-sm"
           label="Citation Name:"
           dense
           outlined
@@ -70,7 +70,7 @@
           :rules="[]"
         />
 
-        <p class="text-italic text-justify col-7 q-px-md q-my-sm">
+        <p class="input-description col-6 q-px-md q-my-sm">
           Citations are built automatically across Databrary using first, middle and last names.
         </p>
       </div>
@@ -78,7 +78,7 @@
       <div class="row">
         <q-input
           v-model="profile.orcid"
-          class="col-5 q-my-sm"
+          class="col-6 q-my-sm"
           label="ORCID:"
           dense
           outlined
@@ -87,7 +87,7 @@
           :rules="[]"
         />
 
-        <p class="text-italic text-justify col-7 q-px-md q-my-sm">
+        <p class="input-description col-6 q-px-md q-my-sm">
           Your unique 16-digit alphanumeric code that identifies scientific/academic constributors.
         </p>
       </div>
@@ -96,7 +96,7 @@
         <q-field
           stack-label
           label="Authorized affiliation:"
-          class="col-5"
+          class="col-6 q-my-sm"
           dense
           readonly
           outlined
@@ -109,7 +109,7 @@
           </template>
         </q-field>
 
-        <p class="text-italic text-justify col-7 q-px-md q-my-sm">
+        <p class="input-description col-6 q-px-md q-my-sm">
           For access to restricted data, you must be authorized by an institution.
         </p>
       </div>
@@ -123,7 +123,7 @@
         type="textarea"
       />
 
-      <div class="text-h6 q-mb-md">URLs</div>
+      <div class="text-h6 q-py-md">URLs</div>
       <q-list class="q-mb-md" bordered separator>
         <q-item class="row" v-for="(url, index) in profile.urls" :key="url.url" dense>
           <q-item-section class="col-2">
@@ -156,6 +156,7 @@
             dense
             label="label"
             class="col-2 q-pb-md"
+            suffix=":"
           />
           <q-input
             v-model.trim="url"
@@ -164,14 +165,16 @@
             label="url"
             class="col-10 q-pb-md"
           >
-          <template v-slot:after>
-            <q-btn color="primary" label="Add" @click="addUrl"/>
+          <template v-slot:append>
+            <q-btn flat>
+              <q-avatar color="primary" size="24px" class="text-right" icon="add" @click="addUrl"/>
+            </q-btn>
           </template>
           </q-input>
         </div>
       </div>
       <div class="text-right">
-        <q-btn type="submit" color="primary" :loading="saving" label="save" >
+        <q-btn type="submit" color="primary" :loading="saving" :disabled="saved" label="save" >
           <template v-slot:loading>
             <q-spinner-facebook />
           </template>
@@ -180,7 +183,7 @@
     </form>
     <div class="order-sm-first order-md-last col-xs-12 col-sm-12 col-md-4 q-pa-sm text-center">
       <div class="text-h5 q-my-sm">Profile picture</div>
-      <q-avatar  size="100px">
+      <q-avatar size="100px">
         <img :src="gravatar">
       </q-avatar>
       <br>
@@ -193,12 +196,11 @@
 
 <script>
 import { get } from 'vuex-pathify'
+import _ from 'lodash'
 import gql from 'graphql-tag'
 import AvatarUploader from '../Upload/UploadAvatar.vue'
 
-// TODO(Reda): Enable profile saving only when fields changed
 // TODO(Reda): Add "Use Gravatar" button bellow Change Profile Picture
-// TODO(Reda): Change display name input's icon to reset
 // TODO(Reda): Fix vuex state persist between pages refresh
 // https://forum.vuejs.org/t/vuex-state-is-undefined-when-refresh-page/42702
 // https://stackoverflow.com/questions/43027499/vuex-state-on-page-refresh
@@ -217,7 +219,8 @@ export default {
       },
       url: '',
       urlLabel: '',
-      saving: false
+      saving: false,
+      saved: true
     }
   },
   components: {
@@ -234,31 +237,8 @@ export default {
     this.getProfile()
   },
   methods: {
-    buildCitationName: function () {
-      if (this.profile.familyName.length === 0 || this.profile.givenName.length === 0) {
-        return ''
-      }
-      const citationFirstName = this.profile.givenName.charAt(0).toUpperCase()
-      const citationMiddleName = this.profile.additionalName.charAt(0).toUpperCase()
-      return `${this.profile.familyName}, ${citationFirstName}. ${this.profile.additionalName ? `${citationMiddleName}.` : ''}`
-    },
-    buildDefaultDisplayName: function () {
-      this.displayFullName = `${this.profile.givenName} ${this.profile.familyName}`
-    },
-    addUrl: function () {
-      if (this.url.length > 0) {
-        this.profile.urls.push({
-          'label': this.urlLabel,
-          'url': this.url
-        })
-        this.url = ''
-        this.urlLabel = ''
-      }
-    },
-    deleteUrl: function (index) {
-      this.profile.urls.splice(index, 1)
-    },
     async getProfile () {
+      console.log(`Get Profile Data`)
       const result = await this.$apollo.query({
         query: gql`
           query GetUserProfile($userId: Int!) {
@@ -280,7 +260,38 @@ export default {
       })
       this.setProfile(JSON.parse(JSON.stringify(result.data.users[0])))
     },
-    async saveProfile () {
+    buildCitationName: function () {
+      if (this.profile.familyName.length === 0 || this.profile.givenName.length === 0) {
+        return ''
+      }
+      const citationFirstName = this.profile.givenName.charAt(0).toUpperCase()
+      const citationMiddleName = this.profile.additionalName.charAt(0).toUpperCase()
+      return `${this.profile.familyName}, ${citationFirstName}. ${this.profile.additionalName ? `${citationMiddleName}.` : ''}`
+    },
+    buildDefaultDisplayName: function () {
+      this.profile.displayFullName = `${this.profile.givenName} ${this.profile.familyName}`
+    },
+    addUrl: function () {
+      if (this.url.length > 0) {
+        // TODO(Reda): Check if the key exists
+        const index = _.findIndex(this.profile.urls, (url) => { return url.label.toLowerCase() === this.urlLabel.toLowerCase() })
+        if (index < 0) {
+          this.profile.urls.push({
+            'label': this.urlLabel,
+            'url': this.url
+          })
+        } else {
+          this.profile.urls[index].url = this.url
+        }
+
+        this.url = ''
+        this.urlLabel = ''
+      }
+    },
+    deleteUrl: function (index) {
+      this.profile.urls.splice(index, 1)
+    },
+    async save () {
       try {
         this.saving = true
         const result = await this.$apollo.mutate({
@@ -331,6 +342,7 @@ export default {
           }
         })
         this.setProfile(JSON.parse(JSON.stringify(result.data.update_users.returning[0])))
+        this.saved = true
       } catch (error) {
         console.error(error)
       } finally {
@@ -349,3 +361,10 @@ export default {
   }
 }
 </script>
+<style>
+.input-description {
+  font-size: 0.75rem;
+  font-style: italic;
+  color: gray;
+}
+</style>

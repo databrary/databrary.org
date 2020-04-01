@@ -37,7 +37,7 @@
           v-model="tab"
         >
           <q-tab-panel name="profile">
-            <SettingsProfile/>
+            <SettingsProfile ref="SettingsProfile" />
           </q-tab-panel>
 
           <q-tab-panel name="account">
@@ -85,6 +85,38 @@ export default {
   data () {
     return {
       tab: 'profile'
+    }
+  },
+  watch: {
+    tab (newTab, oldTab) {
+      if (oldTab === 'profile') {
+        if (!this.$refs.SettingsProfile.saved) {
+          this.confirm(newTab, oldTab)
+        }
+      }
+    }
+  },
+  methods: {
+    confirm (newTab, oldTab) {
+      const answer = window.confirm('Do you really want to leave? you have unsaved changes!')
+      if (answer) {
+        this.$refs.SettingsProfile.save()
+        this.tab = newTab
+      } else {
+        this.tab = oldTab
+      }
+      // this.$q.dialog({
+      //   title: 'Confirm',
+      //   message: 'Do you really want to leave? you have unsaved changes!',
+      //   cancel: true,
+      //   persistent: true
+      // }).onOk(() => {
+      //   this.saveProfile()
+      // }).onCancel(() => {
+      //   // console.log('>>>> Cancel')
+      // }).onDismiss(() => {
+      //   // console.log('I am triggered on both OK and Cancel')
+      // })
     }
   }
 }
