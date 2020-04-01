@@ -50,7 +50,7 @@ module.exports = function (ctx) {
       directives: ['Ripple', 'ClosePopup'],
 
       // Quasar plugins
-      plugins: ['Notify', 'Dialog', 'LocalStorage']
+      plugins: ['Notify', 'LocalStorage']
     },
 
     supportIE: true,

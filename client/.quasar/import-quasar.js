@@ -13,7 +13,7 @@
 
 import Vue from 'vue'
 
-import {Quasar,Ripple,ClosePopup,Notify,Dialog,LocalStorage} from 'quasar'
+import {Quasar,Ripple,ClosePopup,Notify,LocalStorage} from 'quasar'
 
 
-Vue.use(Quasar, { config: {},directives: {Ripple,ClosePopup},plugins: {Notify,Dialog,LocalStorage} })
+Vue.use(Quasar, { config: {},directives: {Ripple,ClosePopup},plugins: {Notify,LocalStorage} })

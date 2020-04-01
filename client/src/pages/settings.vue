@@ -102,25 +102,13 @@ export default {
   },
   methods: {
     confirm (newTab, oldTab) {
-      const answer = window.confirm('Do you really want to leave? you have unsaved changes!')
+      const answer = window.confirm('You have unsaved changes! Would you like to save your changes?')
       if (answer) {
         this.$refs.SettingsProfile.save()
         this.tab = newTab
       } else {
         this.tab = oldTab
       }
-      // this.$q.dialog({
-      //   title: 'Confirm',
-      //   message: 'Do you really want to leave? you have unsaved changes!',
-      //   cancel: true,
-      //   persistent: true
-      // }).onOk(() => {
-      //   this.saveProfile()
-      // }).onCancel(() => {
-      //   // console.log('>>>> Cancel')
-      // }).onDismiss(() => {
-      //   // console.log('I am triggered on both OK and Cancel')
-      // })
     }
   }
 }
