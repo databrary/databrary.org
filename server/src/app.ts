@@ -15,6 +15,21 @@ import * as uploadController from './controllers/upload'
 import { stream, sessionStore } from '@shared'
 
 const app = express()
+let sess = {
+  name: process.env.SESSION_NAME,
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  store: sessionStore,
+  cookie: {
+    maxAge: 30 * 24 * 60 * 60 * 1000 // TODO come up with a reasonable number here; this is a month in ms
+  }
+}
+
+if (app.get('env') === 'production') {
+  app.set('trust proxy', 1) // trust first proxy
+  sess.cookie['secure'] = true // serve secure cookies
+}
 
 app.set('port', process.env.APP_PORT)
 
@@ -27,17 +42,7 @@ app.use(morgan('combined', {
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
-app.use(session({
-  name: process.env.SESSION_NAME,
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true,
-  store: sessionStore,
-  cookie: {
-    maxAge: 30 * 24 * 60 * 60 * 1000 // TODO come up with a reasonable number here; this is a month in ms
-  }
-}))
-
+app.use(session(sess))
 app.use(passport.initialize())
 app.use(passport.session())
 
@@ -53,6 +58,7 @@ app.get('/session', authController.getSession)
 app.get('/login', authController.login)
 app.get('/register', authController.register)
 app.get('/logout', authController.logout)
+app.post('/password', authController.resetPassword)
 
 // Upload routes
 app.post('/sign-upload', uploadController.signUpload)

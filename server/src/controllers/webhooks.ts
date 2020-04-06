@@ -1,18 +1,18 @@
 import _ from 'lodash'
 import queue from '../queue'
 import { Request, Response } from 'express'
-import { logger, getSessionUserId } from '@shared'
+import { logger, getSessionUser } from '@shared'
 import { processAvatarUpload } from '@utils'
 
 export const authWebhook = async (req: Request, res: Response) => {
   const sessionId = req.get('sessionID')
   try {
-    const dbId = await getSessionUserId(sessionId)
-    if (dbId) {
+    const user = await getSessionUser(sessionId)
+    if (user['dbId']) {
       res.json({
         'X-Hasura-Admin-Secret': 'mysecret',
         'X-Hasura-Role': 'user',
-        'X-Hasura-User-Id': `${dbId}`
+        'X-Hasura-User-Id': `${user['dbId']}`
       })
     } else {
       res.json({

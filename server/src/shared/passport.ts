@@ -71,6 +71,26 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
   res.redirect('/login')
 }
 
+export const resetKeycloakPassword = async (userId, newPassword) => {
+  await kcAdminClient.auth({
+    username: process.env.KEYCLOAK_USERNAME,
+    password: process.env.KEYCLOAK_PASSWORD,
+    clientId: 'admin-cli',
+    grantType: 'password'
+  })
+
+  await kcAdminClient.users.resetPassword({
+    realm: process.env.KEYCLOAK_REALM,
+    id: userId,
+    credential: {
+      temporary: false,
+      type: 'password',
+      value: newPassword
+    }
+  })
+
+}
+
 export const registerTestUser = async () => {
   let user = await getUserByEmail(
     process.env.DUMMY_USER_EMAIL
@@ -86,11 +106,8 @@ export const registerTestUser = async () => {
       grantType: 'password'
     })
 
-    kcAdminClient.setConfig({
-      realmName: process.env.KEYCLOAK_REALM
-    })
-
     const keycloakUser = await kcAdminClient.users.create({
+      realm: process.env.KEYCLOAK_REALM,
       username: process.env.DUMMY_USER_EMAIL,
       email: process.env.DUMMY_USER_EMAIL,
       enabled: true,
@@ -100,6 +117,7 @@ export const registerTestUser = async () => {
     })
 
     await kcAdminClient.users.resetPassword({
+      realm: process.env.KEYCLOAK_REALM,
       id: keycloakUser.id,
       credential: {
         temporary: false,

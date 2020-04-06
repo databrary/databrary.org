@@ -2,7 +2,8 @@ import * as _ from 'lodash'
 import { adminQuery } from '../graphqlClient'
 import { Request, Response, NextFunction } from 'express'
 import { uuid, getGravatarURL } from '@utils'
-import { logger, loginTestUser, registerTestUser } from '@shared'
+import { logger, loginTestUser, registerTestUser, resetKeycloakPassword, getSessionUser } from '@shared'
+import { check, validationResult } from 'express-validator'
 import { dev } from '../config'
 
 const keycloakRealm = process.env.KEYCLOAK_REALM
@@ -98,8 +99,28 @@ export const authCallback = async (req: Request, res: Response) => {
   }
 }
 
-export const authDatabraryCallback = (req: Request, res: Response) => {
+export const resetPassword = async (req: Request, res: Response) => {
   if (req.user) {
-    return res.redirect('/')
+    const sessionId = req.sessionID
+    try {
+      const user = await getSessionUser(sessionId)
+      if (user['id']) {
+        await check('password-confirm', 'Passwords must match.').equals(req.body['password-new']).run(req)
+
+        const errors = validationResult(req)
+
+        if (!errors.isEmpty()) {
+          return res.status(401).send('Cannot update password')
+        }
+
+        await resetKeycloakPassword(user['id'], req.body['password-new'])
+        return res.send(200)
+      } else {
+        res.redirect('/login')
+      }
+    } catch (error) {
+      logger.error(error)
+      return res.status(400).send('error')
+    }
   }
 }

@@ -45,7 +45,7 @@ const actions = {
         commit('gravatar', null)
       }
     } catch (error) {
-      commit('app/isBackendDisconnected', true)
+      commit('isBackendDisconnected', true)
     }
   }
 }
