@@ -30,11 +30,9 @@ const mutation = gql`
     }
   }
 `
-export async function registerUser (authServerId: string, emailPrimary: string, firstName: string, lastName: string, middleName: string = '') {
+export async function registerUser (authServerId: string, emailPrimary: string, firstName: string, lastName: string, emails: string[], middleName: string = '') {
   const displayFullName = `${firstName} ${lastName}`
-  const emails = [emailPrimary]
   const urls = []
-  logger.debug('Registering a user')
   const response = await client.mutate({
     mutation,
     variables: {

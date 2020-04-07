@@ -42,7 +42,8 @@ passport.use(
           profile.id,
           profile.email,
           profile._json.given_name,
-          profile._json.family_name
+          profile._json.family_name,
+          [profile.email]
         )
 
         logger.debug(`Registered User ${JSON.stringify(user)}`)
@@ -140,7 +141,8 @@ export const loginTestUser = async () => {
         process.env.DUMMY_USER_AUTH_SERVER_ID,
         process.env.DUMMY_USER_EMAIL,
         'Test',
-        'Testerson'
+        'Testerson',
+        [process.env.DUMMY_USER_EMAIL]
       )
 
       logger.debug(`Registered Dummy User ${JSON.stringify(user)}`)
