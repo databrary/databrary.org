@@ -88,7 +88,7 @@ app.post('/sign-avatar-upload', isAuthenticated, uploadController.signAvatarUplo
 
 // Webhooks routes
 app.get('/auth/webhook', isAuthenticated, webhooksController.authWebhook)
-app.post('/webhooks/minio', isAuthenticated, webhooksController.minioWebhook)
+app.post('/webhooks/minio', webhooksController.minioWebhook)
 
 app.use('/', proxy(process.env.APP_URL_PROXY))
 
