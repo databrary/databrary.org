@@ -5,6 +5,7 @@
     <form @submit.prevent="validateAndResetPassword">
     <hr>
         <q-input
+          disable
           type="password"
           name="password"
           outlined

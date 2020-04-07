@@ -124,10 +124,10 @@
       />
 
       <div class="text-h6 q-py-md">URLs</div>
-      <q-list class="q-mb-md" bordered separator>
-        <q-item class="row" v-for="(url, index) in profile.urls" :key="url.url" dense>
-          <q-item-section class="col-2">
-            <q-item-label>
+      <q-list class="list" bordered separator>
+        <q-item class="item row" v-for="(url, index) in profile.urls" :key="url.uid" dense>
+          <q-item-section class="col-2 label">
+            <q-item-label class="q-mx-md">
               {{ url.label }}
             </q-item-label>
           </q-item-section>
@@ -199,6 +199,7 @@ import { sync, get } from 'vuex-pathify'
 import _ from 'lodash'
 import gql from 'graphql-tag'
 import AvatarUploader from '../Upload/UploadAvatar.vue'
+import { uid } from 'quasar'
 
 // TODO(Reda): Add "Use Gravatar" button bellow Change Profile Picture
 
@@ -272,6 +273,7 @@ export default {
         const index = _.findIndex(this.profile.urls, (url) => { return url.label.toLowerCase() === this.urlLabel.toLowerCase() })
         if (index < 0) {
           this.profile.urls.push({
+            'uid': uid(),
             'label': this.urlLabel,
             'url': this.url
           })
@@ -361,5 +363,14 @@ export default {
   font-size: 0.75rem;
   font-style: italic;
   color: gray;
+}
+.label {
+  margin-left: 0%;
+  padding-left: 0%;
+  background: lightgrey
+}
+.item {
+  margin-left: 0%;
+  padding-left: 0%
 }
 </style>

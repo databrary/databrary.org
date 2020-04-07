@@ -37,12 +37,13 @@
       any web-based operations (e.g. edits), and can be used for password resets.
     </div>
     <q-select
+      disable
       v-model="updatePrimaryEmail"
       :options="emails"
       label="Primary email"
     >
     <template v-slot:after>
-        <q-btn color="primary" label="Update" @click="setPrimaryEmail"/>
+        <q-btn disable color="primary" label="Update" @click="setPrimaryEmail"/>
     </template>
     </q-select>
   </div>
@@ -95,7 +96,7 @@ export default {
           primaryEmail: this.primaryEmail
         }
       })
-      this.primaryEmail = result.data.update_users.returning[0].email_primary
+      this.primaryEmail = result.data.update_users.returning[0].emailPrimary
       // TODO(Reda) Logout the user
     },
     async addEmail () {
