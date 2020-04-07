@@ -54,9 +54,6 @@ export default {
   computed: {
     userId: sync('app/dbId')
   },
-  watch: {
-    '$route': 'fetchData' // TODO I need to propogate this from pages/LandingPage.vue
-  },
   async created () {
     this.fetchData()
   },

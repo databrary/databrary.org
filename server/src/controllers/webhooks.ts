@@ -1,18 +1,15 @@
 import _ from 'lodash'
 import queue from '../queue'
 import { Request, Response } from 'express'
-import { logger, getSessionUser } from '@shared'
 import { processAvatarUpload } from '@utils'
 
 export const authWebhook = async (req: Request, res: Response) => {
-  const sessionId = req.get('sessionID')
-  try {
-    const user = await getSessionUser(sessionId)
-    if (user['dbId']) {
+  if (req.session) {
+    if (req.session.passport.user.dbId) {
       res.json({
         'X-Hasura-Admin-Secret': 'mysecret',
         'X-Hasura-Role': 'user',
-        'X-Hasura-User-Id': `${user['dbId']}`
+        'X-Hasura-User-Id': `${req.session.passport.user.dbId}`
       })
     } else {
       res.json({
@@ -20,8 +17,8 @@ export const authWebhook = async (req: Request, res: Response) => {
         'X-Hasura-Role': 'anonymous_user'
       })
     }
-  } catch (error) {
-    logger.error(`Auth Webhook: ${error}`)
+  } else {
+    res.status(401).send('Hasura failed to Authenticate the request.')
   }
 }
 

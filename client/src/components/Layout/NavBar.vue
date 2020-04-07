@@ -215,15 +215,18 @@
 import { get } from 'vuex-pathify'
 
 export default {
+  data () {
+    return {
+      loginUrl: `http://localhost:8000/login`
+    }
+  },
   computed: {
     isLoggedIn: get('app/isLoggedIn'),
-    thumbnail: get('app/thumbnail'),
-    loginUrl () {
-      return `http://localhost:8000/login?redirect=${encodeURIComponent(window.location.href)}`
-    }
+    thumbnail: get('app/thumbnail')
   },
   methods: {
     onClickLogout () {
+      // TODO(Reda): Fix this
       window.location.href = 'http://localhost:8000/logout'
     },
     toggleDrawer () {

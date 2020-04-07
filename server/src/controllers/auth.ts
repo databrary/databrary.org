@@ -2,7 +2,7 @@ import * as _ from 'lodash'
 import { adminQuery } from '../graphqlClient'
 import { Request, Response, NextFunction } from 'express'
 import { uuid, getGravatarURL } from '@utils'
-import { logger, loginTestUser, registerTestUser, resetKeycloakPassword, getSessionUser } from '@shared'
+import { logger, loginTestUser, registerTestUser, resetKeycloakPassword } from '@shared'
 import { check, validationResult } from 'express-validator'
 import { dev } from '../config'
 
@@ -59,16 +59,22 @@ export const logout = (req: Request, res: Response) => {
 }
 
 export const getSession = (req: Request, res: Response) => {
-  let response = { 'sessionID': req.sessionID }
-  if (req.user) {
-    // user found.
-    response['dbId'] = req.user['dbId']
-    // if we already computer the gravatar url
-    if (_.get(req.user, 'gravatarURL')) {
-      response['gravatarURL'] = req.user['gravatarURL']
+  if (req.session) {
+    if (req.session.passport) {
+      let response = {
+        'dbId': req.session.passport.user['dbId']
+      }
+      // if we already computer the gravatar url
+      if (_.get(req.session.passport.user, 'gravatarURL')) {
+        response['gravatarURL'] = req.session.passport.user['gravatarURL']
+      }
+      return res.json(response)
+    } else {
+      res.status(200).send(`User not found.`)
     }
+  } else {
+    res.status(400).send(`Session Not found.`)
   }
-  res.json(response)
 }
 
 export const authCallback = async (req: Request, res: Response) => {
@@ -100,10 +106,9 @@ export const authCallback = async (req: Request, res: Response) => {
 }
 
 export const resetPassword = async (req: Request, res: Response) => {
-  if (req.user) {
-    const sessionId = req.sessionID
+  if (req.session) {
     try {
-      const user = await getSessionUser(sessionId)
+      const user = req.session.passport.user
       if (user['id']) {
         await check('password-confirm', 'Passwords must match.').equals(req.body['password-new']).run(req)
 

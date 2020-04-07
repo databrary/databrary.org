@@ -10,7 +10,6 @@ const state = {
   thumbnail: null,
   gravatar: null,
   displayFullName: null,
-  sessionId: null,
   isBackendDisconnected: false,
   version: 1
 }
@@ -27,25 +26,18 @@ const actions = {
   ...make.actions(state),
 
   async syncSessionAsync ({ commit }) {
-    try {
-      // TODO(Reda): put this function in the store and call it as an action
-      const response = await axios({ url: '/session', method: 'GET' })
-      console.log(`Session response`, JSON.stringify(response.data))
-      // The backend will always return a session id
-      commit('sessionId', response.data.sessionID)
-      if (_.get(response.data, 'dbId') !== undefined) {
-        commit('isLoggedIn', true)
-        commit('dbId', response.data.dbId)
-        commit('thumbnail', response.data.gravatarURL.thumbnail)
-        commit('gravatar', response.data.gravatarURL.large)
-      } else {
-        commit('isLoggedIn', false)
-        commit('dbId', null)
-        commit('thumbnail', null)
-        commit('gravatar', null)
-      }
-    } catch (error) {
-      commit('isBackendDisconnected', true)
+    const response = await axios({ url: '/session', method: 'GET' })
+    console.log(`Session response`, JSON.stringify(response.data))
+    if (_.get(response.data, 'dbId') !== undefined) {
+      commit('isLoggedIn', true)
+      commit('dbId', response.data.dbId)
+      commit('thumbnail', response.data.gravatarURL.thumbnail)
+      commit('gravatar', response.data.gravatarURL.large)
+    } else {
+      commit('isLoggedIn', false)
+      commit('dbId', null)
+      commit('thumbnail', null)
+      commit('gravatar', null)
     }
   }
 }

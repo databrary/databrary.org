@@ -8,7 +8,7 @@
     <q-page-container>
       <q-banner v-if="isBackendDisconnected" inline-actions class="text-white bg-red">
         Disconnected from the backend. Start the server or change the port.
-    </q-banner>
+      </q-banner>
       <router-view />
     </q-page-container>
 
