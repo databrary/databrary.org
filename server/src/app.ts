@@ -84,7 +84,6 @@ app.post('/password', isAuthenticated, authController.resetPassword)
 
 // Upload routes
 app.post('/sign-upload', isAuthenticated, uploadController.signUpload)
-app.post('/sign-avatar-upload', isAuthenticated, uploadController.signAvatarUpload)
 
 // Webhooks routes
 app.get('/auth/webhook', isAuthenticated, webhooksController.authWebhook)

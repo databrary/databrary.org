@@ -41,7 +41,8 @@ export default {
             filename: file.name,
             contentType: file.type,
             format: file.extension,
-            projectId: that.projectIdFromRoute
+            projectId: that.projectIdFromRoute,
+            uploadType: 'file'
           })
         }).then((response) => {
           // console.log('response', response)
