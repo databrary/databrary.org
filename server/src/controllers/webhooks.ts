@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import queue from '../queue'
 import { Request, Response } from 'express'
-import { processAvatarUpload } from '@utils'
 
 export const authWebhook = async (req: Request, res: Response) => {
   if (req.session) {
@@ -25,12 +24,12 @@ export const authWebhook = async (req: Request, res: Response) => {
 export const minioWebhook = async (req: Request, res: Response) => {
   if (!_.isEmpty(req.body)) {
     const minioBucket = req.body.Records[0].s3.bucket
-    const minioObject = req.body.Records[0].s3.object
-    if (minioBucket.name === 'uploads') {
-      await queue('processMinioUpload', minioObject)
-    } else if (minioBucket.name === 'avatars') {
-      await processAvatarUpload(minioObject)
+    const minioObject = {
+      ...req.body.Records[0].s3.object,
+      'bucketName': minioBucket['name']
     }
+
+    await queue('processMinioUpload', minioObject)
   }
   res.send('done')
 }
