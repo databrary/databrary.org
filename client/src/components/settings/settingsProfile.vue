@@ -184,7 +184,7 @@
     <div class="order-sm-first order-md-last col-xs-12 col-sm-12 col-md-4 q-pa-sm text-center">
       <div class="text-h5 q-my-sm">Profile picture</div>
       <q-avatar size="100px">
-        <img :src="gravatar">
+        <img :src="avatar">
       </q-avatar>
       <br>
       <div class="q-my-sm">
@@ -224,7 +224,7 @@ export default {
     AvatarUploader
   },
   computed: {
-    gravatar: get('app/gravatar'),
+    avatar: get('app/avatar'),
     userId: get('app/dbId'),
     saved: sync('profile/isSaved'),
     citationName: function () {

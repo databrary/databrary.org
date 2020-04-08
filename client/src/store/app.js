@@ -8,7 +8,7 @@ const state = {
   authServerId: null,
   emailPrimary: null,
   thumbnail: null,
-  gravatar: null,
+  avatar: null,
   displayFullName: null,
   isBackendDisconnected: false,
   version: 1
@@ -31,13 +31,13 @@ const actions = {
     if (_.get(response.data, 'dbId') !== undefined) {
       commit('isLoggedIn', true)
       commit('dbId', response.data.dbId)
-      commit('thumbnail', response.data.gravatarURL.thumbnail)
-      commit('gravatar', response.data.gravatarURL.large)
+      commit('thumbnail', response.data.avatarURL.thumbnail)
+      commit('avatar', response.data.avatarURL.large)
     } else {
       commit('isLoggedIn', false)
       commit('dbId', null)
       commit('thumbnail', null)
-      commit('gravatar', null)
+      commit('avatar', null)
     }
   }
 }
