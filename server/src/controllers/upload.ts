@@ -10,14 +10,15 @@ export const signUpload = async (req: Request, res: Response) => {
     let assetId = req.body.projectId
     if (req.body.uploadType === 'avatar') {
       bucketName = 'avatars'
-      // Get the unique id of the upload object and make that the filename
       response = await adminQuery(
-        `${process.cwd()}/../gql/getAvatarAsset.gql`,
+        `${process.cwd()}/../gql/insertAvatarAsset.gql`,
         {
-          dbId: req.user['dbId']
+          userId: req.user['dbId'],
+          name: `Avatar ${req.user['dbId']}`
         }
       )
-      assetId = response[0].id
+      assetId = response.returning[0].id
+      // Maybe This should be added in the webhook
       // TODO(Reda): Update avatarId in the postgres trigger function
       response = await adminMutate(
         `${process.cwd()}/../gql/updateUserAvatar.gql`,

@@ -15,6 +15,7 @@ const query = gql`
       authServerId
       emailPrimary
       displayFullName
+      useGravatar
     }
   }
 `

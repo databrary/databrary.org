@@ -4,10 +4,10 @@ import { logger } from '@shared'
 import { copyObject, IFileInfo, canAccessAsset, hashAndSizeMinio, fileExists } from '@utils'
 
 export default async function processMinioUpload (input: object) {
-
   logger.debug(`Processing Minio upload for file ${JSON.stringify(input)}`)
   const fileId = _.toInteger(input['key'])
   logger.debug(`Input Key ${input['key']} and fieldId ${fileId}`)
+
   // Get the file object based on the key
   let response = await adminQuery(
     `${process.cwd()}/../gql/getFile.gql`,

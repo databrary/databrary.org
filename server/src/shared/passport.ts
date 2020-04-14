@@ -3,6 +3,8 @@ import KcAdminClient from 'keycloak-admin'
 import { Request, Response, NextFunction } from 'express'
 import { Strategy as KeycloakStrategy } from 'passport-keycloak-oauth2-oidc'
 import { getUserByAuthId, getUserByEmail, registerUser } from '@units'
+import { adminQuery } from '../graphqlClient'
+import { getGravatarURL, getPresignedGetObject } from '@utils'
 import { logger } from '@shared'
 
 const kcAdminClient = new KcAdminClient({
@@ -47,13 +49,35 @@ passport.use(
         )
 
         logger.debug(`Registered User ${JSON.stringify(user)}`)
-      } else {
-        logger.debug(`Found User ${JSON.stringify(user)} in Database`)
       }
 
       if (user) {
         // persisting dbId value with profile
         profile.dbId = user.id
+        // We fetch the avatar and save it in the profile
+        if (user.useGravatar === true) {
+          profile['avatarURL'] = {
+            'thumbnail': getGravatarURL(profile['email'], 32),
+            'large': getGravatarURL(profile['email'], 400)
+          }
+        } else {
+          // We need to get the URL for the latest uploaded avatar
+          const response = await adminQuery(
+            `${process.cwd()}/../gql/getAvatarAsset.gql`,
+            {
+              dbId: profile.dbId
+            }
+          )
+          // logger.info(`AVATAR ASSET ${JSON.stringify(response)}`)
+          // Need to loop through all the files and get the thumbnail and large size
+          // for now we will take the original
+
+          profile['avatarURL'] = {
+            'thumbnail': await getPresignedGetObject('cas', response[0].avatar.files[0].fileobject.sha256),
+            'large': await getPresignedGetObject('cas', response[0].avatar.files[0].fileobject.sha256)
+          }
+        }
+
         done(null, profile)
       } else {
         done(null, false, { message: 'Cannot log in user.' })

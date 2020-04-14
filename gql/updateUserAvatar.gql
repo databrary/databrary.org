@@ -1,7 +1,7 @@
 mutation updateUserAvatar($dbId: Int!, $avatarId: Int!) {
   update_users(
     where: {id: {_eq: $dbId}}, 
-    _set: {avatarId: $avatarId}
+    _set: {avatarId: $avatarId, useGravatar: false}
   ) {
     returning { 
       id

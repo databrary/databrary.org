@@ -18,6 +18,7 @@ export async function adminQuery (
   }
   const response = await adminClient.query({
     query: cache[path],
+    fetchPolicy: 'no-cache', // This is needed for fetching the last avatar
     variables
   })
   return _.first(_.values(response.data))

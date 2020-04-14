@@ -21,6 +21,7 @@ import Uppy from '@uppy/core'
 import Dashboard from '@uppy/dashboard'
 import Webcam from '@uppy/webcam'
 import AwsS3 from '@uppy/aws-s3'
+import { get } from 'vuex-pathify'
 
 require('@uppy/core/dist/style.css')
 require('@uppy/dashboard/dist/style.css')
@@ -31,8 +32,12 @@ export default {
   name: 'AvatarUploader',
   data: function data () {
     return {
-      uppy: ''
+      uppy: '',
+      oldAvatar: ''
     }
+  },
+  computed: {
+    avatar: get('app/avatar')
   },
   mounted: function mounted () {
     this.uppy = Uppy({
@@ -87,6 +92,14 @@ export default {
           console.log(`Uppy error ${error}`)
         })
       }
+    }).on('dashboard:modal-closed', () => {
+      this.oldAvatar = this.avatar
+      const refreshSession = setInterval(async () => {
+        await this.$store.dispatch('app/syncSessionAsync')
+        if (this.oldAvatar !== this.avatar) {
+          clearInterval(refreshSession)
+        }
+      }, 100)
     })
   }
 }

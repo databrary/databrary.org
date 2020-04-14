@@ -1,12 +1,3 @@
-CREATE FUNCTION public.add_avatar_asset() RETURNS trigger
-    LANGUAGE plpgsql 
-    AS $$
-  BEGIN
-    INSERT INTO assets(asset_type, name, created_by_id, privacy_type)
-      values('avatar', CONCAT('User ', NEW.id ,' Avatar'), NEW.id, 'public');
-    RETURN NULL;
-  END;
-$$;
 CREATE FUNCTION public.add_asset_group() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -34,4 +25,3 @@ CREATE FUNCTION public.create_permissionsets() RETURNS integer
 $$;
 ALTER TABLE ONLY public.assets ALTER COLUMN permissionset_id SET DEFAULT public.create_permissionsets();
 CREATE TRIGGER create_inital_asset_permissions AFTER INSERT ON public.assets FOR EACH ROW EXECUTE PROCEDURE public.add_asset_group();
-CREATE TRIGGER create_avatar_asset AFTER INSERT ON public.users FOR EACH ROW EXECUTE PROCEDURE public.add_avatar_asset(); 

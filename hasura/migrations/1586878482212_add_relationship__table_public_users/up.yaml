@@ -1,0 +1,8 @@
+- args:
+    name: avatar
+    table:
+      name: users
+      schema: public
+    using:
+      foreign_key_constraint_on: avatarId
+  type: create_object_relationship

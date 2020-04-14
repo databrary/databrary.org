@@ -1,0 +1,10 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: ALTER TABLE "public"."users" ALTER COLUMN "useAvatar" TYPE boolean;
+  type: run_sql
+- args:
+    cascade: false
+    read_only: false
+    sql: alter table "public"."users" rename column "useGravatar" to "useAvatar";
+  type: run_sql

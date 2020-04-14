@@ -58,13 +58,15 @@ export async function canAccessAsset (id: number) {
 }
 
 export async function fileExists (bucket: string, sha256: string) {
-  try {
-    await minioClient.statObject(bucket, sha256)
-  } catch (err) {
-    logger.warn(`File Not Found in ${bucket}: ${err}`)
-    return false
-  }
-  return true
+  return new Promise((resolve, reject) => {
+    minioClient.statObject(bucket, sha256, (err, stat) => {
+      if (err) {
+        logger.info(`File Not Found in ${bucket}: ${err}`)
+        resolve(false)
+      }
+      resolve(true)
+    })
+  })
 }
 
 export async function bucketExists (bucket: string) {
@@ -88,6 +90,17 @@ export async function copyObject (destinationBucket: string, sha256: string, sou
     return false
   }
   return true
+}
+
+export async function getPresignedGetObject(bucket: string, sha256: string) {
+  return new Promise((resolve, reject) => {
+    minioClient.presignedGetObject(bucket, sha256, (err, url) => {
+      if (err) {
+        reject(err)
+      }
+      resolve(url)
+    })
+  })
 }
 
 export function getMinioClient () {
