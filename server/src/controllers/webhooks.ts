@@ -1,18 +1,14 @@
 import _ from 'lodash'
 import queue from '../queue'
 import { Request, Response } from 'express'
-import { logger, getSessionUserId } from '@shared'
-import { processAvatarUpload } from '@utils'
 
 export const authWebhook = async (req: Request, res: Response) => {
-  const sessionId = req.get('sessionID')
-  try {
-    const dbId = await getSessionUserId(sessionId)
-    if (dbId) {
+  if (req.session) {
+    if (req.session.passport.user.dbId) {
       res.json({
         'X-Hasura-Admin-Secret': 'mysecret',
         'X-Hasura-Role': 'user',
-        'X-Hasura-User-Id': `${dbId}`
+        'X-Hasura-User-Id': `${req.session.passport.user.dbId}`
       })
     } else {
       res.json({
@@ -20,20 +16,20 @@ export const authWebhook = async (req: Request, res: Response) => {
         'X-Hasura-Role': 'anonymous_user'
       })
     }
-  } catch (error) {
-    logger.error(`Auth Webhook: ${error}`)
+  } else {
+    res.status(401).send('Hasura failed to Authenticate the request.')
   }
 }
 
 export const minioWebhook = async (req: Request, res: Response) => {
   if (!_.isEmpty(req.body)) {
     const minioBucket = req.body.Records[0].s3.bucket
-    const minioObject = req.body.Records[0].s3.object
-    if (minioBucket.name === 'uploads') {
-      await queue('processMinioUpload', minioObject)
-    } else if (minioBucket.name === 'avatars') {
-      await processAvatarUpload(minioObject)
+    const minioObject = {
+      ...req.body.Records[0].s3.object,
+      'bucketName': minioBucket['name']
     }
+
+    await queue('processMinioUpload', minioObject)
   }
   res.send('done')
 }

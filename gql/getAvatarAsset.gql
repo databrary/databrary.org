@@ -1,12 +1,19 @@
 query getAvatarAsset (
     $dbId: Int!
 ) {
-  assets(
-      where: {
-          created_by_id: {_eq: $dbId}, 
-          asset_type: {_eq: avatar}
+  users(where: {id: {_eq: $dbId}}) {
+    id
+    assets(where: {asset_type: {_eq: avatar}}) {
+      id
+      files(order_by: {uploadedDatetime: desc}, where: {fileobject: {id: {_is_null: false}}}) {
+        uploadedDatetime
+        fileobject {
+          location
+          md5
+          sha1
+          sha256
         }
-    ) {
-        id
+      }
     }
+  }
 }

@@ -6,15 +6,15 @@ const query = gql`
   query getUserByAuthId($authServerId: String!) {
     users(
       where: {
-        auth_server_id: {
+        authServerId: {
           _eq: $authServerId
         }
       }
     ) {
       id
-      auth_server_id
-      email_primary
-      display_full_name
+      authServerId
+      emailPrimary
+      displayFullName
     }
   }
 `

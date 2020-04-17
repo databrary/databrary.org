@@ -5,24 +5,46 @@ import { getMinioClient, bucketExists } from '@utils'
 
 export const signUpload = async (req: Request, res: Response) => {
   try {
-    logger.debug(JSON.stringify(req.body))
-    const bucketFound = await bucketExists('uploads')
-    const response = await adminMutate(
+    let response
+    let bucketName = 'uploads'
+    let assetId = req.body.projectId
+    if (req.body.uploadType === 'avatar') {
+      bucketName = 'avatars'
+      // Get the unique id of the upload object and make that the filename
+      response = await adminQuery(
+        `${process.cwd()}/../gql/getAvatarAsset.gql`,
+        {
+          dbId: req.user['dbId']
+        }
+      )
+      assetId = response[0].id
+      // TODO(Reda): Update avatarId in the postgres trigger function
+      response = await adminMutate(
+        `${process.cwd()}/../gql/updateUserAvatar.gql`,
+        {
+          dbId: req.user['dbId'],
+          avatarId: assetId
+        }
+      )
+    }
+
+    const bucketFound = await bucketExists(bucketName)
+    response = await adminMutate(
       `${process.cwd()}/../gql/insertFile.gql`,
       {
         name: decodeURIComponent(req.body.filename),
         uploadedById: req.user['dbId'],
-        assetId: req.body.projectId,
+        assetId: assetId,
         fileFormatId: req.body.format
       }
     )
     // Get the unique id of the upload object and make that the filename
-    // TODO(Reda): Fix the return of the gql query getFileId
     const filename = response.returning[0].id
+
     if (bucketFound) {
       // Send signed url
       getMinioClient().presignedPutObject(
-        'uploads', // Bucket name
+        bucketName, // Bucket name
         encodeURIComponent(filename),
         1000,
         function (e, presignedUrl) {
@@ -38,65 +60,9 @@ export const signUpload = async (req: Request, res: Response) => {
         }
       )
     } else {
-      // TODO(Reda): throw an error to stop the front end uppy upload
-      // TODO(Reda): Fix the return of the gql mutation removeFile
-      const responseUpdateFileObject = await adminMutate(
+      response = await adminMutate(
         `${process.cwd()}/../gql/removeFile.gql`, {
           fileId: response.returning[0].id
-        }
-      )
-    }
-  } catch (error) {
-    logger.error(error)
-  }
-}
-
-export const signAvatarUpload = async (req: Request, res: Response) => {
-  try {
-    logger.debug(JSON.stringify(req.body))
-    const bucketFound = await bucketExists('avatars')
-    // Get the unique id of the upload object and make that the filename
-    let response = await adminQuery(
-      `${process.cwd()}/../gql/getAvatarAsset.gql`,
-      {
-        dbId: req.user['dbId']
-      }
-    )
-    const assetId = response[0].id
-    // TODO(Reda): Update avatarId in the postgres trigger function
-    response = await adminMutate(
-      `${process.cwd()}/../gql/updateUserAvatar.gql`, {
-        dbId: req.user['dbId'],
-        avatarId: assetId
-      }
-    )
-    response = await adminMutate(
-      `${process.cwd()}/../gql/insertFile.gql`,
-      {
-        name: decodeURIComponent(req.body.filename),
-        uploadedById: req.user['dbId'],
-        assetId: assetId,
-        fileFormatId: req.body.format
-      }
-    )
-    const filename = response.returning[0].id
-    // TODO(Reda): Fix the return of the gql query getFileId
-    if (bucketFound) {
-      // Send signed url
-      getMinioClient().presignedPutObject(
-        'avatars', // Bucket name
-        encodeURIComponent(filename),
-        1000,
-        function (e, presignedUrl) {
-          if (e) return console.log(e)
-          res.json({
-            url: presignedUrl,
-            method: 'put',
-            fields: [],
-            headers: {
-              'content-type': req.body.contentType
-            }
-          })
         }
       )
     }

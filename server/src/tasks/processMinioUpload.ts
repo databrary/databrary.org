@@ -17,13 +17,13 @@ export default async function processMinioUpload (input: object) {
   )
   const file = response[0]
 
-  const hasPermission = await canAccessAsset(file.asset_id)
+  const hasPermission = await canAccessAsset(file.assetId)
   if (!hasPermission) {
     return
   }
 
   // Get file info
-  const fileInfo: IFileInfo = await hashAndSizeMinio('uploads', input['key'])
+  const fileInfo: IFileInfo = await hashAndSizeMinio(input['bucketName'], input['key'])
   if (fileInfo['size'] !== input['size']) {
     logger.error('Size mismatch') // TODO We need an error here
   }
@@ -36,7 +36,7 @@ export default async function processMinioUpload (input: object) {
 
   if (!fileExistsInCas) {
 
-    const fileCopied = await copyObject('cas', fileInfo.sha256, `/uploads/${input['key']}`, input['eTag'])
+    const fileCopied = await copyObject('cas', fileInfo.sha256, `/${input['bucketName']}/${input['key']}`, input['eTag'])
     if (fileCopied) {
       // Create a fileobjects reference
       response = await adminMutate(
@@ -59,7 +59,7 @@ export default async function processMinioUpload (input: object) {
 
     const uploadedDatetime = new Date().toISOString()
 
-    const responseUpdateFileObject = await adminMutate(
+    response = await adminMutate(
       `${process.cwd()}/../gql/updateFile.gql`, {
         fileId: fileId,
         fileobjectId: fileobjectId,

@@ -4,7 +4,7 @@ import Vuex from 'vuex'
 import pathify from './pathify'
 
 import app from './app'
-// import auth from './auth'
+import profile from './profile'
 
 Vue.use(Vuex)
 
@@ -18,7 +18,8 @@ export default function (/* { ssrContext } */) {
     plugins: [ pathify.plugin ],
 
     modules: {
-      app
+      app,
+      profile
     },
 
     // enable strict mode (adds overhead!)

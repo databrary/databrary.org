@@ -3,26 +3,47 @@ import { gql } from 'apollo-server-express'
 import { logger } from '@shared'
 
 const mutation = gql`
-  mutation registerUser($authServerId: String!, $emailPrimary: String!) {
+  mutation registerUser($authServerId: String!,
+                        $emailPrimary: String!,
+                        $firstName: String,
+                        $lastName: String,
+                        $middleName: String,
+                        $displayFullName: String,
+                        $emails: jsonb,
+                        $urls: jsonb) {
     insert_users(objects: {
-      auth_server_id: $authServerId,
-      email_primary: $emailPrimary,
+      authServerId: $authServerId,
+      emailPrimary: $emailPrimary,
+      givenName: $firstName,
+      familyName: $lastName,
+      additionalName: $middleName,
+      displayFullName: $displayFullName,
+      emails: $emails,
+      urls: $urls
     }) {
       returning {
         id
-        auth_server_id
-        email_primary
-        display_full_name
+        authServerId
+        emailPrimary
+        displayFullName
       }
     }
   }
 `
-export async function registerUser (authServerId: string, emailPrimary: string) {
+export async function registerUser (authServerId: string, emailPrimary: string, firstName: string, lastName: string, emails: string[], middleName: string = '') {
+  const displayFullName = `${firstName} ${lastName}`
+  const urls = []
   const response = await client.mutate({
     mutation,
     variables: {
       authServerId,
-      emailPrimary
+      emailPrimary,
+      firstName,
+      lastName,
+      middleName,
+      displayFullName,
+      emails,
+      urls
     }
   })
   if (!response) {

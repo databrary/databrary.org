@@ -212,19 +212,21 @@
 </template>
 
 <script>
-import { sync, get } from 'vuex-pathify'
-// import { openURL } from 'quasar'
+import { get } from 'vuex-pathify'
 
 export default {
-  computed: {
-    isLoggedIn: sync('app/isLoggedIn'),
-    thumbnail: get('app/thumbnail'),
-    loginUrl () {
-      return `http://localhost:8000/login?redirect=${encodeURIComponent(window.location.href)}`
+  data () {
+    return {
+      loginUrl: `http://localhost:8000/login`
     }
+  },
+  computed: {
+    isLoggedIn: get('app/isLoggedIn'),
+    thumbnail: get('app/thumbnail')
   },
   methods: {
     onClickLogout () {
+      // TODO(Reda): Fix this
       window.location.href = 'http://localhost:8000/logout'
     },
     toggleDrawer () {

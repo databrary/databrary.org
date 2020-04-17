@@ -39,8 +39,12 @@ passport.use(
       // If the user is null, register the user in the database
       if (user === null) {
         user = await registerUser(
-                profile.id,
-                profile.email)
+          profile.id,
+          profile.email,
+          profile._json.given_name,
+          profile._json.family_name,
+          [profile.email]
+        )
 
         logger.debug(`Registered User ${JSON.stringify(user)}`)
       } else {
@@ -68,6 +72,26 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
   res.redirect('/login')
 }
 
+export const resetKeycloakPassword = async (userId, newPassword) => {
+  await kcAdminClient.auth({
+    username: process.env.KEYCLOAK_USERNAME,
+    password: process.env.KEYCLOAK_PASSWORD,
+    clientId: 'admin-cli',
+    grantType: 'password'
+  })
+
+  await kcAdminClient.users.resetPassword({
+    realm: process.env.KEYCLOAK_REALM,
+    id: userId,
+    credential: {
+      temporary: false,
+      type: 'password',
+      value: newPassword
+    }
+  })
+
+}
+
 export const registerTestUser = async () => {
   let user = await getUserByEmail(
     process.env.DUMMY_USER_EMAIL
@@ -83,11 +107,8 @@ export const registerTestUser = async () => {
       grantType: 'password'
     })
 
-    kcAdminClient.setConfig({
-      realmName: process.env.KEYCLOAK_REALM
-    })
-
     const keycloakUser = await kcAdminClient.users.create({
+      realm: process.env.KEYCLOAK_REALM,
       username: process.env.DUMMY_USER_EMAIL,
       email: process.env.DUMMY_USER_EMAIL,
       enabled: true,
@@ -97,6 +118,7 @@ export const registerTestUser = async () => {
     })
 
     await kcAdminClient.users.resetPassword({
+      realm: process.env.KEYCLOAK_REALM,
       id: keycloakUser.id,
       credential: {
         temporary: false,
@@ -104,11 +126,6 @@ export const registerTestUser = async () => {
         value: 'test'
       }
     })
-
-    user = await registerUser(
-      keycloakUser.id,
-      process.env.DUMMY_USER_EMAIL
-    )
   }
 }
 
@@ -122,7 +139,10 @@ export const loginTestUser = async () => {
     if (user === null) {
       user = await registerUser(
         process.env.DUMMY_USER_AUTH_SERVER_ID,
-        process.env.DUMMY_USER_EMAIL
+        process.env.DUMMY_USER_EMAIL,
+        'Test',
+        'Testerson',
+        [process.env.DUMMY_USER_EMAIL]
       )
 
       logger.debug(`Registered Dummy User ${JSON.stringify(user)}`)

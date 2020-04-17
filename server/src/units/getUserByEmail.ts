@@ -6,15 +6,15 @@ const query = gql`
   query getUserByEmail($email: String!) {
     users(
       where: {
-        email_primary: {
+        emailPrimary: {
           _eq: $email
         }
       }
     ) {
       id
-      auth_server_id
-      email_primary
-      display_full_name
+      authServerId
+      emailPrimary
+      displayFullName
     }
   }
 `

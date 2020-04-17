@@ -7,6 +7,12 @@
         color="primary"
         label="Change profile picture"
       />
+      <q-btn
+        flat
+        class="q-my-sm"
+        color="primary"
+        label="Use my Gravatar"
+      />
   </div>
 </template>
 
@@ -56,7 +62,7 @@ export default {
       plugins: ['Webcam']
     }).use(AwsS3, {
       getUploadParameters (file) {
-        return fetch('/sign-avatar-upload', {
+        return fetch('/sign-upload', {
           method: 'post',
           headers: {
             accept: 'application/json',
@@ -65,7 +71,8 @@ export default {
           body: JSON.stringify({
             filename: file.name,
             contentType: file.type,
-            format: file.extension
+            format: file.extension,
+            uploadType: 'avatar'
           })
         }).then((response) => {
           return response.json()

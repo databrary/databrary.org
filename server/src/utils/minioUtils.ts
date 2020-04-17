@@ -61,7 +61,7 @@ export async function fileExists (bucket: string, sha256: string) {
   try {
     await minioClient.statObject(bucket, sha256)
   } catch (err) {
-    logger.error(`File Not Found: ${err}`)
+    logger.warn(`File Not Found in ${bucket}: ${err}`)
     return false
   }
   return true
