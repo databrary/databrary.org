@@ -1,8 +1,6 @@
 import crypto from 'crypto'
 import _ from 'lodash'
-import { adminQuery, adminMutate } from '../graphqlClient'
-import { logger } from '@shared'
-import { copyObject, IFileInfo, canAccessAsset, hashAndSizeMinio, fileExists } from '@utils'
+import sharp from 'sharp'
 
 export function uuid () {
   let s = []
@@ -23,4 +21,18 @@ export function getGravatarURL(email: String, size: number = 32) {
   }
   const md5 = crypto.createHash('md5').update(email.toString()).digest('hex')
   return `https://gravatar.com/avatar/${md5}?s=${size}&d=monsterid`
+}
+
+export function resizePicture(sourcePath: string, targetpath: string, size: number) {
+  return new Promise((resolve, reject) => {
+    sharp(sourcePath)
+      .resize(size)
+      .toFormat('png')
+      .toFile(targetpath, (err, info) => {
+        if (err) {
+          reject(err)
+        }
+        resolve(info)
+      })
+  })
 }

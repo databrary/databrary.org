@@ -7,11 +7,11 @@
         color="primary"
         label="Change profile picture"
       />
-      <q-btn
-        flat
-        class="q-my-sm"
+
+      <q-toggle
+        v-model="useGravatar"
         color="primary"
-        label="Use my Gravatar"
+        label="Use Gravatar"
       />
   </div>
 </template>
@@ -33,7 +33,8 @@ export default {
   data: function data () {
     return {
       uppy: '',
-      oldAvatar: ''
+      oldAvatar: '',
+      useGravatar: true
     }
   },
   computed: {
@@ -69,6 +70,7 @@ export default {
       getUploadParameters (file) {
         return fetch('/sign-upload', {
           method: 'post',
+          credentials: 'same-origin',
           headers: {
             accept: 'application/json',
             'content-type': 'application/json'
@@ -101,6 +103,34 @@ export default {
         }
       }, 100)
     })
+  },
+  methods: {
+    async refreshGravatar () {
+      // const result = await this.$apollo.mutate({
+      //   mutation: gql`
+      //     mutation updateUserGravar ($useGravatar: boolean) {
+      //       assets(
+      //         where: {asset_type: {_eq: project}, _and: {created_by_id: {_eq: $userId}}}
+      //         order_by: {datetime_created: desc}
+      //       ) {
+      //         id
+      //         name
+      //         datetime_created
+      //       }
+      //     }
+      //   `,
+      //   variables: {
+      //     userId: this.userId
+      //   }
+      // })
+
+      const refreshSession = setInterval(async () => {
+        await this.$store.dispatch('app/syncSessionAsync')
+        if (this.oldAvatar !== this.avatar) {
+          clearInterval(refreshSession)
+        }
+      }, 100)
+    }
   }
 }
 </script>

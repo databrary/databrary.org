@@ -72,9 +72,11 @@ export const getSession = async (req: Request, res: Response) => {
         }
       )
       if (response[0].useGravatar !== true) {
-        req.session.passport.user['avatarURL'] = {
-          'thumbnail': await getPresignedGetObject('cas', response[0].avatar.files[0].fileobject.sha256),
-          'large': await getPresignedGetObject('cas', response[0].avatar.files[0].fileobject.sha256)
+        if (_.get(response[0].avatar.files[0], 'fileobject')) {
+          req.session.passport.user['avatarURL'] = {
+            'thumbnail': await getPresignedGetObject('cas', response[0].avatar.files[1].fileobject.sha256),
+            'large': await getPresignedGetObject('cas', response[0].avatar.files[2].fileobject.sha256)
+          }
         }
       }
 

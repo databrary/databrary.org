@@ -1,7 +1,9 @@
 import _ from 'lodash'
 import crypto from 'crypto'
+import fs from 'fs'
+import path from 'path'
 import { Client, CopyConditions } from 'minio'
-import { adminMutate ,adminQuery } from '../graphqlClient'
+import { adminQuery } from '../graphqlClient'
 import { logger } from '@shared'
 import { IFileInfo } from '@utils'
 
@@ -12,6 +14,40 @@ const minioClient = new Client({
   secretKey: process.env.MINIO_SECRET_KEY,
   useSSL: false // Default is true.
 })
+
+export function hashAndSizeFile (filePath: string): Promise<IFileInfo> {
+  return new Promise((resolve, reject) => {
+    const hashSha256 = crypto.createHash('sha256')
+    const hashMd5 = crypto.createHash('md5')
+    const hashSha1 = crypto.createHash('sha1') // todo check this
+    let size = 0
+
+    let dataStream = fs.createReadStream(filePath)
+    dataStream.on('data', function (data) {
+      size += data.length
+      hashSha256.update(data)
+      hashMd5.update(data)
+      hashSha1.update(data)
+    })
+
+    // making digest
+    dataStream.on('end', function () {
+      const md5 = hashMd5.digest().toString('hex')
+      const sha1 = hashSha1.digest().toString('hex')
+      const sha256 = hashSha256.digest().toString('hex')
+      resolve({
+        size,
+        md5,
+        sha1,
+        sha256
+      })
+    })
+
+    dataStream.on('error', function (err) {
+      reject(err)
+    })
+  })
+}
 
 export function hashAndSizeMinio (bucket: string, decodedKey: string): Promise<IFileInfo> {
   return new Promise((resolve, reject) => {
@@ -48,6 +84,10 @@ export function hashAndSizeMinio (bucket: string, decodedKey: string): Promise<I
   })
 }
 
+export async function copyToTemp(dirPath: string, fileName:string) {
+  const filePath = path.resolve(dirPath, fileName)
+}
+
 export async function canAccessAsset (id: number) {
   const response = await adminQuery(
     `${process.cwd()}/../gql/checkPermissionOfAsset.gql`,
@@ -79,6 +119,17 @@ export async function bucketExists (bucket: string) {
   return true
 }
 
+export async function uploadObject (destinationBucket: string, sha256: string, filePath: string): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    minioClient.fPutObject(destinationBucket, sha256, filePath, {}, (err, eTag) => {
+      if (err) {
+        reject(false)
+      }
+      resolve(true)
+    })
+  })
+}
+
 export async function copyObject (destinationBucket: string, sha256: string, sourceFile: string, eTag: string) {
     // Copy the file from the upoloads folder
   try {
@@ -99,6 +150,15 @@ export async function getPresignedGetObject(bucket: string, sha256: string) {
         reject(err)
       }
       resolve(url)
+    })
+  })
+}
+
+export async function getObject (bucket: string, key: string, filePath: string) {
+  return new Promise((resolve, reject) => {
+    minioClient.fGetObject(bucket, key, filePath, (err) => {
+      if (err) reject(err)
+      resolve()
     })
   })
 }
