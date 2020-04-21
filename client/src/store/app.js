@@ -11,6 +11,9 @@ const state = {
   avatar: null,
   displayFullName: null,
   isBackendDisconnected: false,
+  useGravatar: null,
+  avatarURL: null,
+  gravatarURL: null,
   version: 1
 }
 
@@ -31,13 +34,21 @@ const actions = {
     if (_.get(response.data, 'dbId') !== undefined) {
       commit('isLoggedIn', true)
       commit('dbId', response.data.dbId)
-      commit('thumbnail', response.data.avatarURL.thumbnail)
-      commit('avatar', response.data.avatarURL.large)
+      commit('useGravatar', response.data.useGravatar === true)
+      commit('avatar', response.data.useGravatar === true
+        ? response.data.gravatarURL.large : response.data.avatarURL.large)
+      commit('thumbnail', response.data.useGravatar === true
+        ? response.data.gravatarURL.thumbnail : response.data.avatarURL.thumbnail)
+      commit('gravatarURL', response.data.gravatarURL)
+      commit('avatarURL', response.data.avatarURL)
     } else {
       commit('isLoggedIn', false)
       commit('dbId', null)
+      commit('useGravatar', false)
+      commit('large', null)
       commit('thumbnail', null)
-      commit('avatar', null)
+      commit('gravatarURL', null)
+      commit('avatarURL', null)
     }
   }
 }

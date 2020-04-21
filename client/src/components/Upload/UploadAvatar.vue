@@ -21,7 +21,7 @@ import Uppy from '@uppy/core'
 import Dashboard from '@uppy/dashboard'
 import Webcam from '@uppy/webcam'
 import AwsS3 from '@uppy/aws-s3'
-import { get } from 'vuex-pathify'
+import { get, sync } from 'vuex-pathify'
 
 require('@uppy/core/dist/style.css')
 require('@uppy/dashboard/dist/style.css')
@@ -33,12 +33,28 @@ export default {
   data: function data () {
     return {
       uppy: '',
-      oldAvatar: '',
-      useGravatar: true
+      oldAvatar: ''
     }
   },
   computed: {
-    avatar: get('app/avatar')
+    avatar: sync('app/avatar'),
+    thumbnail: sync('app/thumbnail'),
+    useGravatar: sync('app/useGravatar'),
+    gravatarLarge: get('app/gravatarURL@large'),
+    avatarLarge: get('app/avatarURL@large'),
+    gravatarThumbnail: get('app/gravatarURL@thumbnail'),
+    avatarThumbnail: get('app/avatarURL@thumbnail')
+  },
+  watch: {
+    useGravatar: function (isGravatar) {
+      if (isGravatar) {
+        this.avatar = this.gravatarLarge
+        this.thumbnail = this.gravatarThumbnail
+      } else {
+        this.avatar = this.avatarLarge
+        this.thumbnail = this.avatarThumbnail
+      }
+    }
   },
   mounted: function mounted () {
     this.uppy = Uppy({
@@ -94,7 +110,7 @@ export default {
           console.log(`Uppy error ${error}`)
         })
       }
-    }).on('dashboard:modal-closed', () => {
+    }).on('dashboard:modal-closed', async () => {
       this.oldAvatar = this.avatar
       const refreshSession = setInterval(async () => {
         await this.$store.dispatch('app/syncSessionAsync')
@@ -103,34 +119,6 @@ export default {
         }
       }, 100)
     })
-  },
-  methods: {
-    async refreshGravatar () {
-      // const result = await this.$apollo.mutate({
-      //   mutation: gql`
-      //     mutation updateUserGravar ($useGravatar: boolean) {
-      //       assets(
-      //         where: {asset_type: {_eq: project}, _and: {created_by_id: {_eq: $userId}}}
-      //         order_by: {datetime_created: desc}
-      //       ) {
-      //         id
-      //         name
-      //         datetime_created
-      //       }
-      //     }
-      //   `,
-      //   variables: {
-      //     userId: this.userId
-      //   }
-      // })
-
-      const refreshSession = setInterval(async () => {
-        await this.$store.dispatch('app/syncSessionAsync')
-        if (this.oldAvatar !== this.avatar) {
-          clearInterval(refreshSession)
-        }
-      }, 100)
-    }
   }
 }
 </script>

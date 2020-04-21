@@ -8,7 +8,7 @@ mutation insertAvatarAsset (
           created_by_id: $userId, 
           name: $name, 
           privacy_type: public
-          }
+    }
     ) {
         returning {
             id

@@ -1,7 +1,6 @@
 import * as _ from 'lodash'
-import { adminQuery } from '../graphqlClient'
 import { Request, Response, NextFunction } from 'express'
-import { uuid, getPresignedGetObject } from '@utils'
+import { uuid, getAvatars, getGravatars, getAvatarAsset } from '@utils'
 import { logger, loginTestUser, registerTestUser, resetKeycloakPassword } from '@shared'
 import { check, validationResult } from 'express-validator'
 import { dev } from '../config'
@@ -65,25 +64,21 @@ export const getSession = async (req: Request, res: Response) => {
         'dbId': req.session.passport.user['dbId']
       }
 
-      const response = await adminQuery(
-        `${process.cwd()}/../gql/getAvatarAsset.gql`,
-        {
-          dbId: req.session.passport.user['dbId']
-        }
-      )
-      if (response[0].useGravatar !== true) {
-        if (_.get(response[0].avatar.files[0], 'fileobject')) {
-          req.session.passport.user['avatarURL'] = {
-            'thumbnail': await getPresignedGetObject('cas', response[0].avatar.files[1].fileobject.sha256),
-            'large': await getPresignedGetObject('cas', response[0].avatar.files[2].fileobject.sha256)
-          }
-        }
-      }
+      // We check if the user update the avatar and we update our urls
+      const avatarAsset = await getAvatarAsset(req.session.passport.user['dbId'])
+      req.session.passport.user['avatarId'] = avatarAsset.avatar.id
+      req.session.passport.user['avatarURL'] = await getAvatars('cas', avatarAsset.avatar)
 
-      // if we already computed the gravatar url
       if (_.get(req.session.passport.user, 'avatarURL')) {
         session['avatarURL'] = req.session.passport.user['avatarURL']
       }
+
+      if (_.get(req.session.passport.user, 'gravatarURL')) {
+        session['gravatarURL'] = req.session.passport.user['gravatarURL']
+      } else {
+        req.session.passport.user['gravatarURL'] = getGravatars(req.session.passport.user['email'])
+      }
+      session['useGravatar'] = avatarAsset.useGravatar
 
       return res.json(session)
     } else {
