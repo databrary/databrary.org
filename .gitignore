@@ -11,4 +11,5 @@ server/config/*
 server/!config/default.*
 server/.env
 server/sessions
+client/.quasar
 **/tmp/

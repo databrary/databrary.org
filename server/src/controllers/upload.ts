@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
-import { adminMutate, adminQuery } from '../graphqlClient'
 import { logger } from '@shared'
 import { getMinioClient, bucketExists } from '@utils'
+import { insertFile, insertAvatarAsset, updateUserAvatar } from '@units'
 
 export const signUpload = async (req: Request, res: Response) => {
   try {
@@ -10,46 +10,22 @@ export const signUpload = async (req: Request, res: Response) => {
     let assetId = req.body.projectId
     if (req.body.uploadType === 'avatar') {
       bucketName = 'avatars'
-      response = await adminQuery(
-        `${process.cwd()}/../gql/insertAvatarAsset.gql`,
-        {
-          userId: req.user['dbId'],
-          name: `Avatar ${req.user['dbId']}`
-        }
-      )
-      assetId = response.returning[0].id
+      assetId = await insertAvatarAsset(req.user['dbId'])
       // Maybe This should be added in the webhook
-      // TODO(Reda): Update avatarId in the postgres trigger function
-      response = await adminMutate(
-        `${process.cwd()}/../gql/updateUserAvatar.gql`,
-        {
-          dbId: req.user['dbId'],
-          avatarId: assetId
-        }
-      )
+      response = await updateUserAvatar(req.user['dbId'], assetId)
     }
 
     const bucketFound = await bucketExists(bucketName)
-    response = await adminMutate(
-      `${process.cwd()}/../gql/insertFile.gql`,
-      {
-        name: decodeURIComponent(req.body.filename),
-        uploadedById: req.user['dbId'],
-        assetId: assetId,
-        fileFormatId: req.body.format
-      }
-    )
-    // Get the unique id of the upload object and make that the filename
-    const filename = response.returning[0].id
 
     if (bucketFound) {
+      const filename = await insertFile(req.body.filename, req.user['dbId'], assetId, req.body.format)
       // Send signed url
       getMinioClient().presignedPutObject(
         bucketName, // Bucket name
         encodeURIComponent(filename),
         1000,
-        function (e, presignedUrl) {
-          if (e) return console.log(e)
+        function (err, presignedUrl) {
+          if (err) return console.log(err)
           res.json({
             url: presignedUrl,
             method: 'put',
@@ -58,12 +34,6 @@ export const signUpload = async (req: Request, res: Response) => {
               'content-type': req.body.contentType
             }
           })
-        }
-      )
-    } else {
-      response = await adminMutate(
-        `${process.cwd()}/../gql/removeFile.gql`, {
-          fileId: response.returning[0].id
         }
       )
     }

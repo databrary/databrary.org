@@ -1,6 +1,7 @@
 import * as _ from 'lodash'
 import { Request, Response, NextFunction } from 'express'
-import { uuid, getAvatars, getGravatars, getAvatarAsset } from '@utils'
+import { uuid } from '@utils'
+import { getUserByAuthId } from '@units'
 import { logger, loginTestUser, registerTestUser, resetKeycloakPassword } from '@shared'
 import { check, validationResult } from 'express-validator'
 import { dev } from '../config'
@@ -58,35 +59,29 @@ export const logout = (req: Request, res: Response) => {
 }
 
 export const getSession = async (req: Request, res: Response) => {
-  if (req.session) {
-    if (req.session.passport) {
-      let session = {
-        'dbId': req.session.passport.user['dbId']
-      }
-
-      // We check if the user update the avatar and we update our urls
-      const avatarAsset = await getAvatarAsset(req.session.passport.user['dbId'])
-      req.session.passport.user['avatarId'] = avatarAsset.avatar.id
-      req.session.passport.user['avatarURL'] = await getAvatars('cas', avatarAsset.avatar)
-
-      if (_.get(req.session.passport.user, 'avatarURL')) {
-        session['avatarURL'] = req.session.passport.user['avatarURL']
-      }
-
-      if (_.get(req.session.passport.user, 'gravatarURL')) {
-        session['gravatarURL'] = req.session.passport.user['gravatarURL']
-      } else {
-        req.session.passport.user['gravatarURL'] = getGravatars(req.session.passport.user['email'])
-      }
-      session['useGravatar'] = avatarAsset.useGravatar
-
-      return res.json(session)
-    } else {
-      res.status(200).send(`User not found.`)
+  if (req.user) {
+    let session = {
+      'dbId': req.user['dbId']
     }
-  } else {
-    res.status(400).send(`Session Not found.`)
+
+    // We check if the user update the avatar and we update our urls
+    const user = await getUserByAuthId(req.user['id'])
+
+    if (_.get(user, 'image')) {
+      session['avatarURL'] = req.user['avatarURL'] = user.image
+    } else if (_.get(req.user, 'avatarURL')) {
+      session['avatarURL'] = req.user['avatarURL']
+    }
+
+    session['useGravatar'] = user.useGravatar === true
+
+    if (_.get(req.user, 'gravatarURL')) {
+      session['gravatarURL'] = req.user['gravatarURL']
+    }
+
+    return res.json(session)
   }
+  res.json({})
 }
 
 export const authCallback = async (req: Request, res: Response) => {

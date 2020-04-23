@@ -7,4 +7,6 @@ export interface IFileInfo {
   fileId?: number
   isUploaded?: boolean // If the file is in the upload bucket
   filePath?: string
+  dimension?: number // dimension in pixel
+  URI?: string // public uri if exists, only used for avatar
 }

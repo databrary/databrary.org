@@ -92,5 +92,7 @@ endif
 	mc mb -p minio/uploads;
 	mc mb -p minio/cas;
 	mc mb -p minio/avatars;
+	mc mb -p minio/public;
+	mc policy set public minio/public;
 	mc event add minio/uploads arn:minio:sqs::1:webhook --event put
 	mc event add minio/avatars arn:minio:sqs::1:webhook --event put

@@ -87,6 +87,7 @@ app.post('/sign-upload', isAuthenticated, uploadController.signUpload)
 
 // Webhooks routes
 app.get('/auth/webhook', isAuthenticated, webhooksController.authWebhook)
+app.post('/user/webhook', webhooksController.userWebhook)
 app.post('/webhooks/minio', webhooksController.minioWebhook)
 
 app.use('/', proxy(process.env.APP_URL_PROXY))

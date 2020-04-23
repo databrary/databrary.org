@@ -27,6 +27,7 @@ const mutation = gql`
         emailPrimary
         displayFullName
         useGravatar
+        image
       }
     }
   }

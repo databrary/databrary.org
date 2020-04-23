@@ -1,12 +1,18 @@
 import _ from 'lodash'
 import mime from 'mime-types'
-import { adminQuery, adminMutate } from '../graphqlClient'
 import { resolve } from 'path'
 import { logger } from '@shared'
+import { insertFile,
+          getFile,
+          insertFileObject,
+          getFileObjectId,
+          updateFile,
+          canAccessAsset,
+          updateUserAvatar
+         } from '@units'
 import { copyObject,
           getObject,
           IFileInfo,
-          canAccessAsset,
           hashAndSizeMinio,
           hashAndSizeFile,
           fileExists,
@@ -34,7 +40,8 @@ export default async function processMinioUpload (input: object) {
       logger.error('Size mismatch') // TODO We need an error here
     }
 
-    fileInfo.location = 's3://minio-1.nyu.edu/cas'
+    // fileInfo.location = 's3://minio-1.nyu.edu/cas'
+    fileInfo.location = input['bucketName'] === 'avatars' ? 's3://minio-1.nyu.edu/public' : 's3://minio-1.nyu.edu/cas'
     fileInfo.fileId = fileId
     fileInfo.isUploaded = true
     fileInfo.filePath = `/${input['bucketName']}/${input['key']}`
@@ -69,11 +76,13 @@ export default async function processMinioUpload (input: object) {
     // Loop through all the fileInfo
     for (let i = 0; i < fileInfoArray.length; i++) {
       const fileInfo = fileInfoArray[i]
-      const fileExistsInCas = await fileExists('cas', fileInfo.sha256)
+      // TODO(Reda) Add target bucket to fileInfo
+      const targetBucket = input['bucketName'] === 'avatars' ? 'public' : 'cas'
+      const fileExistsInBucket = await fileExists(targetBucket, fileInfo.sha256)
 
       let fileobjectId
 
-      if (!fileExistsInCas) {
+      if (!fileExistsInBucket) {
         let fileCopied = false
 
         // If the file exists in uploads bucket(means uploaded by the user), we copy it to cas
@@ -81,9 +90,9 @@ export default async function processMinioUpload (input: object) {
         // The worker will download the uploaded picture resize it and upload it the result to cas
         logger.debug(`Copy file from ${fileInfo.filePath} to cas bucket`)
         if (fileInfo.isUploaded) {
-          fileCopied = await copyObject('cas', fileInfo.sha256, fileInfo.filePath, input['eTag'])
+          fileCopied = await copyObject(targetBucket, fileInfo.sha256, fileInfo.filePath, input['eTag'])
         } else {
-          fileCopied = await uploadObject('cas', fileInfo.sha256, fileInfo.filePath)
+          fileCopied = await uploadObject(targetBucket, fileInfo.sha256, fileInfo.filePath)
         }
 
         if (fileCopied) {
@@ -100,68 +109,30 @@ export default async function processMinioUpload (input: object) {
         await updateFile(fileInfo.fileId, fileobjectId, uploadedDatetime)
       }
     }
+
+    if (input['bucketName'] === 'avatars') {
+      // build image json blob
+      let image = {
+        'thumbnail': null,
+        'large': null
+      }
+
+      fileInfoArray.forEach((fileInfo) => {
+        if (fileInfo.URI) {
+          if (fileInfo.dimension === 32) {
+            image['thumbnail'] = `http://localhost:9000/public/${fileInfo.sha256}`
+          } else if (fileInfo.dimension === 400) {
+            image['large'] = `http://localhost:9000/public/${fileInfo.sha256}`
+          }
+        }
+      })
+      // update user
+      await updateUserAvatar(file.uploadedById, file.assetId, image)
+    }
     logger.debug(`File ${fileId} processed`)
   } catch (error) {
     logger.error(`Process Minio Upload Error: ${error}`)
   }
-}
-
-// Get the file object based on the key
-async function getFile (fileId: number) {
-  const response = await adminQuery(
-    `${process.cwd()}/../gql/getFile.gql`,
-    {
-      id: fileId
-    }
-  )
-  return response[0]
-}
-
-// Insert new File and return file ID
-async function insertFile (fileName: string, dbId: number, assetId: number, fileExt: string) {
-  const response = await adminMutate(
-    `${process.cwd()}/../gql/insertFile.gql`,
-    {
-      name: fileName,
-      uploadedById: dbId,
-      assetId: assetId,
-      fileFormatId: fileExt
-    }
-  )
-  return response.returning[0].id
-}
-
-//  Insert a new File object and return the object file ID
-async function insertFileObject (size: number, md5: string, sha1: string, sha256: string, location: string) {
-  const response = await adminMutate(
-    `${process.cwd()}/../gql/insertFileObjectOnUpload.gql`, {
-      size: size,
-      md5: md5,
-      sha1: sha1,
-      sha256: sha256,
-      location: location
-    })
-
-  return response.returning[0].id
-}
-
-// Get file object id from sha256
-async function getFileObjectId (sha256: string) {
-  const response = await adminMutate(
-    `${process.cwd()}/../gql/getFileObjectId.gql`, { // TODO brittle for a number of reasons
-      sha256: sha256
-    }
-  )
-  return response[0].id
-}
-
-async function updateFile (fileId: number, fileobjectId: number, uploadedDatetime: any) {
-  const response = await adminMutate(
-    `${process.cwd()}/../gql/updateFile.gql`, {
-      fileId: fileId,
-      fileobjectId: fileobjectId,
-      uploadedDatetime: uploadedDatetime
-    })
 }
 
 async function processAvatar (bucketName: string, key: string, tmpFile: string, sourceExt: string, uploadedById: number, assetId: number) {
@@ -180,10 +151,13 @@ async function processAvatar (bucketName: string, key: string, tmpFile: string, 
     // Hash processed pictures
     const fileInfo: IFileInfo = await hashAndSizeFile(targetPath)
 
-    fileInfo.location = 's3://minio-1.nyu.edu/cas'
+    fileInfo.location = bucketName === 'avatars' ? 's3://minio-1.nyu.edu/public' : 's3://minio-1.nyu.edu/cas'
+    // fileInfo.location = 's3://minio-1.nyu.edu/cas'
     fileInfo.fileId = insertFileId
     fileInfo.isUploaded = false
     fileInfo.filePath = targetPath
+    fileInfo.dimension = size
+    fileInfo.URI = `http://localhost:9000/public/${fileInfo.sha256}`
     result.push(fileInfo)
   }
 

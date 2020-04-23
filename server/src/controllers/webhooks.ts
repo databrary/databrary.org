@@ -1,6 +1,11 @@
 import _ from 'lodash'
 import queue from '../queue'
 import { Request, Response } from 'express'
+import {logger} from '@shared'
+
+export const userWebhook = async (req: Request, res: Response) => {
+  res.sendStatus(201)
+}
 
 export const authWebhook = async (req: Request, res: Response) => {
   if (req.session) {

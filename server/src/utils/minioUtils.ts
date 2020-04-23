@@ -3,7 +3,6 @@ import crypto from 'crypto'
 import fs from 'fs'
 import path from 'path'
 import { Client, CopyConditions } from 'minio'
-import { adminQuery } from '../graphqlClient'
 import { logger } from '@shared'
 import { IFileInfo } from '@utils'
 
@@ -84,17 +83,8 @@ export function hashAndSizeMinio (bucket: string, decodedKey: string): Promise<I
   })
 }
 
-export async function copyToTemp(dirPath: string, fileName:string) {
+export async function copyToTemp (dirPath: string, fileName: string) {
   const filePath = path.resolve(dirPath, fileName)
-}
-
-export async function canAccessAsset (id: number) {
-  const response = await adminQuery(
-    `${process.cwd()}/../gql/checkPermissionOfAsset.gql`,
-    {
-      id
-    })
-  return !_.isEmpty(response)
 }
 
 export async function fileExists (bucket: string, sha256: string) {

@@ -1,9 +1,9 @@
 import crypto from 'crypto'
 import _ from 'lodash'
 import sharp from 'sharp'
-import { adminQuery } from '../graphqlClient'
 import { getPresignedGetObject } from '@utils'
 
+// TODO(Reda): Remove this uuid and use npm package
 export function uuid () {
   let s = []
   const hexDigits = '0123456789abcdef'
@@ -23,17 +23,6 @@ export function getGravatars (email: String) {
   }
 }
 
-export async function getAvatarAsset (dbId: number) {
-  const response = await adminQuery(
-    `${process.cwd()}/../gql/getAvatarAsset.gql`,
-    {
-      dbId: dbId
-    }
-  )
-
-  return response[0]
-}
-
 export async function getAvatars (bucket: string , avatar: any) {
 
   if (_.get(avatar.files[0], 'fileobject')) {
@@ -48,7 +37,6 @@ export async function getAvatars (bucket: string , avatar: any) {
   }
 }
 
-// Return
 function getGravatarURL (email: String, size: number = 32) {
   if (!email) {
     return `https://gravatar.com/avatar/?s=${size}&d=monsterid`
@@ -60,7 +48,7 @@ function getGravatarURL (email: String, size: number = 32) {
 export function resizePicture (sourcePath: string, targetpath: string, size: number) {
   return new Promise((resolve, reject) => {
     sharp(sourcePath)
-      .resize(size)
+      .resize(size, size)
       .toFormat('png')
       .toFile(targetpath, (err, info) => {
         if (err) {

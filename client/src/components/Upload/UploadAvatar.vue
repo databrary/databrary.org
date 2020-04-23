@@ -21,7 +21,8 @@ import Uppy from '@uppy/core'
 import Dashboard from '@uppy/dashboard'
 import Webcam from '@uppy/webcam'
 import AwsS3 from '@uppy/aws-s3'
-import { get, sync } from 'vuex-pathify'
+import gql from 'graphql-tag'
+import { sync, get } from 'vuex-pathify'
 
 require('@uppy/core/dist/style.css')
 require('@uppy/dashboard/dist/style.css')
@@ -32,36 +33,43 @@ export default {
   name: 'AvatarUploader',
   data: function data () {
     return {
-      uppy: '',
-      oldAvatar: ''
+      uppy: ''
     }
   },
   computed: {
+    userId: get('app/dbId'),
     avatar: sync('app/avatar'),
     thumbnail: sync('app/thumbnail'),
-    useGravatar: sync('app/useGravatar'),
-    gravatarLarge: get('app/gravatarURL@large'),
-    avatarLarge: get('app/avatarURL@large'),
-    gravatarThumbnail: get('app/gravatarURL@thumbnail'),
-    avatarThumbnail: get('app/avatarURL@thumbnail')
+    useGravatar: sync('app/useGravatar')
   },
   watch: {
-    useGravatar: function (isGravatar) {
-      if (isGravatar) {
-        this.avatar = this.gravatarLarge
-        this.thumbnail = this.gravatarThumbnail
-      } else {
-        this.avatar = this.avatarLarge
-        this.thumbnail = this.avatarThumbnail
-      }
+    useGravatar: async function (isGravatar) {
+      this.$store.dispatch('app/updateAvatar', isGravatar)
+      await this.$apollo.mutate({
+        mutation: gql`
+          mutation updateuseGravatar ($userId: Int!, $useGravatar: Boolean!) {
+            update_users(
+              where: {id: {_eq: $userId}}, 
+              _set: {useGravatar: $useGravatar}
+            ) {
+              returning {
+                useGravatar
+              }
+            }
+          }
+        `,
+        variables: {
+          userId: this.userId,
+          useGravatar: isGravatar
+        }
+      })
     }
   },
   mounted: function mounted () {
     this.uppy = Uppy({
       id: 'AvatarUploader',
-      allowMultipleUploads: false,
+      allowMultipleUploads: true, // FIXME(Reda): Allow only one upload and clear cached upload
       restrictions: {
-        maxNumberOfFiles: 1,
         minNumberOfFiles: 1,
         allowedFileTypes: ['images/*', '.jpg', '.jpeg', '.png', '.gif']
       }
@@ -81,6 +89,7 @@ export default {
       target: '#avatar-upload-area',
       trigger: '.avatar-uploader',
       closeModalOnClickOutside: true,
+      showLinkToFileUploadResult: false,
       plugins: ['Webcam']
     }).use(AwsS3, {
       getUploadParameters (file) {
@@ -110,14 +119,14 @@ export default {
           console.log(`Uppy error ${error}`)
         })
       }
-    }).on('dashboard:modal-closed', async () => {
-      this.oldAvatar = this.avatar
+    }).on('upload-success', (file, data) => {
+      const oldAvatar = this.avatar
       const refreshSession = setInterval(async () => {
         await this.$store.dispatch('app/syncSessionAsync')
-        if (this.oldAvatar !== this.avatar) {
+        if (oldAvatar !== this.avatar) {
           clearInterval(refreshSession)
         }
-      }, 100)
+      }, 500)
     })
   }
 }

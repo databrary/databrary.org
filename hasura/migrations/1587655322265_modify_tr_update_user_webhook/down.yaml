@@ -1,0 +1,30 @@
+- args:
+    enable_manual: false
+    headers: []
+    insert:
+      columns: '*'
+    name: update_user
+    replace: true
+    retry_conf:
+      interval_sec: 10
+      num_retries: 0
+      timeout_sec: 60
+    table:
+      name: users
+      schema: public
+    update:
+      columns:
+      - useGravatar
+      - avatarId
+      - emails
+      - urls
+      - additionalName
+      - bio
+      - displayFullName
+      - emailPrimary
+      - familyName
+      - givenName
+      - orcid
+      - datetimeRegistered
+    webhook: UPDATE_USER_WEBHOOK
+  type: create_event_trigger

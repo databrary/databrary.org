@@ -1,0 +1,14 @@
+  query getUserByEmail($email: String!) {
+    users(
+      where: {
+        emailPrimary: {
+          _eq: $email
+        }
+      }
+    ) {
+      id
+      authServerId
+      emailPrimary
+      displayFullName
+    }
+  }
