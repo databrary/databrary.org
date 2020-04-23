@@ -121,9 +121,13 @@ export default {
       }
     }).on('upload-success', (file, data) => {
       const oldAvatar = this.avatar
+      this.$q.loading.show({
+        message: 'Upload is in progress.<br/><span class="text-primary">Hang on...</span>'
+      })
       const refreshSession = setInterval(async () => {
         await this.$store.dispatch('app/syncSessionAsync')
         if (oldAvatar !== this.avatar) {
+          this.$q.loading.hide()
           clearInterval(refreshSession)
         }
       }, 500)
