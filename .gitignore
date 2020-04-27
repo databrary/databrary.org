@@ -11,4 +11,6 @@ server/config/*
 server/!config/default.*
 server/.env
 server/sessions
+client/src/store/store-flag.d.ts
 client/.quasar
+.env
