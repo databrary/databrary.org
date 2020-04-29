@@ -5,31 +5,17 @@ include .env
 # For WSL, make sure to set WSL=1 in your .env file or environment.
 
 UNAME := $(shell uname -s)
-SYSTEM = Unknown
+DOCKER_HOST_IP = host.docker.internal
 
 ifeq ($(UNAME),Linux)
-	ifneq ($(WSL),)
-		SYSTEM = 'WSL'
-	else
-		SYSTEM = 'Linux'
+	ifeq ($(WSL),0)
+		DOCKER_HOST_IP = $(shell ip -4 addr show docker0 | grep -Po 'inet \K[\d.]+')
 	endif
-else
-	ifeq ($(UNAME),Darwin)
-		SYSTEM = 'Mac'
-	else
-		SYSTEM = 'Windows'
-	endif
-endif
-
-DOCKER_HOST_IP = host.docker.internal
-ifeq ($(SYSTEM),Linux) 
-	DOCKER_HOST_IP=$(shell ip -4 addr show docker0 | grep -Po 'inet \K[\d.]+')
 endif
 
 info:
 	@echo UNAME: $(UNAME)
 	@echo WSL: $(WSL)
-	@echo SYSTEM: $(SYSTEM)
 	@echo DOCKER_HOST_IP: $(DOCKER_HOST_IP)
 
 ##############################################################################
