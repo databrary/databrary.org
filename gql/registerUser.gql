@@ -1,0 +1,28 @@
+mutation registerUser($authServerId: String!,
+                        $emailPrimary: String!,
+                        $firstName: String,
+                        $lastName: String,
+                        $middleName: String,
+                        $displayFullName: String,
+                        $emails: jsonb,
+                        $urls: jsonb) {
+    insert_users(objects: {
+      authServerId: $authServerId,
+      emailPrimary: $emailPrimary,
+      givenName: $firstName,
+      familyName: $lastName,
+      additionalName: $middleName,
+      displayFullName: $displayFullName,
+      emails: $emails,
+      urls: $urls
+    }) {
+      returning {
+        id
+        authServerId
+        emailPrimary
+        displayFullName
+        useGravatar
+        image
+      }
+    }
+  }

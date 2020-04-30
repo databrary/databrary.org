@@ -1,43 +1,11 @@
-import client from '../graphqlClient'
+import { adminMutate } from '../graphqlClient'
 import { gql } from 'apollo-server-express'
-import { logger } from '@shared'
 
-const mutation = gql`
-  mutation registerUser($authServerId: String!,
-                        $emailPrimary: String!,
-                        $firstName: String,
-                        $lastName: String,
-                        $middleName: String,
-                        $displayFullName: String,
-                        $emails: jsonb,
-                        $urls: jsonb) {
-    insert_users(objects: {
-      authServerId: $authServerId,
-      emailPrimary: $emailPrimary,
-      givenName: $firstName,
-      familyName: $lastName,
-      additionalName: $middleName,
-      displayFullName: $displayFullName,
-      emails: $emails,
-      urls: $urls
-    }) {
-      returning {
-        id
-        authServerId
-        emailPrimary
-        displayFullName
-        useGravatar
-        image
-      }
-    }
-  }
-`
 export async function registerUser (authServerId: string, emailPrimary: string, firstName: string, lastName: string, emails: string[], middleName: string = '') {
   const displayFullName = `${firstName} ${lastName}`
   const urls = []
-  const response = await client.mutate({
-    mutation,
-    variables: {
+  const response = await adminMutate(
+    `${process.cwd()}/../gql/registerUser.gql`, {
       authServerId,
       emailPrimary,
       firstName,
@@ -47,7 +15,7 @@ export async function registerUser (authServerId: string, emailPrimary: string, 
       emails,
       urls
     }
-  })
+  )
   if (!response) {
     return null
   }

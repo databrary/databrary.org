@@ -71,9 +71,6 @@ endif
 
 install_js_clis:
 	npm install -g yarn
-	npm install -g typescript
-	npm install -g ts-node-dev
-	npm install -g ts-node
 	npm install -g @quasar/cli
 
 install_js_packages:
