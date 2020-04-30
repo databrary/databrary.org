@@ -24,9 +24,10 @@ export function createAdminClient () {
   })
 }
 
+// TODO(Reda): We should use createClient for actions triggered by users instead of adminClient
 export function createClient (userId: number) {
   const headers = {
-    'x-hasura-admin-secret': 'mysecret'
+    'x-hasura-admin-secret': process.env.HASURA_SECRET
   }
 
   let role = 'anonymous_user'

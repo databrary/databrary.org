@@ -1,7 +1,11 @@
-mutation updateUserAvatar($dbId: Int!, $avatarId: Int!) {
+mutation updateUserAvatar($dbId: Int!, $avatarId: Int!, $image: jsonb) {
   update_users(
     where: {id: {_eq: $dbId}}, 
-    _set: {avatarId: $avatarId}
+    _set: {
+      avatarId: $avatarId, 
+      useGravatar: false,
+      image: $image
+    }
   ) {
     returning { 
       id

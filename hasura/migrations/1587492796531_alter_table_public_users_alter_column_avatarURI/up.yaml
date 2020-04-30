@@ -1,0 +1,5 @@
+- args:
+    cascade: false
+    read_only: false
+    sql: alter table "public"."users" rename column "avatarURI" to "image";
+  type: run_sql

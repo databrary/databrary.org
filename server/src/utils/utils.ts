@@ -1,9 +1,9 @@
 import crypto from 'crypto'
 import _ from 'lodash'
-import { adminQuery, adminMutate } from '../graphqlClient'
-import { logger } from '@shared'
-import { copyObject, IFileInfo, canAccessAsset, hashAndSizeMinio, fileExists } from '@utils'
+import sharp from 'sharp'
+import { getPresignedGetObject } from '@utils'
 
+// TODO(Reda): Remove this uuid and use npm package
 export function uuid () {
   let s = []
   const hexDigits = '0123456789abcdef'
@@ -16,11 +16,45 @@ export function uuid () {
   return s.join('')
 }
 
-// Return
-export function getGravatarURL(email: String, size: number = 32) {
+export function getGravatars (email: String) {
+  return {
+    'thumbnail': getGravatarURL(email, 32),
+    'large': getGravatarURL(email, 400)
+  }
+}
+
+export async function getAvatars (bucket: string , avatar: any) {
+
+  if (_.get(avatar.files[0], 'fileobject')) {
+    const thumbnail = avatar.files[1].fileobject.size < avatar.files[2].fileobject.size
+                      ? avatar.files[1].fileobject.sha256 : avatar.files[2].fileobject.sha256
+    const large = avatar.files[1].fileobject.size > avatar.files[2].fileobject.size
+                      ? avatar.files[1].fileobject.sha256 : avatar.files[2].fileobject.sha256
+    return {
+      'thumbnail': await getPresignedGetObject(bucket, thumbnail),
+      'large': await getPresignedGetObject(bucket, large)
+    }
+  }
+}
+
+function getGravatarURL (email: String, size: number = 32) {
   if (!email) {
     return `https://gravatar.com/avatar/?s=${size}&d=monsterid`
   }
   const md5 = crypto.createHash('md5').update(email.toString()).digest('hex')
   return `https://gravatar.com/avatar/${md5}?s=${size}&d=monsterid`
+}
+
+export function resizePicture (sourcePath: string, targetpath: string, size: number) {
+  return new Promise((resolve, reject) => {
+    sharp(sourcePath)
+      .resize(size, size)
+      .toFormat('png')
+      .toFile(targetpath, (err, info) => {
+        if (err) {
+          reject(err)
+        }
+        resolve(info)
+      })
+  })
 }

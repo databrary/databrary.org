@@ -1,32 +1,14 @@
 import _ from 'lodash'
-import client from '../graphqlClient'
-import { gql } from 'apollo-server-express'
+import { adminQuery } from '../graphqlClient'
 
-const query = gql`
-  query getUserByEmail($email: String!) {
-    users(
-      where: {
-        emailPrimary: {
-          _eq: $email
-        }
-      }
-    ) {
-      id
-      authServerId
-      emailPrimary
-      displayFullName
-    }
-  }
-`
 export async function getUserByEmail (email: string) {
-  const response = await client.query({
-    query: query,
-    variables: {
-      email
+  const response = await adminQuery(
+    `${process.cwd()}/../gql/getUserByEmail.gql`, {
+      email: email
     }
-  })
-  if (_.isEmpty(response.data.users)) {
+  )
+  if (_.isEmpty(response)) {
     return null
   }
-  return response.data.users[0]
+  return response[0]
 }

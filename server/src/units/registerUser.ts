@@ -26,6 +26,8 @@ const mutation = gql`
         authServerId
         emailPrimary
         displayFullName
+        useGravatar
+        image
       }
     }
   }

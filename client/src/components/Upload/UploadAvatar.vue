@@ -7,11 +7,11 @@
         color="primary"
         label="Change profile picture"
       />
-      <q-btn
-        flat
-        class="q-my-sm"
+
+      <q-toggle
+        v-model="useGravatar"
         color="primary"
-        label="Use my Gravatar"
+        label="Use Gravatar"
       />
   </div>
 </template>
@@ -21,6 +21,8 @@ import Uppy from '@uppy/core'
 import Dashboard from '@uppy/dashboard'
 import Webcam from '@uppy/webcam'
 import AwsS3 from '@uppy/aws-s3'
+import gql from 'graphql-tag'
+import { sync, get } from 'vuex-pathify'
 
 require('@uppy/core/dist/style.css')
 require('@uppy/dashboard/dist/style.css')
@@ -34,12 +36,40 @@ export default {
       uppy: ''
     }
   },
+  computed: {
+    userId: get('app/dbId'),
+    avatar: sync('app/avatar'),
+    thumbnail: sync('app/thumbnail'),
+    useGravatar: sync('app/useGravatar')
+  },
+  watch: {
+    useGravatar: async function (isGravatar) {
+      this.$store.dispatch('app/updateAvatar', isGravatar)
+      await this.$apollo.mutate({
+        mutation: gql`
+          mutation updateuseGravatar ($userId: Int!, $useGravatar: Boolean!) {
+            update_users(
+              where: {id: {_eq: $userId}}, 
+              _set: {useGravatar: $useGravatar}
+            ) {
+              returning {
+                useGravatar
+              }
+            }
+          }
+        `,
+        variables: {
+          userId: this.userId,
+          useGravatar: isGravatar
+        }
+      })
+    }
+  },
   mounted: function mounted () {
     this.uppy = Uppy({
       id: 'AvatarUploader',
-      allowMultipleUploads: false,
+      allowMultipleUploads: true, // FIXME(Reda): Allow only one upload and clear cached upload
       restrictions: {
-        maxNumberOfFiles: 1,
         minNumberOfFiles: 1,
         allowedFileTypes: ['images/*', '.jpg', '.jpeg', '.png', '.gif']
       }
@@ -59,11 +89,13 @@ export default {
       target: '#avatar-upload-area',
       trigger: '.avatar-uploader',
       closeModalOnClickOutside: true,
+      showLinkToFileUploadResult: false,
       plugins: ['Webcam']
     }).use(AwsS3, {
       getUploadParameters (file) {
         return fetch('/sign-upload', {
           method: 'post',
+          credentials: 'same-origin',
           headers: {
             accept: 'application/json',
             'content-type': 'application/json'
@@ -87,6 +119,18 @@ export default {
           console.log(`Uppy error ${error}`)
         })
       }
+    }).on('upload-success', (file, data) => {
+      const oldAvatar = this.avatar
+      this.$q.loading.show({
+        message: 'Upload is in progress.<br/><span class="text-primary">Hang on...</span>'
+      })
+      const refreshSession = setInterval(async () => {
+        await this.$store.dispatch('app/syncSessionAsync')
+        if (oldAvatar !== this.avatar) {
+          this.$q.loading.hide()
+          clearInterval(refreshSession)
+        }
+      }, 500)
     })
   }
 }

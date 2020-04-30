@@ -1,7 +1,7 @@
 import * as _ from 'lodash'
-import { adminQuery } from '../graphqlClient'
 import { Request, Response, NextFunction } from 'express'
-import { uuid, getGravatarURL } from '@utils'
+import { uuid } from '@utils'
+import { getUserByAuthId } from '@units'
 import { logger, loginTestUser, registerTestUser, resetKeycloakPassword } from '@shared'
 import { check, validationResult } from 'express-validator'
 import { dev } from '../config'
@@ -58,50 +58,35 @@ export const logout = (req: Request, res: Response) => {
   })
 }
 
-export const getSession = (req: Request, res: Response) => {
-  if (req.session) {
-    if (req.session.passport) {
-      let response = {
-        'dbId': req.session.passport.user['dbId']
-      }
-      // if we already computer the gravatar url
-      if (_.get(req.session.passport.user, 'avatarURL')) {
-        response['avatarURL'] = req.session.passport.user['avatarURL']
-      }
-      return res.json(response)
-    } else {
-      res.status(200).send(`User not found.`)
+export const getSession = async (req: Request, res: Response) => {
+  if (req.user) {
+    let session = {
+      'dbId': req.user['dbId']
     }
-  } else {
-    res.status(400).send(`Session Not found.`)
+
+    // We check if the user update the avatar and we update our urls
+    const user = await getUserByAuthId(req.user['id'])
+
+    if (_.get(user, 'image')) {
+      session['avatarURL'] = req.user['avatarURL'] = user.image
+    } else if (_.get(req.user, 'avatarURL')) {
+      session['avatarURL'] = req.user['avatarURL']
+    }
+
+    session['useGravatar'] = user.useGravatar === true
+
+    if (_.get(req.user, 'gravatarURL')) {
+      session['gravatarURL'] = req.user['gravatarURL']
+    }
+
+    return res.json(session)
   }
+  res.json({})
 }
 
 export const authCallback = async (req: Request, res: Response) => {
-  if (req.user) {
-    let avatarURL = {
-      'thumbnail': getGravatarURL(req.user['email'], 32),
-      'large': getGravatarURL(req.user['email'], 400)
-    }
-    // TODO (Reda): check if use gravatar is false, otherwise we need to check our db for profile picture
-    // We create an empty avatar asset
-    const response = await adminQuery(
-      `${process.cwd()}/../gql/getAvatarAsset.gql`,
-      {
-        dbId: req.user['dbId']
-      }
-    )
-    logger.info(`Response ${JSON.stringify(response)}`)
-    if (!_.isEmpty(response[0].assets[0].files[0])) {
-      // If we found profile pictures in our database we
-      // replace the gravatar by the picture
-      // TODO(Reda): Get fileObjectId url
-      avatarURL = {
-        'thumbnail': getGravatarURL(req.user['email'], 32),
-        'large': getGravatarURL(req.user['email'], 400)
-      }
-    }
-    req.user['avatarURL'] = avatarURL
+  if (req.session.passport) {
+    // return res.status(200).send('Successfully logged in')
     return res.redirect('/')
   }
 }

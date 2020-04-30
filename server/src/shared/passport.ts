@@ -2,7 +2,8 @@ import passport from 'passport'
 import KcAdminClient from 'keycloak-admin'
 import { Request, Response, NextFunction } from 'express'
 import { Strategy as KeycloakStrategy } from 'passport-keycloak-oauth2-oidc'
-import { getUserByAuthId, getUserByEmail, registerUser } from '@units'
+import { getUserByAuthId, getUserByEmail, registerUser, getAvatarAsset } from '@units'
+import { getGravatars, getAvatars } from '@utils'
 import { logger } from '@shared'
 
 const kcAdminClient = new KcAdminClient({
@@ -31,13 +32,13 @@ passport.use(
     callbackURL: process.env.AUTH_CALLBACK_URL
   }, async (accesseToken, refreshToken, profile, done) => {
     // register user if found in keycloak and not found in db
-    logger.debug(`Profile ${JSON.stringify(profile)}`)
     try {
-      let user = await getUserByAuthId(
-                    profile.id)
+      logger.debug(`Looking for user auth id ${profile.id}`)
+      let user = await getUserByAuthId(profile.id)
 
       // If the user is null, register the user in the database
       if (user === null) {
+        logger.debug(`User ${profile.id} not found in the DB. Inserting a new user ...`)
         user = await registerUser(
           profile.id,
           profile.email,
@@ -45,21 +46,23 @@ passport.use(
           profile._json.family_name,
           [profile.email]
         )
-
-        logger.debug(`Registered User ${JSON.stringify(user)}`)
-      } else {
-        logger.debug(`Found User ${JSON.stringify(user)} in Database`)
       }
 
       if (user) {
+        logger.debug(`User ${user.id} authenticated!`)
         // persisting dbId value with profile
         profile.dbId = user.id
+        // We fetch the avatar and save it in the profile
+        profile['useGravatar'] = user.useGravatar
+        profile['gravatarURL'] = getGravatars(profile['email'])
+        if (user.image) {
+          profile['avatarURL'] = user.image
+        }
         done(null, profile)
       } else {
         done(null, false, { message: 'Cannot log in user.' })
       }
     } catch (error) {
-      logger.error(error)
       done(null, false)
     }
   }
@@ -93,10 +96,11 @@ export const resetKeycloakPassword = async (userId, newPassword) => {
 }
 
 export const registerTestUser = async () => {
-  let user = await getUserByEmail(
+  const user = await getUserByEmail(
     process.env.DUMMY_USER_EMAIL
   )
 
+  logger.debug(`Test User found ${JSON.stringify(user)}`)
   // If the user is null, register the user in the database
   if (user === null && process.env.USE_KEYCLOAK === 'true') {
 

@@ -3,12 +3,15 @@ query getAvatarAsset (
 ) {
   users(where: {id: {_eq: $dbId}}) {
     id
-    assets(where: {asset_type: {_eq: avatar}}) {
+    useGravatar
+    avatar {
       id
-      files(order_by: {uploadedDatetime: desc}, where: {fileobject: {id: {_is_null: false}}}) {
+      files(where: {fileobject: {id: {_is_null: false}}}) {
+        name
         uploadedDatetime
         fileobject {
           location
+          size
           md5
           sha1
           sha256

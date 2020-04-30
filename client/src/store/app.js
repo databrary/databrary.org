@@ -11,6 +11,9 @@ const state = {
   avatar: null,
   displayFullName: null,
   isBackendDisconnected: false,
+  useGravatar: null,
+  avatarURL: null,
+  gravatarURL: null,
   version: 1
 }
 
@@ -24,20 +27,36 @@ const mutations = {
 
 const actions = {
   ...make.actions(state),
-
+  updateAvatar ({ commit, getters }, isGravatar) {
+    if (isGravatar) {
+      commit('avatar', getters.gravatarURL.large)
+      commit('thumbnail', getters.gravatarURL.thumbnail)
+    } else {
+      commit('avatar', getters.avatarURL.large)
+      commit('thumbnail', getters.avatarURL.thumbnail)
+    }
+  },
   async syncSessionAsync ({ commit }) {
     const response = await axios({ url: '/session', method: 'GET' })
-    console.log(`Session response`, JSON.stringify(response.data))
-    if (_.get(response.data, 'dbId') !== undefined) {
+    if (_.get(response.data, 'dbId')) {
+      console.log(`Session response`, JSON.stringify(response.data))
       commit('isLoggedIn', true)
       commit('dbId', response.data.dbId)
-      commit('thumbnail', response.data.avatarURL.thumbnail)
-      commit('avatar', response.data.avatarURL.large)
+      commit('gravatarURL', response.data.gravatarURL)
+      commit('useGravatar', response.data.useGravatar === true)
+      commit('avatar', response.data.useGravatar === true
+        ? response.data.gravatarURL.large : response.data.avatarURL.large)
+      commit('thumbnail', response.data.useGravatar === true
+        ? response.data.gravatarURL.thumbnail : response.data.avatarURL.thumbnail)
+      commit('avatarURL', response.data.avatarURL)
     } else {
       commit('isLoggedIn', false)
       commit('dbId', null)
-      commit('thumbnail', null)
+      commit('useGravatar', false)
       commit('avatar', null)
+      commit('thumbnail', null)
+      commit('gravatarURL', null)
+      commit('avatarURL', null)
     }
   }
 }
