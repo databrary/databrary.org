@@ -13,3 +13,5 @@ server/.env
 server/sessions
 client/.quasar
 **/tmp/
+client/src/store/store-flag.d.ts
+.env
