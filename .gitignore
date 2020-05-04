@@ -7,11 +7,10 @@ scratch
 .favorites.json
 dist
 NOTES.md
-server/config/*
-server/!config/default.*
-server/.env
+
 server/sessions
 client/.quasar
 **/tmp/
 client/src/store/store-flag.d.ts
 .env
+**/prod.env
