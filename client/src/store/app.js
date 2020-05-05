@@ -37,26 +37,26 @@ const actions = {
     }
   },
   async syncSessionAsync ({ commit }) {
-    const response = await axios({ url: '/session', method: 'GET' })
-    if (_.get(response.data, 'dbId')) {
-      console.log(`Session response`, JSON.stringify(response.data))
+    const { data } = await axios({ url: '/session', method: 'GET' })
+    if (_.get(data, 'dbId')) {
+      console.log(`Session response`, JSON.stringify(data))
       commit('isLoggedIn', true)
-      commit('dbId', response.data.dbId)
-      commit('gravatarURL', response.data.gravatarURL)
-      commit('useGravatar', response.data.useGravatar === true)
-      commit('avatar', response.data.useGravatar === true
-        ? response.data.gravatarURL.large : response.data.avatarURL.large)
-      commit('thumbnail', response.data.useGravatar === true
-        ? response.data.gravatarURL.thumbnail : response.data.avatarURL.thumbnail)
-      commit('avatarURL', response.data.avatarURL)
+      commit('dbId', data.dbId)
+      commit('useGravatar', data.useGravatar === true)
+      commit('avatar', data.useGravatar === true
+        ? data.gravatarURL.large : data.avatarURL.large)
+      commit('thumbnail', data.useGravatar === true
+        ? data.gravatarURL.thumbnail : data.avatarURL.thumbnail)
+      commit('avatarURL', data.avatarURL)
+      commit('gravatarURL', data.gravatarURL)
     } else {
       commit('isLoggedIn', false)
       commit('dbId', null)
       commit('useGravatar', false)
       commit('avatar', null)
       commit('thumbnail', null)
-      commit('gravatarURL', null)
       commit('avatarURL', null)
+      commit('gravatarURL', null)
     }
   }
 }

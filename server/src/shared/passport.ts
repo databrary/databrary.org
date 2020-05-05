@@ -2,8 +2,8 @@ import passport from 'passport'
 import KcAdminClient from 'keycloak-admin'
 import { Request, Response, NextFunction } from 'express'
 import { Strategy as KeycloakStrategy } from 'passport-keycloak-oauth2-oidc'
-import { getUserByAuthId, getUserByEmail, registerUser, getAvatarAsset } from '@units'
-import { getGravatars, getAvatars } from '@utils'
+import { getUserByAuthId, getUserByEmail, registerUser } from '@units'
+import { getGravatars } from '@utils'
 import { logger } from '@shared'
 
 const kcAdminClient = new KcAdminClient({
@@ -44,7 +44,8 @@ passport.use(
           profile.email,
           profile._json.given_name,
           profile._json.family_name,
-          [profile.email]
+          [profile.email],
+          getGravatars(profile.email)
         )
       }
 
@@ -54,7 +55,7 @@ passport.use(
         profile.dbId = user.id
         // We fetch the avatar and save it in the profile
         profile['useGravatar'] = user.useGravatar
-        profile['gravatarURL'] = getGravatars(profile['email'])
+        profile['gravatarURL'] = user.gravatar
         if (user.image) {
           profile['avatarURL'] = user.image
         }
@@ -146,7 +147,8 @@ export const loginTestUser = async () => {
         process.env.DUMMY_USER_EMAIL,
         'Test',
         'Testerson',
-        [process.env.DUMMY_USER_EMAIL]
+        [process.env.DUMMY_USER_EMAIL],
+        getGravatars(process.env.DUMMY_USER_EMAIL)
       )
 
       logger.debug(`Registered Dummy User ${JSON.stringify(user)}`)

@@ -5,7 +5,8 @@ mutation registerUser($authServerId: String!,
                         $middleName: String,
                         $displayFullName: String,
                         $emails: jsonb,
-                        $urls: jsonb) {
+                        $urls: jsonb,
+                        $gravatar: jsonb) {
     insert_users(objects: {
       authServerId: $authServerId,
       emailPrimary: $emailPrimary,
@@ -14,7 +15,8 @@ mutation registerUser($authServerId: String!,
       additionalName: $middleName,
       displayFullName: $displayFullName,
       emails: $emails,
-      urls: $urls
+      urls: $urls,
+      gravatar: $gravatar
     }) {
       returning {
         id
@@ -23,6 +25,7 @@ mutation registerUser($authServerId: String!,
         displayFullName
         useGravatar
         image
+        gravatar
       }
     }
   }
