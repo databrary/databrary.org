@@ -1,8 +1,8 @@
 import * as _ from 'lodash'
 import { Request, Response, NextFunction } from 'express'
-import { uuid } from '@utils'
-import { getUserByAuthId } from '@units'
-import { logger, loginTestUser, registerTestUser, resetKeycloakPassword } from '@shared'
+import { uuid } from '../utils'
+import { getUserByAuthId } from '../units'
+import { logger, loginTestUser, registerTestUser, resetKeycloakPassword } from '../shared'
 import { check, validationResult } from 'express-validator'
 import { dev } from '../config'
 

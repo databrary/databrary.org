@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import mime from 'mime-types'
 import { resolve } from 'path'
-import { logger } from '@shared'
+import { logger } from '../shared'
 import { insertFile,
           getFile,
           insertFileObject,
@@ -9,7 +9,7 @@ import { insertFile,
           updateFile,
           canAccessAsset,
           updateUserAvatar
-         } from '@units'
+         } from '../units'
 import { copyObject,
           getObject,
           IFileInfo,
@@ -17,7 +17,7 @@ import { copyObject,
           hashAndSizeFile,
           fileExists,
           resizePicture,
-          uploadObject } from '@utils'
+          uploadObject } from '../utils'
 
 const AVATAR_SIZES = [32, 400]
 

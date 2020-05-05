@@ -2,9 +2,9 @@ import passport from 'passport'
 import KcAdminClient from 'keycloak-admin'
 import { Request, Response, NextFunction } from 'express'
 import { Strategy as KeycloakStrategy } from 'passport-keycloak-oauth2-oidc'
-import { getUserByAuthId, getUserByEmail, registerUser } from '@units'
-import { getGravatars } from '@utils'
-import { logger } from '@shared'
+import { getUserByAuthId, getUserByEmail, registerUser } from '../units'
+import { getGravatars } from '../utils'
+import { logger } from '../shared'
 
 const kcAdminClient = new KcAdminClient({
   baseUrl: `http://${process.env.KEYCLOAK_ENDPOINT}:${process.env.KEYCLOAK_PORT}/auth`,

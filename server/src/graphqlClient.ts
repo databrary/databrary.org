@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import gql from 'graphql-tag'
 import fs from 'fs-extra'
-import { createAdminClient } from '@utils'
+import { createAdminClient } from './utils'
 
 // Do not export the client admin, export only adminQuery and adminMutate
 const adminClient = createAdminClient()
