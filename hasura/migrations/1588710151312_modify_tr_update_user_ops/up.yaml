@@ -1,7 +1,10 @@
 - args:
     enable_manual: false
     headers: []
+    insert:
+      columns: '*'
     name: update_user
+    replace: true
     retry_conf:
       interval_sec: 10
       num_retries: 0
@@ -12,7 +15,6 @@
     update:
       columns:
       - useGravatar
-      - avatarId
       - emails
       - urls
       - additionalName
@@ -23,7 +25,7 @@
       - givenName
       - orcid
       - datetimeRegistered
-      - authServerId
-      - id
-    webhook: ELASTICSEARCH_WEBHOOK
+      - image
+      - gravatar
+    webhook_from_env: ELASTICSEARCH_WEBHOOK
   type: create_event_trigger

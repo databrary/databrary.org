@@ -58,34 +58,15 @@
         </q-card>
       </article>
       <article class="col-xs-12 col-sm-12 col-md-9">
-        <q-card square flat bordered class="q-mb-sm" v-for="n in 5" :key="n">
-          <q-card-section>
-            <router-link class="text-primary" :to="'search/' + n" exact>
-              <div class="text-h6">Result {{n}}</div>
-            </router-link>
-          </q-card-section>
-
-          <q-card-section>
-            <q-expansion-item
-              label-lines="2"
-              label="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-              incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-              exercitation ullamco laboris nisi ut aliquip"
-              caption="Admin, AdminSteiger, LisaTesla, Testarosa"
-            >
-              <q-card>
-                <q-card-section>
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                  Quidem, eius reprehenderit eos corrupti
-                </q-card-section>
-              </q-card>
-            </q-expansion-item>
-          </q-card-section>
-        </q-card>
+        <div class="q-mb-sm" v-for="(doc, index) in getData" :key="index">
+          <ProfileCard v-if="doc.index === 'databrary-users'" :search=search :profile=doc />
+          <ProjectCard v-else :project=doc />
+        </div>
         <q-pagination
+          v-if="data.length > 0"
           class="justify-content-center"
-          v-model="currentPage"
-          :max="5"
+          v-model="page"
+          :max="Math.ceil(data.length/cardPerPage)"
           :input="true"
         >
         </q-pagination>
@@ -95,6 +76,11 @@
 </template>
 
 <script>
+import ProjectCard from '../../components/search/ProjectCard'
+import ProfileCard from '../../components/search/ProfileCard'
+import _ from 'lodash'
+import axios from 'axios'
+
 export default {
   name: 'PageSearch',
   data () {
@@ -103,14 +89,23 @@ export default {
       startDate: null,
       endDate: null,
       tags: null,
-      currentPage: 1
+      data: [],
+      page: 1,
+      cardPerPage: 10
     }
+  },
+  components: {
+    ProjectCard,
+    ProfileCard
   },
   mounted () {
     this.search = this.$route.query.q
   },
   watch: {
-    search () {
+    async search () {
+      await this.esSearch()
+      // Note: No need to push the search as a query string
+      // It will call the backend (syncSession) after each event in search input
       this.$router.push({
         path: 'search',
         query: { ...this.$route.query, q: this.search }
@@ -136,14 +131,26 @@ export default {
     }
   },
   computed: {
-    // a computed getter
-    // queryString: function () {
-    //   return {
-    //     q: this.search,
-    //   }
-    // }
+    getData () {
+      return this.data.slice((this.page - 1) * this.cardPerPage, (this.page - 1) * this.cardPerPage + this.cardPerPage)
+    }
+  },
+  methods: {
+    async esSearch () {
+      try {
+        this.data = []
+
+        if (_.isEmpty(this.search)) return
+
+        const { data } = await axios({ url: '/search', method: 'POST', data: { search: this.search } })
+
+        if (!_.isEmpty(data)) {
+          this.data = data
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
   }
 }
 </script>
-<style>
-</style>
