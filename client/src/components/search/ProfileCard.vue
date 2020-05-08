@@ -1,43 +1,35 @@
 <template>
     <q-card class="col" square flat bordered>
-        <q-item>
-            <q-item-section avatar>
+                                                                                                                                                                                                                                                                <q-card-section horizontal>
+            <q-card-section class="col-sm-1 col-xs-2">
                 <q-avatar v-if="profile.useGravatar">
                     <img :src="profile.gravatar.large">
                 </q-avatar>
                 <q-avatar v-else>
                     <img :src="profile.image.large">
                 </q-avatar>
-            </q-item-section>
-
-            <q-item-section>
-                <q-item-label>{{ fullName }}</q-item-label>
-            </q-item-section>
-        </q-item>
-        <q-separator />
-
-        <q-card-section v-if="profile.bio !== null" horizontal>
-            <q-card-section>
-                {{ profile.bio }}
+            </q-card-section>
+            <q-card-section class="col-sm-11 col-xs-10">
+                <div>{{ fullName }}</div>
+                <div class="q-mt-xs" style="color: gray">Institution placeholder</div>
+                <div class="q-mt-xs" v-if="profile.bio !== null">{{ profile.bio }}</div>
             </q-card-section>
         </q-card-section>
     </q-card>
 </template>
 <script>
+import _ from 'lodash'
+
 export default {
   name: 'ProfileCard',
   props: [ 'search', 'profile' ],
-  data () {
-    return {
-      queries: ['Reda']
-    }
-  },
   computed: {
     fullName: function () {
       if (!this.profile.displayFullName.toLowerCase().includes(this.search.toLowerCase())) {
-        return `${this.profile.givenName} ${this.profile.familyName}${this.profile.additionalName ? `. ${this.profile.additionalName}.` : ''}`
+        const fullName = `${this.profile.givenName} ${this.profile.familyName}${this.profile.additionalName ? `. ${this.profile.additionalName}.` : ''}`
+        return _.startCase(fullName)
       }
-      return this.profile.displayFullName
+      return _.startCase(this.profile.displayFullName)
     }
   }
 }
