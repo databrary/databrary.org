@@ -1,6 +1,5 @@
 <template>
-    <q-card class="col" square flat bordered>
-                                                                                                                                                                                                                                                                <q-card-section horizontal>
+    <q-card class="col" square flat bordered>                                                                                                                                                                                                                                                  <q-card-section horizontal>
             <q-card-section class="col-sm-1 col-xs-2">
                 <q-avatar v-if="profile.useGravatar">
                     <img :src="profile.gravatar.large">

@@ -58,18 +58,25 @@
         </q-card>
       </article>
       <article class="col-xs-12 col-sm-12 col-md-9">
-        <div class="q-mb-sm" v-for="(doc, index) in getData" :key="index">
-          <ProfileCard v-if="doc.index === 'databrary-users'" :search=search :profile=doc />
-          <ProjectCard v-else :project=doc />
+        <div v-if="loading" class="flex">
+          <q-inner-loading :showing="loading">
+            <q-spinner size="50px" color="primary" />
+          </q-inner-loading>
         </div>
-        <q-pagination
-          v-if="data.length > 0"
-          class="justify-content-center"
-          v-model="page"
-          :max="Math.ceil(data.length/cardPerPage)"
-          :input="true"
-        >
-        </q-pagination>
+        <div v-else >
+          <div class="q-mb-sm" v-for="(doc, index) in getData" :key="index">
+            <ProfileCard v-if="doc.index === 'databrary-users'" :search=search :profile=doc />
+            <ProjectCard v-else :project=doc />
+          </div>
+          <q-pagination
+            v-if="data.length > 0"
+            class="justify-content-center"
+            v-model="page"
+            :max="Math.ceil(data.length/cardPerPage)"
+            :input="true"
+          >
+          </q-pagination>
+        </div>
       </article>
     </section>
   </q-page>
@@ -91,7 +98,8 @@ export default {
       tags: null,
       data: [],
       page: 1,
-      cardPerPage: 10
+      cardPerPage: 10,
+      loading: false
     }
   },
   components: {
@@ -139,6 +147,7 @@ export default {
     async esSearch () {
       try {
         this.data = []
+        this.loading = true
 
         if (_.isEmpty(this.search)) return
 
@@ -149,8 +158,16 @@ export default {
         }
       } catch (error) {
         console.error(error)
+      } finally {
+        // this.loading = false
+        // TODO(Reda): Remove this timeout when
+        setTimeout(() => {
+          this.loading = false
+        }, 1000)
       }
     }
   }
 }
 </script>
+<style>
+</style>
