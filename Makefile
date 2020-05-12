@@ -43,6 +43,8 @@ else
 	@echo "Running production server"
 	cd server && npm run dev && cd ..
 endif
+server_nest:
+	cd server-nest && npm run start:dev && cd ..
 client:
 	cd client && npm run dev && cd ..
 migrate:

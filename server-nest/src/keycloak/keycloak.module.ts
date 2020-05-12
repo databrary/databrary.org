@@ -13,8 +13,8 @@ const keycloakStrategyConfig = {
     publicClient: 'false',
     clientSecret: config.get('KEYCLOAK_CLIENT_SECRET'),
     sslRequired: 'none',
-    authServerURL: config.get('KEYCLOAK_AUTH_SERVER_URL'),
-    callbackURL: config.get('KEYCLOAK_CALLBACK_URL')
+    authServerURL: config.get('KEYCLOAK_SERVER_URL'),
+    callbackURL: config.get('KEYCLOAK_AUTH_CALLBACK_URL')
   }),
   inject: [ConfigService]
 }
