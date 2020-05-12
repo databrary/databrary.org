@@ -26,5 +26,5 @@
       - datetimeRegistered
       - authServerId
       - id
-    webhook: UPDATE_USER_WEBHOOK
+    webhook: ELASTICSEARCH_WEBHOOK
   type: create_event_trigger

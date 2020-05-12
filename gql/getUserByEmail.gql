@@ -10,5 +10,8 @@
       authServerId
       emailPrimary
       displayFullName
+      useGravatar
+      image
+      gravatar
     }
   }

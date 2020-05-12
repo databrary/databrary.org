@@ -1,5 +1,5 @@
 import boss from './config'
-import { logger } from '@shared'
+import { logger } from '../shared'
 
 async function runUnit (params) {
   logger.debug('Running', params.data)

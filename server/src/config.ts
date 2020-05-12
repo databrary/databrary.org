@@ -1,4 +1,5 @@
 import { resolve } from 'path'
+import { existsSync } from 'fs'
 import { config } from 'dotenv'
 import commandLineArgs from 'command-line-args'
 
@@ -12,8 +13,18 @@ const options = commandLineArgs([
   }
 ])
 
+let result
+
+if (existsSync('../.env')) {
+  console.log('Using .env file to supply config environment variables')
+  config({ path: resolve(__dirname, '../../.env') })
+} else {
+  console.log('Using .env.default file to supply config environment variables')
+  config({ path: resolve(__dirname, '../../.env.default') }) // you can delete this after you create your own .env file!
+}
+
 // Set docker env file
-let result = config({
+result = config({
   path: resolve(__dirname, '../../.env')
 })
 

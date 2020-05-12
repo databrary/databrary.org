@@ -1,7 +1,7 @@
 import crypto from 'crypto'
 import _ from 'lodash'
 import sharp from 'sharp'
-import { getPresignedGetObject } from '@utils'
+import { getPresignedGetObject } from '../utils'
 
 // TODO(Reda): Remove this uuid and use npm package
 export function uuid () {

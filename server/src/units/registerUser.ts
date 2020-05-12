@@ -1,7 +1,7 @@
 import { adminMutate } from '../graphqlClient'
 import { gql } from 'apollo-server-express'
 
-export async function registerUser (authServerId: string, emailPrimary: string, firstName: string, lastName: string, emails: string[], middleName: string = '') {
+export async function registerUser (authServerId: string, emailPrimary: string, firstName: string, lastName: string, emails: string[], gravatar: Object,middleName: string = '') {
   const displayFullName = `${firstName} ${lastName}`
   const urls = []
   const response = await adminMutate(
@@ -13,7 +13,8 @@ export async function registerUser (authServerId: string, emailPrimary: string, 
       middleName,
       displayFullName,
       emails,
-      urls
+      urls,
+      gravatar
     }
   )
   if (!response) {

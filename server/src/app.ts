@@ -13,8 +13,9 @@ import redisStore from 'connect-redis'
 import * as authController from './controllers/auth'
 import * as webhooksController from './controllers/webhooks'
 import * as uploadController from './controllers/upload'
+import * as searchController from './controllers/search'
 
-import { stream, isAuthenticated } from '@shared'
+import { stream, isAuthenticated } from './shared'
 
 const app = express()
 
@@ -24,7 +25,7 @@ app.set('port', process.env.APP_PORT)
 // Set App cors
 app.use(cors({
   credentials: true,
-  origin: "http://localhost:8000"
+  origin: 'http://localhost:8000'
 }))
 // app.use(cors())
 
@@ -82,12 +83,14 @@ app.get('/register', authController.register)
 app.get('/logout', authController.logout)
 app.post('/password', isAuthenticated, authController.resetPassword)
 
+app.post('/search', isAuthenticated, searchController.search)
+
 // Upload routes
 app.post('/sign-upload', isAuthenticated, uploadController.signUpload)
 
 // Webhooks routes
 app.get('/auth/webhook', isAuthenticated, webhooksController.authWebhook)
-app.post('/user/webhook', webhooksController.userWebhook)
+app.post('/es/webhook', webhooksController.esWebhook)
 app.post('/webhooks/minio', webhooksController.minioWebhook)
 
 app.use('/', proxy(process.env.APP_URL_PROXY))

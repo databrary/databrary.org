@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
-import { logger } from '@shared'
-import { getMinioClient, bucketExists } from '@utils'
-import { insertFile, insertAvatarAsset, updateUserAvatar } from '@units'
+import { logger } from '../shared'
+import { getMinioClient, bucketExists } from '../utils'
+import { insertFile, insertAvatarAsset, updateUserAvatar } from '../units'
 
 export const signUpload = async (req: Request, res: Response) => {
   try {

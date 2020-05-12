@@ -3,8 +3,8 @@ import crypto from 'crypto'
 import fs from 'fs'
 import path from 'path'
 import { Client, CopyConditions } from 'minio'
-import { logger } from '@shared'
-import { IFileInfo } from '@utils'
+import { logger } from '../shared'
+import { IFileInfo } from '../utils'
 
 const minioClient = new Client({
   endPoint: process.env.MINIO_ENDPOINT,
@@ -133,7 +133,7 @@ export async function copyObject (destinationBucket: string, sha256: string, sou
   return true
 }
 
-export async function getPresignedGetObject(bucket: string, sha256: string) {
+export async function getPresignedGetObject (bucket: string, sha256: string) {
   return new Promise((resolve, reject) => {
     minioClient.presignedGetObject(bucket, sha256, (err, url) => {
       if (err) {

@@ -1,5 +1,5 @@
 import app from './app'
-import { logger } from '@shared'
+import { logger } from './shared'
 import { setup as queueSetup } from './queue'
 
 async function main () {
