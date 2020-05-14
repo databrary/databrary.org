@@ -1,9 +1,10 @@
 import { Module, Injectable } from '@nestjs/common';
 import { KeycloakService } from './keycloak.service';
 import { KeycloakController } from './keycloak.controller';
-import { KeycloakStrategy } from './keycloak.strategy'
+import { KeycloakStrategy } from './keycloak.strategy';
+import { KeycloakSerializer } from './keycloak.serializer';
 import { ConfigService } from '@nestjs/config';
-
+import { PassportModule } from '@nestjs/passport'
 
 const keycloakStrategyConfig = {
   provide: 'KEYCLOAK_STRATEGY_CONFIG',
@@ -20,9 +21,11 @@ const keycloakStrategyConfig = {
 }
 
 @Module({
+  imports: [PassportModule],
   providers: [
     KeycloakService,
     KeycloakStrategy,
+    KeycloakSerializer,
     keycloakStrategyConfig
   ],
   controllers: [KeycloakController]
