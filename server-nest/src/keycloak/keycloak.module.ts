@@ -1,4 +1,4 @@
-import { Module, Injectable } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { KeycloakService } from './keycloak.service';
 import { KeycloakController } from './keycloak.controller';
 import { KeycloakStrategy } from './keycloak.strategy';
