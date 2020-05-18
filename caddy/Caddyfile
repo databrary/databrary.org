@@ -13,5 +13,5 @@ localhost
 }
 
 
-reverse_proxy @server host.docker.internal:8000
-reverse_proxy @client host.docker.internal:8080
+reverse_proxy @server {$DOCKER_HOST_IP}:8000
+reverse_proxy @client {$DOCKER_HOST_IP}:8080
