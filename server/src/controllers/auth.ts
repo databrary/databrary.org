@@ -4,7 +4,6 @@ import { uuid } from '../utils'
 import { getUserByAuthId } from '../units'
 import { logger, loginTestUser, registerTestUser, resetKeycloakPassword } from '../shared'
 import { check, validationResult } from 'express-validator'
-import { dev } from '../config'
 
 const keycloakRealm = process.env.KEYCLOAK_REALM
 const keycloakEndpoint = process.env.KEYCLOAK_ENDPOINT
@@ -14,7 +13,7 @@ const keycloak = process.env.USE_KEYCLOAK === 'true'
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
     if (keycloak) {
-      if (dev) {
+      if (process.env.REGISTER_TEST_USER === 'true') {
         await registerTestUser()
       }
 

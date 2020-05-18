@@ -5,6 +5,7 @@ import { KeycloakStrategy } from './keycloak.strategy';
 import { KeycloakSerializer } from './keycloak.serializer';
 import { ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport'
+import {Session} from '../redis-session/session.module'
 
 const keycloakStrategyConfig = {
   provide: 'KEYCLOAK_STRATEGY_CONFIG',
@@ -21,7 +22,7 @@ const keycloakStrategyConfig = {
 }
 
 @Module({
-  imports: [PassportModule],
+  imports: [PassportModule, Session],
   providers: [
     KeycloakService,
     KeycloakStrategy,

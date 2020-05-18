@@ -28,8 +28,8 @@ passport.use(
     publicClient: 'false',
     clientSecret: process.env.KEYCLOAK_CLIENT_SECRET,
     sslRequired: 'none',
-    authServerURL: process.env.AUTH_SERVER_URL,
-    callbackURL: process.env.AUTH_CALLBACK_URL
+    authServerURL: process.env.KEYCLOAK_SERVER_URL,
+    callbackURL: process.env.KEYCLOAK_CALLBACK_URL
   }, async (accesseToken, refreshToken, profile, done) => {
     // register user if found in keycloak and not found in db
     try {

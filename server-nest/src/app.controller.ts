@@ -1,7 +1,6 @@
 import { Controller, Get, Request, UseGuards, Session, Redirect } from '@nestjs/common';
 import { AppService } from './app.service';
-import { AuthenticatedGuard } from './common/guards/authenticated.guard';
-import { KeycloakAuthGuard } from './common/guards/login.guard'
+import { AuthGuard } from '@nestjs/passport'
 
 @Controller()
 export class AppController {
@@ -9,21 +8,16 @@ export class AppController {
     private readonly appService: AppService
   ) {}
 
-  @Get()
-  getHello(@Request() req, @Session() sess ) {
-    return { sess, passport: req.user } // Testing session 
-  }
-
-  @UseGuards(KeycloakAuthGuard)
+  @UseGuards(AuthGuard('keycloak'))
   @Get('login')
-  async login(@Request() req) {
-    return req.user; // Testing user
+  @Redirect('/')
+  async login() {
   }
 
-  @UseGuards(AuthenticatedGuard)
+  // @UseGuards(AuthenticatedGuard)
   @Get('session')
-  session(@Request() req) {
-    return req.user;
+  session(@Session() session) {
+    return session
   }
 
   @Get('logout')
