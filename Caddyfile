@@ -1,0 +1,17 @@
+localhost
+
+@server {
+    path /login
+    path /logout
+    path /session
+    path /keycloak/*
+    path /minio/*
+}
+
+@client {
+    path /*
+}
+
+
+reverse_proxy @server host.docker.internal:8000
+reverse_proxy @client host.docker.internal:8080
