@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { KeycloakService } from './keycloak.service';
 import { KeycloakController } from './keycloak.controller';
 import { KeycloakStrategy } from './keycloak.strategy';
-import { KeycloakSerializer } from './keycloak.serializer';
 import { ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport'
 import {Session} from '../redis-session/session.module'
@@ -26,7 +25,6 @@ const keycloakStrategyConfig = {
   providers: [
     KeycloakService,
     KeycloakStrategy,
-    KeycloakSerializer,
     keycloakStrategyConfig
   ],
   controllers: [KeycloakController]
