@@ -1,23 +1,27 @@
-import { Controller, Get, Request, UseGuards, Session, Redirect } from '@nestjs/common';
-import { AppService } from './app.service';
-import { AuthGuard } from '@nestjs/passport'
+import { Controller, Get, UseGuards, Session, Redirect, Res } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { isEmpty } from 'lodash';
 
 @Controller()
 export class AppController {
-  constructor(
-    private readonly appService: AppService
-  ) {}
+  constructor() {}
 
   @UseGuards(AuthGuard('keycloak'))
   @Get('login')
   @Redirect('/')
   async login() {
+    return;
   }
 
-  // @UseGuards(AuthenticatedGuard)
+  @Get('register')
+  async register(@Res() res, @Session() { session: { user }}) {
+    if (!isEmpty(user)) return res.redirect('/');
+    res.redirect('/keycloak/register');
+  }
+
   @Get('session')
-  session(@Session() session) {
-    return session
+  session(@Session() { session: { user }}) {
+    return user;
   }
 
   @Get('logout')
