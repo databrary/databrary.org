@@ -26,9 +26,17 @@
     "@nestjs/core": "^7.0.0",
     "@nestjs/passport": "^7.0.0",
     "@nestjs/platform-express": "^7.0.0",
+    "apollo-cache-inmemory": "^1.6.6",
+    "apollo-client": "^2.6.10",
+    "apollo-link-http": "^1.5.17",
     "connect-redis": "^4.0.4",
+    "cross-fetch": "^3.0.4",
     "express-http-proxy": "^1.6.0",
     "express-session": "^1.17.1",
+    "fs-extra": "^9.0.0",
+    "graphql": "^15.0.0",
+    "graphql-tag": "^2.10.3",
+    "lodash": "^4.17.15",
     "nestjs-redis": "^1.2.7",
     "nestjs-session": "^1.0.1",
     "passport": "^0.4.1",
@@ -36,7 +44,8 @@
     "redis": "^3.0.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^6.5.4"
+    "rxjs": "^6.5.4",
+    "uuid": "^8.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.0.0",
