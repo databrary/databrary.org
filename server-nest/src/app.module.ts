@@ -10,7 +10,7 @@ import { KeycloakModule } from './keycloak/keycloak.module'
       envFilePath: ['../.env'],
       isGlobal: true,
     }),
-    KeycloakModule,
+    KeycloakModule
   ],
   controllers: [AppController],
   providers: [AppService],

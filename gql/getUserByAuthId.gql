@@ -13,5 +13,12 @@
       useGravatar
       image
       gravatar
+      urls
+      emails
+      additionalName
+      familyName
+      givenName
+      bio
+      orcid
     }
   }

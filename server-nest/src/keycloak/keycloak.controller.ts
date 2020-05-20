@@ -1,6 +1,5 @@
-import { Controller, Get, UseGuards, Redirect, Request, Res, Session} from '@nestjs/common';
+import { Controller, Get, UseGuards, Redirect, Request, Res, Session } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { KeycloakService } from './keycloak.service';
 import { AuthGuard } from '@nestjs/passport';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -11,7 +10,6 @@ export class KeycloakController {
   private readonly endpoint = this.configService.get('KEYCLOAK_ENDPOINT');
 
   constructor(
-    private readonly keycloakService: KeycloakService,
     private readonly configService: ConfigService
   ) {}
 
