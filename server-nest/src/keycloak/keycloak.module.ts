@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { PassportModule } from '@nestjs/passport';
+
 import { KeycloakService } from './keycloak.service';
 import { KeycloakController } from './keycloak.controller';
 import { KeycloakStrategy } from './keycloak.strategy';
-import { ConfigService } from '@nestjs/config';
-import { PassportModule } from '@nestjs/passport'
-import { Session } from '../redis-session/session.module'
-import { UserModule } from 'src/users/user.module'
+
+import { Session } from '../redis-session/session.module';
+import { UserModule } from 'src/users/user.module';
 
 const keycloakStrategyConfig = {
   provide: 'KEYCLOAK_STRATEGY_CONFIG',

@@ -1,8 +1,10 @@
-import { Strategy } from 'passport-keycloak-oauth2-oidc';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, Inject } from '@nestjs/common';
-import { UserService } from 'src/users/user.service'
-import { UserDTO } from 'src/dtos/user.dto'
+
+import { Strategy } from 'passport-keycloak-oauth2-oidc';
+
+import { UserService } from 'src/users/user.service';
+import { UserDTO } from 'src/dtos/user.dto';
 
 @Injectable()
 export class KeycloakStrategy extends PassportStrategy(Strategy, 'keycloak') {

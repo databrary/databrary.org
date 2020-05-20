@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+
 import { GqlClientService } from 'src/gqlClient/gqlClient.service';
+import { UserDTO } from 'src/dtos/user.dto';
 
 import { isEmpty } from 'lodash';
-import { UserDTO } from 'src/dtos/user.dto'
 
 @Injectable()
 export class UserService {

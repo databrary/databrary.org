@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
+
 import { UserService } from './user.service';
-import { GqlClientModule } from 'src/gqlClient/gqlClient.module'
+import { GqlClientModule } from 'src/gqlClient/gqlClient.module';
 
 @Module({
   imports: [GqlClientModule],

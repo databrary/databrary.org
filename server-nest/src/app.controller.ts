@@ -1,7 +1,9 @@
 import { Controller, Get, UseGuards, Session, Redirect, Res, ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+
+import { UserDTO } from './dtos/user.dto';
+
 import { isEmpty } from 'lodash';
-import { UserDTO } from './dtos/user.dto'
 
 @Controller()
 export class AppController {

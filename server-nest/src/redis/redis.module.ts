@@ -1,7 +1,8 @@
 
-import { DynamicModule } from '@nestjs/common'
-import { RedisModule, RedisModuleOptions } from 'nestjs-redis'
-import { ConfigService } from '@nestjs/config'
+import { DynamicModule } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
+import { RedisModule, RedisModuleOptions } from 'nestjs-redis';
 
 export const Redis: DynamicModule = RedisModule.forRootAsync({
   inject: [ConfigService],
