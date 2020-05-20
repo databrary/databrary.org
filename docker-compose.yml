@@ -93,11 +93,13 @@ services:
   
   caddy:
     image: caddy:2.0.0-alpine
+    environment:
+      DOCKER_HOST_IP: ${DOCKER_HOST_IP}
     ports:
       - 80:80
       - 443:443
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
 
 volumes:
   minio_events:
