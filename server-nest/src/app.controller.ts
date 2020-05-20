@@ -1,5 +1,8 @@
-import { Controller, Get, UseGuards, Session, Redirect, Res } from '@nestjs/common';
+import { Controller, Get, UseGuards, Session, Redirect, Res, ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+
+import { UserDTO } from './dtos/user.dto';
+
 import { isEmpty } from 'lodash';
 
 @Controller()
@@ -14,14 +17,14 @@ export class AppController {
   }
 
   @Get('register')
-  async register(@Res() res, @Session() { session: { user }}) {
-    if (!isEmpty(user)) return res.redirect('/');
-    res.redirect('/keycloak/register');
+  async register(@Res() res, @Session() { user }) {
+    return isEmpty(user) ? res.redirect('/keycloak/register') : res.redirect('/');
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get('session')
-  session(@Session() { session: { user }}) {
-    return user;
+  session(@Session() { user }) : UserDTO {
+    return new UserDTO(user);
   }
 
   @Get('logout')

@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 
 import { ApolloClient, FetchPolicy } from 'apollo-client';
 import { createHttpLink } from 'apollo-link-http';
-import { InMemoryCache } from 'apollo-cache-inmemory';
+import { InMemoryCache, NormalizedCacheObject } from 'apollo-cache-inmemory';
 
 import { readFile } from 'fs-extra';
 import { first, values } from 'lodash';
@@ -13,11 +13,11 @@ import gql from 'graphql-tag';
 
 @Injectable()
 export class GqlClientService {
-    private adminClient;
-    private cache = {};
-
     private readonly secret = this.configService.get('HASURA_SECRET');
     private readonly uri = this.configService.get('HASURA_URI');
+
+    private adminClient: ApolloClient<NormalizedCacheObject>;
+    private cache = {};
     
     constructor(private readonly configService: ConfigService) {
         this.adminClient = this.createAdminClient();
@@ -54,7 +54,7 @@ export class GqlClientService {
         }
         const response = await this.adminClient.query({
             query: this.cache[path],
-            fetchPolicy, // This is needed for fetching the last avatar
+            fetchPolicy,
             variables
         });
         return first(values(response.data));

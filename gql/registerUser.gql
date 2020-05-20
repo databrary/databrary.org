@@ -1,18 +1,20 @@
-mutation registerUser($authServerId: String!,
-                        $emailPrimary: String!,
-                        $firstName: String,
-                        $lastName: String,
-                        $middleName: String,
-                        $displayFullName: String,
-                        $emails: jsonb,
-                        $urls: jsonb,
-                        $gravatar: jsonb) {
+mutation registerUser(
+    $authServerId: String!,
+    $emailPrimary: String!,
+    $givenName: String,
+    $familyName: String,
+    $additionalName: String,
+    $displayFullName: String,
+    $emails: jsonb,
+    $urls: jsonb,
+    $gravatar: jsonb ) 
+  {
     insert_users(objects: {
       authServerId: $authServerId,
       emailPrimary: $emailPrimary,
-      givenName: $firstName,
-      familyName: $lastName,
-      additionalName: $middleName,
+      givenName: $givenName,
+      familyName: $familyName,
+      additionalName: $additionalName,
       displayFullName: $displayFullName,
       emails: $emails,
       urls: $urls,
@@ -26,6 +28,13 @@ mutation registerUser($authServerId: String!,
         useGravatar
         image
         gravatar
+        urls
+        emails
+        additionalName
+        familyName
+        givenName
+        bio
+        orcid
       }
     }
   }
