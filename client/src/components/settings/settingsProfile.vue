@@ -334,7 +334,7 @@ export default {
             additionalName: this.profile.additionalName,
             displayFullName: this.profile.displayFullName,
             bio: this.profile.bio,
-            urls: this.profile.urls,
+            urls: _.isEmpty(this.profile.urls) ? null : this.profile.urls,
             orcid: this.profile.orcid
           }
         })
@@ -349,11 +349,11 @@ export default {
     setProfile: function (newProfile) {
       this.profile.familyName = newProfile.familyName
       this.profile.givenName = newProfile.givenName
-      this.profile.additionalName = newProfile.additionalName
-      this.profile.orcid = newProfile.orcid
-      this.profile.bio = newProfile.bio
+      this.profile.additionalName = newProfile.additionalName || ''
+      this.profile.orcid = newProfile.orcid || ''
+      this.profile.bio = newProfile.bio || ''
       this.profile.displayFullName = newProfile.displayFullName
-      this.profile.urls = newProfile.urls
+      this.profile.urls = newProfile.urls || []
     }
   }
 }

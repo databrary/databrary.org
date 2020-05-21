@@ -30,7 +30,7 @@ export class UserDTO {
     bio: string;
 
     @Exclude()
-    urls: string[] = [];
+    urls: string[];
 
     @Exclude()
     orcid: string;

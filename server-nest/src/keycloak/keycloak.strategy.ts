@@ -29,7 +29,7 @@ export class KeycloakStrategy extends PassportStrategy(Strategy, 'keycloak') {
           }
         } = profile;
 
-        user = await this.userService.createUser( new UserDTO({
+        user = await this.userService.createUser(new UserDTO({
           authServerId,
           emailPrimary,
           givenName,
