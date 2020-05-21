@@ -4,6 +4,7 @@ localhost
     path /login
     path /logout
     path /session
+    path /register
     path /keycloak/*
     path /minio/*
 }
