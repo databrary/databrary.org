@@ -9,9 +9,14 @@ import { isEmpty } from 'lodash';
 export class AppController {
   constructor() {}
 
+  @Get('/')
+  @Redirect('https://localhost/')
+  async home() {
+    return;
+  }
+
   @UseGuards(AuthGuard('keycloak'))
   @Get('login')
-  @Redirect('/')
   async login() {
     return;
   }

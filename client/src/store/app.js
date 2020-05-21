@@ -38,17 +38,17 @@ const actions = {
   },
   async syncSessionAsync ({ commit }) {
     const { data } = await axios({ url: '/session', method: 'GET' })
-    if (_.get(data, 'dbId')) {
+    if (_.get(data, 'id')) {
       console.log(`Session response`, JSON.stringify(data))
       commit('isLoggedIn', true)
-      commit('dbId', data.dbId)
+      commit('dbId', data.id)
       commit('useGravatar', data.useGravatar === true)
       commit('avatar', data.useGravatar === true
-        ? data.gravatarURL.large : data.avatarURL.large)
+        ? data.gravatar.large : data.image.large)
       commit('thumbnail', data.useGravatar === true
-        ? data.gravatarURL.thumbnail : data.avatarURL.thumbnail)
-      commit('avatarURL', data.avatarURL)
-      commit('gravatarURL', data.gravatarURL)
+        ? data.gravatar.thumbnail : data.image.thumbnail)
+      commit('avatarURL', data.image)
+      commit('gravatarURL', data.gravatar)
     } else {
       commit('isLoggedIn', false)
       commit('dbId', null)
