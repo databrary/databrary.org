@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 import { KeycloakModule } from './keycloak/keycloak.module';
+import { WebhookModule } from './webhook/webhook.module';
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { KeycloakModule } from './keycloak/keycloak.module';
       envFilePath: ['../.env'],
       isGlobal: true,
     }),
-    KeycloakModule
+    KeycloakModule,
+    WebhookModule
   ],
   controllers: [AppController],
   providers: [AppService],
