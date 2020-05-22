@@ -1,16 +1,13 @@
 import { Controller, Get, UseGuards, Redirect, Request, Res, Session } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from '@nestjs/passport';
 import { v4 as uuidv4 } from 'uuid';
+import { KeycloakService } from './keycloak.service'
 
 @Controller('keycloak')
 export class KeycloakController {
-  private readonly realm = this.configService.get('KEYCLOAK_REALM');
-  private readonly port = this.configService.get('KEYCLOAK_PORT');
-  private readonly endpoint = this.configService.get('KEYCLOAK_ENDPOINT');
 
   constructor(
-    private readonly configService: ConfigService
+    private readonly keycloakService: KeycloakService
   ) {}
 
   @UseGuards(AuthGuard('keycloak'))
@@ -22,8 +19,7 @@ export class KeycloakController {
 
   @Get('register')
   async register(@Res() res) {
-    const callbackUri = this.configService.get('KEYCLOAK_AUTH_CALLBACK_URL');
-    const url = `http://${this.endpoint}:${this.port}/auth/realms/${this.realm}/protocol/openid-connect/registrations?client_id=client&state=${uuidv4()}response_mode=fragment&response_type=code&redirect_uri=${callbackUri}`;
+    const url = `${this.keycloakService.getBaseUri}/registrations?client_id=client&state=${uuidv4()}response_mode=fragment&response_type=code&redirect_uri=${this.keycloakService.getCallbackUri}`;
     res.redirect(url);
   }
   
@@ -39,7 +35,7 @@ export class KeycloakController {
   async logout(@Request() req, @Res() res, @Session() session) {
     session.user = {};
 
-    const url = `http://${this.endpoint}:${this.port}/auth/realms/${this.realm}/protocol/openid-connect/logout?redirect_uri=http://localhost:8000`;
+    const url = `${this.keycloakService.getBaseUri}/logout?redirect_uri=http://localhost:8000`;
     req.logout();
     res.redirect(url);
   }

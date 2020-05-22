@@ -93,7 +93,7 @@ export default {
       plugins: ['Webcam']
     }).use(AwsS3, {
       getUploadParameters (file) {
-        return fetch('/sign-upload', {
+        return fetch('/minio/sign-upload', {
           method: 'post',
           credentials: 'same-origin',
           headers: {
@@ -113,7 +113,11 @@ export default {
             method: data.method,
             url: data.url,
             fields: data.fields,
-            headers: data.headers
+            headers: {
+              ...data.headers,
+              'x-amz-meta-file-extension': file.extension,
+              'x-amz-meta-upload-type': 'avatar'
+            }
           }
         }).catch((error) => {
           console.log(`Uppy error ${error}`)

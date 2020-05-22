@@ -45,6 +45,8 @@ else
 endif
 server_nest:
 	cd server-nest && npm run start:dev && cd ..
+server_debug: 
+	cd server-nest && npm run start:debug && cd ..
 client:
 	cd client && npm run dev && cd ..
 migrate:
@@ -86,7 +88,7 @@ setup_migrations:
 
 setup_minio:
 	mc config host add minio ${MINIO_URL} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
-	mc admin config set minio/ notify_webhook:1 endpoint="http://${DOCKER_HOST_IP}:8000/webhooks/minio" queue_dir="/events" queue_limit="10000"
+	mc admin config set minio/ notify_webhook:1 endpoint="http://${DOCKER_HOST_IP}:8000/minio/webhook" queue_dir="/events" queue_limit="10000"
 	mc admin service restart minio;
 	mc mb -p minio/uploads;
 	mc mb -p minio/cas;

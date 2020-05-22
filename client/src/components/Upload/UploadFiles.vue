@@ -31,7 +31,7 @@ export default {
       target: '#files-upload-area'
     }).use(AwsS3, {
       getUploadParameters (file) {
-        return fetch('/sign-upload', {
+        return fetch('/minio/sign-upload', {
           method: 'post',
           headers: {
             accept: 'application/json',
@@ -41,19 +41,25 @@ export default {
             filename: file.name,
             contentType: file.type,
             format: file.extension,
-            projectId: that.projectIdFromRoute,
+            assetId: that.projectIdFromRoute,
             uploadType: 'file'
           })
         }).then((response) => {
-          // console.log('response', response)
+          console.log('response', JSON.stringify(response))
           return response.json()
         }).then((data) => {
-          // console.log('data', data)
+          console.log('data', JSON.stringify(data))
           return {
             method: data.method,
             url: data.url,
+            credentials: 'include',
             fields: data.fields,
-            headers: data.headers
+            headers: {
+              ...data.headers,
+              'x-amz-meta-asset-id': that.projectIdFromRoute,
+              'x-amz-meta-file-extension': file.extension,
+              'x-amz-meta-upload-type': 'file'
+            }
           }
         }).catch((error) => {
           console.log(`Uppy error ${error}`)

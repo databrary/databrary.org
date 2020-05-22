@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 
 import { KeycloakModule } from './keycloak/keycloak.module';
 import { HasuraModule } from './hasura/hasura.module';
+import { MinioModule } from './minio/minio.module';
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
@@ -14,7 +16,9 @@ import { HasuraModule } from './hasura/hasura.module';
       isGlobal: true,
     }),
     KeycloakModule,
-    HasuraModule
+    HasuraModule,
+    MinioModule,
+    FileModule
   ],
   controllers: [AppController],
   providers: [AppService],

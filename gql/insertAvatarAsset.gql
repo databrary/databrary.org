@@ -1,11 +1,11 @@
 mutation insertAvatarAsset (
-    $userId: Int
+    $id: Int
     $name: String
 ) {
   insert_assets(
       objects: {
           asset_type: avatar, 
-          created_by_id: $userId, 
+          created_by_id: $id, 
           name: $name, 
           privacy_type: public
     }
