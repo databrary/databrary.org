@@ -1,7 +1,7 @@
-import { Controller, Get, Session, Res } from '@nestjs/common';
+import { Controller, Session, Res, Get } from '@nestjs/common';
 
-@Controller('webhook')
-export class WebhookController {
+@Controller('hasura')
+export class HasuraController {
 
     @Get('auth')
     async hasura(@Session() { user: { id }}, @Res() res) {

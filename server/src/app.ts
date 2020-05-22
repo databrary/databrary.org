@@ -89,7 +89,7 @@ app.post('/search', isAuthenticated, searchController.search)
 app.post('/sign-upload', isAuthenticated, uploadController.signUpload)
 
 // Webhooks routes
-app.get('/webhook/auth', isAuthenticated, webhooksController.authWebhook)
+app.get('/hasura/auth', isAuthenticated, webhooksController.authWebhook)
 app.post('/es/webhook', webhooksController.esWebhook)
 app.post('/webhooks/minio', webhooksController.minioWebhook)
 
