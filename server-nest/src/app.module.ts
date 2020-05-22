@@ -5,7 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 import { KeycloakModule } from './keycloak/keycloak.module';
-import { WebhookModule } from './webhook/webhook.module';
+import { HasuraModule } from './hasura/hasura.module';
 
 @Module({
   imports: [
@@ -14,7 +14,7 @@ import { WebhookModule } from './webhook/webhook.module';
       isGlobal: true,
     }),
     KeycloakModule,
-    WebhookModule
+    HasuraModule
   ],
   controllers: [AppController],
   providers: [AppService],
