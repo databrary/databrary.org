@@ -91,7 +91,7 @@ app.post('/sign-upload', isAuthenticated, uploadController.signUpload)
 // Webhooks routes
 app.get('/hasura/auth', isAuthenticated, webhooksController.authWebhook)
 app.post('/es/webhook', webhooksController.esWebhook)
-app.post('/webhooks/minio', webhooksController.minioWebhook)
+app.post('/minio/webhook', webhooksController.minioWebhook)
 
 app.use('/', proxy(process.env.APP_URL_PROXY))
 

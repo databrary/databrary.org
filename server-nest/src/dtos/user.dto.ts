@@ -46,9 +46,11 @@ export class UserDTO {
     constructor(user: Partial<UserDTO>) {
         Object.assign(this, user);
 
-        if (!user.emails) this.emails = [this.emailPrimary];
-        if (!user.displayFullName) this.displayFullName = `${this.givenName} ${this.familyName}`;
-        if (!user.gravatar) this.gravatar = this.getGravatars();
+        if (user) {
+            if (!user.emails) this.emails = [this.emailPrimary];
+            if (!user.displayFullName) this.displayFullName = `${this.givenName} ${this.familyName}`;
+            if (!user.gravatar) this.gravatar = this.getGravatars();
+        }
     }
 
     private getGravatars () {
