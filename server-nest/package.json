@@ -37,6 +37,7 @@
     "fs-extra": "^9.0.0",
     "graphql": "^15.0.0",
     "graphql-tag": "^2.10.3",
+    "keycloak-admin": "^1.13.0",
     "lodash": "^4.17.15",
     "nestjs-redis": "^1.2.7",
     "nestjs-session": "^1.0.1",

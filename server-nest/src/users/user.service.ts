@@ -9,7 +9,9 @@ import { isEmpty } from 'lodash';
 export class UserService {
     private readonly GQL_FOLDER = `${process.cwd()}/../gql`
 
-    constructor(private readonly client: GqlClientService) {}
+    constructor(
+        private readonly client: GqlClientService,
+    ) {}
 
     async findByEmail(emailPrimary: string) {
         const path = `${this.GQL_FOLDER}/getUserByEmail.gql`;
