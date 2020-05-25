@@ -1,19 +1,19 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AppController } from './app.controller'
+import { AppService } from './app.service'
 
-import { KeycloakModule } from './keycloak/keycloak.module';
-import { HasuraModule } from './hasura/hasura.module';
-import { MinioModule } from './minio/minio.module';
-import { FileModule } from './file/file.module';
+import { KeycloakModule } from './keycloak/keycloak.module'
+import { HasuraModule } from './hasura/hasura.module'
+import { MinioModule } from './minio/minio.module'
+import { FileModule } from './file/file.module'
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: ['../.env'],
-      isGlobal: true,
+      isGlobal: true
     }),
     KeycloakModule,
     HasuraModule,
@@ -21,6 +21,6 @@ import { FileModule } from './file/file.module';
     FileModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService]
 })
 export class AppModule {}

@@ -1,70 +1,70 @@
-import { Exclude } from 'class-transformer';
-import * as crypto from 'crypto';
+import { Exclude } from 'class-transformer'
+import * as crypto from 'crypto'
 
 export class UserDTO {
-    @Exclude()
-    authServerId: string;
+  @Exclude()
+  authServerId: string
 
-    @Exclude()
-    emailPrimary: string;
+  @Exclude()
+  emailPrimary: string
 
-    @Exclude()
-    avatarId: number;
+  @Exclude()
+  avatarId: number
 
-    @Exclude()
-    emails: string[];
+  @Exclude()
+  emails: string[]
 
-    @Exclude()
-    additionalName: string;
+  @Exclude()
+  additionalName: string
 
-    @Exclude()
-    familyName: string;
+  @Exclude()
+  familyName: string
 
-    @Exclude()
-    givenName: string;
+  @Exclude()
+  givenName: string
 
-    @Exclude()
-    displayFullName: string;
+  @Exclude()
+  displayFullName: string
 
-    @Exclude()
-    bio: string;
+  @Exclude()
+  bio: string
 
-    @Exclude()
-    urls: string[];
+  @Exclude()
+  urls: string[]
 
-    @Exclude()
-    orcid: string;
+  @Exclude()
+  orcid: string
 
-    id: number;
+  id: number
 
-    useGravatar: boolean;
+  useGravatar: boolean
 
-    image: Object;
+  image: Record<string, any>
 
-    gravatar: Object;
+  gravatar: Record<string, any>
 
-    constructor(user: Partial<UserDTO>) {
-        Object.assign(this, user);
+  constructor (user: Partial<UserDTO>) {
+    Object.assign(this, user)
 
-        if (user) {
-            if (!user.emails) this.emails = [this.emailPrimary];
-            if (!user.displayFullName) this.displayFullName = `${this.givenName} ${this.familyName}`;
-            if (!user.gravatar) this.gravatar = this.getGravatars();
-        }
+    if (user) {
+      if (!user.emails) this.emails = [this.emailPrimary]
+      if (!user.displayFullName) this.displayFullName = `${this.givenName} ${this.familyName}`
+      if (!user.gravatar) this.gravatar = this.getGravatars()
     }
+  }
 
-    private getGravatars () {
-        return this.emailPrimary ? {
-            'thumbnail': this.getGravatarURL(32),
-            'large': this.getGravatarURL(400)
-            } : null;
-    }
+  private getGravatars () {
+    return this.emailPrimary ? {
+      thumbnail: this.getGravatarURL(32),
+      large: this.getGravatarURL(400)
+    } : null
+  }
 
-    private getGravatarURL (size: number = 32) {
-        const md5 = this.emailPrimary 
-            ? crypto.createHash('md5').update(this.emailPrimary.toString()).digest('hex')
-            : '';
+  private getGravatarURL (size = 32) {
+    const md5 = this.emailPrimary
+      ? crypto.createHash('md5').update(this.emailPrimary.toString()).digest('hex')
+      : ''
 
-        return `https://gravatar.com/avatar/${md5}?s=${size}&d=monsterid`;
-    }
+    return `https://gravatar.com/avatar/${md5}?s=${size}&d=monsterid`
+  }
 }

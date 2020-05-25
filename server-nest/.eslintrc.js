@@ -8,8 +8,9 @@ module.exports = {
   extends: [
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
-    'prettier',
-    'prettier/@typescript-eslint',
+    'standard-with-typescript'
+    // 'prettier',
+    // 'prettier/@typescript-eslint',
   ],
   root: true,
   env: {
@@ -21,4 +22,5 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
   },
+  ignorePatterns: ['node_modules/*', 'dist/*']
 };

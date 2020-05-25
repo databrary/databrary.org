@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
-import { HasuraController } from './hasura.controller';
+import { Module } from '@nestjs/common'
+import { HasuraController } from './hasura.controller'
 
 @Module({
   controllers: [HasuraController]

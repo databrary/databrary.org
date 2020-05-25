@@ -97,3 +97,6 @@ setup_minio:
 	mc policy set public minio/public;
 	mc event add minio/uploads arn:minio:sqs::1:webhook --event put
 	mc event add minio/avatars arn:minio:sqs::1:webhook --event put
+
+fix_es_lint:
+	npx eslint --ext .ts . --fix
