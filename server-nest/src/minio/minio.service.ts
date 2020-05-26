@@ -1,15 +1,15 @@
 import { Injectable, Inject } from '@nestjs/common'
+import { InjectQueue } from '@nestjs/bull'
 import { Client } from 'minio'
+import { Queue } from 'bull';
 
 @Injectable()
 export class MinioService {
-  private readonly minioClient: Client
 
   constructor (
-  @Inject('MINIO_CLIENT') client: Client
-  ) {
-    this.minioClient = client
-  }
+  @Inject('MINIO_CLIENT') private readonly minioClient: Client,
+  @InjectQueue('QUEUE') private queue: Queue
+  ) { }
 
   get client (): Client {
     return this.minioClient
@@ -23,5 +23,9 @@ export class MinioService {
     }
 
     return false
+  }
+
+  async addJob(object: Object) {
+    await this.queue.add('upload', object)
   }
 }
