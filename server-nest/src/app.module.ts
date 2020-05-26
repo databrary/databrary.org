@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
@@ -7,7 +7,7 @@ import { AppService } from './app.service'
 import { KeycloakModule } from './keycloak/keycloak.module'
 import { HasuraModule } from './hasura/hasura.module'
 import { MinioModule } from './minio/minio.module'
-import { FileModule } from './file/file.module'
+import { TaskModule } from './task/task.module'
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { FileModule } from './file/file.module'
     KeycloakModule,
     HasuraModule,
     MinioModule,
-    FileModule
+    TaskModule
   ],
   controllers: [AppController],
   providers: [AppService]

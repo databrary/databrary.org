@@ -6,6 +6,7 @@ import { Client } from 'minio'
 import { toInteger } from 'lodash'
 import { UserModule } from 'src/users/user.module'
 import { FileModule } from 'src/file/file.module'
+import { QueueModule } from 'src/queue/queue.module'
 
 const minioClient = {
   provide: 'MINIO_CLIENT',
@@ -23,7 +24,11 @@ const minioClient = {
 }
 
 @Module({
-  imports: [UserModule, FileModule],
+  imports: [
+    UserModule, 
+    FileModule,
+    QueueModule,
+  ],
   controllers: [MinioController],
   providers: [MinioService, minioClient]
 })
