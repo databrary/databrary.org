@@ -47,13 +47,15 @@ export class UserService {
   }
 
   // TODO(Reda): Move this to a new module
-  async insertAvatarAsset (id: number) {
-    const path = `${this.GQL_FOLDER}/insertAvatarAsset.gql`
+  async insertAsset (id: number, name: string, assetType: string, privacyType: string) {
+    const path = `${this.GQL_FOLDER}/insertAsset.gql`
     const { returning: users } = await this.client.adminQuery(
       path,
       {
-        userId: id,
-        name: `Avatar ${id}`
+        id: id,
+        name: name,
+        asset_type: assetType,
+        privacy_type: privacyType 
       }
     )
 

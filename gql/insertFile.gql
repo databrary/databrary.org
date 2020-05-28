@@ -2,14 +2,18 @@
 mutation ( 
   $name: String!,
   $uploadedById: Int!,
+  $fileobjectId: Int!,
   $assetId: Int!,
+  $uploadedDatetime: timestamp!,
   $fileFormatId: String!
 ) {
   insert_files(
     objects: { 
       name: $name,
       uploadedById: $uploadedById,
+      fileobjectId: $fileobjectId
       assetId: $assetId,
+      uploadedDatetime: $uploadedDatetime,
       fileFormatId: $fileFormatId
     }
   ) {

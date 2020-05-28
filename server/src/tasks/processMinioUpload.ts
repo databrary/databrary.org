@@ -87,7 +87,7 @@ export default async function processMinioUpload (input: object) {
 
         // If the file exists in uploads bucket(means uploaded by the user), we copy it to cas
         // otherwise, we hash the file and upload it to cas directly.
-        // The worker will download the uploaded picture resize it and upload it the result to cas
+        // The worker will download the uploaded picture resize it and upload the result to cas
         logger.debug(`Copy file from ${fileInfo.filePath} to cas bucket`)
         if (fileInfo.isUploaded) {
           fileCopied = await copyObject(targetBucket, fileInfo.sha256, fileInfo.filePath, input['eTag'])

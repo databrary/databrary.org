@@ -30,6 +30,7 @@ const minioClient = {
     QueueModule,
   ],
   controllers: [MinioController],
-  providers: [MinioService, minioClient]
+  providers: [MinioService, minioClient],
+  exports: [MinioService]
 })
 export class MinioModule {}
