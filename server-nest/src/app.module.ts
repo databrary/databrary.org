@@ -8,6 +8,7 @@ import { KeycloakModule } from './keycloak/keycloak.module'
 import { HasuraModule } from './hasura/hasura.module'
 import { MinioModule } from './minio/minio.module'
 import { TaskModule } from './task/task.module'
+import { UserModule } from './users/user.module'
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { TaskModule } from './task/task.module'
     KeycloakModule,
     HasuraModule,
     MinioModule,
-    TaskModule
+    TaskModule,
+    UserModule
   ],
   controllers: [AppController],
   providers: [AppService]

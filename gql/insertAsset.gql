@@ -1,13 +1,15 @@
-mutation insertAvatarAsset (
+mutation insertAsset (
     $id: Int
     $name: String
+    $asset_type: asset_types_enum
+    $privacy_type: privacy_types_enum 
 ) {
   insert_assets(
       objects: {
-          asset_type: avatar, 
+          asset_type: $asset_type, 
           created_by_id: $id, 
           name: $name, 
-          privacy_type: public
+          privacy_type: $privacy_type
     }
     ) {
         returning {

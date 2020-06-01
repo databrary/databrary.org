@@ -113,11 +113,7 @@ export default {
             method: data.method,
             url: data.url,
             fields: data.fields,
-            headers: {
-              ...data.headers,
-              'x-amz-meta-file-extension': file.extension,
-              'x-amz-meta-upload-type': 'avatar'
-            }
+            headers: data.headers
           }
         }).catch((error) => {
           console.log(`Uppy error ${error}`)

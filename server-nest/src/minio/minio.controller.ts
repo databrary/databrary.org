@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Request, Session, Res } from '@nestjs/common'
+import { Controller, Post, Request, Session, Res } from '@nestjs/common'
 import { MinioService } from './minio.service'
 
 @Controller('minio')
@@ -12,9 +12,11 @@ export class MinioController {
     if (!Records) return res.status(201).send() // need to change the response status
 
     for (const record of Records) {
-        const { s3: { object }} = record
+        const { s3: { object, bucket: { name } }} = record
+        if (!name) continue
         if (!object) continue
-        await this.minioService.addJob(object)
+
+        await this.minioService.addJob(name, object)
     }
 
     res.status(201).send()
@@ -23,7 +25,7 @@ export class MinioController {
   @Post('sign-upload')
   async signedUpload (
     @Res() res,
-    @Request() { body: { contentType, filename } },
+    @Request() { body: { contentType, filename, uploadType, format, assetId } },
     @Session() { user: { id } }
   ) {
     try {
@@ -45,7 +47,11 @@ export class MinioController {
               fields: [],
               headers: {
                 'content-type': contentType,
-                'x-amz-meta-user-id': id
+                'x-amz-meta-user-id': id,
+                'x-amz-meta-file-extension': format,
+                'x-amz-meta-file-name': filename,
+                'x-amz-meta-upload-type': uploadType,
+                'x-amz-meta-asset-id': assetId
               }
             })
           }

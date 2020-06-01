@@ -52,14 +52,8 @@ export default {
           return {
             method: data.method,
             url: data.url,
-            credentials: 'include',
             fields: data.fields,
-            headers: {
-              ...data.headers,
-              'x-amz-meta-asset-id': that.projectIdFromRoute,
-              'x-amz-meta-file-extension': file.extension,
-              'x-amz-meta-upload-type': 'file'
-            }
+            headers: data.headers
           }
         }).catch((error) => {
           console.log(`Uppy error ${error}`)

@@ -1,5 +1,7 @@
 import { Exclude } from 'class-transformer'
 import * as crypto from 'crypto'
+import { ImageKey, ImageSize } from 'src/common/types'
+import { AVATAR_SIZES } from 'src/common/constants'
 
 export class UserDTO {
   @Exclude()
@@ -39,24 +41,27 @@ export class UserDTO {
 
   useGravatar: boolean
 
-  image: Record<string, any>
+  image: Record<ImageKey, ImageSize> = {
+    thumbnail: null,
+    large: null
+  } 
 
-  gravatar: Record<string, any>
+  gravatar: Record<ImageKey, any>
 
   constructor (user: Partial<UserDTO>) {
+    if (!user) return
+
     Object.assign(this, user)
 
-    if (user) {
-      if (!user.emails) this.emails = [this.emailPrimary]
-      if (!user.displayFullName) this.displayFullName = `${this.givenName} ${this.familyName}`
-      if (!user.gravatar) this.gravatar = this.getGravatars()
-    }
+    if (!user.emails) this.emails = [this.emailPrimary]
+    if (!user.displayFullName) this.displayFullName = `${this.givenName} ${this.familyName}`
+    if (!user.gravatar) this.gravatar = this.getGravatars()
   }
 
-  private getGravatars () {
+  private getGravatars (): Record<ImageKey, any> {
     return this.emailPrimary ? {
-      thumbnail: this.getGravatarURL(32),
-      large: this.getGravatarURL(400)
+      thumbnail: this.getGravatarURL(AVATAR_SIZES.thumbnail),
+      large: this.getGravatarURL(AVATAR_SIZES.large)
     } : null
   }
 

@@ -4,22 +4,21 @@ import { AuthGuard } from '@nestjs/passport'
 import { UserDTO } from './dtos/user.dto'
 
 import { isEmpty } from 'lodash'
+import { UserService } from './users/user.service'
 
 @Controller()
 export class AppController {
-  constructor () {}
+  constructor (
+    private readonly userService: UserService
+  ) {}
 
   @Get('/')
   @Redirect('https://localhost/')
-  async home () {
-
-  }
+  async home () { }
 
   @UseGuards(AuthGuard('keycloak'))
   @Get('login')
-  async login () {
-
-  }
+  async login () { }
 
   @Get('register')
   async register (@Res() res, @Session() { user }) {
@@ -28,13 +27,12 @@ export class AppController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('session')
-  session (@Session() { user }): UserDTO {
-    return new UserDTO(user)
+  async session (@Session() { user }): Promise<UserDTO> {
+    const { __typename,...dbUser }  = await this.userService.findByAuthId(user.authServerId)
+    return new UserDTO(dbUser)
   }
 
   @Get('logout')
   @Redirect('/keycloak/logout')
-  logout () {
-
-  }
+  logout () { }
 }
