@@ -51,16 +51,25 @@ export class MinioService {
     return false
   }
 
-  // async uploadObject (file: FileDTO): Promise<boolean> {
-  //   return new Promise((resolve, reject) => {
-  //     this.client.fPutObject(file.bucket, file.sha256, file.path, {}, (err, eTag) => {
-  //       if (err) {
-  //         reject(false)
-  //       }
-  //       resolve(true)
-  //     })
-  //   })
-  // }
+  async getObject (bucket: string, name: string, path: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.client.fGetObject(bucket, name, path, (err) => {
+        if (err) reject(false)
+        resolve(true)
+      })
+    })
+  }
+
+  async uploadObject (bucket: string, name: string, path: string, metaData: object): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.client.fPutObject(bucket, name, path, metaData, (err, eTag) => {
+        if (err) {
+          reject(false)
+        }
+        resolve(true)
+      })
+    })
+  }
 
   async hashAndSizeMinio (bucket: string, name: string): Promise<FileObjectDTO> {
     return new Promise((resolve, reject) => {

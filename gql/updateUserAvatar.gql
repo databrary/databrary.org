@@ -4,6 +4,8 @@ mutation updateUserAvatar($id: Int!, $avatarId: Int!, $image: jsonb) {
     _set: {
       avatarId: $avatarId, 
       useGravatar: false,
+    }
+    _append: {
       image: $image
     }
   ) {

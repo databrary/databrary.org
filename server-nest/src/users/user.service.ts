@@ -24,12 +24,13 @@ export class UserService {
     return isEmpty(users) ? null : users[0]
   }
 
-  async findByAuthId (authServerId: string) {
+  async findByAuthId (authServerId: string){
     const path = `${this.GQL_FOLDER}/getUserByAuthId.gql`
 
     const users = await this.client.adminQuery(
       path,
-      { authServerId }
+      { authServerId },
+      'no-cache'
     )
 
     return isEmpty(users) ? null : users[0]
@@ -49,7 +50,7 @@ export class UserService {
   // TODO(Reda): Move this to a new module
   async insertAsset (id: number, name: string, assetType: string, privacyType: string) {
     const path = `${this.GQL_FOLDER}/insertAsset.gql`
-    const { returning: users } = await this.client.adminQuery(
+    const { returning: assets } = await this.client.adminMutate(
       path,
       {
         id: id,
@@ -59,17 +60,17 @@ export class UserService {
       }
     )
 
-    return isEmpty(users) ? null : users[0]
+    return isEmpty(assets) ? null : assets[0]
   }
 
-  async updateUserAvatar (id: number, assetId: number, image?: object) {
+  async updateUserAvatar (id: number, avatarId: number, image: object) {
     const path = `${this.GQL_FOLDER}/updateUserAvatar.gql`
 
     const { returning: users } = await this.client.adminMutate(
       path,
       {
-        dbId: id,
-        avatarId: assetId,
+        id: id,
+        avatarId: avatarId,
         image: image
       }
     )

@@ -12,9 +12,7 @@ export class KeycloakController {
   @UseGuards(AuthGuard('keycloak'))
   @Get('auth')
   @Redirect('/')
-  async auth () {
-
-  }
+  async auth () { }
 
   @Get('register')
   async register (@Res() res) {

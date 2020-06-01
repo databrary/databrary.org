@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Request, Session, Res } from '@nestjs/common'
+import { Controller, Post, Request, Session, Res } from '@nestjs/common'
 import { MinioService } from './minio.service'
 
 @Controller('minio')
