@@ -24,7 +24,7 @@ export class UserService {
     return isEmpty(users) ? null : users[0]
   }
 
-  async findByAuthId (authServerId: string){
+  async findByAuthId (authServerId: string) {
     const path = `${this.GQL_FOLDER}/getUserByAuthId.gql`
 
     const users = await this.client.adminQuery(
@@ -56,7 +56,7 @@ export class UserService {
         id: id,
         name: name,
         asset_type: assetType,
-        privacy_type: privacyType 
+        privacy_type: privacyType
       }
     )
 

@@ -25,9 +25,9 @@ const minioClient = {
 
 @Module({
   imports: [
-    UserModule, 
+    UserModule,
     FileModule,
-    QueueModule,
+    QueueModule
   ],
   controllers: [MinioController],
   providers: [MinioService, minioClient],

@@ -44,7 +44,7 @@ export class UserDTO {
   image: Record<ImageKey, ImageSize> = {
     thumbnail: null,
     large: null
-  } 
+  }
 
   gravatar: Record<ImageKey, any>
 

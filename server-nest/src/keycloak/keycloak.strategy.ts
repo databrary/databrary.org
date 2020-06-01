@@ -9,7 +9,7 @@ import { UserDTO } from 'src/dtos/user.dto'
 @Injectable()
 export class KeycloakStrategy extends PassportStrategy(Strategy, 'keycloak') {
   constructor (
-    @Inject('KEYCLOAK_STRATEGY_CONFIG') config: any,
+  @Inject('KEYCLOAK_STRATEGY_CONFIG') config: any,
     private readonly userService: UserService
   ) {
     super(config)

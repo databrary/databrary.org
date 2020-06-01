@@ -14,11 +14,15 @@ export class AppController {
 
   @Get('/')
   @Redirect('https://localhost/')
-  async home () { }
+  home () { 
+    // do nothing.
+  }
 
   @UseGuards(AuthGuard('keycloak'))
   @Get('login')
-  async login () { }
+  login () { 
+    // do nothing.
+  }
 
   @Get('register')
   async register (@Res() res, @Session() { user }) {
@@ -28,11 +32,13 @@ export class AppController {
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('session')
   async session (@Session() { user }): Promise<UserDTO> {
-    const { __typename,...dbUser }  = await this.userService.findByAuthId(user.authServerId)
+    const { __typename, ...dbUser } = await this.userService.findByAuthId(user.authServerId)
     return new UserDTO(dbUser)
   }
 
   @Get('logout')
   @Redirect('/keycloak/logout')
-  logout () { }
+  logout () { 
+    // do nothing.
+  }
 }

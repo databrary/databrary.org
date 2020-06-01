@@ -26,19 +26,19 @@ export class FileService {
 
   async insertFileObject (fileObject: FileObjectDTO) {
     const path = `${this.GQL_FOLDER}/insertFileObjectOnUpload.gql`
-    
+
     const { returning: users } = await this.client.adminMutate(
-      path, 
+      path,
       fileObject
     )
-  
+
     return isEmpty(users) ? null : users[0].id
   }
 
   async getFileObjectId (fileObject: FileObjectDTO) {
     const path = `${this.GQL_FOLDER}/getFileObjectId.gql`
     const users = await this.client.adminQuery(
-      path, 
+      path,
       {
         sha256: fileObject.sha256
       }
@@ -46,5 +46,4 @@ export class FileService {
 
     return isEmpty(users) ? null : users[0].id
   }
-  
 }

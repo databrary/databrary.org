@@ -8,15 +8,15 @@ export class MinioController {
   ) {}
 
   @Post('webhook')
-  async webhook (@Request() { body: { Records }}, @Res() res) {
+  async webhook (@Request() { body: { Records } }, @Res() res) {
     if (!Records) return res.status(201).send() // need to change the response status
 
     for (const record of Records) {
-        const { s3: { object, bucket: { name } }} = record
-        if (!name) continue
-        if (!object) continue
+      const { s3: { object, bucket: { name } } } = record
+      if (!name) continue
+      if (!object) continue
 
-        await this.minioService.addJob(name, object)
+      await this.minioService.addJob(name, object)
     }
 
     res.status(201).send()
@@ -24,7 +24,7 @@ export class MinioController {
 
   @Post('sign-upload')
   async signedUpload (
-    @Res() res,
+  @Res() res,
     @Request() { body: { contentType, filename, uploadType, format, assetId } },
     @Session() { user: { id } }
   ) {

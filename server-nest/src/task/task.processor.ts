@@ -19,32 +19,32 @@ import * as sharp from 'sharp'
 
 @Processor('QUEUE')
 export class TaskProcessor {
-  constructor(
+  constructor (
     private readonly minioService: MinioService,
     private readonly userService: UserService,
-    private readonly fileService: FileService 
+    private readonly fileService: FileService
   ) {}
 
   @Process('uploads')
-  async handleUploads(job: Job) {
-    console.log(`uploads`, job.data)
+  async handleUploads (job: Job) {
+    console.log('uploads', job.data)
     // Get Data from s3 record
-    let record = new RecordDTO(job.data)
+    const record = new RecordDTO(job.data)
 
     switch (record.uploadType) {
       case 'file':
         console.log('Start file upload...')
         try {
-          const fileObject:FileObjectDTO = await this.minioService.hashAndSizeMinio('uploads', record.key)
+          const fileObject: FileObjectDTO = await this.minioService.hashAndSizeMinio('uploads', record.key)
           if (record.size !== fileObject.size) {
             console.error('Size mismatch') // TODO We need an error here
           }
 
           const fileExistsInBucket = await this.minioService.fileExists('cas', fileObject.sha256)
           if (fileExistsInBucket) break
-          
+
           // Use the provided MD5 or eTag value as a file name in CAS
-          await this.minioService.copyObject('cas', fileObject.sha256, `/uploads/${record.key}`, record.eTag) 
+          await this.minioService.copyObject('cas', fileObject.sha256, `/uploads/${record.key}`, record.eTag)
           console.log('End file upload...')
         } catch (error) {
           console.error(error)
@@ -74,14 +74,16 @@ export class TaskProcessor {
           if (!downloaded) break
 
           const fileObject: FileObjectDTO = await FileObjectDTO.hashAndSizeFile(originalFile, 'public')
-          
+
           console.log(`Upload image ${record.key} as ${fileObject.sha256}...`)
           const fileUploaded = await this.minioService.uploadObject(
-            `public`, 
-            fileObject.sha256, 
-            originalFile, 
+            'public',
+            fileObject.sha256,
+            originalFile,
             { ...record.metaData }
           )
+
+          if (!fileUploaded) return
 
           for (const [key, size] of Object.entries(AVATAR_SIZES)) {
             record.fileDimension = size
@@ -91,15 +93,15 @@ export class TaskProcessor {
 
             console.log(`Resize image ${record.key} to ${record.fileDimension}...`)
             const info = await this.resizePicture(originalFile, targetPath, size)
-            if(!info) continue
-            
+            if (!info) continue
+
             const fileObject: FileObjectDTO = await FileObjectDTO.hashAndSizeFile(targetPath, 'public')
-            
+
             console.log(`Upload image ${fileObject.sha256}...`)
             const fileUploaded = await this.minioService.uploadObject(
-              `public`, 
-              fileObject.sha256, 
-              targetPath, 
+              'public',
+              fileObject.sha256,
+              targetPath,
               {
                 ...record.metaData,
                 'X-Amz-Meta-File-Size': size
@@ -111,84 +113,84 @@ export class TaskProcessor {
           console.error(error)
         } finally {
           readdir(TMP_FOLDER, (err, files) => {
-            if (err) throw err;
-          
+            if (err) throw err
+
             for (const file of files) {
               unlink(join(TMP_FOLDER, file), err => {
-                if (err) throw err;
-              });
+                if (err) throw err
+              })
             }
-          });
+          })
         }
-        break;
-    
+        break
+
       default:
-        break;
+        break
     }
   }
 
   @Process('public')
-  async handlePublic(job: Job) {
-    console.log(`Start Public Job...`)
+  async handlePublic (job: Job) {
+    console.log('Start Public Job...')
 
-    console.log(`public`, job.data)
-    let record = new RecordDTO(job.data)
+    console.log('public', job.data)
+    const record = new RecordDTO(job.data)
 
     if (!record.metaData) {
-      console.error(`Public Process requires user meta data`)
+      console.error('Public Process requires user meta data')
       return
-    } 
+    }
 
-    if (!record.assetId) { 
-      console.error(`Public Process requires an assetId`)
+    if (!record.assetId) {
+      console.error('Public Process requires an assetId')
       return
-    } 
+    }
 
-    let file: FileDTO = new FileDTO({ 
+    const file: FileDTO = new FileDTO({
       name: record.fileName,
-      assetId: record.assetId, 
-      fileFormatId: record.fileExtension, 
-      uploadedById: record.userId,
+      assetId: record.assetId,
+      fileFormatId: record.fileExtension,
+      uploadedById: record.userId
       // createdDateTime: new Date().toISOString()
     })
 
     try {
-      const fileObject:FileObjectDTO = await this.minioService.hashAndSizeMinio('public', record.key)
+      const fileObject: FileObjectDTO = await this.minioService.hashAndSizeMinio('public', record.key)
       if (record.size !== fileObject.size) {
         console.error('Size mismatch') // TODO We need an error here
       }
 
       console.log('Insert a file object')
       file.fileobjectId = await this.fileService.insertFileObject(fileObject)
-  
+
       if (!file.fileobjectId) {
         // Remove file in cas/public bucket if we cannot create a fileobject
-        return 
+        return
       }
-    
+
       file.uploadedDatetime = new Date().toISOString()
       console.log('Insert a file')
       await this.fileService.insertFile(file)
 
       if (!record.fileDimension) {
-        console.log(`File size not found`)
+        console.log('File size not found')
         return
       }
 
       const uri = `http://localhost:9000/public/${record.key}`
-      
+
       let image: Partial<Record<ImageKey, any>>
 
       switch (record.fileDimension) {
         case 32:
           image = { thumbnail: uri }
-          break;
+          break
         case 400:
           image = { large: uri }
-          break;
-      
+          break
+
         default:
-          break;
+          break
       }
 
       console.log('update user avatar')
@@ -203,42 +205,42 @@ export class TaskProcessor {
       // Retry the Job
       console.error(error)
     }
-    console.log(`End Public Job...`)
+    console.log('End Public Job...')
   }
 
   @Process('cas')
-  async handleCas(job: Job) {
-    console.log(`Start CAS Job...`)
-    console.log(`cas`, job.data)
+  async handleCas (job: Job) {
+    console.log('Start CAS Job...')
+    console.log('cas', job.data)
 
-    let record = new RecordDTO(job.data)
+    const record = new RecordDTO(job.data)
 
-    if (!record.assetId) { 
-      console.log(`CAS Process requires an assetId`)
+    if (!record.assetId) {
+      console.log('CAS Process requires an assetId')
       return
-    } 
+    }
 
-    let file: FileDTO = new FileDTO({ 
+    const file: FileDTO = new FileDTO({
       name: record.fileName,
-      assetId: record.assetId, 
-      fileFormatId: record.fileExtension, 
-      uploadedById: record.userId,
+      assetId: record.assetId,
+      fileFormatId: record.fileExtension,
+      uploadedById: record.userId
       // createdDateTime: new Date().toISOString()
     })
 
     try {
-      const fileObject:FileObjectDTO = await this.minioService.hashAndSizeMinio('cas', record.key)
+      const fileObject: FileObjectDTO = await this.minioService.hashAndSizeMinio('cas', record.key)
       if (record.size !== fileObject.size) {
         console.error('Size mismatch') // TODO We need an error here
       }
 
       file.fileobjectId = await this.fileService.insertFileObject(fileObject)
-  
+
       if (!file.fileobjectId) {
         // Remove file in cas/public bucket if we cannot create a fileobject
-        return 
+        return
       }
-    
+
       file.uploadedDatetime = new Date().toISOString()
       await this.fileService.insertFile(file)
     } catch (error) {
@@ -251,11 +253,11 @@ export class TaskProcessor {
       // Retry the Job
       console.error(error)
     }
-    console.log(`End CAS Job...`)
+    console.log('End CAS Job...')
   }
 
   private async resizePicture (sourcePath: string, targetpath: string, size: number) {
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       sharp(sourcePath)
         .resize(size, size)
         .toFormat('png')

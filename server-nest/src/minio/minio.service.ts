@@ -3,15 +3,13 @@ import { InjectQueue } from '@nestjs/bull'
 import { Client, CopyConditions } from 'minio'
 import { Queue } from 'bull'
 import { createHash } from 'crypto'
-import { FileDTO } from 'src/dtos/file.dto'
 import { FileObjectDTO } from 'src/dtos/fileobject.dto'
 
 @Injectable()
 export class MinioService {
-
   constructor (
     @Inject('MINIO_CLIENT') private readonly minioClient: Client,
-    @InjectQueue('QUEUE') private queue: Queue
+    @InjectQueue('QUEUE') private readonly queue: Queue
   ) { }
 
   get client (): Client {
@@ -31,7 +29,7 @@ export class MinioService {
   async fileExists (bucket: string, name: string): Promise<boolean> {
     try {
       const { etag } = await this.client.statObject(bucket, name)
-      return etag ? true : false
+      return !!etag
     } catch (error) {}
 
     return false
@@ -52,7 +50,7 @@ export class MinioService {
   }
 
   async getObject (bucket: string, name: string, path: string): Promise<boolean> {
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       this.client.fGetObject(bucket, name, path, (err) => {
         if (err) reject(false)
         resolve(true)
@@ -61,7 +59,7 @@ export class MinioService {
   }
 
   async uploadObject (bucket: string, name: string, path: string, metaData: object): Promise<boolean> {
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       this.client.fPutObject(bucket, name, path, metaData, (err, eTag) => {
         if (err) {
           reject(false)
@@ -72,12 +70,12 @@ export class MinioService {
   }
 
   async hashAndSizeMinio (bucket: string, name: string): Promise<FileObjectDTO> {
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       const hashSha256 = createHash('sha256')
       const hashMd5 = createHash('md5')
       const hashSha1 = createHash('sha1') // todo check this
       let size = 0
-  
+
       this.client.getObject(bucket, name, function (err, dataStream) {
         if (err) { reject(err) }
         dataStream.on('data', function (chunk) {
@@ -86,12 +84,12 @@ export class MinioService {
           hashSha1.update(chunk)
           hashSha256.update(chunk)
         })
-  
+
         dataStream.on('end', function () {
           const md5 = hashMd5.digest().toString('hex')
           const sha1 = hashSha1.digest().toString('hex')
           const sha256 = hashSha256.digest().toString('hex')
-          resolve(new FileObjectDTO ({
+          resolve(new FileObjectDTO({
             size,
             md5,
             sha1,
@@ -99,7 +97,7 @@ export class MinioService {
             location: `s3://minio-1.nyu.edu/${bucket}`
           }))
         })
-  
+
         dataStream.on('error', function (err) {
           reject(err)
         })
@@ -107,7 +105,7 @@ export class MinioService {
     })
   }
 
-  async addJob(name: string, object: Object) {
+  async addJob (name: string, object: Record<string, any>) {
     await this.queue.add(name, object)
   }
 }
