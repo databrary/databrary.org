@@ -1,35 +1,39 @@
 import { Controller, Post, Request, Session, Res } from '@nestjs/common'
 import { MinioService } from './minio.service'
+import { Buckets } from 'src/common/types'
 
 @Controller('minio')
 export class MinioController {
-  constructor (
-    private readonly minioService: MinioService
-  ) {}
+  constructor(private readonly minioService: MinioService) {}
 
   @Post('webhook')
-  async webhook (@Request() { body: { Records }}, @Res() res) {
+  async webhook(@Request() { body: { Records } }, @Res() res) {
     if (!Records) return res.status(201).send() // need to change the response status
 
     for (const record of Records) {
-        const { s3: { object, bucket: { name } }} = record
-        if (!name) continue
-        if (!object) continue
+      const {
+        s3: {
+          object,
+          bucket: { name }
+        }
+      } = record
+      if (!name) continue
+      if (!object) continue
 
-        await this.minioService.addJob(name, object)
+      await this.minioService.addJob(name, object)
     }
 
     res.status(201).send()
   }
 
   @Post('sign-upload')
-  async signedUpload (
+  async signedUpload(
     @Res() res,
     @Request() { body: { contentType, filename, uploadType, format, assetId } },
     @Session() { user: { id } }
   ) {
     try {
-      const bucketName = 'uploads'
+      const bucketName: Buckets = 'uploads'
 
       const bucketFound = await this.minioService.bucketExists(bucketName)
 

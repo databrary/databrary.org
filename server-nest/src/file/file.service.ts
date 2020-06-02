@@ -1,44 +1,40 @@
 import { Injectable } from '@nestjs/common'
+import { isEmpty } from 'lodash'
+import { resolve } from 'path'
+
 import { GqlClientService } from 'src/gqlClient/gqlClient.service'
 
-import { isEmpty } from 'lodash'
 import { FileDTO } from 'src/dtos/file.dto'
 import { FileObjectDTO } from 'src/dtos/fileobject.dto'
 
+import { AVATAR_FORMAT, GQL_DIR } from 'src/common/constants'
+
+import * as sharp from 'sharp'
+
 @Injectable()
 export class FileService {
-  private readonly GQL_FOLDER = `${process.cwd()}/../gql`
+  constructor(private readonly client: GqlClientService) {}
 
-  constructor (
-    private readonly client: GqlClientService
-  ) {}
+  async insertFile(file: FileDTO) {
+    const path = resolve(GQL_DIR, `insertFile.gql`)
 
-  async insertFile (file: FileDTO) {
-    const path = `${this.GQL_FOLDER}/insertFile.gql`
-
-    const { returning: users } = await this.client.adminMutate(
-      path,
-      file
-    )
+    const { returning: users } = await this.client.adminMutate(path, file)
 
     return isEmpty(users) ? null : users[0]
   }
 
-  async insertFileObject (fileObject: FileObjectDTO) {
-    const path = `${this.GQL_FOLDER}/insertFileObjectOnUpload.gql`
-    
+  async insertFileObject(fileObject: FileObjectDTO) {
     const { returning: users } = await this.client.adminMutate(
-      path, 
+      resolve(GQL_DIR, `insertFileObjectOnUpload.gql`),
       fileObject
     )
-  
+
     return isEmpty(users) ? null : users[0].id
   }
 
-  async getFileObjectId (fileObject: FileObjectDTO) {
-    const path = `${this.GQL_FOLDER}/getFileObjectId.gql`
+  async getFileObjectId(fileObject: FileObjectDTO) {
     const users = await this.client.adminQuery(
-      path, 
+      resolve(GQL_DIR, `/getFileObjectId.gql`),
       {
         sha256: fileObject.sha256
       }
@@ -46,5 +42,18 @@ export class FileService {
 
     return isEmpty(users) ? null : users[0].id
   }
-  
+
+  async resizePicture(sourcePath: string, targetpath: string, size: number) {
+    return await new Promise((resolve, reject) => {
+      sharp(sourcePath)
+        .resize(size, size)
+        .toFormat(AVATAR_FORMAT)
+        .toFile(targetpath, (err, info) => {
+          if (err) {
+            reject(err)
+          }
+          resolve(info)
+        })
+    })
+  }
 }

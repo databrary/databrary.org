@@ -1,4 +1,13 @@
-import { Controller, Get, UseGuards, Session, Redirect, Res, ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Session,
+  Redirect,
+  Res,
+  ClassSerializerInterceptor,
+  UseInterceptors
+} from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 
 import { UserDTO } from './dtos/user.dto'
@@ -8,31 +17,42 @@ import { UserService } from './users/user.service'
 
 @Controller()
 export class AppController {
-  constructor (
-    private readonly userService: UserService
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @Get('/')
   @Redirect('https://localhost/')
-  async home () { }
+  home() {
+    // do nothing.
+  }
 
   @UseGuards(AuthGuard('keycloak'))
   @Get('login')
-  async login () { }
+  login() {
+    // do nothing.
+  }
 
   @Get('register')
-  async register (@Res() res, @Session() { user }) {
-    return isEmpty(user) ? res.redirect('/keycloak/register') : res.redirect('/')
+  async register(@Res() res, @Session() { user }) {
+    return isEmpty(user)
+      ? res.redirect('/keycloak/register')
+      : res.redirect('/')
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('session')
-  async session (@Session() { user }): Promise<UserDTO> {
-    const { __typename,...dbUser }  = await this.userService.findByAuthId(user.authServerId)
+  async session(@Session() { user }): Promise<UserDTO> {
+    if (isEmpty(user)) return new UserDTO(user)
+
+    const { __typename, ...dbUser } = await this.userService.findByAuthId(
+      user.authServerId
+    )
+
     return new UserDTO(dbUser)
   }
 
   @Get('logout')
   @Redirect('/keycloak/logout')
-  logout () { }
+  logout() {
+    // do nothing.
+  }
 }
