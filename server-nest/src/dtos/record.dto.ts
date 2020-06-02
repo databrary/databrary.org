@@ -1,11 +1,12 @@
-import { RecordMetaDataKey } from 'src/common/types'
+import { parse } from 'path'
+import { IRecordUserMetadata } from 'src/common/IRecordUserMetadata'
 
 export class RecordDTO {
   readonly key: string
   readonly eTag: string
   readonly size: number
   readonly contentType: string
-  private userMetadata: Partial<Record<RecordMetaDataKey, any>>
+  private userMetadata: Partial<IRecordUserMetadata>
 
   constructor(record: Partial<RecordDTO>) {
     Object.assign(this, record)
@@ -23,6 +24,10 @@ export class RecordDTO {
     return this.userMetadata['X-Amz-Meta-File-Extension']
   }
 
+  public set fileExtension(ext: string) {
+    this.userMetadata['X-Amz-Meta-File-Extension'] = ext
+  }
+
   public get uploadType(): string {
     return this.userMetadata['X-Amz-Meta-Upload-Type']
   }
@@ -35,6 +40,10 @@ export class RecordDTO {
     return this.userMetadata['X-Amz-Meta-File-Name']
   }
 
+  public set fileName(name: string) {
+    this.userMetadata['X-Amz-Meta-File-Name'] = name
+  }
+
   public set fileDimension(dimension: number) {
     this.userMetadata['X-Amz-Meta-File-Size'] = dimension
   }
@@ -43,7 +52,11 @@ export class RecordDTO {
     return Number(this.userMetadata['X-Amz-Meta-File-Size'])
   }
 
-  public get metaData(): Partial<Record<RecordMetaDataKey, any>> {
+  public get metaData(): Partial<IRecordUserMetadata> {
     return this.userMetadata
+  }
+
+  public get buildFileName(): string {
+    return `${parse(this.key).name}_${this.fileDimension}.${this.fileExtension}`
   }
 }

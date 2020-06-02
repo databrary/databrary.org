@@ -13,9 +13,7 @@ import { RecordDTO } from 'src/dtos/record.dto'
 import { FileDTO } from 'src/dtos/file.dto'
 
 import { ImageKey } from 'src/common/types'
-import { TMP_FOLDER, AVATAR_SIZES, AVATAR_FORMAT } from 'src/common/constants'
-
-import * as sharp from 'sharp'
+import { TMP_DIR, AVATAR_SIZES, AVATAR_FORMAT } from 'src/common/constants'
 
 @Processor('QUEUE')
 export class TaskProcessor {
@@ -78,7 +76,7 @@ export class TaskProcessor {
           console.log(`Avatar asset id ${record.assetId} for ${record.assetId}`)
           // Download the image
           // tmp placeholder for the original upload
-          const originalFile = resolve(TMP_FOLDER, record.key)
+          const originalFile = resolve(TMP_DIR, record.key)
 
           console.log(`Download object ${record.key}...`)
           const downloaded = await this.minioService.getObject(
@@ -105,16 +103,15 @@ export class TaskProcessor {
 
           for (const [key, size] of Object.entries(AVATAR_SIZES)) {
             record.fileDimension = size
+            record.fileExtension = AVATAR_FORMAT
+            record.fileName = record.buildFileName
 
-            const fileName = `${
-              parse(record.key).name
-            }_${size}.${AVATAR_FORMAT}`
-            const targetPath = resolve(TMP_FOLDER, fileName)
+            const targetPath = resolve(TMP_DIR, record.fileName)
 
             console.log(
               `Resize image ${record.key} to ${record.fileDimension}...`
             )
-            const info = await this.resizePicture(
+            const info = await this.fileService.resizePicture(
               originalFile,
               targetPath,
               size
@@ -141,11 +138,11 @@ export class TaskProcessor {
         } catch (error) {
           console.error(error)
         } finally {
-          readdir(TMP_FOLDER, (err, files) => {
+          readdir(TMP_DIR, (err, files) => {
             if (err) throw err
 
             for (const file of files) {
-              unlink(join(TMP_FOLDER, file), err => {
+              unlink(join(TMP_DIR, file), (err) => {
                 if (err) throw err
               })
             }
@@ -166,7 +163,7 @@ export class TaskProcessor {
     const record = new RecordDTO(job.data)
 
     if (!record.metaData) {
-      console.error('Public Process requires user meta data')
+      console.error('Public Process requires user metadata')
       return
     }
 
@@ -293,23 +290,5 @@ export class TaskProcessor {
       console.error(error)
     }
     console.log('End CAS Job...')
-  }
-
-  private async resizePicture(
-    sourcePath: string,
-    targetpath: string,
-    size: number
-  ) {
-    return await new Promise((resolve, reject) => {
-      sharp(sourcePath)
-        .resize(size, size)
-        .toFormat('png')
-        .toFile(targetpath, (err, info) => {
-          if (err) {
-            reject(err)
-          }
-          resolve(info)
-        })
-    })
   }
 }

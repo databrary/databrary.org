@@ -41,9 +41,12 @@ export class AppController {
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('session')
   async session(@Session() { user }): Promise<UserDTO> {
+    if (isEmpty(user)) return new UserDTO(user)
+
     const { __typename, ...dbUser } = await this.userService.findByAuthId(
       user.authServerId
     )
+
     return new UserDTO(dbUser)
   }
 

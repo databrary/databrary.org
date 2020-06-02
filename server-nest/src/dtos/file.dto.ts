@@ -1,3 +1,5 @@
+import { RecordDTO } from './record.dto'
+
 export class FileDTO {
   name: string
   uploadedById: number

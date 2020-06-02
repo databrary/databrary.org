@@ -1,5 +1,6 @@
 import * as crypto from 'crypto'
 import { createReadStream } from 'fs'
+import { Buckets } from 'src/common/types'
 
 export class FileObjectDTO {
   md5: string
@@ -14,7 +15,7 @@ export class FileObjectDTO {
 
   static async hashAndSizeFile(
     filePath: string,
-    bucket: string
+    bucket: Buckets
   ): Promise<FileObjectDTO> {
     return await new Promise((resolve, reject) => {
       const hashSha256 = crypto.createHash('sha256')
@@ -23,7 +24,7 @@ export class FileObjectDTO {
       let size = 0
 
       const dataStream = createReadStream(filePath)
-      dataStream.on('data', function(data) {
+      dataStream.on('data', function (data) {
         size += data.length
         hashSha256.update(data)
         hashMd5.update(data)
@@ -31,7 +32,7 @@ export class FileObjectDTO {
       })
 
       // making digest
-      dataStream.on('end', function() {
+      dataStream.on('end', function () {
         const md5 = hashMd5.digest().toString('hex')
         const sha1 = hashSha1.digest().toString('hex')
         const sha256 = hashSha256.digest().toString('hex')
@@ -46,7 +47,7 @@ export class FileObjectDTO {
         )
       })
 
-      dataStream.on('error', function(err) {
+      dataStream.on('error', function (err) {
         reject(err)
       })
     })

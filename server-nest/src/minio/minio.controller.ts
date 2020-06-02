@@ -1,5 +1,6 @@
 import { Controller, Post, Request, Session, Res } from '@nestjs/common'
 import { MinioService } from './minio.service'
+import { Buckets } from 'src/common/types'
 
 @Controller('minio')
 export class MinioController {
@@ -32,7 +33,7 @@ export class MinioController {
     @Session() { user: { id } }
   ) {
     try {
-      const bucketName = 'uploads'
+      const bucketName: Buckets = 'uploads'
 
       const bucketFound = await this.minioService.bucketExists(bucketName)
 
@@ -42,7 +43,7 @@ export class MinioController {
           bucketName,
           encodeURIComponent(filename),
           1000,
-          function(err, presignedUrl) {
+          function (err, presignedUrl) {
             if (err) return console.log(err)
             res.json({
               url: presignedUrl,
