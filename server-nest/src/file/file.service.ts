@@ -16,9 +16,10 @@ export class FileService {
   constructor(private readonly client: GqlClientService) {}
 
   async insertFile(file: FileDTO) {
-    const path = resolve(GQL_DIR, `insertFile.gql`)
-
-    const { returning: users } = await this.client.adminMutate(path, file)
+    const { returning: users } = await this.client.adminMutate(
+      resolve(GQL_DIR, `insertFile.gql`),
+      file
+    )
 
     return isEmpty(users) ? null : users[0]
   }

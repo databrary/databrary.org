@@ -14,8 +14,8 @@ export class FileObjectDTO {
   }
 
   static async hashAndSizeFile(
-    filePath: string,
-    bucket: Buckets
+    bucket: Buckets,
+    filePath: string
   ): Promise<FileObjectDTO> {
     return await new Promise((resolve, reject) => {
       const hashSha256 = crypto.createHash('sha256')

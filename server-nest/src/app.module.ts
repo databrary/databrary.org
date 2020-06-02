@@ -9,6 +9,7 @@ import { HasuraModule } from './hasura/hasura.module'
 import { MinioModule } from './minio/minio.module'
 import { TaskModule } from './task/task.module'
 import { UserModule } from './users/user.module'
+import { AssetModule } from './asset/asset.module';
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { UserModule } from './users/user.module'
     HasuraModule,
     MinioModule,
     TaskModule,
-    UserModule
+    UserModule,
+    AssetModule
   ],
   controllers: [AppController],
   providers: [AppService]

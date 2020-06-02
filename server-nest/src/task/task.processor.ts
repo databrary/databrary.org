@@ -1,4 +1,9 @@
-import { Process, Processor } from '@nestjs/bull'
+import {
+  Process,
+  Processor,
+  OnQueueActive,
+  OnQueueCompleted
+} from '@nestjs/bull'
 import { Job } from 'bull'
 
 import { resolve, parse, join } from 'path'
@@ -12,84 +17,103 @@ import { FileObjectDTO } from 'src/dtos/fileobject.dto'
 import { RecordDTO } from 'src/dtos/record.dto'
 import { FileDTO } from 'src/dtos/file.dto'
 
-import { ImageKey } from 'src/common/types'
+import { ImageKey, Buckets } from 'src/common/types'
 import { TMP_DIR, AVATAR_SIZES, AVATAR_FORMAT } from 'src/common/constants'
+import { AssetService } from 'src/asset/asset.service'
+import { NotFoundException } from '@nestjs/common'
+
+type Location = 'MINIO' | 'LOCAL'
 
 @Processor('QUEUE')
 export class TaskProcessor {
   constructor(
     private readonly minioService: MinioService,
     private readonly userService: UserService,
-    private readonly fileService: FileService
+    private readonly fileService: FileService,
+    private readonly assetService: AssetService
   ) {}
+
+  @OnQueueActive()
+  onActive(job: Job) {
+    console.log(
+      `Processing job ${job.id} of type ${job.name} with data `,
+      job.data
+    )
+  }
+
+  @OnQueueCompleted()
+  onCompleted(job: Job) {
+    console.log(`Completed job ${job.id} of type ${job.name}.`)
+  }
 
   @Process('uploads')
   async handleUploads(job: Job) {
-    console.log('uploads', job.data)
     // Get Data from s3 record
     const record = new RecordDTO(job.data)
 
     switch (record.uploadType) {
       case 'file':
-        console.log('Start file upload...')
         try {
-          const fileObject: FileObjectDTO = await this.minioService.hashAndSizeMinio(
+          console.log(`File found in job ${job.id}`)
+
+          const fileObject: FileObjectDTO = await this.hashAndSizeAndCheckExists(
+            'MINIO',
             'uploads',
-            record.key
-          )
-          if (record.size !== fileObject.size) {
-            console.error('Size mismatch') // TODO We need an error here
-          }
-
-          const fileExistsInBucket = await this.minioService.fileExists(
             'cas',
-            fileObject.sha256
+            record.key,
+            record.size
           )
-          if (fileExistsInBucket) break
 
-          // Use the provided MD5 or eTag value as a file name in CAS
+          if (!fileObject) break
+
           await this.minioService.copyObject(
             'cas',
             fileObject.sha256,
             `/uploads/${record.key}`,
             record.eTag
           )
-          console.log('End file upload...')
         } catch (error) {
           console.error(error)
+
           // Retry the Job
+          job.retry()
         }
+
         break
       case 'avatar':
-        console.log('Start avatar upload...')
         try {
+          console.log(`Avatar found in job ${job.id}`)
+
           // Create a new assetId (We can remove this if we create the asset before the upload)
-          console.log(`Create avatar asset for ${record.userId}`)
-          const asset = await this.userService.insertAsset(
+          const asset = await this.assetService.insertAsset(
             record.userId,
             `User ${record.userId} Avatar`,
             'avatar',
             'public'
           )
-
           record.assetId = asset.id
-          console.log(`Avatar asset id ${record.assetId} for ${record.assetId}`)
-          // Download the image
-          // tmp placeholder for the original upload
+
           const originalFile = resolve(TMP_DIR, record.key)
 
-          console.log(`Download object ${record.key}...`)
+          console.log(`Downloading avatar ${record.key}...`)
           const downloaded = await this.minioService.getObject(
             'uploads',
             record.key,
             originalFile
           )
-          if (!downloaded) break
 
-          const fileObject: FileObjectDTO = await FileObjectDTO.hashAndSizeFile(
+          if (!downloaded)
+            throw new NotFoundException(`Avatar ${record.key} download failed`)
+
+          const fileObject: FileObjectDTO = await this.hashAndSizeAndCheckExists(
+            'LOCAL',
+            'public',
+            'public',
             originalFile,
-            'public'
+            record.size
           )
+
+          if (!fileObject) break
 
           console.log(`Upload image ${record.key} as ${fileObject.sha256}...`)
           const fileUploaded = await this.minioService.uploadObject(
@@ -99,31 +123,43 @@ export class TaskProcessor {
             { ...record.metaData }
           )
 
-          if (!fileUploaded) return
+          if (!fileUploaded)
+            throw new Error(`Avatar ${record.key} upload failed`)
 
           for (const [key, size] of Object.entries(AVATAR_SIZES)) {
             record.fileDimension = size
             record.fileExtension = AVATAR_FORMAT
             record.fileName = record.buildFileName
 
-            const targetPath = resolve(TMP_DIR, record.fileName)
+            let targetPath = resolve(TMP_DIR, record.fileName)
 
             console.log(
               `Resize image ${record.key} to ${record.fileDimension}...`
             )
+
             const info = await this.fileService.resizePicture(
               originalFile,
               targetPath,
               size
             )
-            if (!info) continue
+            if (!info) {
+              console.error(
+                `Resizing ${originalFile} to ${size} px failed. The original file will be used`
+              )
+              targetPath = originalFile
+            }
 
-            const fileObject: FileObjectDTO = await FileObjectDTO.hashAndSizeFile(
-              targetPath,
-              'public'
+            const fileObject: FileObjectDTO = await this.hashAndSizeAndCheckExists(
+              'LOCAL',
+              'public',
+              'public',
+              targetPath
             )
 
-            console.log(`Upload image ${fileObject.sha256}...`)
+            if (!fileObject) continue
+
+            console.log(`Upload ${fileObject.sha256} image to public ...`)
+
             const fileUploaded = await this.minioService.uploadObject(
               'public',
               fileObject.sha256,
@@ -134,21 +170,16 @@ export class TaskProcessor {
               }
             )
           }
-          console.log('End avatar upload...')
         } catch (error) {
           console.error(error)
-        } finally {
-          readdir(TMP_DIR, (err, files) => {
-            if (err) throw err
 
-            for (const file of files) {
-              unlink(join(TMP_DIR, file), (err) => {
-                if (err) throw err
-              })
-            }
-          })
+          if (record.assetId)
+            await this.assetService.removeAsset(record.assetId)
+
+          job.retry()
+        } finally {
+          this.clearDir()
         }
-        break
 
       default:
         break
@@ -157,9 +188,6 @@ export class TaskProcessor {
 
   @Process('public')
   async handlePublic(job: Job) {
-    console.log('Start Public Job...')
-
-    console.log('public', job.data)
     const record = new RecordDTO(job.data)
 
     if (!record.metaData) {
@@ -185,11 +213,11 @@ export class TaskProcessor {
         'public',
         record.key
       )
+
       if (record.size !== fileObject.size) {
         console.error('Size mismatch') // TODO We need an error here
       }
 
-      console.log('Insert a file object')
       file.fileobjectId = await this.fileService.insertFileObject(fileObject)
 
       if (!file.fileobjectId) {
@@ -197,12 +225,16 @@ export class TaskProcessor {
         return
       }
 
+      console.log(`file object ${file.fileobjectId} added`)
+
       file.uploadedDatetime = new Date().toISOString()
-      console.log('Insert a file')
+
       await this.fileService.insertFile(file)
 
+      console.log(`File ${record.fileName} added`)
+
       if (!record.fileDimension) {
-        console.log('File size not found')
+        console.log(`File ${record.fileName} size not found`)
         return
       }
 
@@ -229,6 +261,7 @@ export class TaskProcessor {
         image
       )
     } catch (error) {
+      console.error(error)
       if (file.fileobjectId) {
         // Remove fileObject from db
       }
@@ -236,20 +269,16 @@ export class TaskProcessor {
       // Delete object from CAS
 
       // Retry the Job
-      console.error(error)
+      job.retry()
     }
-    console.log('End Public Job...')
   }
 
   @Process('cas')
   async handleCas(job: Job) {
-    console.log('Start CAS Job...')
-    console.log('cas', job.data)
-
     const record = new RecordDTO(job.data)
 
     if (!record.assetId) {
-      console.log('CAS Process requires an assetId')
+      console.error('CAS Process requires an assetId')
       return
     }
 
@@ -280,6 +309,7 @@ export class TaskProcessor {
       file.uploadedDatetime = new Date().toISOString()
       await this.fileService.insertFile(file)
     } catch (error) {
+      console.error(error)
       if (file.fileobjectId) {
         // Remove fileObject from db
       }
@@ -287,8 +317,48 @@ export class TaskProcessor {
       // Delete object from CAS
 
       // Retry the Job
-      console.error(error)
+      job.retry()
     }
-    console.log('End CAS Job...')
+  }
+
+  // For LOCAL location orginalBucket is the same as the targetBucket
+  private async hashAndSizeAndCheckExists(
+    location: Location,
+    originalBucket: Buckets,
+    targetBucket: Buckets,
+    file: string,
+    size?: number
+  ): Promise<FileObjectDTO> {
+    const fileObject: FileObjectDTO =
+      location === 'MINIO'
+        ? await this.minioService.hashAndSizeMinio(originalBucket, file)
+        : await FileObjectDTO.hashAndSizeFile(originalBucket, file)
+
+    if (size && size !== fileObject.size) {
+      console.error('Size mismatch')
+    }
+
+    const fileExistsInBucket = await this.minioService.fileExists(
+      targetBucket,
+      fileObject.sha256
+    )
+
+    if (fileExistsInBucket) {
+      console.error(`File ${file} already exists in ${targetBucket} bucket`)
+      return null
+    }
+
+    return fileObject
+  }
+  private clearDir(dir: string = TMP_DIR) {
+    readdir(dir, (err, files) => {
+      if (err) throw err
+
+      for (const file of files) {
+        unlink(join(TMP_DIR, file), (err) => {
+          if (err) throw err
+        })
+      }
+    })
   }
 }
