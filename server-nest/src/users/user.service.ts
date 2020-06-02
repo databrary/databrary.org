@@ -38,26 +38,6 @@ export class UserService {
     return isEmpty(users) ? null : users[0]
   }
 
-  // TODO(Reda): Move this to a new module
-  async insertAsset(
-    id: number,
-    name: string,
-    assetType: string,
-    privacyType: string
-  ) {
-    const { returning: assets } = await this.client.adminMutate(
-      resolve(GQL_DIR, `insertAsset.gql`),
-      {
-        id: id,
-        name: name,
-        asset_type: assetType,
-        privacy_type: privacyType
-      }
-    )
-
-    return isEmpty(assets) ? null : assets[0]
-  }
-
   async updateUserAvatar(id: number, avatarId: number, image: object) {
     const { returning: users } = await this.client.adminMutate(
       resolve(GQL_DIR, `updateUserAvatar.gql`),
