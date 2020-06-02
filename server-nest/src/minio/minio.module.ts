@@ -17,18 +17,13 @@ const minioClient = {
       accessKey: config.get('MINIO_ACCESS_KEY'),
       secretKey: config.get('MINIO_SECRET_KEY'),
       useSSL: false // Default is true.
-    }
-    )
+    })
   },
   inject: [ConfigService]
 }
 
 @Module({
-  imports: [
-    UserModule,
-    FileModule,
-    QueueModule
-  ],
+  imports: [UserModule, FileModule, QueueModule],
   controllers: [MinioController],
   providers: [MinioService, minioClient],
   exports: [MinioService]

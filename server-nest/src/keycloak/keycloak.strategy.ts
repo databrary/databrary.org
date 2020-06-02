@@ -8,15 +8,15 @@ import { UserDTO } from 'src/dtos/user.dto'
 
 @Injectable()
 export class KeycloakStrategy extends PassportStrategy(Strategy, 'keycloak') {
-  constructor (
-  @Inject('KEYCLOAK_STRATEGY_CONFIG') config: any,
+  constructor(
+    @Inject('KEYCLOAK_STRATEGY_CONFIG') config: any,
     private readonly userService: UserService
   ) {
     super(config)
   }
 
   // TODO(Reda): Check if user is valid before returning the profile
-  async validate (accessToken, refreshToken, profile, done): Promise<any> {
+  async validate(accessToken, refreshToken, profile, done): Promise<any> {
     try {
       let user = await this.userService.findByAuthId(profile.id)
 
@@ -24,18 +24,17 @@ export class KeycloakStrategy extends PassportStrategy(Strategy, 'keycloak') {
         const {
           id: authServerId,
           email: emailPrimary,
-          _json: {
-            given_name: givenName,
-            family_name: familyName
-          }
+          _json: { given_name: givenName, family_name: familyName }
         } = profile
 
-        user = await this.userService.createUser(new UserDTO({
-          authServerId,
-          emailPrimary,
-          givenName,
-          familyName
-        }))
+        user = await this.userService.createUser(
+          new UserDTO({
+            authServerId,
+            emailPrimary,
+            givenName,
+            familyName
+          })
+        )
       }
 
       const { __typename, ...dbUser } = user

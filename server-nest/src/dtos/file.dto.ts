@@ -7,7 +7,7 @@ export class FileDTO {
   // createdDateTime: string
   fileFormatId: string
 
-  constructor (file: Partial<FileDTO>) {
+  constructor(file: Partial<FileDTO>) {
     Object.assign(this, file)
   }
 }

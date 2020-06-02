@@ -48,26 +48,32 @@ export class UserDTO {
 
   gravatar: Record<ImageKey, any>
 
-  constructor (user: Partial<UserDTO>) {
+  constructor(user: Partial<UserDTO>) {
     if (!user) return
 
     Object.assign(this, user)
 
     if (!user.emails) this.emails = [this.emailPrimary]
-    if (!user.displayFullName) this.displayFullName = `${this.givenName} ${this.familyName}`
+    if (!user.displayFullName)
+      this.displayFullName = `${this.givenName} ${this.familyName}`
     if (!user.gravatar) this.gravatar = this.getGravatars()
   }
 
-  private getGravatars (): Record<ImageKey, any> {
-    return this.emailPrimary ? {
-      thumbnail: this.getGravatarURL(AVATAR_SIZES.thumbnail),
-      large: this.getGravatarURL(AVATAR_SIZES.large)
-    } : null
+  private getGravatars(): Record<ImageKey, any> {
+    return this.emailPrimary
+      ? {
+          thumbnail: this.getGravatarURL(AVATAR_SIZES.thumbnail),
+          large: this.getGravatarURL(AVATAR_SIZES.large)
+        }
+      : null
   }
 
-  private getGravatarURL (size = 32) {
+  private getGravatarURL(size = 32) {
     const md5 = this.emailPrimary
-      ? crypto.createHash('md5').update(this.emailPrimary.toString()).digest('hex')
+      ? crypto
+          .createHash('md5')
+          .update(this.emailPrimary.toString())
+          .digest('hex')
       : ''
 
     return `https://gravatar.com/avatar/${md5}?s=${size}&d=monsterid`

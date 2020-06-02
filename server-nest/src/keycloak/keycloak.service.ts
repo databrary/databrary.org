@@ -10,25 +10,25 @@ export class KeycloakService {
   private readonly realm = this.configService.get('KEYCLOAK_REALM')
   private readonly port = this.configService.get('KEYCLOAK_PORT')
   private readonly endpoint = this.configService.get('KEYCLOAK_ENDPOINT')
-  private readonly callbackUri = this.configService.get('KEYCLOAK_AUTH_CALLBACK_URL')
+  private readonly callbackUri = this.configService.get(
+    'KEYCLOAK_AUTH_CALLBACK_URL'
+  )
   private readonly kcAdminClient = new KcAdminClient({
     baseUrl: `http://${this.endpoint}:${this.port}/auth`,
     realmName: 'master'
   })
 
-  constructor (
-    private readonly configService: ConfigService
-  ) { }
+  constructor(private readonly configService: ConfigService) {}
 
-  get getBaseUri (): string {
+  get getBaseUri(): string {
     return `http://${this.endpoint}:${this.port}/auth/realms/${this.realm}/protocol/openid-connect`
   }
 
-  get getCallbackUri (): string {
+  get getCallbackUri(): string {
     return this.callbackUri
   }
 
-  async resetUserPassword (id: string, password) {
+  async resetUserPassword(id: string, password) {
     try {
       await this.authenticate()
 
@@ -46,7 +46,7 @@ export class KeycloakService {
     }
   }
 
-  async registerUser (email: string, password: string) {
+  async registerUser(email: string, password: string) {
     try {
       await this.authenticate()
 
@@ -66,7 +66,7 @@ export class KeycloakService {
     }
   }
 
-  private async authenticate () {
+  private async authenticate() {
     await this.kcAdminClient.auth({
       username: this.username,
       password: this.password,

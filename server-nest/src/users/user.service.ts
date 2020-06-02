@@ -9,22 +9,17 @@ import { isEmpty } from 'lodash'
 export class UserService {
   private readonly GQL_FOLDER = `${process.cwd()}/../gql`
 
-  constructor (
-    private readonly client: GqlClientService
-  ) {}
+  constructor(private readonly client: GqlClientService) {}
 
-  async findByEmail (emailPrimary: string) {
+  async findByEmail(emailPrimary: string) {
     const path = `${this.GQL_FOLDER}/getUserByEmail.gql`
 
-    const users = await this.client.adminQuery(
-      path,
-      { emailPrimary }
-    )
+    const users = await this.client.adminQuery(path, { emailPrimary })
 
     return isEmpty(users) ? null : users[0]
   }
 
-  async findByAuthId (authServerId: string) {
+  async findByAuthId(authServerId: string) {
     const path = `${this.GQL_FOLDER}/getUserByAuthId.gql`
 
     const users = await this.client.adminQuery(
@@ -36,44 +31,40 @@ export class UserService {
     return isEmpty(users) ? null : users[0]
   }
 
-  async createUser (user: UserDTO) {
+  async createUser(user: UserDTO) {
     const path = `${this.GQL_FOLDER}/registerUser.gql`
 
-    const { returning: users } = await this.client.adminMutate(
-      path,
-      user
-    )
+    const { returning: users } = await this.client.adminMutate(path, user)
 
     return isEmpty(users) ? null : users[0]
   }
 
   // TODO(Reda): Move this to a new module
-  async insertAsset (id: number, name: string, assetType: string, privacyType: string) {
+  async insertAsset(
+    id: number,
+    name: string,
+    assetType: string,
+    privacyType: string
+  ) {
     const path = `${this.GQL_FOLDER}/insertAsset.gql`
-    const { returning: assets } = await this.client.adminMutate(
-      path,
-      {
-        id: id,
-        name: name,
-        asset_type: assetType,
-        privacy_type: privacyType
-      }
-    )
+    const { returning: assets } = await this.client.adminMutate(path, {
+      id: id,
+      name: name,
+      asset_type: assetType,
+      privacy_type: privacyType
+    })
 
     return isEmpty(assets) ? null : assets[0]
   }
 
-  async updateUserAvatar (id: number, avatarId: number, image: object) {
+  async updateUserAvatar(id: number, avatarId: number, image: object) {
     const path = `${this.GQL_FOLDER}/updateUserAvatar.gql`
 
-    const { returning: users } = await this.client.adminMutate(
-      path,
-      {
-        id: id,
-        avatarId: avatarId,
-        image: image
-      }
-    )
+    const { returning: users } = await this.client.adminMutate(path, {
+      id: id,
+      avatarId: avatarId,
+      image: image
+    })
 
     return isEmpty(users) ? null : users[0]
   }
