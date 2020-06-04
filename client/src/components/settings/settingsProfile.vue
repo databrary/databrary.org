@@ -300,7 +300,7 @@ export default {
               $additionalName: String!, 
               $bio: String,
               $displayFullName: String!, 
-              $urls: jsonb!,
+              $urls: jsonb,
               $orcid: String
             ) {
               update_users(

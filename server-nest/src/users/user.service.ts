@@ -6,9 +6,15 @@ import { GqlClientService } from 'src/gqlClient/gqlClient.service'
 import { UserDTO } from 'src/dtos/user.dto'
 
 import { GQL_DIR } from 'src/common/constants'
+import { HasuraEventHandler, HasuraEvent } from '@golevelup/nestjs-hasura'
+import { SearchService } from 'src/search/search.service'
+
 @Injectable()
 export class UserService {
-  constructor(private readonly client: GqlClientService) {}
+  constructor(
+    private readonly client: GqlClientService,
+    private readonly searchService: SearchService
+  ) {}
 
   async findByEmail(emailPrimary: string) {
     const users = await this.client.adminQuery(
@@ -49,5 +55,59 @@ export class UserService {
     )
 
     return isEmpty(users) ? null : users[0]
+  }
+
+  @HasuraEventHandler({
+    triggerName: 'users_update'
+  })
+  async handleUserUpdate(evt: HasuraEvent) {
+    try {
+      const {
+        event: {
+          data: { new: newUser }
+        }
+      } = evt
+
+      const user: UserDTO = new UserDTO(newUser)
+
+      console.log(`Hasura Event users update Payload`, user.document)
+
+      const status = await this.searchService.update(
+        user.id.toString(),
+        'databrary-users',
+        user.document
+      )
+
+      return status
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
+
+  @HasuraEventHandler({
+    triggerName: 'users_insert'
+  })
+  async handleUserInsert(evt: HasuraEvent) {
+    try {
+      const {
+        event: {
+          data: { new: newUser }
+        }
+      } = evt
+
+      const user: UserDTO = new UserDTO(newUser)
+
+      console.log(`Hasura Event users create Payload`, user.document)
+
+      const status = await this.searchService.create(
+        user.id.toString(),
+        'databrary-users',
+        user.document
+      )
+
+      return status
+    } catch (error) {
+      throw new Error(error.message)
+    }
   }
 }

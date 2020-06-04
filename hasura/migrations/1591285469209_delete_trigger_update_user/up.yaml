@@ -1,0 +1,3 @@
+- args:
+    name: update_user
+  type: delete_event_trigger

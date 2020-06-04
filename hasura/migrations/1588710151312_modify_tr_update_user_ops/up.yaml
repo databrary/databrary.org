@@ -27,5 +27,5 @@
       - datetimeRegistered
       - image
       - gravatar
-    webhook_from_env: ELASTICSEARCH_WEBHOOK
+    webhook_from_env: HASURA_EVENT_WEBHOOK
   type: create_event_trigger
