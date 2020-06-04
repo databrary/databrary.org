@@ -1,7 +1,10 @@
 - args:
     enable_manual: false
-    headers: []
-    name: update_user
+    headers:
+    - name: app-event-token
+      value_from_env: HASURA_EVENT_TOKEN
+    name: users_update
+    replace: true
     retry_conf:
       interval_sec: 10
       num_retries: 0
@@ -12,18 +15,14 @@
     update:
       columns:
       - useGravatar
-      - avatarId
-      - emails
-      - urls
+      - gravatar
+      - image
       - additionalName
       - bio
       - displayFullName
       - emailPrimary
       - familyName
       - givenName
-      - orcid
-      - datetimeRegistered
-      - authServerId
       - id
-    webhook: HASURA_EVENT_WEBHOOK
+    webhook_from_env: HASURA_EVENT_WEBHOOK
   type: create_event_trigger

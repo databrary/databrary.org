@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
@@ -9,7 +9,8 @@ import { HasuraModule } from './hasura/hasura.module'
 import { MinioModule } from './minio/minio.module'
 import { TaskModule } from './task/task.module'
 import { UserModule } from './users/user.module'
-import { AssetModule } from './asset/asset.module';
+import { AssetModule } from './asset/asset.module'
+import { SearchModule } from './search/search.module'
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AssetModule } from './asset/asset.module';
     KeycloakModule,
     HasuraModule,
     MinioModule,
+    SearchModule,
     TaskModule,
     UserModule,
     AssetModule

@@ -1,6 +1,10 @@
 - args:
     enable_manual: false
-    headers: []
+    headers:
+    - name: X-Hasura-Event-Hasura-Token
+      value: HASURA_EVENT_TOKEN
+    insert:
+      columns: '*'
     name: update_user
     retry_conf:
       interval_sec: 10
@@ -12,7 +16,6 @@
     update:
       columns:
       - useGravatar
-      - avatarId
       - emails
       - urls
       - additionalName
@@ -23,7 +26,7 @@
       - givenName
       - orcid
       - datetimeRegistered
-      - authServerId
-      - id
-    webhook: HASURA_EVENT_WEBHOOK
+      - image
+      - gravatar
+    webhook_from_env: HASURA_EVENT_WEBHOOK
   type: create_event_trigger

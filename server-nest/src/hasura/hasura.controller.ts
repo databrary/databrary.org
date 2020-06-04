@@ -1,5 +1,4 @@
-import { Controller, Session, Res, Get } from '@nestjs/common'
-
+import { Controller, Session, Request, Res, Get, Post } from '@nestjs/common'
 @Controller('hasura')
 export class HasuraController {
   @Get('auth')

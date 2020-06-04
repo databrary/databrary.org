@@ -1,7 +1,8 @@
 - args:
     enable_manual: false
     headers: []
-    name: update_user
+    name: users_update
+    replace: true
     retry_conf:
       interval_sec: 10
       num_retries: 0
@@ -13,9 +14,13 @@
       columns:
       - useGravatar
       - avatarId
+      - id
       - emails
+      - gravatar
+      - image
       - urls
       - additionalName
+      - authServerId
       - bio
       - displayFullName
       - emailPrimary
@@ -23,7 +28,5 @@
       - givenName
       - orcid
       - datetimeRegistered
-      - authServerId
-      - id
-    webhook: HASURA_EVENT_WEBHOOK
+    webhook_from_env: HASURA_EVENT_WEBHOOK
   type: create_event_trigger

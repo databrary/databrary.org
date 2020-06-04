@@ -5,8 +5,10 @@ import {
   Session,
   Redirect,
   Res,
+  Request,
   ClassSerializerInterceptor,
-  UseInterceptors
+  UseInterceptors,
+  Post
 } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 
@@ -14,10 +16,14 @@ import { UserDTO } from './dtos/user.dto'
 
 import { isEmpty } from 'lodash'
 import { UserService } from './users/user.service'
+import { SearchService } from './search/search.service'
 
 @Controller()
 export class AppController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly searchService: SearchService
+  ) {}
 
   @Get('/')
   @Redirect('https://localhost/')
@@ -48,6 +54,23 @@ export class AppController {
     )
 
     return new UserDTO(dbUser)
+  }
+
+  @Post('search')
+  async search(@Request() req, @Res() res) {
+    try {
+      const { search } = req.body
+
+      if (isEmpty(search)) return res.json([])
+
+      const result = await this.searchService.searchAll(search)
+
+      return res.json(result)
+    } catch (error) {
+      console.error(`error`)
+    }
+
+    res.json([])
   }
 
   @Get('logout')

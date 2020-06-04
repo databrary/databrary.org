@@ -59,6 +59,19 @@ export class UserDTO {
     if (!user.gravatar) this.gravatar = this.getGravatars()
   }
 
+  get document(): Partial<UserDTO> {
+    return {
+      image: this.image,
+      gravatar: this.gravatar,
+      useGravatar: this.useGravatar,
+      bio: this.bio,
+      additionalName: this.additionalName,
+      familyName: this.familyName,
+      givenName: this.givenName,
+      displayFullName: this.displayFullName
+    }
+  }
+
   private getGravatars(): Record<ImageKey, any> {
     return this.emailPrimary
       ? {
