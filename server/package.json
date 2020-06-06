@@ -20,7 +20,7 @@
     "apollo-boost": "^0.4.4",
     "apollo-link-context": "^1.0.19",
     "apollo-link-http": "^1.5.16",
-    "apollo-server": "^2.9.5",
+    "apollo-server": "^2.14.2",
     "apollo-server-express": "^2.9.5",
     "body-parser": "^1.19.0",
     "command-line-args": "^5.1.1",
