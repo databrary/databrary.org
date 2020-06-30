@@ -20,25 +20,25 @@ import { SearchService } from './search/search.service'
 
 @Controller()
 export class AppController {
-  constructor(
+  constructor (
     private readonly userService: UserService,
     private readonly searchService: SearchService
   ) {}
 
   @Get('/')
   @Redirect('https://localhost/')
-  home() {
+  home () {
     // do nothing.
   }
 
   @UseGuards(AuthGuard('keycloak'))
   @Get('login')
-  login() {
+  login () {
     // do nothing.
   }
 
   @Get('register')
-  async register(@Res() res, @Session() { user }) {
+  async register (@Res() res, @Session() { user }) {
     return isEmpty(user)
       ? res.redirect('/keycloak/register')
       : res.redirect('/')
@@ -46,18 +46,16 @@ export class AppController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('session')
-  async session(@Session() { user }): Promise<UserDTO> {
+  async session (@Session() { user }): Promise<UserDTO> {
     if (isEmpty(user)) return new UserDTO(user)
 
-    const { __typename, ...dbUser } = await this.userService.findByAuthId(
-      user.authServerId
-    )
+    const dbUser = await this.userService.findUser(user as UserDTO)
 
     return new UserDTO(dbUser)
   }
 
   @Post('search')
-  async search(@Request() req, @Res() res) {
+  async search (@Request() req, @Res() res) {
     try {
       const { search } = req.body
 
@@ -67,7 +65,7 @@ export class AppController {
 
       return res.json(result)
     } catch (error) {
-      console.error(`error`)
+      console.error('error')
     }
 
     res.json([])
@@ -75,7 +73,7 @@ export class AppController {
 
   @Get('logout')
   @Redirect('/keycloak/logout')
-  logout() {
+  logout () {
     // do nothing.
   }
 }

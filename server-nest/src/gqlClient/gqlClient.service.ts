@@ -18,11 +18,11 @@ export class GqlClientService {
   private readonly adminClient: ApolloClient<NormalizedCacheObject>
   private cache = {}
 
-  constructor(private readonly configService: ConfigService) {
+  constructor (private readonly configService: ConfigService) {
     this.adminClient = this.createAdminClient()
   }
 
-  private createAdminClient() {
+  private createAdminClient () {
     const headers = {
       'x-hasura-admin-secret': this.secret
     }
@@ -42,9 +42,9 @@ export class GqlClientService {
   }
 
   // Public functions
-  async adminQuery(
+  async adminQuery (
     path: string,
-    variables?: object,
+    variables?: Record<string, unknown>,
     fetchPolicy?: FetchPolicy
   ) {
     if (this.cache[path] === undefined) {
@@ -61,7 +61,7 @@ export class GqlClientService {
     return first(values(response.data))
   }
 
-  async adminMutate(path: string, variables?: object) {
+  async adminMutate (path: string, variables?: Record<string, unknown>) {
     if (this.cache[path] === undefined) {
       const fileContent = await readFile(path)
       this.cache[path] = gql`

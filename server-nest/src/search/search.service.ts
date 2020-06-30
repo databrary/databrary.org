@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { ElasticsearchService } from '@nestjs/elasticsearch'
-import { Index } from 'src/common/types'
+import { Index } from '../common/types'
 import { isEmpty } from 'lodash'
 
 @Injectable()
 export class SearchService {
-  constructor(private readonly client: ElasticsearchService) {}
+  constructor (private readonly client: ElasticsearchService) {}
 
-  async create(id: string, index: Index, doc: object, refresh: any = 'true') {
+  async create (id: string, index: Index, doc: Record<string, unknown>, refresh: any = 'true') {
     try {
       const { statusCode } = await this.client.create({
         id: id,
@@ -22,7 +22,7 @@ export class SearchService {
     return 400
   }
 
-  async update(id: string, index: Index, doc: object, refresh: any = 'true') {
+  async update (id: string, index: Index, doc: Record<string, unknown>, refresh: any = 'true') {
     try {
       const { statusCode } = await this.client.update({
         id: id,
@@ -36,7 +36,7 @@ export class SearchService {
     }
   }
 
-  async searchAll(search: any) {
+  async searchAll (search: any) {
     const {
       body: {
         hits: { hits }

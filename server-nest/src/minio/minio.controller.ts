@@ -1,14 +1,14 @@
 import { Controller, Post, Request, Session, Res } from '@nestjs/common'
 import { MinioService } from './minio.service'
-import { Buckets } from 'src/common/types'
+import { Buckets } from '../common/types'
 
 @Controller('minio')
 export class MinioController {
-  constructor(private readonly minioService: MinioService) {}
+  constructor (private readonly minioService: MinioService) {}
 
   @Post('webhook')
-  async webhook(@Request() { body: { Records } }, @Res() res) {
-    if (!Records) return res.status(201).send() // need to change the response status
+  async webhook (@Request() { body: { Records } }, @Res() res) {
+    if (Records == null) return res.status(201).send() // need to change the response status
 
     for (const record of Records) {
       const {
@@ -17,8 +17,8 @@ export class MinioController {
           bucket: { name }
         }
       } = record
-      if (!name) continue
-      if (!object) continue
+      if (name == null) continue
+      if (object == null) continue
 
       await this.minioService.addJob(name, object)
     }
@@ -27,8 +27,8 @@ export class MinioController {
   }
 
   @Post('sign-upload')
-  async signedUpload(
-    @Res() res,
+  async signedUpload (
+  @Res() res,
     @Request() { body: { contentType, filename, uploadType, format, assetId } },
     @Session() { user: { id } }
   ) {
@@ -44,7 +44,7 @@ export class MinioController {
           encodeURIComponent(filename),
           1000,
           function (err, presignedUrl) {
-            if (err) return console.log(err)
+            if (err != null) return console.log(err)
             res.json({
               url: presignedUrl,
               method: 'put',

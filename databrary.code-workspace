@@ -1,0 +1,50 @@
+{
+	"folders": [
+        {
+            "name": "Server",
+            "path": "./server-nest"
+        },
+        {
+            "name": "Client",
+            "path": "./client"
+        },
+        {   
+            "name": "GQL",
+            "path": "./gql"
+        },
+        {   
+            "name": ".workspace",
+            "path": "." 
+        }
+    ],
+    "settings": {
+        "files.exclude": {
+          "**/node_modules": true,
+          "**/docker-scripts": true,
+          "**/caddy": true
+        }
+    },
+    "launch": {
+        "configurations": [
+            {
+                "preLaunchTask": "Quasar",
+                "type": "chrome",
+                "request": "launch",
+                "name": "Attach Client",
+                "url": "http://localhost:8080",
+                "webRoot": "./client/src",
+                "breakOnLoad": true,
+                "sourceMapPathOverrides": {
+                  "webpack:///./src/*": "${webRoot}/*"
+                }
+              }
+        ],
+        "compounds": [{
+            "name": "Launch Docker & Server",
+            "configurations": [
+              "Launch Server",
+            //   "Attach Client"
+            ]
+        }]
+    },
+}

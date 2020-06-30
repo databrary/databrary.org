@@ -2,51 +2,73 @@ import { Injectable } from '@nestjs/common'
 import { isEmpty } from 'lodash'
 import { resolve } from 'path'
 
-import { GqlClientService } from 'src/gqlClient/gqlClient.service'
-import { UserDTO } from 'src/dtos/user.dto'
+import { GqlClientService } from '../gqlClient/gqlClient.service'
+import { UserDTO } from '../dtos/user.dto'
 
-import { GQL_DIR } from 'src/common/constants'
+import { GQL_DIR } from '../common/constants'
 import { HasuraEventHandler, HasuraEvent } from '@golevelup/nestjs-hasura'
-import { SearchService } from 'src/search/search.service'
+import { SearchService } from '../search/search.service'
 
 @Injectable()
 export class UserService {
-  constructor(
+  constructor (
     private readonly client: GqlClientService,
     private readonly searchService: SearchService
   ) {}
 
-  async findByEmail(emailPrimary: string) {
+  async findUser (user: UserDTO) {
+    if (user.authServerId != null) return await this.findByAuthId(user.authServerId)
+    if (user.emailPrimary != null) return await this.findByEmail(user.emailPrimary)
+
+    return null
+  }
+
+  async findByEmail (emailPrimary: string) {
     const users = await this.client.adminQuery(
-      resolve(GQL_DIR, `getUserByEmail.gql`),
+      resolve(GQL_DIR, 'getUserByEmail.gql'),
       { emailPrimary }
     )
 
-    return isEmpty(users) ? null : users[0]
+    if (isEmpty(users)) return null
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const { __typename, ...user } = users[0]
+
+    return user
   }
 
-  async findByAuthId(authServerId: string) {
+  async findByAuthId (authServerId: string) {
     const users = await this.client.adminQuery(
-      resolve(GQL_DIR, `getUserByAuthId.gql`),
+      resolve(GQL_DIR, 'getUserByAuthId.gql'),
       { authServerId },
       'no-cache'
     )
 
-    return isEmpty(users) ? null : users[0]
+    if (isEmpty(users)) return null
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const { __typename, ...user } = users[0]
+
+    return user
   }
 
-  async createUser(user: UserDTO) {
+  async createUser (user: UserDTO) {
     const { returning: users } = await this.client.adminMutate(
-      resolve(GQL_DIR, `registerUser.gql`),
-      user
+      resolve(GQL_DIR, 'registerUser.gql'),
+      { ...user }
     )
 
-    return isEmpty(users) ? null : users[0]
+    if (isEmpty(users)) return null
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const { __typename, ...newUser } = users[0]
+
+    return newUser
   }
 
-  async updateUserAvatar(id: number, avatarId: number, image: object) {
+  async updateUserAvatar (id: number, avatarId: number, image: Record<string, unknown>) {
     const { returning: users } = await this.client.adminMutate(
-      resolve(GQL_DIR, `updateUserAvatar.gql`),
+      resolve(GQL_DIR, 'updateUserAvatar.gql'),
       {
         id: id,
         avatarId: avatarId,
@@ -54,13 +76,18 @@ export class UserService {
       }
     )
 
-    return isEmpty(users) ? null : users[0]
+    if (isEmpty(users)) return null
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const { __typename, ...newUser } = users[0]
+
+    return newUser
   }
 
   @HasuraEventHandler({
     triggerName: 'users_update'
   })
-  async handleUserUpdate(evt: HasuraEvent) {
+  async handleUserUpdate (evt: HasuraEvent) {
     try {
       const {
         event: {
@@ -70,7 +97,7 @@ export class UserService {
 
       const user: UserDTO = new UserDTO(newUser)
 
-      console.log(`Hasura Event users update Payload`, user.document)
+      console.log('Hasura Event users update Payload', user.document)
 
       const status = await this.searchService.update(
         user.id.toString(),
@@ -87,7 +114,7 @@ export class UserService {
   @HasuraEventHandler({
     triggerName: 'users_insert'
   })
-  async handleUserInsert(evt: HasuraEvent) {
+  async handleUserInsert (evt: HasuraEvent) {
     try {
       const {
         event: {
@@ -97,7 +124,7 @@ export class UserService {
 
       const user: UserDTO = new UserDTO(newUser)
 
-      console.log(`Hasura Event users create Payload`, user.document)
+      console.log('Hasura Event users create Payload', user.document)
 
       const status = await this.searchService.create(
         user.id.toString(),
