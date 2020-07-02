@@ -21,15 +21,9 @@
             </template>
           </q-input>
           <div class="q-pt-md q-gutter-sm">
-            <q-btn
-              to="/register"
-              exact
-              color="white"
-              text-color="gray"
-              label="Register"
-            />
+            <q-btn to="/register" exact color="white" text-color="gray" label="Register" />
             <q-btn color="primary" label="Login" />
-            <br/>
+            <br />
             <q-btn @click="fogotPassword = true" flat color="primary" label="Forgot password" />
           </div>
         </div>
@@ -39,12 +33,7 @@
             Enter the last known email address and will
             send you a recovery email to reset your password
           </p>
-          <q-input
-            v-model="email"
-            filled
-            placeholder="Email"
-            class="q-py-md"
-          />
+          <q-input v-model="email" filled placeholder="Email" class="q-py-md" />
           <q-btn @click="fogotPassword = false" flat color="primary" label="Recover password" />
         </div>
       </q-card-section>

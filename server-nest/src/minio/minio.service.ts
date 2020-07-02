@@ -38,7 +38,7 @@ export class MinioService {
     return false
   }
 
-  async copyObject (bucket: Buckets, name: string, path: string, eTag: string) {
+  async copyObject (bucket: Buckets, name: string, path: string, eTag: string): Promise<boolean> {
     try {
       const conds = new CopyConditions()
       conds.setMatchETag(eTag)
@@ -127,7 +127,7 @@ export class MinioService {
     })
   }
 
-  async addJob (bucket: Buckets, object: Record<string, any>) {
+  async addJob (bucket: Buckets, object: Record<string, any>): Promise<void> {
     await this.queue.add(bucket, object)
   }
 }

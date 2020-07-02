@@ -34,7 +34,7 @@ export class TaskProcessor {
   ) {}
 
   @OnQueueActive()
-  onActive (job: Job) {
+  onActive (job: Job): void {
     console.log(
       `Processing job ${job.id} of type ${job.name} with data `,
       job.data
@@ -42,12 +42,12 @@ export class TaskProcessor {
   }
 
   @OnQueueCompleted()
-  onCompleted (job: Job) {
+  onCompleted (job: Job): void {
     console.log(`Completed job ${job.id} of type ${job.name}.`)
   }
 
   @Process('uploads')
-  async handleUploads (job: Job) {
+  async handleUploads (job: Job): Promise<void> {
     // Get Data from s3 record
     const record = new RecordDTO(job.data)
 
@@ -184,7 +184,7 @@ export class TaskProcessor {
   }
 
   @Process('public')
-  async handlePublic (job: Job) {
+  async handlePublic (job: Job): Promise<void> {
     const record = new RecordDTO(job.data)
 
     if (record.metaData == null) {
@@ -271,7 +271,7 @@ export class TaskProcessor {
   }
 
   @Process('cas')
-  async handleCas (job: Job) {
+  async handleCas (job: Job): Promise<void> {
     const record = new RecordDTO(job.data)
 
     if (record.assetId == null) {

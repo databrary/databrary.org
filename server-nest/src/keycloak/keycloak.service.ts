@@ -31,7 +31,7 @@ export class KeycloakService {
     return this.callbackUri
   }
 
-  async resetUserPassword (id: string, password) {
+  async resetUserPassword (id: string, password: string): Promise<void> {
     try {
       await this.authenticate()
 
@@ -49,7 +49,7 @@ export class KeycloakService {
     }
   }
 
-  async registerUser (email: string, password: string) {
+  async registerUser (email: string, password: string): Promise<void> {
     try {
       await this.authenticate()
 

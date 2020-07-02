@@ -14,7 +14,7 @@ export class AssetService {
     name: string,
     assetType: string,
     privacyType: string
-  ) {
+  ): Promise<any | null> {
     const { returning: assets } = await this.client.adminMutate(
       resolve(GQL_DIR, 'insertAsset.gql'),
       {
@@ -28,7 +28,7 @@ export class AssetService {
     return isEmpty(assets) ? null : assets[0]
   }
 
-  async removeAsset (id: number) {
+  async removeAsset (id: number): Promise<unknown | null> {
     const { returning: assets } = await this.client.adminMutate(
       resolve(GQL_DIR, 'removeAsset.gql'),
       {

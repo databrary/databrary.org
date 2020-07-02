@@ -18,12 +18,13 @@ export class KeycloakController {
   @UseGuards(AuthGuard('keycloak'))
   @Get('auth')
   @Redirect('/')
-  async auth () {
+  async auth (): Promise<void> {
     // do nothing.
   }
 
   @Get('register')
-  async register (@Res() res) {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  async register (@Res() res): Promise<any> {
     const url = `${
       this.keycloakService.getBaseUri
     }/registrations?client_id=client&state=${uuidv4()}response_mode=fragment&response_type=code&redirect_uri=${
@@ -35,12 +36,14 @@ export class KeycloakController {
   @UseGuards(AuthGuard('keycloak'))
   @Get('auth/callback')
   @Redirect('/')
-  async callback (@Request() req, @Session() session) {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  async callback (@Request() req, @Session() session): Promise<void> {
     session.user = req.user
   }
 
   @Get('logout')
-  async logout (@Request() req, @Res() res, @Session() session) {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  async logout (@Request() req, @Res() res, @Session() session): Promise<any> {
     session.user = {}
 
     const url = `${this.keycloakService.getBaseUri}/logout?redirect_uri=http://localhost:8000`

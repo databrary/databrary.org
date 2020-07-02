@@ -27,18 +27,19 @@ export class AppController {
 
   @Get('/')
   @Redirect('https://localhost/')
-  home () {
+  home (): void {
     // do nothing.
   }
 
   @UseGuards(AuthGuard('keycloak'))
   @Get('login')
-  login () {
+  login (): void {
     // do nothing.
   }
 
   @Get('register')
-  async register (@Res() res, @Session() { user }) {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  register (@Res() res, @Session() { user }: { user: UserDTO }): any {
     return isEmpty(user)
       ? res.redirect('/keycloak/register')
       : res.redirect('/')
@@ -46,16 +47,17 @@ export class AppController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('session')
-  async session (@Session() { user }): Promise<UserDTO> {
+  async session (@Session() { user }: { user: UserDTO }): Promise<UserDTO> {
     if (isEmpty(user)) return new UserDTO(user)
 
-    const dbUser = await this.userService.findUser(user as UserDTO)
+    const dbUser = await this.userService.findUser(user)
 
     return new UserDTO(dbUser)
   }
 
   @Post('search')
-  async search (@Request() req, @Res() res) {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  async search (@Request() req, @Res() res): Promise<any> {
     try {
       const { search } = req.body
 
@@ -73,7 +75,7 @@ export class AppController {
 
   @Get('logout')
   @Redirect('/keycloak/logout')
-  logout () {
+  logout (): void {
     // do nothing.
   }
 }

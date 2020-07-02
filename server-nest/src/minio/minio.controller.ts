@@ -1,13 +1,15 @@
 import { Controller, Post, Request, Session, Res } from '@nestjs/common'
 import { MinioService } from './minio.service'
 import { Buckets } from '../common/types'
+import { UserDTO } from '../dtos/user.dto'
 
 @Controller('minio')
 export class MinioController {
   constructor (private readonly minioService: MinioService) {}
 
   @Post('webhook')
-  async webhook (@Request() { body: { Records } }, @Res() res) {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  async webhook (@Request() { body: { Records } }, @Res() res): Promise<void> {
     if (Records == null) return res.status(201).send() // need to change the response status
 
     for (const record of Records) {
@@ -28,10 +30,10 @@ export class MinioController {
 
   @Post('sign-upload')
   async signedUpload (
-  @Res() res,
-    @Request() { body: { contentType, filename, uploadType, format, assetId } },
-    @Session() { user: { id } }
-  ) {
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    @Res() res, @Request() { body: { contentType, filename, uploadType, format, assetId } },
+      @Session() { user: { id } }: { user: UserDTO, id: number }
+  ): Promise<void> {
     try {
       const bucketName: Buckets = 'uploads'
 

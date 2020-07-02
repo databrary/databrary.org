@@ -9,6 +9,7 @@ import { UserDTO } from '../dtos/user.dto'
 @Injectable()
 export class KeycloakStrategy extends PassportStrategy(Strategy, 'keycloak') {
   constructor (
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   @Inject('KEYCLOAK_STRATEGY_CONFIG') config: any,
     private readonly userService: UserService
   ) {
@@ -16,6 +17,7 @@ export class KeycloakStrategy extends PassportStrategy(Strategy, 'keycloak') {
   }
 
   // TODO(Reda): Check if user is valid before returning the profile
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   async validate (accessToken, refreshToken, profile, done): Promise<any> {
     try {
       const {

@@ -16,14 +16,14 @@ export class UserService {
     private readonly searchService: SearchService
   ) {}
 
-  async findUser (user: UserDTO) {
+  async findUser (user: UserDTO): Promise<UserDTO> | null {
     if (user.authServerId != null) return await this.findByAuthId(user.authServerId)
     if (user.emailPrimary != null) return await this.findByEmail(user.emailPrimary)
 
     return null
   }
 
-  async findByEmail (emailPrimary: string) {
+  async findByEmail (emailPrimary: string): Promise<UserDTO> {
     const users = await this.client.adminQuery(
       resolve(GQL_DIR, 'getUserByEmail.gql'),
       { emailPrimary }
@@ -37,7 +37,7 @@ export class UserService {
     return user
   }
 
-  async findByAuthId (authServerId: string) {
+  async findByAuthId (authServerId: string): Promise<UserDTO> {
     const users = await this.client.adminQuery(
       resolve(GQL_DIR, 'getUserByAuthId.gql'),
       { authServerId },
@@ -52,7 +52,7 @@ export class UserService {
     return user
   }
 
-  async createUser (user: UserDTO) {
+  async createUser (user: UserDTO): Promise<UserDTO> {
     const { returning: users } = await this.client.adminMutate(
       resolve(GQL_DIR, 'registerUser.gql'),
       { ...user }
@@ -66,7 +66,7 @@ export class UserService {
     return newUser
   }
 
-  async updateUserAvatar (id: number, avatarId: number, image: Record<string, unknown>) {
+  async updateUserAvatar (id: number, avatarId: number, image: Record<string, unknown>): Promise<UserDTO> {
     const { returning: users } = await this.client.adminMutate(
       resolve(GQL_DIR, 'updateUserAvatar.gql'),
       {
@@ -87,7 +87,7 @@ export class UserService {
   @HasuraEventHandler({
     triggerName: 'users_update'
   })
-  async handleUserUpdate (evt: HasuraEvent) {
+  async handleUserUpdate (evt: HasuraEvent): Promise<number> {
     try {
       const {
         event: {
@@ -114,7 +114,7 @@ export class UserService {
   @HasuraEventHandler({
     triggerName: 'users_insert'
   })
-  async handleUserInsert (evt: HasuraEvent) {
+  async handleUserInsert (evt: HasuraEvent): Promise<number> {
     try {
       const {
         event: {
