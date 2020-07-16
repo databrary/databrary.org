@@ -14,7 +14,7 @@
     "build:pwa": "quasar build -m pwa"
   },
   "dependencies": {
-    "@quasar/extras": "^1.5.0",
+    "@quasar/extras": "^1.8.2",
     "@uppy/aws-s3": "^1.6.2",
     "@uppy/aws-s3-multipart": "^1.6.2",
     "@uppy/core": "^1.10.2",
@@ -35,7 +35,7 @@
     "js-cookie": "^2.2.1",
     "node-fetch": "^2.6.0",
     "node-sass": "^4.13.1",
-    "quasar": "^1.8.2",
+    "quasar": "^1.12.12",
     "v-runtime-template": "^1.10.0",
     "validator": "^13.0.0",
     "vue-apollo": "^3.0.2",
@@ -44,7 +44,8 @@
     "vuex-pathify": "^1.4.1"
   },
   "devDependencies": {
-    "@quasar/app": "^1.5.2",
+    "@quasar/app": "^1.9.6",
+    "@quasar/cli": "^1.1.0",
     "@vue/eslint-config-standard": "^4.0.0",
     "babel-eslint": "^10.0.3",
     "eslint": "^5.10.0",

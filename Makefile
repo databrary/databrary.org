@@ -3,7 +3,7 @@ include .env
 ##############################################################################
 # This will detect the correct system, except if you're using WSL.
 # For WSL, make sure to set WSL=1 in your .env file or environment.
-
+##############################################################################
 UNAME := $(shell uname -s)
 DOCKER_HOST_IP = host.docker.internal
 
@@ -21,9 +21,12 @@ info:
 ##############################################################################
 # Check if binary exists
 ##############################################################################
-EXISTS:
-EXISTS-%:
-	@which $* > /dev/null 
+DOC_INSTALL_yarn="Please install yarn using npm -g install yarn"
+exists:
+exists-%:
+	@if ! command -v $* &> /dev/null; then\
+		echo $(DOC_INSTALL_$*);\
+	fi;
 
 ##############################################################################
 # Check node version
@@ -38,24 +41,22 @@ check_node_version:
 	fi;
 
 ##############################################################################
-# Install JS Packages: yarn install packages
+# Setup rules and targets for yarn installs
 ##############################################################################
 JS_DIRS=client server server-nest
 
 define install_js_rule
 $(1)/node_modules: $(1)/package.json $(1)/yarn.lock
-	cd $(1) && yarn && cd ..
+	cd $(1) && yarn && touch node_modules && cd ..
 endef
 
-# $(foreach dir,$(JS_DIRS),$(eval $(call install_js_rule, $(dir))))
+$(foreach dir,$(JS_DIRS),$(eval $(call install_js_rule,$(dir))))
 
-JS_DEPS=\
-	EXISTS-node\
-	EXISTS-yarn\
-	check_node_version
-	# $(foreach dir,$(JS_DIRS),$(dir)/yarn.lock)
-
-# install_js_packages: $(JS_DEPS)
+##############################################################################
+# Maintenance Rules
+##############################################################################
+upgrade-quasar:
+	cd client && quasar upgrade && quasar upgrade --install && cd ..
 ##############################################################################
 
 start_docker:
@@ -78,10 +79,13 @@ server_nest:client/node_modules
 	cd server-nest && npm run start:dev && cd ..
 server_debug: client/node_modules
 	cd server-nest && npm run start:debug && cd ..
-client: client/node_modules
-	cd client && npm run dev && cd ..
+
+client: check_node_version exists-yarn client/node_modules
+	cd client && npm run start:dev && cd ..
+
 migrate:
 	cd hasura && hasura migrate apply && hasura console && cd ..
+
 queue:
 	cd server && npm run queue && cd ..
 
@@ -106,7 +110,6 @@ endif
 
 install_js_clis:
 	npm install -g yarn
-	npm install -g @quasar/cli
 
 setup_migrations:
 	cd hasura && hasura migrate apply && cd ..
