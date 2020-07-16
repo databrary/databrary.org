@@ -1,9 +1,0 @@
-{
-  "devDependencies": {
-    "dotenv": "^8.2.0",
-    "tasksfile": "^5.1.1"
-  },
-  "scripts": {
-    "task": "node -r dotenv/config ./tasksfile.js"
-  }
-}
