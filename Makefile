@@ -24,15 +24,14 @@ info:
 DOC_INSTALL_yarn="Please install yarn using npm -g install yarn"
 exists:
 exists-%:
-	@if ! command -v $* &> /dev/null; then\
-		echo $(DOC_INSTALL_$*);\
-	fi;
+	$(eval INSTRUCTIONS := $(if $(DOC_INSTALL_$*),$(DOC_INSTALL_$*),"Please install $*"))
+	@command -v $* >/dev/null 2>&1 || echo $(INSTRUCTIONS)
 
 ##############################################################################
 # Check node version
 ##############################################################################
 NODE_VERSION=14.0.0
-check_node_version:
+check-node-version:
 	@if [ $(shell node --version) != v$(NODE_VERSION) ]; then\
 		echo "ERROR: Databrary recommends node v$(NODE_VERSION).";\
 		echo "We also recommend nvm and running";\
@@ -45,18 +44,18 @@ check_node_version:
 ##############################################################################
 JS_DIRS=client server server-nest
 
-define install_js_rule
+define install-js-rule
 $(1)/node_modules: $(1)/package.json $(1)/yarn.lock
 	cd $(1) && yarn && touch node_modules && cd ..
 endef
 
-$(foreach dir,$(JS_DIRS),$(eval $(call install_js_rule,$(dir))))
+$(foreach dir,$(JS_DIRS),$(eval $(call install-js-rule,$(dir))))
 
 ##############################################################################
 # Maintenance Rules
 ##############################################################################
 upgrade-quasar:
-	cd client && quasar upgrade && quasar upgrade --install && cd ..
+	cd client && npx quasar upgrade && npx quasar upgrade --install && cd ..
 ##############################################################################
 
 start_docker:
@@ -67,7 +66,7 @@ cleardb:
 	docker-compose down -v
 docker:
 	DOCKER_HOST_IP=$(DOCKER_HOST_IP) docker-compose up 
-server: client/node_modules
+server: check-node-version exists-yarn server/node_modules
 ifdef DEV
 	@echo "Running development server"
 	cd server && npm run dev -- --env=dev && cd ..
@@ -75,13 +74,13 @@ else
 	@echo "Running production server"
 	cd server && npm run dev && cd ..
 endif
-server_nest:client/node_modules
+server_nest: check-node-version exists-yarn server-nest/node_modules
 	cd server-nest && npm run start:dev && cd ..
-server_debug: client/node_modules
+server_debug: check-node-version exists-yarn server-nest/node_modules
 	cd server-nest && npm run start:debug && cd ..
 
-client: check_node_version exists-yarn client/node_modules
-	cd client && npm run start:dev && cd ..
+client: check-node-version exists-yarn client/node_modules
+	cd client && npm run dev && cd ..
 
 migrate:
 	cd hasura && hasura migrate apply && hasura console && cd ..
@@ -107,9 +106,6 @@ ifeq ($(UNAME),Darwin)
 else
 	sudo curl -L https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc &&	sudo chmod +x /usr/local/bin/mc
 endif
-
-install_js_clis:
-	npm install -g yarn
 
 setup_migrations:
 	cd hasura && hasura migrate apply && cd ..
