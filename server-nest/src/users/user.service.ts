@@ -37,7 +37,7 @@ export class UserService {
     return user
   }
 
-  async findByAuthId (authServerId: string): Promise<UserDTO> {
+  async findByAuthId (authServerId: string): Promise<UserDTO | null> {
     const users = await this.client.adminQuery(
       resolve(GQL_DIR, 'getUserByAuthId.gql'),
       { authServerId },

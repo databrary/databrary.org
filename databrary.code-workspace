@@ -22,7 +22,12 @@
           "**/node_modules": true,
           "**/docker-scripts": true,
           "**/caddy": true
-        }
+        },
+
+        "eslint.workingDirectories": [
+            { "directory": "client", "changeProcessCWD": true },
+            { "directory": "server-nest", "changeProcessCWD": true }
+        ]
     },
     "tasks": {
         "version": "2.0.0",
