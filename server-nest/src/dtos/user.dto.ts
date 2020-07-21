@@ -1,7 +1,7 @@
 import { Exclude } from 'class-transformer'
 import * as crypto from 'crypto'
-import { ImageKey, ImageSize } from 'src/common/types'
-import { AVATAR_SIZES } from 'src/common/constants'
+import { ImageKey, ImageSize } from '../common/types'
+import { AVATAR_SIZES } from '../common/constants'
 
 export class UserDTO {
   @Exclude()
@@ -48,18 +48,17 @@ export class UserDTO {
 
   gravatar: Record<ImageKey, any>
 
-  constructor(user: Partial<UserDTO>) {
-    if (!user) return
+  constructor (user: Partial<UserDTO>) {
+    if (user == null) return
 
     Object.assign(this, user)
 
-    if (!user.emails) this.emails = [this.emailPrimary]
-    if (!user.displayFullName)
-      this.displayFullName = `${this.givenName} ${this.familyName}`
-    if (!user.gravatar) this.gravatar = this.getGravatars()
+    if (user.emails == null) this.emails = [this.emailPrimary]
+    if (user.displayFullName == null) this.displayFullName = `${this.givenName} ${this.familyName}`
+    if (user.gravatar == null) this.gravatar = this.getGravatars()
   }
 
-  get document(): Partial<UserDTO> {
+  get document (): Partial<UserDTO> {
     return {
       image: this.image,
       gravatar: this.gravatar,
@@ -72,21 +71,21 @@ export class UserDTO {
     }
   }
 
-  private getGravatars(): Record<ImageKey, any> {
-    return this.emailPrimary
+  private getGravatars (): Record<ImageKey, any> {
+    return this.emailPrimary != null
       ? {
-          thumbnail: this.getGravatarURL(AVATAR_SIZES.thumbnail),
-          large: this.getGravatarURL(AVATAR_SIZES.large)
-        }
+        thumbnail: this.getGravatarURL(AVATAR_SIZES.thumbnail),
+        large: this.getGravatarURL(AVATAR_SIZES.large)
+      }
       : null
   }
 
-  private getGravatarURL(size = 32) {
-    const md5 = this.emailPrimary
+  private getGravatarURL (size = 32) {
+    const md5 = this.emailPrimary != null
       ? crypto
-          .createHash('md5')
-          .update(this.emailPrimary.toString())
-          .digest('hex')
+        .createHash('md5')
+        .update(this.emailPrimary.toString())
+        .digest('hex')
       : ''
 
     return `https://gravatar.com/avatar/${md5}?s=${size}&d=monsterid`

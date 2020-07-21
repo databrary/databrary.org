@@ -61,7 +61,7 @@ upgrade-quasar:
 start_docker:
 	docker-compose up -d
 stop_docker:
-	docker-compose down
+	docker-compose stop
 cleardb:
 	docker-compose down -v
 docker:

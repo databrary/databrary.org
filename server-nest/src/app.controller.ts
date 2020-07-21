@@ -20,25 +20,26 @@ import { SearchService } from './search/search.service'
 
 @Controller()
 export class AppController {
-  constructor(
+  constructor (
     private readonly userService: UserService,
     private readonly searchService: SearchService
   ) {}
 
   @Get('/')
   @Redirect('https://localhost/')
-  home() {
+  home (): void {
     // do nothing.
   }
 
   @UseGuards(AuthGuard('keycloak'))
   @Get('login')
-  login() {
+  login (): void {
     // do nothing.
   }
 
   @Get('register')
-  async register(@Res() res, @Session() { user }) {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  register (@Res() res, @Session() { user }: { user: UserDTO }): any {
     return isEmpty(user)
       ? res.redirect('/keycloak/register')
       : res.redirect('/')
@@ -46,18 +47,17 @@ export class AppController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('session')
-  async session(@Session() { user }): Promise<UserDTO> {
+  async session (@Session() { user }: { user: UserDTO }): Promise<UserDTO> {
     if (isEmpty(user)) return new UserDTO(user)
 
-    const { __typename, ...dbUser } = await this.userService.findByAuthId(
-      user.authServerId
-    )
+    const dbUser = await this.userService.findUser(user)
 
     return new UserDTO(dbUser)
   }
 
   @Post('search')
-  async search(@Request() req, @Res() res) {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  async search (@Request() req, @Res() res): Promise<any> {
     try {
       const { search } = req.body
 
@@ -67,7 +67,7 @@ export class AppController {
 
       return res.json(result)
     } catch (error) {
-      console.error(`error`)
+      console.error('error')
     }
 
     res.json([])
@@ -75,7 +75,7 @@ export class AppController {
 
   @Get('logout')
   @Redirect('/keycloak/logout')
-  logout() {
+  logout (): void {
     // do nothing.
   }
 }

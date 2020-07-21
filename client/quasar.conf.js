@@ -2,18 +2,18 @@
 /* eslint-disable no-path-concat */
 /* eslint-disable func-names */
 // Configuration for your app
-function extendTypescriptToWebpack (cfg) {
-  // added the type-script supports
-  cfg.resolve.extensions.push('.ts')
-  cfg.module.rules.push({
-    test: /\.ts$/,
-    loader: 'ts-loader',
-    options: {
-      appendTsSuffixTo: [/\.vue$/],
-      configFile: './tsconfig.json'
-    }
-  })
-}
+// function extendTypescriptToWebpack (cfg) {
+//   // added the type-script supports
+//   cfg.resolve.extensions.push('.ts')
+//   cfg.module.rules.push({
+//     test: /\.ts$/,
+//     loader: 'ts-loader',
+//     options: {
+//       appendTsSuffixTo: [/\.vue$/],
+//       configFile: './tsconfig.json'
+//     }
+//   })
+// }
 
 module.exports = function (ctx) {
   return {

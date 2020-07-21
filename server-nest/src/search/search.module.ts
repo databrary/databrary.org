@@ -7,6 +7,7 @@ import { SearchService } from './search.service'
   imports: [
     ElasticsearchModule.registerAsync({
       useFactory: async (config: ConfigService) => ({
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         node: `${config.get('ES_NODE')}:${config.get('ES_PORT')}`
       }),
       inject: [ConfigService]

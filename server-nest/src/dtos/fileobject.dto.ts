@@ -1,6 +1,6 @@
 import * as crypto from 'crypto'
 import { createReadStream } from 'fs'
-import { Buckets } from 'src/common/types'
+import { Buckets } from '../common/types'
 
 export class FileObjectDTO {
   md5: string
@@ -9,11 +9,11 @@ export class FileObjectDTO {
   sha256: string
   location: string
 
-  constructor(fileObject: Partial<FileObjectDTO>) {
+  constructor (fileObject: Partial<FileObjectDTO>) {
     Object.assign(this, fileObject)
   }
 
-  static async hashAndSizeFile(
+  static async hashAndSizeFile (
     bucket: Buckets,
     filePath: string
   ): Promise<FileObjectDTO> {

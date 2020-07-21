@@ -3,43 +3,45 @@ import { Injectable, Inject } from '@nestjs/common'
 
 import { Strategy } from 'passport-keycloak-oauth2-oidc'
 
-import { UserService } from 'src/users/user.service'
-import { UserDTO } from 'src/dtos/user.dto'
+import { UserService } from '../users/user.service'
+import { UserDTO } from '../dtos/user.dto'
 
 @Injectable()
 export class KeycloakStrategy extends PassportStrategy(Strategy, 'keycloak') {
-  constructor(
-    @Inject('KEYCLOAK_STRATEGY_CONFIG') config: any,
+  constructor (
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  @Inject('KEYCLOAK_STRATEGY_CONFIG') config: any,
     private readonly userService: UserService
   ) {
     super(config)
   }
 
   // TODO(Reda): Check if user is valid before returning the profile
-  async validate(accessToken, refreshToken, profile, done): Promise<any> {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  async validate (accessToken, refreshToken, profile, done): Promise<any> {
     try {
-      let user = await this.userService.findByAuthId(profile.id)
+      const {
+        id: authServerId,
+        email: emailPrimary,
+        _json: { given_name: givenName, family_name: familyName }
+      } = profile
 
-      if (!user) {
-        const {
-          id: authServerId,
-          email: emailPrimary,
-          _json: { given_name: givenName, family_name: familyName }
-        } = profile
+      const userDTO: UserDTO = new UserDTO({
+        authServerId,
+        emailPrimary,
+        givenName,
+        familyName
+      })
 
-        user = await this.userService.createUser(
-          new UserDTO({
-            authServerId,
-            emailPrimary,
-            givenName,
-            familyName
-          })
-        )
+      let user = await this.userService.findUser(userDTO)
+
+      if (user == null) {
+        user = await this.userService.createUser(userDTO)
       }
 
-      const { __typename, ...dbUser } = user
+      if (user == null) return false
 
-      return dbUser
+      return user
     } catch (error) {
       return false
     }
