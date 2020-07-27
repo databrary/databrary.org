@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 
 import KcAdminClient from 'keycloak-admin'
@@ -7,28 +7,31 @@ import KcAdminClient from 'keycloak-admin'
 export class KeycloakService {
   private readonly username = this.configService.get('KEYCLOAK_USERNAME')
   private readonly password = this.configService.get('KEYCLOAK_PASSWORD')
-  private readonly realm = this.configService.get('KEYCLOAK_REALM')
-  private readonly port = this.configService.get('KEYCLOAK_PORT')
-  private readonly endpoint = this.configService.get('KEYCLOAK_ENDPOINT')
+  private readonly realm: string = this.configService.get('KEYCLOAK_REALM')
+  private readonly port: string = this.configService.get('KEYCLOAK_PORT')
+  private readonly endpoint: string = this.configService.get('KEYCLOAK_ENDPOINT')
   private readonly callbackUri = this.configService.get(
     'KEYCLOAK_AUTH_CALLBACK_URL'
   )
-  private readonly kcAdminClient = new KcAdminClient({
-    baseUrl: `http://${this.endpoint}:${this.port}/auth`,
-    realmName: 'master'
-  })
 
-  constructor(private readonly configService: ConfigService) {}
+  private readonly kcAdminClient = new KcAdminClient(
+    {
+      baseUrl: `http://${this.endpoint}:${this.port}/auth`,
+      realmName: 'master'
+    }
+  )
 
-  get getBaseUri(): string {
+  constructor (private readonly configService: ConfigService) {}
+
+  get getBaseUri (): string {
     return `http://${this.endpoint}:${this.port}/auth/realms/${this.realm}/protocol/openid-connect`
   }
 
-  get getCallbackUri(): string {
+  get getCallbackUri (): string {
     return this.callbackUri
   }
 
-  async resetUserPassword(id: string, password) {
+  async resetUserPassword (id: string, password: string): Promise<void> {
     try {
       await this.authenticate()
 
@@ -46,7 +49,7 @@ export class KeycloakService {
     }
   }
 
-  async registerUser(email: string, password: string) {
+  async registerUser (email: string, password: string): Promise<void> {
     try {
       await this.authenticate()
 
@@ -60,13 +63,13 @@ export class KeycloakService {
         lastName: 'Testerson'
       })
 
-      this.resetUserPassword(user.id, password)
+      await this.resetUserPassword(user.id, password)
     } catch (error) {
       console.error(error)
     }
   }
 
-  private async authenticate() {
+  private async authenticate () {
     await this.kcAdminClient.auth({
       username: this.username,
       password: this.password,

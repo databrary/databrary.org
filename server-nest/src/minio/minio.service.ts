@@ -3,22 +3,22 @@ import { InjectQueue } from '@nestjs/bull'
 import { Client, CopyConditions } from 'minio'
 import { Queue } from 'bull'
 import { createHash } from 'crypto'
-import { FileObjectDTO } from 'src/dtos/fileobject.dto'
-import { Buckets } from 'src/common/types'
-import { IRecordUserMetadata } from 'src/common/IRecordUserMetadata'
+import { FileObjectDTO } from '../dtos/fileobject.dto'
+import { Buckets } from '../common/types'
+import { IRecordUserMetadata } from '../common/IRecordUserMetadata'
 
 @Injectable()
 export class MinioService {
-  constructor(
+  constructor (
     @Inject('MINIO_CLIENT') private readonly minioClient: Client,
     @InjectQueue('QUEUE') private readonly queue: Queue
   ) {}
 
-  get client(): Client {
+  get client (): Client {
     return this.minioClient
   }
 
-  async bucketExists(bucket: Buckets): Promise<boolean> {
+  async bucketExists (bucket: Buckets): Promise<boolean> {
     try {
       return await this.client.bucketExists(bucket)
     } catch (error) {
@@ -28,16 +28,17 @@ export class MinioService {
     return false
   }
 
-  async fileExists(bucket: Buckets, name: string): Promise<boolean> {
+  async fileExists (bucket: Buckets, name: string): Promise<boolean> {
     try {
       const { etag } = await this.client.statObject(bucket, name)
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       return !!etag
     } catch (error) {}
 
     return false
   }
 
-  async copyObject(bucket: Buckets, name: string, path: string, eTag: string) {
+  async copyObject (bucket: Buckets, name: string, path: string, eTag: string): Promise<boolean> {
     try {
       const conds = new CopyConditions()
       conds.setMatchETag(eTag)
@@ -51,20 +52,21 @@ export class MinioService {
     return false
   }
 
-  async getObject(
+  async getObject (
     bucket: Buckets,
     name: string,
     path: string
   ): Promise<boolean> {
     return await new Promise((resolve, reject) => {
       this.client.fGetObject(bucket, name, path, (err) => {
-        if (err) reject(false)
+        // eslint-disable-next-line prefer-promise-reject-errors
+        if (err != null) reject(false)
         resolve(true)
       })
     })
   }
 
-  async uploadObject(
+  async uploadObject (
     bucket: Buckets,
     name: string,
     path: string,
@@ -72,7 +74,8 @@ export class MinioService {
   ): Promise<boolean> {
     return await new Promise((resolve, reject) => {
       this.client.fPutObject(bucket, name, path, metaData, (err, eTag) => {
-        if (err) {
+        if (err != null) {
+          // eslint-disable-next-line prefer-promise-reject-errors
           reject(false)
         }
         resolve(true)
@@ -80,7 +83,7 @@ export class MinioService {
     })
   }
 
-  async hashAndSizeMinio(
+  async hashAndSizeMinio (
     bucket: Buckets,
     name: string
   ): Promise<FileObjectDTO> {
@@ -91,10 +94,11 @@ export class MinioService {
       let size = 0
 
       this.client.getObject(bucket, name, function (err, dataStream) {
-        if (err) {
+        if (err != null) {
           reject(err)
         }
         dataStream.on('data', function (chunk) {
+          // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
           size += chunk.length
           hashMd5.update(chunk)
           hashSha1.update(chunk)
@@ -123,7 +127,7 @@ export class MinioService {
     })
   }
 
-  async addJob(bucket: Buckets, object: Record<string, any>) {
+  async addJob (bucket: Buckets, object: Record<string, any>): Promise<void> {
     await this.queue.add(bucket, object)
   }
 }

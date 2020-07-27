@@ -4,9 +4,9 @@ import { MinioService } from './minio.service'
 import { ConfigService } from '@nestjs/config'
 import { Client } from 'minio'
 import { toInteger } from 'lodash'
-import { UserModule } from 'src/users/user.module'
-import { FileModule } from 'src/file/file.module'
-import { QueueModule } from 'src/queue/queue.module'
+import { UserModule } from '../users/user.module'
+import { FileModule } from '../file/file.module'
+import { QueueModule } from '../queue/queue.module'
 
 const minioClient = {
   provide: 'MINIO_CLIENT',

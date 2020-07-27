@@ -61,7 +61,7 @@ upgrade-quasar:
 start_docker:
 	docker-compose up -d
 stop_docker:
-	docker-compose down
+	docker-compose stop
 cleardb:
 	docker-compose down -v
 docker:
@@ -100,27 +100,11 @@ install_docker_compose:
 install_hasura_cli:
 	curl -L https://github.com/hasura/graphql-engine/raw/master/cli/get.sh | bash
 
-install_minio_cli:
-ifeq ($(UNAME),Darwin)
-	brew install minio/stable/mc
-else
-	sudo curl -L https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc &&	sudo chmod +x /usr/local/bin/mc
-endif
-
 setup_migrations:
 	cd hasura && hasura migrate apply && cd ..
 
 setup_minio:
-	mc config host add minio ${MINIO_URL} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
-	mc admin config set minio/ notify_webhook:1 endpoint="http://${DOCKER_HOST_IP}:8000/minio/webhook" queue_dir="/events" queue_limit="10000"
-	mc admin service restart minio;
-	mc mb -p minio/uploads;
-	mc mb -p minio/cas;
-	mc mb -p minio/public;
-	mc policy set public minio/public;
-	mc event add minio/uploads arn:minio:sqs::1:webhook --event put
-	mc event add minio/cas arn:minio:sqs::1:webhook --event put
-	mc event add minio/public arn:minio:sqs::1:webhook --event put
+	docker build -t mc ./docker-assets/minio/ && docker run --env-file=./.env --rm --network="host" -it mc
 
 fix_es_lint:
 	npx eslint --ext .ts . --fix
