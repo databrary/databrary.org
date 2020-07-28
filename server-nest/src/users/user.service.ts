@@ -16,14 +16,14 @@ export class UserService {
     private readonly searchService: SearchService
   ) {}
 
-  async findUser (user: UserDTO): Promise<UserDTO> | null {
+  async findUser (user: UserDTO): Promise<UserDTO | null> {
     if (user.authServerId != null) return await this.findByAuthId(user.authServerId)
     if (user.emailPrimary != null) return await this.findByEmail(user.emailPrimary)
 
     return null
   }
 
-  async findByEmail (emailPrimary: string): Promise<UserDTO> {
+  async findByEmail (emailPrimary: string): Promise<UserDTO | null> {
     const users = await this.client.adminQuery(
       resolve(GQL_DIR, 'getUserByEmail.gql'),
       { emailPrimary }
@@ -52,7 +52,7 @@ export class UserService {
     return user
   }
 
-  async createUser (user: UserDTO): Promise<UserDTO> {
+  async createUser (user: UserDTO): Promise<UserDTO | null> {
     const { returning: users } = await this.client.adminMutate(
       resolve(GQL_DIR, 'registerUser.gql'),
       { ...user }
@@ -66,7 +66,7 @@ export class UserService {
     return newUser
   }
 
-  async updateUserAvatar (id: number, avatarId: number, image: Record<string, unknown>): Promise<UserDTO> {
+  async updateUserAvatar (id: number, avatarId: number, image: Record<string, unknown>): Promise<UserDTO | null> {
     const { returning: users } = await this.client.adminMutate(
       resolve(GQL_DIR, 'updateUserAvatar.gql'),
       {
@@ -96,8 +96,6 @@ export class UserService {
       } = evt
 
       const user: UserDTO = new UserDTO(newUser)
-
-      console.log('Hasura Event users update Payload', user.document)
 
       const status = await this.searchService.update(
         user.id.toString(),

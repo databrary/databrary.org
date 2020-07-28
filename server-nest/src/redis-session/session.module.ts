@@ -1,10 +1,10 @@
 import { ConfigService } from '@nestjs/config'
 
-import * as ConnectRedis from 'connect-redis'
+import ConnectRedis from 'connect-redis'
 import { RedisService } from 'nestjs-redis'
 import { Redis } from '../redis/redis.module'
 
-import * as session from 'express-session'
+import session from 'express-session'
 import { NestSessionOptions, SessionModule } from 'nestjs-session'
 
 const RedisStore = ConnectRedis(session)

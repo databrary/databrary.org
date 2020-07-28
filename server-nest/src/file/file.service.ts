@@ -9,7 +9,7 @@ import { FileObjectDTO } from '../dtos/fileobject.dto'
 
 import { AVATAR_FORMAT, GQL_DIR } from '../common/constants'
 
-import * as sharp from 'sharp'
+import sharp from 'sharp'
 
 @Injectable()
 export class FileService {

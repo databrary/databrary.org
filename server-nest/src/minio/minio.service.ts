@@ -92,11 +92,13 @@ export class MinioService {
       const hashMd5 = createHash('md5')
       const hashSha1 = createHash('sha1') // todo check this
       let size = 0
-
-      this.client.getObject(bucket, name, function (err, dataStream) {
+      // eslint-disable-next-line @typescript-eslint/space-before-function-paren
+      this.client.getObject(bucket, name, function(err, dataStream) {
         if (err != null) {
           reject(err)
         }
+        console.log('bucket ', bucket)
+        console.log('Datastream ', dataStream)
         dataStream.on('data', function (chunk) {
           // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
           size += chunk.length
