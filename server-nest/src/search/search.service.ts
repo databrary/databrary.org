@@ -29,6 +29,7 @@ export class SearchService {
         id: id,
         index: index,
         refresh: refresh ? 'true' : 'false',
+        retry_on_conflict: 3,
         body: { doc: doc }
       })
       return statusCode
