@@ -21,7 +21,7 @@ export default {
       uppy: ''
     }
   },
-  mounted: function mounted () {
+  mounted () {
     this.projectIdFromRoute = parseInt(this.$route.params.projectId) // String to integer
     const that = this
     this.uppy = Uppy({
@@ -45,10 +45,10 @@ export default {
             uploadType: 'file'
           })
         }).then((response) => {
-          console.log('response', JSON.stringify(response))
+          console.log('response', response)
           return response.json()
         }).then((data) => {
-          console.log('data', JSON.stringify(data))
+          console.log('data', data)
           return {
             method: data.method,
             url: data.url,

@@ -104,7 +104,7 @@ setup_migrations:
 	cd hasura && hasura migrate apply && cd ..
 
 setup_minio:
-	docker build -t mc ./docker-assets/minio/ && docker run --env-file=./.env --rm --network="host" -it mc
+	docker build -t mc ./docker-assets/minio/ && docker run --env=DOCKER_HOST_IP=$(DOCKER_HOST_IP) --env-file=./.env --rm --network="host" -it mc
 
 fix_es_lint:
 	npx eslint --ext .ts . --fix
