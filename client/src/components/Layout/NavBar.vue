@@ -195,7 +195,7 @@
       <q-btn
         class="text-weight-light gt-sm"
         type="a"
-        @click="onClickLogin"
+        v-bind:href="loginUrl"
         exact stretch flat>
         Login
       </q-btn>
@@ -213,7 +213,6 @@
 
 <script>
 import { get } from 'vuex-pathify'
-import axios from 'axios'
 
 export default {
   data () {
@@ -229,12 +228,6 @@ export default {
     onClickLogout () {
       // TODO(Reda): Fix this
       window.location.href = 'http://localhost:8000/logout'
-    },
-    async onClickLogin () {
-      await axios({ path: '/auth/keycloak', method: 'GET' })
-        .then((response) => {
-          this.$router.push('/')
-        })
     },
     toggleDrawer () {
       this.$emit('toggleDrawer')

@@ -5,7 +5,7 @@ export class HasuraController {
   @Get('auth')
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   async hasura (@Session() { user }, @Res() res): Promise<unknown> {
-    if (user.id == null) return res.status(401).send()
+    if (user == null) return res.status(401).send()
 
     res.json({
       'X-Hasura-Role': 'user',
