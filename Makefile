@@ -56,6 +56,9 @@ $(foreach dir,$(JS_DIRS),$(eval $(call install-js-rule,$(dir))))
 ##############################################################################
 upgrade-quasar:
 	cd client && npx quasar upgrade && npx quasar upgrade --install && cd ..
+
+upgrade-hasura-cli:
+	cd hasura && hasura update-cli && hasura scripts update-project-v2 && cd ..
 ##############################################################################
 
 start_docker:
@@ -76,6 +79,8 @@ else
 endif
 server_nest: check-node-version exists-yarn server-nest/node_modules
 	cd server-nest && npm run start:dev && cd ..
+server_test:
+	cd server-nest && npm run test && cd ..
 server_debug: check-node-version exists-yarn server-nest/node_modules
 	cd server-nest && npm run start:debug && cd ..
 
@@ -83,7 +88,7 @@ client: check-node-version exists-yarn client/node_modules
 	cd client && npm run dev && cd ..
 
 migrate:
-	cd hasura && hasura migrate apply && hasura console && cd ..
+	cd hasura && hasura migrate apply && hasura metadata apply && hasura console && cd ..
 
 queue:
 	cd server && npm run queue && cd ..
@@ -101,7 +106,7 @@ install_hasura_cli:
 	curl -L https://github.com/hasura/graphql-engine/raw/master/cli/get.sh | bash
 
 setup_migrations:
-	cd hasura && hasura migrate apply && cd ..
+	cd hasura && hasura migrate apply && hasura metadata apply && cd ..
 
 setup_minio:
 	docker build -t mc ./docker-assets/minio/ && docker run --env=DOCKER_HOST_IP=$(DOCKER_HOST_IP) --env-file=./.env --rm --network="host" -it mc

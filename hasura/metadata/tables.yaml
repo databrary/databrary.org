@@ -1,0 +1,266 @@
+- table:
+    schema: public
+    name: asset_types
+  is_enum: true
+- table:
+    schema: public
+    name: assets
+  object_relationships:
+  - name: creator
+    using:
+      foreign_key_constraint_on: created_by_id
+  - name: permissionset
+    using:
+      foreign_key_constraint_on: permissionset_id
+  array_relationships:
+  - name: files
+    using:
+      foreign_key_constraint_on:
+        column: assetId
+        table:
+          schema: public
+          name: files
+  insert_permissions:
+  - role: user
+    permission:
+      check: {}
+      set:
+        created_by_id: x-hasura-User-Id
+      columns:
+      - asset_type
+      - name
+      - privacy_type
+  select_permissions:
+  - role: user
+    permission:
+      columns:
+      - asset_type
+      - created_by_id
+      - datetime_created
+      - id
+      - name
+      - permissionset_id
+      - privacy_type
+      filter:
+        _or:
+        - privacy_type:
+            _eq: public
+        - permissionset:
+            permissions:
+              permissionset:
+                permissions:
+                  group:
+                    groups_users:
+                      user_id:
+                        _eq: X-Hasura-User-Id
+- table:
+    schema: public
+    name: fileformats
+  is_enum: true
+- table:
+    schema: public
+    name: fileobjects
+- table:
+    schema: public
+    name: files
+  object_relationships:
+  - name: asset
+    using:
+      foreign_key_constraint_on: assetId
+  - name: fileobject
+    using:
+      foreign_key_constraint_on: fileobjectId
+  - name: uploader
+    using:
+      foreign_key_constraint_on: uploadedById
+- table:
+    schema: public
+    name: group_types
+  is_enum: true
+- table:
+    schema: public
+    name: groups
+  array_relationships:
+  - name: groups_admins
+    using:
+      foreign_key_constraint_on:
+        column: group_id
+        table:
+          schema: public
+          name: groups_admins
+  - name: groups_users
+    using:
+      foreign_key_constraint_on:
+        column: group_id
+        table:
+          schema: public
+          name: groups_users
+  - name: permissions
+    using:
+      foreign_key_constraint_on:
+        column: group_id
+        table:
+          schema: public
+          name: permissions
+- table:
+    schema: public
+    name: groups_admins
+- table:
+    schema: public
+    name: groups_users
+  object_relationships:
+  - name: group
+    using:
+      foreign_key_constraint_on: group_id
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id
+- table:
+    schema: public
+    name: permission_types
+  is_enum: true
+- table:
+    schema: public
+    name: permissions
+  object_relationships:
+  - name: group
+    using:
+      foreign_key_constraint_on: group_id
+  - name: permissionset
+    using:
+      foreign_key_constraint_on: permissionset_id
+- table:
+    schema: public
+    name: permissionsets
+  array_relationships:
+  - name: assets
+    using:
+      foreign_key_constraint_on:
+        column: permissionset_id
+        table:
+          schema: public
+          name: assets
+  - name: permissions
+    using:
+      foreign_key_constraint_on:
+        column: permissionset_id
+        table:
+          schema: public
+          name: permissions
+- table:
+    schema: public
+    name: privacy_types
+  is_enum: true
+- table:
+    schema: public
+    name: users
+  object_relationships:
+  - name: avatar
+    using:
+      foreign_key_constraint_on: avatarId
+  array_relationships:
+  - name: admined_groups
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          schema: public
+          name: groups_admins
+  - name: assets
+    using:
+      foreign_key_constraint_on:
+        column: created_by_id
+        table:
+          schema: public
+          name: assets
+  - name: groups_users
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          schema: public
+          name: groups_users
+  - name: uploaded_files
+    using:
+      foreign_key_constraint_on:
+        column: uploadedById
+        table:
+          schema: public
+          name: files
+  select_permissions:
+  - role: user
+    permission:
+      columns:
+      - additionalName
+      - avatarId
+      - bio
+      - datetimeRegistered
+      - displayFullName
+      - emailPrimary
+      - emails
+      - familyName
+      - givenName
+      - gravatar
+      - id
+      - image
+      - orcid
+      - urls
+      - useGravatar
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+      limit: 1
+  update_permissions:
+  - role: user
+    permission:
+      columns:
+      - additionalName
+      - bio
+      - displayFullName
+      - emailPrimary
+      - emails
+      - familyName
+      - givenName
+      - orcid
+      - urls
+      - useGravatar
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+      check: null
+  event_triggers:
+  - name: users_insert
+    definition:
+      enable_manual: false
+      insert:
+        columns: '*'
+    retry_conf:
+      num_retries: 0
+      interval_sec: 10
+      timeout_sec: 60
+    webhook_from_env: HASURA_EVENT_WEBHOOK
+    headers:
+    - name: app-event-token
+      value_from_env: HASURA_EVENT_TOKEN
+  - name: users_update
+    definition:
+      enable_manual: false
+      update:
+        columns:
+        - useGravatar
+        - gravatar
+        - image
+        - additionalName
+        - bio
+        - displayFullName
+        - familyName
+        - givenName
+        - id
+    retry_conf:
+      num_retries: 0
+      interval_sec: 10
+      timeout_sec: 60
+    webhook_from_env: HASURA_EVENT_WEBHOOK
+    headers:
+    - name: app-event-token
+      value_from_env: HASURA_EVENT_TOKEN

@@ -4,8 +4,6 @@ I know there are credentials in this repo. They will all be hidden as soon as th
 
 ```make install``` will install several pieces of software on your machine. Mac users must have brew installed.
 
-**Note:** If you are on Linux environnement, copy ```scripts/docker_host.sh``` to ```/etc/profile.d/``` and log out from your current session.
-
 ## Install command line tools and dependencies necessary for development
     make install
 
@@ -16,6 +14,11 @@ I know there are credentials in this repo. They will all be hidden as soon as th
 ## Setup everything; be mindful of startup times
     make setup_migrations
     make setup_minio
+
+### Important:
+If you are running hasura cli v1, please upgrade to v2, before running the migration
+    
+    make upgrade-hasura-cli
 
 # Dev env
 
@@ -59,4 +62,4 @@ Ts start Docker the Server and the Client all what you need to do is to ```Start
 or use ```Stop Docker``` task.
 
 # Important Notes:
-* Minio Client and Minio Docker image need to be compatible, make sure you alwauys have the right Minio Client for the right minio image.
+* Minio Client and Minio Docker image need to be compatible, make sure you always have the right Minio Client for the right minio image.

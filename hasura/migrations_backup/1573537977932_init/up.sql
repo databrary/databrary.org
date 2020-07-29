@@ -53,7 +53,7 @@ CREATE TABLE public.files (
     uploaded_by_id integer NOT NULL,
     fileobject_id integer,
     asset_id integer NOT NULL,
-    uploadedDatetime timestamp
+    uploaded_datetime timestamp without time zone
 );
 CREATE SEQUENCE public.files_id_seq
     START WITH 1
