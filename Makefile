@@ -13,7 +13,7 @@ ifeq ($(UNAME),Linux)
 	endif
 endif
 
-info:
+docker-info:
 	@echo UNAME: $(UNAME)
 	@echo WSL: $(WSL)
 	@echo DOCKER_HOST_IP: $(DOCKER_HOST_IP)
@@ -59,6 +59,68 @@ upgrade-quasar:
 
 upgrade-hasura-cli:
 	cd hasura && hasura update-cli && hasura scripts update-project-v2 && cd ..
+
+##############################################################################
+# Hasura
+##############################################################################
+HASURA_IMAGE=hasura-cli
+HASURA_DIR=./docker-assets/$(HASURA_IMAGE)
+
+check-image-hasura-cli: FORCE
+	@if [ -z "$$(docker images -q $(HASURA_IMAGE):latest 2> /dev/null)" ]; then\
+		touch $(HASURA_DIR)/Dockerfile;\
+	fi
+
+$(HASURA_DIR): $(HASURA_DIR)/Dockerfile
+	@docker build -t $(HASURA_IMAGE) $(HASURA_DIR)/
+	@touch $@
+
+setup_migrations: check-image-minio-cli $(HASURA_DIR)
+	@docker run\
+		--env-file=./.env\
+		--network="host"\
+		-v ${CURDIR}/hasura:/hasura\
+		-it ${HASURA_IMAGE}\
+		migrate apply --skip-update-check
+	@docker run\
+		--env-file=./.env\
+		--network="host"\
+		-v ${CURDIR}/hasura:/hasura\
+		-it ${HASURA_IMAGE}\
+		metadata apply --skip-update-check
+
+migrate: setup_migrations
+	cd hasura && hasura console && cd ..
+# Problem with console running in docker :P
+# docker run\
+# 	--env-file=./.env\
+# 	--network="host"\
+# 	-v ${CURDIR}/hasura:/hasura\
+# 	-it ${HASURA_IMAGE}\
+# 	console --skip-update-check --no-browser --console-port 9695
+
+##############################################################################
+# Minio
+##############################################################################
+MINIO_IMAGE=minio-cli
+MINIO_DIR=./docker-assets/$(MINIO_IMAGE)
+
+check-image-minio-cli: FORCE
+	@if [ -z "$$(docker images -q $(MINIO_IMAGE):latest 2> /dev/null)" ]; then\
+		touch $(MINIO_DIR)/Dockerfile;\
+	fi
+
+$(MINIO_DIR): $(MINIO_DIR)/Dockerfile $(MINIO_DIR)/bootstrap.sh
+	@docker build -t $(MINIO_IMAGE) $(MINIO_DIR)/
+	@touch $@
+
+setup_minio: check-image-minio-cli $(MINIO_DIR)
+	@docker run\
+		--env=DOCKER_HOST_IP=$(DOCKER_HOST_IP)\
+		--env-file=./.env\
+		--network="host"\
+		-it $(MINIO_IMAGE)
+
 ##############################################################################
 
 start_docker:
@@ -87,9 +149,6 @@ server_debug: check-node-version exists-yarn server-nest/node_modules
 client: check-node-version exists-yarn client/node_modules
 	cd client && npm run dev && cd ..
 
-migrate:
-	cd hasura && hasura migrate apply && hasura metadata apply && hasura console && cd ..
-
 queue:
 	cd server && npm run queue && cd ..
 
@@ -105,14 +164,10 @@ install_docker_compose:
 install_hasura_cli:
 	curl -L https://github.com/hasura/graphql-engine/raw/master/cli/get.sh | bash
 
-setup_migrations:
-	cd hasura && hasura migrate apply && hasura metadata apply && cd ..
-
-setup_minio:
-	docker build -t mc ./docker-assets/minio/ && docker run --env=DOCKER_HOST_IP=$(DOCKER_HOST_IP) --env-file=./.env --rm --network="host" -it mc
-
 fix_es_lint:
 	npx eslint --ext .ts . --fix
 
 ##############################################################################
-.PHONY: node_version server client cleardb migrate install setup_minio setup_migrations
+all:
+
+.PHONY: FORCE node_version server client cleardb install
