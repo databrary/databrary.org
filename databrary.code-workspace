@@ -18,11 +18,6 @@
         }
     ],
     "settings": {
-        "files.exclude": {
-          "**/node_modules": true,
-          "**/docker-scripts": true,
-          "**/caddy": true
-        },
 
         "eslint.workingDirectories": [
             { "directory": "client", "changeProcessCWD": true },
