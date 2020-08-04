@@ -46,7 +46,7 @@
     "js-yaml": "^3.13.1",
     "keycloak-admin": "^1.13.0",
     "keycloak-connect": "^9.0.2",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "mime-types": "^2.1.26",
     "minio": "^7.0.12",
     "module-alias": "^2.2.2",
