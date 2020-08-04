@@ -1,14 +1,17 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-
-import { ApolloClient, FetchPolicy } from 'apollo-client'
-import { createHttpLink } from 'apollo-link-http'
-import { InMemoryCache, NormalizedCacheObject } from 'apollo-cache-inmemory'
-
+import {
+  ApolloClient,
+  FetchPolicy,
+  InMemoryCache,
+  NormalizedCacheObject,
+  createHttpLink,
+  gql,
+  DocumentNode
+} from '@apollo/client'
 import { readFile } from 'fs-extra'
 import { first, values } from 'lodash'
 import fetch from 'cross-fetch'
-import gql from 'graphql-tag'
 
 @Injectable()
 export class GqlClientService {
@@ -24,10 +27,9 @@ export class GqlClientService {
 
   private createAdminClient () {
     const headers = {
-      'x-hasura-admin-secret': this.secret
+      'x-hasura-admin-secret': this.secret,
+      'X-Hasura-Role': 'admin'
     }
-
-    headers['X-Hasura-Role'] = 'admin'
 
     const link = createHttpLink({
       uri: this.uri,
@@ -47,31 +49,38 @@ export class GqlClientService {
     variables?: Record<string, unknown>,
     fetchPolicy?: FetchPolicy
   ): Promise<any> {
-    if (this.cache[path] === undefined) {
-      const fileContent = await readFile(path)
-      this.cache[path] = gql`
-        ${fileContent}
-      `
-    }
     const response = await this.adminClient.query({
-      query: this.cache[path],
+      query: await this.getFileContent(path),
       fetchPolicy,
       variables
     })
     return first(values(response.data))
   }
 
-  async adminMutate (path: string, variables?: Record<string, unknown>): Promise<any> {
-    if (this.cache[path] === undefined) {
-      const fileContent = await readFile(path)
-      this.cache[path] = gql`
-        ${fileContent}
-      `
-    }
+  async adminMutate (
+    path: string,
+    variables?: Record<string, unknown>
+  ): Promise<any> {
     const response = await this.adminClient.mutate({
-      mutation: this.cache[path],
+      mutation: await this.getFileContent(path),
       variables
     })
     return first(values(response.data))
+  }
+
+  private async getFileContent (path: string): Promise<DocumentNode> {
+    if (process.env.NODE_ENV === 'production') {
+      if (this.cache[path] === undefined) {
+        const fileContent = await readFile(path)
+        this.cache[path] = gql`
+          ${fileContent}
+        `
+      }
+      return this.cache[path]
+    }
+
+    return gql`
+      ${await readFile(path)}
+    `
   }
 }
