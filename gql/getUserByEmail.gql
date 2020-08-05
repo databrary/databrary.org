@@ -1,24 +1,23 @@
-  query getUserByEmail($email: String!) {
-    users(
-      where: {
-        emailPrimary: {
-          _eq: $email
-        }
+query getUserByEmail($emailPrimary: String!) {
+  users(
+    where: {
+      emailPrimary: {
+        _eq: $emailPrimary
       }
-    ) {
-      id
-      authServerId
-      emailPrimary
-      displayFullName
-      useGravatar
-      image
-      gravatar
-      urls
-      emails
-      additionalName
-      familyName
-      givenName
-      bio
-      orcid
     }
+  ) {
+    id
+    emailPrimary
+    displayFullName
+    useGravatar
+    image
+    gravatar
+    urls
+    emails
+    additionalName
+    familyName
+    givenName
+    bio
+    orcid
   }
+}

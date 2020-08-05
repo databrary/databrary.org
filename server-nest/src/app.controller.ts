@@ -47,12 +47,12 @@ export class AppController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('session')
-  async session (@Session() { user }: { user: UserDTO }): Promise<UserDTO> {
-    if (isEmpty(user)) return new UserDTO(user)
+  async session (@Session() { user }: { user: UserDTO }): Promise<UserDTO | null> {
+    if (isEmpty(user)) return null
 
     const dbUser = await this.userService.findUser(user)
 
-    return new UserDTO(dbUser)
+    return dbUser
   }
 
   @Post('search')

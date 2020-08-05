@@ -237,8 +237,8 @@ export class TaskProcessor {
 
       const uri = `http://localhost:9000/public/${record.key}`
 
-      let image: Partial<Record<ImageKey, any>>
-
+      let image: Partial<Record<ImageKey, string>>
+      // TODO: (Reda) loop throuogh ImageSize
       switch (record.fileDimension) {
         case 32:
           image = { thumbnail: uri }

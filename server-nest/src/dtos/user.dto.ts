@@ -1,6 +1,6 @@
 import { Exclude } from 'class-transformer'
 import * as crypto from 'crypto'
-import { ImageKey, ImageSize } from '../common/types'
+import { ImageKey } from '../common/types'
 import { AVATAR_SIZES } from '../common/constants'
 
 export class UserDTO {
@@ -41,7 +41,7 @@ export class UserDTO {
 
   useGravatar: boolean
 
-  image: Record<ImageKey, ImageSize> = {
+  image: Record<ImageKey, string> = {
     thumbnail: null,
     large: null
   }
@@ -49,7 +49,7 @@ export class UserDTO {
   gravatar: Record<ImageKey, any>
 
   constructor (user: Partial<UserDTO>) {
-    if (user == null) return
+    if (user == null) throw new Error('Must provide a valid user object')
 
     Object.assign(this, user)
 

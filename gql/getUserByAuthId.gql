@@ -1,24 +1,23 @@
-  query getUserByAuthId($authServerId: String!) {
-    users(
-      where: {
-        authServerId: {
-          _eq: $authServerId
-        }
+query getUserByAuthId($authServerId: String!) {
+  users(
+    where: {
+      authServerId: {
+        _eq: $authServerId
       }
-    ) {
-      id
-      authServerId
-      emailPrimary
-      displayFullName
-      useGravatar
-      image
-      gravatar
-      urls
-      emails
-      additionalName
-      familyName
-      givenName
-      bio
-      orcid
     }
+  ) {
+    id
+    emailPrimary
+    displayFullName
+    useGravatar
+    image
+    gravatar
+    urls
+    emails
+    additionalName
+    familyName
+    givenName
+    bio
+    orcid
   }
+}
