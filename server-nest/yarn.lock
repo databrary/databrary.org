@@ -1276,6 +1276,40 @@
   dependencies:
     "@types/express" "*"
 
+"@types/pollyjs__adapter-node-http@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/pollyjs__adapter-node-http/-/pollyjs__adapter-node-http-2.0.0.tgz#357514c35a61b3ebb7769d915dc4352720bcc132"
+  integrity sha512-v8g65xEnADlb1UZe4fNPO9KpU04uY6HAPns307RWqePlVtftctD73FA++74PbO17PNgMbi/7IzrZatiEEn9CPQ==
+  dependencies:
+    "@types/pollyjs__adapter" "*"
+
+"@types/pollyjs__adapter@*":
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/@types/pollyjs__adapter/-/pollyjs__adapter-4.3.0.tgz#f61a244b321bc0d2b487414083c3f229f74ad861"
+  integrity sha512-aJ4+ianTKgbdZRnBjcB9D1Kn4ALn3YatGlAzgEdGHyv63aV+gzukKH8xqdrRB76pwrXXCQwLosNBFNTSEmRA9A==
+  dependencies:
+    "@types/pollyjs__core" "*"
+
+"@types/pollyjs__core@*", "@types/pollyjs__core@^4.3.0":
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/@types/pollyjs__core/-/pollyjs__core-4.3.0.tgz#813c4d778d518771d9ddf559d63120190e4fc86d"
+  integrity sha512-gloFb5e36G8Tice0J2GhdzqAAongh2ALBel5QjvjmTk4Vv0+mD3xkE3O50XHdRfbJwCOo7A/rpH+6J+kuKXdZg==
+  dependencies:
+    "@types/pollyjs__adapter" "*"
+    "@types/pollyjs__persister" "*"
+
+"@types/pollyjs__persister-fs@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/pollyjs__persister-fs/-/pollyjs__persister-fs-2.0.0.tgz#8643bca7e80da499541d3e4d28fd039e3bfdc5be"
+  integrity sha512-m788FLVtzE+qqrNeotBel2S1EhNMkkNRVJa9XQqeNdwvaJvOp7h/EWacKCrdHLK406LBo7vhL8dpWldkRBm0lg==
+  dependencies:
+    "@types/pollyjs__persister" "*"
+
+"@types/pollyjs__persister@*":
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/@types/pollyjs__persister/-/pollyjs__persister-4.3.0.tgz#4edfae78f1e0d959784e1d389b6c23fff93034f6"
+  integrity sha512-gEwKh9XQSHo+1iBTHKqBIa/BHfG0cLidgryU6jEWzQ9NTtYOGb2V5tf3qb0ddihO7kJW/d0MCKTN28hDS+XCDg==
+
 "@types/prettier@^1.19.0":
   version "1.19.1"
   resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-1.19.1.tgz#33509849f8e679e4add158959fdb086440e9553f"
