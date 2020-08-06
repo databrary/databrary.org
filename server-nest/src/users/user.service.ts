@@ -92,7 +92,7 @@ export class UserService {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const { __typename, ...user } = users[0]
 
-    return user.id == null
+    return user.id != null
   }
 
   @HasuraEventHandler({

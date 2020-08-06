@@ -7,14 +7,30 @@ import { polly } from '../../test/recorderExample'
 import { UserDTO } from '../dtos/user.dto'
 import { ImageKey } from 'src/common/types'
 
+// If a new recording is needed, you must create a new user with TEST_AUTH_SERVER_ID and TEST_EMAIL_PRIMARY
+// and an asset of type avatar.
+// IMPORTANT: new user and asset need to have an id = 1
 describe(' UserService', () => {
   let userService: UserService
-  const TEST_USER_ID = 1
-  const TEST_USER_AVATAR_ID = 1
+  // This authServerId and emailPrimary listed bellow are available in the PollyJs recording
+  // DO NOT EDIT THEM UNLESS YOU ARE CREATING A NEW RECORDING
   const TEST_AUTH_SERVER_ID = '5dcda08d-4aac-47ff-9131-71505fbf8fb6'
   const TEST_EMAIL_PRIMARY = 'testerson@dev.com'
-  const TEST_NEW_AUTH_SERVER_ID = 'new-auth-test-server-id'
-  const TEST_NEW_EMAIL_PRIMARY = 'testerson2@dev.com'
+  // TODO: Remove Faker
+  const TEST_USER_ID = 1
+  const TEST_USER_AVATAR_ID = 1
+
+  const fakeUser = new UserDTO({
+    authServerId: 'auth-server-id-fake-user',
+    emailPrimary: 'fake@dev.com',
+    givenName: 'Testerson',
+    familyName: 'Test'
+  })
+
+  const fakeImage: Record<ImageKey, string> = {
+    thumbnail: 'minio/url/to/public/thumbnail',
+    large: 'minio/url/to/public/large'
+  }
 
   afterAll(async () => {
     await polly.stop()
@@ -103,14 +119,7 @@ describe(' UserService', () => {
 
   describe('createUser', () => {
     it('Should return a new User object with an id', async () => {
-      const user = new UserDTO({
-        authServerId: TEST_NEW_AUTH_SERVER_ID,
-        emailPrimary: TEST_NEW_EMAIL_PRIMARY,
-        givenName: 'Testerson 2',
-        familyName: 'Test'
-      })
-
-      const newUser = await userService.createUser(user)
+      const newUser = await userService.createUser(fakeUser)
 
       expect(newUser).toBeInstanceOf(UserDTO)
       expect(newUser.id).toBeDefined()
@@ -121,43 +130,28 @@ describe(' UserService', () => {
     })
 
     it('Should throw an Error when user authServerId exists in db', async () => {
-      const user = new UserDTO({
-        authServerId: TEST_AUTH_SERVER_ID,
-        emailPrimary: TEST_NEW_EMAIL_PRIMARY,
-        givenName: 'Testerson 2',
-        familyName: 'Test'
-      })
-      await expect(userService.createUser(user)).rejects.toThrow()
+      // We keep authServerId to make sure that it is set up as unique in the DB
+      // IMPORTANT: Do not change this line otherzise pollyJS will throw an error
+      fakeUser.emailPrimary = 'anotherfake@dev.com'
+      await expect(userService.createUser(fakeUser)).rejects.toThrow()
     })
 
     it('Should throw an Error when user emailPrimary exists in db', async () => {
-      const user = new UserDTO({
-        authServerId: TEST_NEW_AUTH_SERVER_ID,
-        emailPrimary: TEST_EMAIL_PRIMARY,
-        givenName: 'Testerson 2',
-        familyName: 'Test'
-      })
-      await expect(userService.createUser(user)).rejects.toThrow()
+      // We keep emailPrimary to make sure that it is set up as unique in the DB
+      // IMPORTANT: Do not change this line otherzise pollyJS will throw an error
+      fakeUser.authServerId = 'another-auth-server-id-fake-user'
+      await expect(userService.createUser(fakeUser)).rejects.toThrow()
     })
   })
 
-  // WIP: Foreign key violation. insert or update on table "users" violates foreign key constraint "users_avatarId_fkey"
   describe('updateUserAvatar', () => {
     it('Should update the user avatarId and images and return true', async () => {
-      const image: Record<ImageKey, string> = {
-        thumbnail: 'url/to/thumbnail',
-        large: 'url/to/large'
-      }
-      expect(await userService.updateUserAvatar(TEST_USER_ID, TEST_USER_AVATAR_ID, image)).toBeTruthy()
+      expect(await userService.updateUserAvatar(TEST_USER_ID, TEST_USER_AVATAR_ID, fakeImage)).toBeTruthy()
     })
 
     it('Should throw an Error when updateUserAvatar args are null', async () => {
-      const image: Record<ImageKey, string> = {
-        thumbnail: 'url/to/thumbnail',
-        large: 'url/to/large'
-      }
-      await expect(userService.updateUserAvatar(null, TEST_USER_AVATAR_ID, image)).rejects.toThrow()
-      await expect(userService.updateUserAvatar(null, null, image)).rejects.toThrow()
+      await expect(userService.updateUserAvatar(null, TEST_USER_AVATAR_ID, fakeImage)).rejects.toThrow()
+      await expect(userService.updateUserAvatar(null, null, fakeImage)).rejects.toThrow()
       await expect(userService.updateUserAvatar(null, null, null)).rejects.toThrow()
     })
   })
