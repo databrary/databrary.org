@@ -4,19 +4,30 @@ import { UserService } from './user.service'
 import { GqlClientService } from '../gqlClient/gqlClient.service'
 import { SearchModule } from '../search/search.module'
 import { polly } from '../../test/recorderExample'
+// import { setupPolly } from 'setup-polly-jest'
 import { UserDTO } from '../dtos/user.dto'
 import { ImageKey } from 'src/common/types'
 
-// If a new recording is needed, you must create a new user with TEST_AUTH_SERVER_ID and TEST_EMAIL_PRIMARY
+// If a recording is needed, you must create a new user with TEST_AUTH_SERVER_ID and TEST_EMAIL_PRIMARY
 // and an asset of type avatar.
 // IMPORTANT: new user and asset need to have an id = 1
 describe(' UserService', () => {
+  // setupPolly({
+  //   adapters: ['node-http'],
+  //   persister: 'fs',
+  //   recordIfMissing: true,
+  //   persisterOptions: {
+  //     fs: {
+  //       recordingsDir: './recordings'
+  //     }
+  //   }
+  // })
+
   let userService: UserService
   // This authServerId and emailPrimary listed bellow are available in the PollyJs recording
   // DO NOT EDIT THEM UNLESS YOU ARE CREATING A NEW RECORDING
   const TEST_AUTH_SERVER_ID = '5dcda08d-4aac-47ff-9131-71505fbf8fb6'
   const TEST_EMAIL_PRIMARY = 'testerson@dev.com'
-  // TODO: Remove Faker
   const TEST_USER_ID = 1
   const TEST_USER_AVATAR_ID = 1
 
