@@ -26,7 +26,7 @@ export class FileService {
 
   async insertFileObject (fileObject: FileObjectDTO): Promise<number | null> {
     const { returning: fileObjects } = await this.client.adminMutate(
-      resolve(GQL_DIR, 'insertFileObjectOnUpload.gql'),
+      resolve(GQL_DIR, 'insertFileObject.gql'),
       { ...fileObject }
     )
 
