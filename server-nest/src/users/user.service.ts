@@ -71,8 +71,7 @@ export class UserService {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const { __typename, ...newUser } = users[0]
 
-    user.id = newUser.id
-    return user
+    return new UserDTO(newUser)
   }
 
   async updateUserAvatar (id: number, avatarId: number, image: Record<string, unknown>): Promise<boolean> {
@@ -133,7 +132,7 @@ export class UserService {
 
       const user: UserDTO = new UserDTO(newUser)
 
-      console.log('Hasura Event users create Payload', user.document)
+      // console.log('Hasura Event users create Payload', user.document)
 
       const status = await this.searchService.create(
         user.id.toString(),

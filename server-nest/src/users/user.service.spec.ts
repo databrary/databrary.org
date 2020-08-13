@@ -3,51 +3,50 @@ import { ConfigModule } from '@nestjs/config'
 import { UserService } from './user.service'
 import { GqlClientService } from '../gqlClient/gqlClient.service'
 import { SearchModule } from '../search/search.module'
-import { polly } from '../../test/recorderExample'
-// import { setupPolly } from 'setup-polly-jest'
-import { UserDTO } from '../dtos/user.dto'
-import { ImageKey } from 'src/common/types'
+import { Polly } from '@pollyjs/core'
+import { setupPolly } from 'setup-polly-jest'
 
-// If a recording is needed, you must create a new user with TEST_AUTH_SERVER_ID and TEST_EMAIL_PRIMARY
-// and an asset of type avatar.
-// IMPORTANT: new user and asset need to have an id = 1
+import FSPersister from '@pollyjs/persister-fs'
+import NodeHttpAdapter from '@pollyjs/adapter-node-http'
+
+import { UserDTO } from '../dtos/user.dto'
+import { ImageKey } from '../common/types'
+
+Polly.register(NodeHttpAdapter)
+Polly.register(FSPersister)
+
 describe(' UserService', () => {
-  // setupPolly({
-  //   adapters: ['node-http'],
-  //   persister: 'fs',
-  //   recordIfMissing: true,
-  //   persisterOptions: {
-  //     fs: {
-  //       recordingsDir: './recordings'
-  //     }
-  //   }
-  // })
+  setupPolly({
+    adapters: ['node-http'],
+    persister: 'fs',
+    recordIfMissing: true,
+    persisterOptions: {
+      fs: {
+        recordingsDir: './recordings'
+      }
+    }
+  })
 
   let userService: UserService
-  // This authServerId and emailPrimary listed bellow are available in the PollyJs recording
-  // DO NOT EDIT THEM UNLESS YOU ARE CREATING A NEW RECORDING
-  const TEST_AUTH_SERVER_ID = '5dcda08d-4aac-47ff-9131-71505fbf8fb6'
-  const TEST_EMAIL_PRIMARY = 'testerson@dev.com'
-  const TEST_USER_ID = 1
-  const TEST_USER_AVATAR_ID = 1
 
-  const fakeUser = new UserDTO({
-    authServerId: 'auth-server-id-fake-user',
-    emailPrimary: 'fake@dev.com',
+  const user: UserDTO = new UserDTO({
+    authServerId: '5dcda08d-4aac-47ff-9131-71505fbf8fb6',
+    emailPrimary: 'testerson@dev.com',
     givenName: 'Testerson',
     familyName: 'Test'
   })
 
-  const fakeImage: Record<ImageKey, string> = {
+  let fakeUser = null
+
+  const USER_ID = 1
+  const USER_AVATAR_ID = 1
+
+  const USER_IMAGE: Record<ImageKey, string> = {
     thumbnail: 'minio/url/to/public/thumbnail',
     large: 'minio/url/to/public/large'
   }
 
-  afterAll(async () => {
-    await polly.stop()
-  })
-
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
@@ -65,9 +64,40 @@ describe(' UserService', () => {
     userService = moduleRef.get<UserService>(UserService)
   })
 
+  beforeEach(() => {
+    fakeUser = Object.assign({}, user)
+  })
+
+  describe('createUser', () => {
+    it('Should return a new User object with an id', async () => {
+      const newUser = await userService.createUser(fakeUser)
+
+      expect(newUser).toBeInstanceOf(UserDTO)
+      expect(newUser.id).toBe(1)
+    })
+
+    it('Should throw an Error when user is null', async () => {
+      await expect(userService.createUser(null)).rejects.toThrow()
+    })
+
+    it('Should throw an Error when user authServerId exists in db', async () => {
+      // We keep authServerId to make sure that it is set up as unique in the DB
+      // IMPORTANT: Do not change this line otherwise pollyJS will throw an error
+      fakeUser.emailPrimary = 'fake@dev.com'
+      await expect(userService.createUser(fakeUser)).rejects.toThrow()
+    })
+
+    it('Should throw an Error when user emailPrimary exists in db', async () => {
+      // We keep emailPrimary to make sure that it is set up as unique in the DB
+      // IMPORTANT: Do not change this line otherzise pollyJS will throw an error
+      fakeUser.authServerId = 'auth-server-id-fake-user'
+      await expect(userService.createUser(fakeUser)).rejects.toThrow()
+    })
+  })
+
   describe('findByAuthId', () => {
     it('Should return a user object', async () => {
-      expect(await userService.findByAuthId(TEST_AUTH_SERVER_ID)).toBeInstanceOf(UserDTO)
+      expect(await userService.findByAuthId(fakeUser.authServerId)).toBeInstanceOf(UserDTO)
     })
 
     it('Should return null', async () => {
@@ -81,7 +111,7 @@ describe(' UserService', () => {
 
   describe('findByEmail', () => {
     it('Should return a user object', async () => {
-      expect(await userService.findByEmail(TEST_EMAIL_PRIMARY)).toBeInstanceOf(UserDTO)
+      expect(await userService.findByEmail(fakeUser.emailPrimary)).toBeInstanceOf(UserDTO)
     })
 
     it('Should return null', async () => {
@@ -94,75 +124,36 @@ describe(' UserService', () => {
   })
 
   describe('findUser', () => {
+    it('Should return a user object', async () => {
+      expect(await userService.findUser(fakeUser)).toBeInstanceOf(UserDTO)
+    })
+
     it('Should return a user object when authServerId is null', async () => {
-      const user = new UserDTO({
-        emailPrimary: TEST_EMAIL_PRIMARY
-      })
-      expect(await userService.findUser(user)).toBeInstanceOf(UserDTO)
+      fakeUser.authServerId = null
+      expect(await userService.findUser(fakeUser)).toBeInstanceOf(UserDTO)
     })
 
     it('Should return a user object when emailPrimary is null', async () => {
-      const user = new UserDTO({
-        authServerId: TEST_AUTH_SERVER_ID
-      })
-      expect(await userService.findUser(user)).toBeInstanceOf(UserDTO)
-    })
-
-    it('Should return a user object', async () => {
-      const user = new UserDTO({
-        emailPrimary: TEST_EMAIL_PRIMARY,
-        authServerId: TEST_AUTH_SERVER_ID
-      })
-      expect(await userService.findUser(user)).toBeInstanceOf(UserDTO)
+      fakeUser.emailPrimary = null
+      expect(await userService.findUser(fakeUser)).toBeInstanceOf(UserDTO)
     })
 
     it('Should return null', async () => {
-      let user = new UserDTO({
-        emailPrimary: null,
-        authServerId: null
-      })
-      expect(await userService.findUser(user)).toBeNull()
-
-      user = undefined
-      expect(await userService.findUser(user)).toBeNull()
-    })
-  })
-
-  describe('createUser', () => {
-    it('Should return a new User object with an id', async () => {
-      const newUser = await userService.createUser(fakeUser)
-
-      expect(newUser).toBeInstanceOf(UserDTO)
-      expect(newUser.id).toBeDefined()
-    })
-
-    it('Should throw an Error when user is null', async () => {
-      await expect(userService.createUser(null)).rejects.toThrow()
-    })
-
-    it('Should throw an Error when user authServerId exists in db', async () => {
-      // We keep authServerId to make sure that it is set up as unique in the DB
-      // IMPORTANT: Do not change this line otherzise pollyJS will throw an error
-      fakeUser.emailPrimary = 'anotherfake@dev.com'
-      await expect(userService.createUser(fakeUser)).rejects.toThrow()
-    })
-
-    it('Should throw an Error when user emailPrimary exists in db', async () => {
-      // We keep emailPrimary to make sure that it is set up as unique in the DB
-      // IMPORTANT: Do not change this line otherzise pollyJS will throw an error
-      fakeUser.authServerId = 'another-auth-server-id-fake-user'
-      await expect(userService.createUser(fakeUser)).rejects.toThrow()
+      fakeUser.emailPrimary = null
+      fakeUser.authServerId = null
+      expect(await userService.findUser(fakeUser)).toBeNull()
+      expect(await userService.findUser(undefined)).toBeNull()
     })
   })
 
   describe('updateUserAvatar', () => {
     it('Should update the user avatarId and images and return true', async () => {
-      expect(await userService.updateUserAvatar(TEST_USER_ID, TEST_USER_AVATAR_ID, fakeImage)).toBeTruthy()
+      expect(await userService.updateUserAvatar(USER_ID, USER_AVATAR_ID, USER_IMAGE)).toBeTruthy()
     })
 
     it('Should throw an Error when updateUserAvatar args are null', async () => {
-      await expect(userService.updateUserAvatar(null, TEST_USER_AVATAR_ID, fakeImage)).rejects.toThrow()
-      await expect(userService.updateUserAvatar(null, null, fakeImage)).rejects.toThrow()
+      await expect(userService.updateUserAvatar(null, USER_AVATAR_ID, USER_IMAGE)).rejects.toThrow()
+      await expect(userService.updateUserAvatar(null, null, USER_IMAGE)).rejects.toThrow()
       await expect(userService.updateUserAvatar(null, null, null)).rejects.toThrow()
     })
   })
