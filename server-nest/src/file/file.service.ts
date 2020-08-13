@@ -15,33 +15,33 @@ import sharp from 'sharp'
 export class FileService {
   constructor (private readonly client: GqlClientService) {}
 
-  async insertFile (file: FileDTO): Promise<FileDTO | null> {
+  async insertFile (file: FileDTO): Promise<FileDTO> {
+    if (file == null) throw new Error('The file argument cannot be null or undefined')
+
     const { returning: files } = await this.client.adminMutate(
       resolve(GQL_DIR, 'insertFile.gql'),
       { ...file }
     )
 
-    return isEmpty(files) ? null : files[0]
+    if (isEmpty(files)) throw new Error('Error while inserting a file')
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const { __typename, ...newFile } = files[0]
+
+    return new FileDTO(newFile[0])
   }
 
-  async insertFileObject (fileObject: FileObjectDTO): Promise<number | null> {
+  async insertFileObject (fileObject: FileObjectDTO): Promise<number> {
+    if (fileObject == null) throw new Error('You must provide a valid object to insertFileObject')
+
     const { returning: fileObjects } = await this.client.adminMutate(
       resolve(GQL_DIR, 'insertFileObject.gql'),
       { ...fileObject }
     )
 
-    return isEmpty(fileObjects) ? null : fileObjects[0].id
-  }
+    if (isEmpty(fileObjects)) throw new Error('Error while inserting a fileObject, id not found')
 
-  async getFileObjectId (fileObject: FileObjectDTO): Promise<number | null> {
-    const fileObjects = await this.client.adminQuery(
-      resolve(GQL_DIR, '/getFileObjectId.gql'),
-      {
-        sha256: fileObject.sha256
-      }
-    )
-
-    return isEmpty(fileObjects) ? null : fileObjects[0].id
+    return fileObjects[0].id
   }
 
   async resizePicture (sourcePath: string, targetpath: string, size: number): Promise<any> {

@@ -1,4 +1,4 @@
-query getFileObjectId ($sha256: String) {
+query getFileObjectId ($sha256: String!) {
   fileobjects(
       where: {
         sha256: {

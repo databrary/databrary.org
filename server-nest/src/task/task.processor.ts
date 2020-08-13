@@ -224,8 +224,6 @@ export class TaskProcessor {
 
       console.log(`file object ${file.fileobjectId} added`)
 
-      file.uploadedDatetime = new Date().toISOString()
-
       await this.fileService.insertFile(file)
 
       console.log(`File ${record.fileName} added`)
@@ -299,11 +297,11 @@ export class TaskProcessor {
       file.fileobjectId = await this.fileService.insertFileObject(fileObject)
 
       if (file.fileobjectId == null) {
+        // TODO: (Reda) Remove this condition since we are throwing an error
         // Remove file in cas/public bucket if we cannot create a fileobject
         return
       }
 
-      file.uploadedDatetime = new Date().toISOString()
       await this.fileService.insertFile(file)
     } catch (error) {
       console.error(error)

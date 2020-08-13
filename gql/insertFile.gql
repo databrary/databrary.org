@@ -4,7 +4,6 @@ mutation (
   $uploadedById: Int!,
   $fileobjectId: Int!,
   $assetId: Int!,
-  $uploadedDatetime: timestamp!,
   $fileFormatId: String!
 ) {
   insert_files(
@@ -13,7 +12,6 @@ mutation (
       uploadedById: $uploadedById,
       fileobjectId: $fileobjectId
       assetId: $assetId,
-      uploadedDatetime: $uploadedDatetime,
       fileFormatId: $fileFormatId
     }
   ) {
