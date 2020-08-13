@@ -1,9 +1,9 @@
 mutation ( 
-  $size: Int, 
-  $md5: String, 
-  $sha1: String, 
-  $sha256: String, 
-  $location: String
+  $size: Int!, 
+  $md5: String!, 
+  $sha1: String!, 
+  $sha256: String!, 
+  $location: String!
 ) {
   insert_fileobjects(
     objects: { 
