@@ -16,7 +16,7 @@ Polly.register(NodeHttpAdapter)
 Polly.register(FSPersister)
 
 // IMPORTANT: To record you need to create an avatar asset for the user id 1 in order to pass updateUserAvatar tests
-describe(' UserService', () => {
+describe('UserService', () => {
   setupPolly({
     adapters: ['node-http'],
     persister: 'fs',

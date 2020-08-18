@@ -21,6 +21,7 @@ import { ImageKey, Buckets } from '../common/types'
 import { TMP_DIR, AVATAR_SIZES, AVATAR_FORMAT } from '../common/constants'
 import { AssetService } from '../asset/asset.service'
 import { NotFoundException } from '@nestjs/common'
+import { AssetDTO } from 'src/dtos/asset.dto'
 
 type Location = 'MINIO' | 'LOCAL'
 
@@ -85,12 +86,13 @@ export class TaskProcessor {
           console.log(`Avatar found in job ${job.id}`)
 
           // Create a new assetId (We can remove this if we create the asset before the upload)
-          const asset = await this.assetService.insertAsset(
-            record.userId,
-            `User ${record.userId} Avatar`,
-            'avatar',
-            'public'
-          )
+          const asset = await this.assetService.insertAsset(new AssetDTO({
+            createdById: record.userId,
+            name: `User ${record.userId} Avatar`,
+            assetType: 'avatar',
+            privacyType: 'public'
+          }))
+
           record.assetId = asset.id
 
           const originalFile = resolve(TMP_DIR, record.key)
@@ -171,7 +173,7 @@ export class TaskProcessor {
         } catch (error) {
           console.error(error)
 
-          if (record.assetId != null) { await this.assetService.removeAsset(record.assetId) }
+          // if (record.assetId != null) { await this.assetService.removeAsset(record.assetId) }
 
           await job.retry()
         } finally {

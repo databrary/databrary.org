@@ -1,19 +1,26 @@
 mutation insertAsset (
-    $id: Int
-    $name: String
-    $asset_type: asset_types_enum
-    $privacy_type: privacy_types_enum 
+    $created_by_id: Int!
+    $name: String!
+    $asset_type: asset_types_enum!
+    $privacy_type: privacy_types_enum!
 ) {
   insert_assets(
       objects: {
           asset_type: $asset_type, 
-          created_by_id: $id, 
+          created_by_id: $created_by_id, 
           name: $name, 
           privacy_type: $privacy_type
     }
     ) {
         returning {
             id
+            name
+            asset_type
+            privacy_type
+            created_by_id
+            datetime_created
+            permissionset_id
+            parentId
         }
     }
 }

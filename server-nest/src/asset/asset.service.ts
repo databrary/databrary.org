@@ -4,38 +4,28 @@ import { GqlClientService } from '../gqlClient/gqlClient.service'
 import { resolve } from 'path'
 import { isEmpty } from 'lodash'
 import { GQL_DIR } from '../common/constants'
+import { AssetDTO } from '../dtos/asset.dto'
 
 @Injectable()
 export class AssetService {
   constructor (private readonly client: GqlClientService) {}
 
-  async insertAsset (
-    id: number,
-    name: string,
-    assetType: string,
-    privacyType: string
-  ): Promise<any | null> {
+  async insertAsset (asset: AssetDTO): Promise<AssetDTO> {
+    if (asset == null) throw new Error('Asset must be defined')
+
     const { returning: assets } = await this.client.adminMutate(
       resolve(GQL_DIR, 'insertAsset.gql'),
       {
-        id: id,
-        name: name,
-        asset_type: assetType,
-        privacy_type: privacyType
+        created_by_id: asset.createdById,
+        name: asset.name,
+        asset_type: asset.assetType,
+        privacy_type: asset.privacyType
       }
     )
 
-    return isEmpty(assets) ? null : assets[0]
-  }
+    if (isEmpty(assets)) throw new Error('Error while inserting an asset')
+    if (assets[0].id == null) throw new Error('Asset must contain an id')
 
-  async removeAsset (id: number): Promise<unknown | null> {
-    const { returning: assets } = await this.client.adminMutate(
-      resolve(GQL_DIR, 'removeAsset.gql'),
-      {
-        id: id
-      }
-    )
-
-    return isEmpty(assets) ? null : assets[0]
+    return new AssetDTO(assets[0])
   }
 }
