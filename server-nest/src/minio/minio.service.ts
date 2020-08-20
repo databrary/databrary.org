@@ -22,7 +22,9 @@ export class MinioService {
     try {
       return await this.client.bucketExists(bucket)
     } catch (error) {
-      console.error(error)
+      // Nothing to do
+      // bucketExists will throw an error if bucket does not exist
+      console.error(error.message)
     }
 
     return false
@@ -33,7 +35,11 @@ export class MinioService {
       const { etag } = await this.client.statObject(bucket, name)
       // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       return !!etag
-    } catch (error) {}
+    } catch (error) {
+      // Nothing to do
+      // statObject will throw an error if file is not found
+      console.error(error.message)
+    }
 
     return false
   }
@@ -47,9 +53,8 @@ export class MinioService {
 
       return true
     } catch (error) {
-      console.error(error)
+      throw new Error(error.message)
     }
-    return false
   }
 
   async getObject (
@@ -60,7 +65,7 @@ export class MinioService {
     return await new Promise((resolve, reject) => {
       this.client.fGetObject(bucket, name, path, (err) => {
         // eslint-disable-next-line prefer-promise-reject-errors
-        if (err != null) reject(false)
+        if (err != null) return reject(false)
         resolve(true)
       })
     })
@@ -76,7 +81,7 @@ export class MinioService {
       this.client.fPutObject(bucket, name, path, metaData, (err, eTag) => {
         if (err != null) {
           // eslint-disable-next-line prefer-promise-reject-errors
-          reject(false)
+          return reject(false)
         }
         resolve(true)
       })
@@ -93,13 +98,12 @@ export class MinioService {
       const hashSha1 = createHash('sha1') // todo check this
       let size = 0
       // eslint-disable-next-line @typescript-eslint/space-before-function-paren
-      this.client.getObject(bucket, name, function(err, dataStream) {
+      this.client.getObject(bucket, name, (err, dataStream) => {
         if (err != null) {
-          reject(err)
+          return reject(err)
         }
-        console.log('bucket ', bucket)
-        console.log('Datastream ', dataStream)
-        dataStream.on('data', function (chunk) {
+
+        dataStream.on('data', (chunk) => {
           // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
           size += chunk.length
           hashMd5.update(chunk)
@@ -107,7 +111,7 @@ export class MinioService {
           hashSha256.update(chunk)
         })
 
-        dataStream.on('end', function () {
+        dataStream.on('end', () => {
           const md5 = hashMd5.digest().toString('hex')
           const sha1 = hashSha1.digest().toString('hex')
           const sha256 = hashSha256.digest().toString('hex')
@@ -122,8 +126,8 @@ export class MinioService {
           )
         })
 
-        dataStream.on('error', function (err) {
-          reject(err)
+        dataStream.on('error', (err) => {
+          return reject(err)
         })
       })
     })

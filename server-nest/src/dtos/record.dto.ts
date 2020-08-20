@@ -1,11 +1,13 @@
 import { parse } from 'path'
 import { IRecordUserMetadata } from '../common/IRecordUserMetadata'
 
+// A record is the http request sent by Minio to the Databrary webhook on an upload event
 export class RecordDTO {
   readonly key: string
   readonly eTag: string
   readonly size: number
   readonly contentType: string
+  // Headers set in the client
   private userMetadata: Partial<IRecordUserMetadata>
 
   constructor (record: Partial<RecordDTO>) {

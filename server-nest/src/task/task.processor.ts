@@ -21,7 +21,7 @@ import { ImageKey, Buckets } from '../common/types'
 import { TMP_DIR, AVATAR_SIZES, AVATAR_FORMAT } from '../common/constants'
 import { AssetService } from '../asset/asset.service'
 import { NotFoundException } from '@nestjs/common'
-import { AssetDTO } from 'src/dtos/asset.dto'
+import { AssetDTO } from '../dtos/asset.dto'
 
 type Location = 'MINIO' | 'LOCAL'
 
@@ -61,7 +61,7 @@ export class TaskProcessor {
             'MINIO',
             'uploads',
             'cas',
-            record.key,
+            record.fileName,
             record.size
           )
 
@@ -70,14 +70,14 @@ export class TaskProcessor {
           await this.minioService.copyObject(
             'cas',
             fileObject.sha256,
-            `/uploads/${record.key}`,
+            `/uploads/${record.fileName}`,
             record.eTag
           )
         } catch (error) {
-          console.error(error)
+          console.error(error.message)
 
           // Retry the Job
-          await job.retry()
+          // await job.retry()
         }
 
         break
@@ -95,16 +95,16 @@ export class TaskProcessor {
 
           record.assetId = asset.id
 
-          const originalFile = resolve(TMP_DIR, record.key)
+          const originalFile = resolve(TMP_DIR, record.fileName)
 
-          console.log(`Downloading avatar ${record.key}...`)
+          console.log(`Downloading avatar ${record.fileName}...`)
           const downloaded = await this.minioService.getObject(
             'uploads',
-            record.key,
+            record.fileName,
             originalFile
           )
 
-          if (!downloaded) { throw new NotFoundException(`Avatar ${record.key} download failed`) }
+          if (!downloaded) { throw new NotFoundException(`Avatar ${record.fileName} download failed`) }
 
           const fileObject: FileObjectDTO = await this.hashAndSizeAndCheckExists(
             'LOCAL',
@@ -116,7 +116,7 @@ export class TaskProcessor {
 
           if (fileObject == null) break
 
-          console.log(`Upload image ${record.key} as ${fileObject.sha256}...`)
+          console.log(`Upload image ${record.fileName} as ${fileObject.sha256}...`)
           const fileUploaded = await this.minioService.uploadObject(
             'public',
             fileObject.sha256,
@@ -124,7 +124,7 @@ export class TaskProcessor {
             { ...record.metaData }
           )
 
-          if (!fileUploaded) { throw new Error(`Avatar ${record.key} upload failed`) }
+          if (!fileUploaded) { throw new Error(`Avatar ${record.fileName} upload failed`) }
 
           for (const size of Object.values(AVATAR_SIZES)) {
             record.fileDimension = size
@@ -134,7 +134,7 @@ export class TaskProcessor {
             let targetPath = resolve(TMP_DIR, record.fileName)
 
             console.log(
-              `Resize image ${record.key} to ${record.fileDimension}...`
+              `Resize image ${record.fileName} to ${record.fileDimension}...`
             )
 
             const info = await this.fileService.resizePicture(
@@ -171,11 +171,11 @@ export class TaskProcessor {
             )
           }
         } catch (error) {
-          console.error(error)
+          console.error(error.message)
 
           // if (record.assetId != null) { await this.assetService.removeAsset(record.assetId) }
 
-          await job.retry()
+          // await job.retry()
         } finally {
           this.clearDir()
         }
@@ -252,11 +252,13 @@ export class TaskProcessor {
       }
 
       console.log('update user avatar')
-      await this.userService.updateUserAvatar(
-        record.userId,
-        record.assetId,
-        image
-      )
+      if (image != null) {
+        await this.userService.updateUserAvatar(
+          record.userId,
+          record.assetId,
+          image
+        )
+      }
     } catch (error) {
       console.error(error)
       if (file.fileobjectId != null) {
@@ -266,7 +268,7 @@ export class TaskProcessor {
       // Delete object from CAS
 
       // Retry the Job
-      await job.retry()
+      // await job.retry()
     }
   }
 
@@ -332,7 +334,9 @@ export class TaskProcessor {
         : await FileObjectDTO.hashAndSizeFile(originalBucket, file)
 
     if (size != null && size !== fileObject.size) {
-      console.error('Size mismatch')
+      console.error('File size mismatch, processing upload!')
+      // Should we through an error here
+      // throw new Error('File size mismatch')
     }
 
     const fileExistsInBucket = await this.minioService.fileExists(

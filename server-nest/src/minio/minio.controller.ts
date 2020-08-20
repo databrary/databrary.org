@@ -43,7 +43,7 @@ export class MinioController {
         // Send signed url
         this.minioService.client.presignedPutObject(
           bucketName,
-          encodeURIComponent(filename),
+          filename, // Do not encode the file name
           1000,
           function (err, presignedUrl) {
             if (err != null) return console.log(err)

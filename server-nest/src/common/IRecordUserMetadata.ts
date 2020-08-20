@@ -1,3 +1,5 @@
+
+// Headers set in the Databrary client to persist values required in tasks
 export interface IRecordUserMetadata {
   'X-Amz-Meta-Asset-Id'?: number
   'X-Amz-Meta-Upload-Type'?: string
