@@ -24,7 +24,6 @@ export class MinioService {
     } catch (error) {
       // Nothing to do
       // bucketExists will throw an error if bucket does not exist
-      console.error(error.message)
     }
 
     return false
@@ -38,7 +37,6 @@ export class MinioService {
     } catch (error) {
       // Nothing to do
       // statObject will throw an error if file is not found
-      console.error(error.message)
     }
 
     return false
@@ -61,14 +59,12 @@ export class MinioService {
     bucket: Buckets,
     name: string,
     path: string
-  ): Promise<boolean> {
-    return await new Promise((resolve, reject) => {
-      this.client.fGetObject(bucket, name, path, (err) => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        if (err != null) return reject(false)
-        resolve(true)
-      })
-    })
+  ): Promise<void> {
+    try {
+      await this.client.fGetObject(bucket, name, path)
+    } catch (error) {
+      throw new Error(error.message)
+    }
   }
 
   async uploadObject (
@@ -76,16 +72,12 @@ export class MinioService {
     name: string,
     path: string,
     metaData: IRecordUserMetadata
-  ): Promise<boolean> {
-    return await new Promise((resolve, reject) => {
-      this.client.fPutObject(bucket, name, path, metaData, (err, eTag) => {
-        if (err != null) {
-          // eslint-disable-next-line prefer-promise-reject-errors
-          return reject(false)
-        }
-        resolve(true)
-      })
-    })
+  ): Promise<void> {
+    try {
+      await this.client.fPutObject(bucket, name, path, metaData)
+    } catch (error) {
+      throw new Error(error.message)
+    }
   }
 
   async hashAndSizeMinio (

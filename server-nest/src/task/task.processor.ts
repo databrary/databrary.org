@@ -20,7 +20,6 @@ import { FileDTO } from '../dtos/file.dto'
 import { ImageKey, Buckets } from '../common/types'
 import { TMP_DIR, AVATAR_SIZES, AVATAR_FORMAT } from '../common/constants'
 import { AssetService } from '../asset/asset.service'
-import { NotFoundException } from '@nestjs/common'
 import { AssetDTO } from '../dtos/asset.dto'
 
 type Location = 'MINIO' | 'LOCAL'
@@ -98,13 +97,18 @@ export class TaskProcessor {
           const originalFile = resolve(TMP_DIR, record.fileName)
 
           console.log(`Downloading avatar ${record.fileName}...`)
-          const downloaded = await this.minioService.getObject(
+          await this.minioService.getObject(
             'uploads',
             record.fileName,
             originalFile
           )
+          // const downloaded = await this.minioService.getObject(
+          //   'uploads',
+          //   record.fileName,
+          //   originalFile
+          // )
 
-          if (!downloaded) { throw new NotFoundException(`Avatar ${record.fileName} download failed`) }
+          // if (!downloaded) { throw new NotFoundException(`Avatar ${record.fileName} download failed`) }
 
           const fileObject: FileObjectDTO = await this.hashAndSizeAndCheckExists(
             'LOCAL',
@@ -117,14 +121,21 @@ export class TaskProcessor {
           if (fileObject == null) break
 
           console.log(`Upload image ${record.fileName} as ${fileObject.sha256}...`)
-          const fileUploaded = await this.minioService.uploadObject(
+          await this.minioService.uploadObject(
             'public',
             fileObject.sha256,
             originalFile,
             { ...record.metaData }
           )
 
-          if (!fileUploaded) { throw new Error(`Avatar ${record.fileName} upload failed`) }
+          // const fileUploaded = await this.minioService.uploadObject(
+          //   'public',
+          //   fileObject.sha256,
+          //   originalFile,
+          //   { ...record.metaData }
+          // )
+
+          // if (!fileUploaded) { throw new Error(`Avatar ${record.fileName} upload failed`) }
 
           for (const size of Object.values(AVATAR_SIZES)) {
             record.fileDimension = size
