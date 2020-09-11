@@ -270,12 +270,12 @@ export default {
           query GetProject($projectId: Int!) {
             assets(where: {
               id: {_eq: $projectId},
-              asset_type: {_eq: project}
+              assetType: {_eq: project}
             }) {
               id
-              asset_type
+              assetType
               name
-              datetime_created
+              datetimeCreated
             }
           }
         `,
