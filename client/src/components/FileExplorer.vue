@@ -1,4 +1,5 @@
 <template>
+
   <section class="row q-py-lg">
     <q-toolbar class="no-padding bg-white text-dark q-mt-sm">
       <q-toolbar-title>Files</q-toolbar-title>
@@ -143,7 +144,6 @@
 </template>
 
 <script>
-import { date } from 'quasar'
 import { gql } from '@apollo/client'
 import FileUploader from './Upload/FileUploader'
 
@@ -218,40 +218,7 @@ export default {
         ]
       }
     ],
-    data: [
-      {
-        label: 'data',
-        icon: 'folder',
-        children: [
-          {
-            label: 'Good food',
-            icon: 'insert_drive_file'
-          },
-          {
-            label: 'Quality ingredients',
-            icon: 'insert_drive_file'
-          },
-          {
-            label: 'Good recipe',
-            icon: 'insert_drive_file'
-          }
-        ]
-      },
-      {
-        label: 'A Volume',
-        icon: 'folder',
-        children: [
-          {
-            label: 'some data.csv',
-            icon: 'insert_drive_file'
-          },
-          {
-            label: 'video.mp4',
-            icon: 'insert_drive_file'
-          }
-        ]
-      }
-    ],
+    data: [], // Files Tree
     newVolumeChildren: [],
     volumesDialog: false,
     fileUploadDialog: false,
@@ -281,12 +248,11 @@ export default {
     async fetchData () {
       const result = await this.$apollo.query({
         query: gql`
-          query GetProject($projectId: Int!) {
-            assets(where: {
-              id: {_eq: $projectId},
-            }) {
-              name
-              datetimeCreated
+          query getProjectFiles($projectId: Int!) {
+            assets(where: {assetType: {_eq: project}, id: {_eq: $projectId}}) {
+              files {
+                name
+              }
             }
           }
         `,
@@ -294,12 +260,13 @@ export default {
           projectId: this.projectId
         }
       })
-      const project = result.data.assets[0]
-      this.projectName = project.name
-      this.datetimeCreated = date.formatDate(
-        project.datetime_created,
-        'YYYY-MM-DD'
-      )
+      const projectFiles = result.data.assets[0].files
+      const filesArr = projectFiles.map(fileObj => ({ label: fileObj.name, icon: 'insert_drive_file' }))
+      this.data.push({
+        label: 'Data',
+        icon: 'folder',
+        children: [...filesArr]
+      })
     },
     resetFilter () {
       this.filter = ''
