@@ -83,6 +83,31 @@
   - name: uploader
     using:
       foreign_key_constraint_on: uploadedById
+  select_permissions:
+  - role: user
+    permission:
+      columns:
+      - id
+      - name
+      - uploadedById
+      - fileobjectId
+      - assetId
+      - uploadedDatetime
+      - fileFormatId
+      filter:
+        _or:
+        - asset:
+            privacyType:
+              _eq: public
+        - asset:
+            permissionset:
+              permissions:
+                permissionset:
+                  permissions:
+                    group:
+                      groups_users:
+                        userId:
+                          _eq: X-Hasura-User-Id
 - table:
     schema: public
     name: group_types
