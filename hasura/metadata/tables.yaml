@@ -9,10 +9,20 @@
   - name: creator
     using:
       foreign_key_constraint_on: createdById
+  - name: parentAsset
+    using:
+      foreign_key_constraint_on: parentId
   - name: permissionset
     using:
       foreign_key_constraint_on: permissionsetId
   array_relationships:
+  - name: childAssets
+    using:
+      foreign_key_constraint_on:
+        column: parentId
+        table:
+          schema: public
+          name: assets
   - name: files
     using:
       foreign_key_constraint_on:
