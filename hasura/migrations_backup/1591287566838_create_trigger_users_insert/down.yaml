@@ -1,3 +1,0 @@
-- args:
-    name: users_insert
-  type: delete_event_trigger

@@ -1,3 +1,0 @@
-- args:
-    sql: ALTER TABLE "public"."users" ADD COLUMN "familyName" text NOT NULL;
-  type: run_sql

@@ -1,3 +1,0 @@
-- args:
-    sql: ALTER TABLE "public"."assets" DROP COLUMN "parentId";
-  type: run_sql

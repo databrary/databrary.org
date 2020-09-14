@@ -1,3 +1,0 @@
-- args:
-    sql: ALTER TABLE "public"."assets" ADD COLUMN "parentId" integer NULL;
-  type: run_sql
