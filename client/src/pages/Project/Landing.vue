@@ -208,7 +208,7 @@
 import { date } from 'quasar'
 import citationBuilder from '../../components/CitationBuilder.vue'
 import FileExplorer from '../../components/FileExplorer.vue'
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 
 export default {
   name: 'PageId',

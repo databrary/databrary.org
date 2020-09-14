@@ -13,7 +13,7 @@ export default function routes (store) {
     {
       name: 'uploadToProject',
       path: ':projectId/upload',
-      component: () => import('components/Upload/UploadFiles.vue')
+      component: () => import('components/Upload/FileUploader.vue')
     }
   ]
 }

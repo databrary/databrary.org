@@ -197,8 +197,8 @@
 <script>
 import { sync, get } from 'vuex-pathify'
 import _ from 'lodash'
-import gql from 'graphql-tag'
-import AvatarUploader from '../Upload/UploadAvatar.vue'
+import { gql } from '@apollo/client'
+import AvatarUploader from '../Upload/AvatarUploader.vue'
 import { uid } from 'quasar'
 
 // TODO(Reda): Add "Use Gravatar" button bellow Change Profile Picture

@@ -21,7 +21,7 @@ import Uppy from '@uppy/core'
 import Dashboard from '@uppy/dashboard'
 import Webcam from '@uppy/webcam'
 import AwsS3 from '@uppy/aws-s3'
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 import { sync, get } from 'vuex-pathify'
 
 require('@uppy/core/dist/style.css')

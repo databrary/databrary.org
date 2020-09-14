@@ -144,8 +144,8 @@
 
 <script>
 import { date } from 'quasar'
-import gql from 'graphql-tag'
-import FileUploader from './FileUploader'
+import { gql } from '@apollo/client'
+import FileUploader from './Upload/FileUploader'
 
 export default {
   name: 'FileExplorer',
@@ -284,7 +284,6 @@ export default {
           query GetProject($projectId: Int!) {
             assets(where: {
               id: {_eq: $projectId},
-              typeId: {_eq: 1}
             }) {
               name
               datetimeCreated
