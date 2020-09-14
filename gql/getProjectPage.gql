@@ -1,7 +1,7 @@
 query getProjectPage {
   assets(
     where: {
-      asset_type: {
+      assetType: {
         _eq: project
       }, 
       id: {
@@ -10,9 +10,9 @@ query getProjectPage {
     }
   ) {
     id
-    privacy_type
+    privacyType
     name
-    datetime_created
-    asset_type
+    datetimeCreated
+    assetType
   }
 }

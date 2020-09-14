@@ -1,6 +1,0 @@
-- args:
-    sql: COMMENT ON COLUMN "public"."users"."display_full_name" IS E''
-  type: run_sql
-- args:
-    sql: alter table "public"."users" rename column "display_full_name" to "displayFullName";
-  type: run_sql

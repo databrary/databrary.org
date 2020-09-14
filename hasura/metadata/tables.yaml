@@ -8,10 +8,10 @@
   object_relationships:
   - name: creator
     using:
-      foreign_key_constraint_on: created_by_id
+      foreign_key_constraint_on: createdById
   - name: permissionset
     using:
-      foreign_key_constraint_on: permissionset_id
+      foreign_key_constraint_on: permissionsetId
   array_relationships:
   - name: files
     using:
@@ -25,25 +25,25 @@
     permission:
       check: {}
       set:
-        created_by_id: x-hasura-User-Id
+        createdById: x-hasura-User-Id
       columns:
-      - asset_type
+      - assetType
       - name
-      - privacy_type
+      - privacyType
   select_permissions:
   - role: user
     permission:
       columns:
-      - asset_type
-      - created_by_id
-      - datetime_created
+      - assetType
+      - createdById
+      - datetimeCreated
       - id
       - name
-      - permissionset_id
-      - privacy_type
+      - permissionsetId
+      - privacyType
       filter:
         _or:
-        - privacy_type:
+        - privacyType:
             _eq: public
         - permissionset:
             permissions:
@@ -51,7 +51,7 @@
                 permissions:
                   group:
                     groups_users:
-                      user_id:
+                      userId:
                         _eq: X-Hasura-User-Id
 - table:
     schema: public
@@ -84,21 +84,21 @@
   - name: groups_admins
     using:
       foreign_key_constraint_on:
-        column: group_id
+        column: groupId
         table:
           schema: public
           name: groups_admins
   - name: groups_users
     using:
       foreign_key_constraint_on:
-        column: group_id
+        column: groupId
         table:
           schema: public
           name: groups_users
   - name: permissions
     using:
       foreign_key_constraint_on:
-        column: group_id
+        column: groupId
         table:
           schema: public
           name: permissions
@@ -111,10 +111,10 @@
   object_relationships:
   - name: group
     using:
-      foreign_key_constraint_on: group_id
+      foreign_key_constraint_on: groupId
   - name: user
     using:
-      foreign_key_constraint_on: user_id
+      foreign_key_constraint_on: userId
 - table:
     schema: public
     name: permission_types
@@ -125,10 +125,10 @@
   object_relationships:
   - name: group
     using:
-      foreign_key_constraint_on: group_id
+      foreign_key_constraint_on: groupId
   - name: permissionset
     using:
-      foreign_key_constraint_on: permissionset_id
+      foreign_key_constraint_on: permissionsetId
 - table:
     schema: public
     name: permissionsets
@@ -136,14 +136,14 @@
   - name: assets
     using:
       foreign_key_constraint_on:
-        column: permissionset_id
+        column: permissionsetId
         table:
           schema: public
           name: assets
   - name: permissions
     using:
       foreign_key_constraint_on:
-        column: permissionset_id
+        column: permissionsetId
         table:
           schema: public
           name: permissions
@@ -162,21 +162,21 @@
   - name: admined_groups
     using:
       foreign_key_constraint_on:
-        column: user_id
+        column: userId
         table:
           schema: public
           name: groups_admins
   - name: assets
     using:
       foreign_key_constraint_on:
-        column: created_by_id
+        column: createdById
         table:
           schema: public
           name: assets
   - name: groups_users
     using:
       foreign_key_constraint_on:
-        column: user_id
+        column: userId
         table:
           schema: public
           name: groups_users

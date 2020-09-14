@@ -63,41 +63,8 @@ upgrade-hasura-cli:
 ##############################################################################
 # Hasura
 ##############################################################################
-HASURA_IMAGE=hasura-cli
-HASURA_DIR=./docker-assets/$(HASURA_IMAGE)
-
-check-image-hasura-cli: FORCE
-	@if [ -z "$$(docker images -q $(HASURA_IMAGE):latest 2> /dev/null)" ]; then\
-		touch $(HASURA_DIR)/Dockerfile;\
-	fi
-
-$(HASURA_DIR): $(HASURA_DIR)/Dockerfile
-	@docker build -t $(HASURA_IMAGE) $(HASURA_DIR)/
-	@touch $@
-
-setup_migrations: check-image-minio-cli $(HASURA_DIR)
-	@docker run\
-		--env-file=./.env\
-		--network="host"\
-		-v ${CURDIR}/hasura:/hasura\
-		-it ${HASURA_IMAGE}\
-		migrate apply --skip-update-check
-	@docker run\
-		--env-file=./.env\
-		--network="host"\
-		-v ${CURDIR}/hasura:/hasura\
-		-it ${HASURA_IMAGE}\
-		metadata apply --skip-update-check
-
-migrate: setup_migrations
+migrate:
 	cd hasura && hasura console && cd ..
-# Problem with console running in docker :P
-# docker run\
-# 	--env-file=./.env\
-# 	--network="host"\
-# 	-v ${CURDIR}/hasura:/hasura\
-# 	-it ${HASURA_IMAGE}\
-# 	console --skip-update-check --no-browser --console-port 9695
 
 ##############################################################################
 # Minio

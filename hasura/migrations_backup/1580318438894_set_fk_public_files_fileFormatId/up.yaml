@@ -1,6 +1,0 @@
-- args:
-    sql: "\n           alter table \"public\".\"files\"\n           add constraint
-      \"files_fileFormatId_fkey\"\n           foreign key (\"fileFormatId\")\n           references
-      \"public\".\"fileformats\"\n           (\"id\") on update no action on delete
-      no action;\n      "
-  type: run_sql

@@ -1,4 +1,4 @@
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 
 export default function createProject (name) {
   return {
@@ -7,8 +7,8 @@ export default function createProject (name) {
         insert_assets(
           objects: {
             name: $name,
-            asset_type: project,
-            privacy_type: private
+            assetType: project,
+            privacyType: private
           }
         ) {
           returning {

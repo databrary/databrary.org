@@ -1,3 +1,0 @@
-- args:
-    sql: ALTER TABLE "public"."users" DROP COLUMN "fileObjectId";
-  type: run_sql
