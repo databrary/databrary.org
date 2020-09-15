@@ -158,12 +158,12 @@
             </q-list>
           </q-card>
         </div>
-        <div class="q-mt-md">
-          <div class="text-h5 q-mt-md">
+        <div class="q-mt-md col-xs-12 col-sm-8 col-md-9">
+          <div class="row text-h5 q-mt-md">
             File Release Levels
           </div>
           <!-- TODO(Reda): Improve css byt adding style -->
-          <q-item class="justify-content-left">
+          <q-item class="row justify-content-left">
             <div class="q-pa-md">
               <q-markup-table
                 flat
@@ -198,7 +198,9 @@
             </div>
           </q-item>
         </div>
-        <FileExplorer></FileExplorer>
+        <div class="col-12">
+          <FileExplorer></FileExplorer>
+        </div>
       </div>
     </q-page>
   </div>
