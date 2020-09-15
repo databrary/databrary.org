@@ -70,6 +70,35 @@
 - table:
     schema: public
     name: fileobjects
+  array_relationships:
+  - name: fileObjects
+    using:
+      foreign_key_constraint_on:
+        column: fileobjectId
+        table:
+          schema: public
+          name: files
+  select_permissions:
+  - role: user
+    permission:
+      columns:
+      - size
+      filter:
+        _or:
+        - fileObjects:
+            asset:
+              privacyType:
+                _eq: public
+        - fileObjects:
+            asset:
+              permissionset:
+                permissions:
+                  permissionset:
+                    permissions:
+                      group:
+                        groups_users:
+                          userId:
+                            _eq: X-Hasura-User-Id
 - table:
     schema: public
     name: files
