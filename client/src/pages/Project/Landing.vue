@@ -199,7 +199,7 @@
           </q-item>
         </div>
         <div class="col-12">
-          <FileExplorer></FileExplorer>
+          <FileManager></FileManager>
         </div>
       </div>
     </q-page>
@@ -209,14 +209,14 @@
 // TODO(Reda): Fetch project id info here
 import { date } from 'quasar'
 import citationBuilder from '../../components/CitationBuilder.vue'
-import FileExplorer from '../../components/FileExplorer.vue'
+import FileManager from '../../components/Project/FileManager.vue'
 import { gql } from '@apollo/client'
 
 export default {
   name: 'PageId',
   components: {
     citationBuilder,
-    FileExplorer
+    FileManager
   },
   data: () => ({
     projectIdFromRoute: null,
