@@ -15,8 +15,8 @@ require('@uppy/webcam/dist/style.css')
 require('@uppy/url/dist/style.css')
 
 export default {
-  name: 'FilesUploader',
-  data: function data () {
+  name: 'FileUploader',
+  data () {
     return {
       uppy: ''
     }

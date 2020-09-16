@@ -31,7 +31,7 @@ require('@uppy/url/dist/style.css')
 
 export default {
   name: 'AvatarUploader',
-  data: function data () {
+  data () {
     return {
       uppy: ''
     }
