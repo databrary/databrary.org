@@ -12,11 +12,10 @@
       </div>
     </template>
     <template v-slot:after>
-      <q-toolbar class="no-padding bg-white text-dark">
+      <q-toolbar class="bg-white text-dark q-px-sm">
         <!-- The title tag is needed to align the btn to the right -->
-        <q-toolbar-title></q-toolbar-title>
+        <q-toolbar-title class="text-bold">{{selected}}</q-toolbar-title>
         <q-btn-toggle
-          class="q-mr-sm"
           v-model="viewSelected"
           push
           dense
@@ -41,19 +40,15 @@
           animated
           transition-prev="jump-up"
           transition-next="jump-up"
-          class="full-height"
       >
         <q-tab-panel
-            class="full-height"
             v-for="(ele) in data"
             :key="ele.id"
             :name="selected"
         >
           <div v-if="getElementObj(ele, selected).icon === 'folder'">
               <q-table
-                class="max-height max-weigth"
                 :grid="viewSelected == 'grid'"
-                :title="getElementObj(ele, selected).label"
                 :data="getElementObj(ele, selected).children"
                 :columns="columns"
                 row-key="Name"
@@ -89,6 +84,7 @@
 </template>
 
 <script>
+import { date, format } from 'quasar'
 
 export default {
   props: ['data'],
@@ -123,7 +119,7 @@ export default {
           align: 'left',
           sortable: true,
           field: row => row.size,
-          format: val => `${val}`
+          format: val => `${format.humanStorageSize(val)}`
         },
         {
           name: 'Uploaded on',
@@ -132,7 +128,7 @@ export default {
           align: 'left',
           sortable: true,
           field: row => row.uploadedDatetime,
-          format: val => `${val}`
+          format: val => `${date.formatDate(val, 'MM-DD-YYYY')}`
         },
         {
           name: 'Format',
