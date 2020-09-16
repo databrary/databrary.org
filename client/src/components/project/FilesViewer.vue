@@ -15,24 +15,26 @@
       <q-toolbar class="no-padding bg-white text-dark">
         <!-- The title tag is needed to align the btn to the right -->
         <q-toolbar-title></q-toolbar-title>
-        <q-btn
-          flat
+        <q-btn-toggle
+          class="q-mr-sm"
+          v-model="viewSelected"
+          push
           dense
-          icon="view_module"
-          color="black"
-          @click="gridView = true"
+          toggle-color="primary"
+          :options="viewOptions"
         >
-          <q-tooltip>Grid View</q-tooltip>
-        </q-btn>
-        <q-btn
-          flat
-          dense
-          icon="format_list_bulleted"
-          color="black"
-          @click="gridView = false"
-        >
-          <q-tooltip>List View</q-tooltip>
-        </q-btn>
+          <template v-slot:grid>
+            <div class="row items-center no-wrap">
+              <q-icon name="view_module" />
+            </div>
+          </template>
+
+          <template v-slot:list>
+            <div class="row items-center no-wrap">
+              <q-icon name="format_list_bulleted" />
+            </div>
+          </template>
+        </q-btn-toggle>
       </q-toolbar>
       <q-tab-panels
           v-model="selected"
@@ -50,7 +52,7 @@
           <div v-if="getElementObj(ele, selected).icon === 'folder'">
               <q-table
                 class="max-height max-weigth"
-                :grid="gridView"
+                :grid="viewSelected == 'grid'"
                 :title="getElementObj(ele, selected).label"
                 :data="getElementObj(ele, selected).children"
                 :columns="columns"
@@ -99,6 +101,11 @@ export default {
         page: 1,
         rowsPerPage: this.getItemsPerPage()
       },
+      viewSelected: 'grid',
+      viewOptions: [
+        { value: 'grid', slot: 'grid' },
+        { value: 'list', slot: 'list' }
+      ],
       columns: [
         {
           name: 'Name',
