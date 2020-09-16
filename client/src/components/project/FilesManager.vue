@@ -24,7 +24,7 @@
       </q-btn>
     </q-toolbar>
     <div class="col-xs-12 col-sm-12 col-md-12">
-      <FileViewer :data="data"/>
+      <FilesViewer :data="data"/>
 
       <!-- Create a new Volume Dialog  -->
       <q-dialog
@@ -117,13 +117,13 @@ import { uid } from 'quasar'
 import { gql } from '@apollo/client'
 
 import FileUploader from '../upload/FileUploader'
-import FileViewer from './FileViewer'
+import FilesViewer from './FilesViewer'
 
 export default {
-  name: 'FileManager',
+  name: 'FilesManager',
   components: {
     FileUploader,
-    FileViewer
+    FilesViewer
   },
   data: () => ({
     ticked: [],

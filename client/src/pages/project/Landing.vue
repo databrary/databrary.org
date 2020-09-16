@@ -199,7 +199,7 @@
           </q-item>
         </div>
         <div class="col-12">
-          <FileManager></FileManager>
+          <FilesManager></FilesManager>
         </div>
       </div>
     </q-page>
@@ -211,13 +211,13 @@ import { date } from 'quasar'
 import { gql } from '@apollo/client'
 
 import CitationBuilder from '../../components/CitationBuilder'
-import FileManager from '../../components/project/FileManager'
+import FilesManager from '../../components/project/FilesManager'
 
 export default {
   name: 'PageId',
   components: {
     CitationBuilder,
-    FileManager
+    FilesManager
   },
   data: () => ({
     projectIdFromRoute: null,
