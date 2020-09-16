@@ -12,11 +12,11 @@
     <!-- <q-separator vertical inset/> -->
     <q-btn to="/" exact stretch flat>
       <!-- <q-avatar>
-        <img src="../assets/databrary-logo.png" />
+        <img src="~assets/databrary-logo.png" />
       </q-avatar>-->
       <h6 class="no-margin text-weight-light">
         <q-avatar size="40px">
-          <img src="../../assets/databrary-logo.png" />
+          <img src="~assets/databrary-logo.png" />
         </q-avatar>
         <span class="gt-xs">
           <span class="text-weight-medium">Data</span>brary

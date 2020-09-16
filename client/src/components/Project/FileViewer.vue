@@ -13,6 +13,7 @@
     </template>
     <template v-slot:after>
       <q-toolbar class="no-padding bg-white text-dark">
+        <!-- The title tag is needed to align the btn to the right -->
         <q-toolbar-title></q-toolbar-title>
         <q-btn
           flat

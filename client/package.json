@@ -3,8 +3,7 @@
   "version": "0.0.1",
   "description": "Open data library",
   "productName": "Databrary",
-  "cordovaId": "org.cordova.quasar.app",
-  "author": "Ryan Mason <ryanmasonjar@gmail.com>",
+  "author": "",
   "private": true,
   "scripts": {
     "lint": "eslint --ext .js,.vue src",
@@ -26,6 +25,7 @@
     "@uppy/url": "^1.5.3",
     "@uppy/webcam": "^1.6.3",
     "axios": "^0.18.1",
+    "core-js": "^3.0.0",
     "fs-extra": "^9.0.1",
     "graphql": "^15.3.0",
     "js-cookie": "^2.2.1",
@@ -41,13 +41,18 @@
     "vuex-pathify": "^1.4.1"
   },
   "devDependencies": {
-    "@quasar/app": "^1.9.6",
+    "@quasar/app": "^2.0.0",
     "@quasar/cli": "^1.1.0",
     "@vue/eslint-config-standard": "^4.0.0",
     "babel-eslint": "^10.0.3",
-    "eslint": "^5.10.0",
-    "eslint-loader": "^2.2.1",
-    "eslint-plugin-vue": "^5.2.3",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-loader": "^3.0.3",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-vue": "^6.2.2",
     "strip-ansi": "=3.0.1",
     "ts-loader": "^6.2.1",
     "typescript": "^3.7.5"
@@ -58,7 +63,15 @@
     "yarn": ">= 1.6.0"
   },
   "browserslist": [
-    "last 1 version, not dead, ie >= 11"
+    "last 10 Chrome versions",
+    "last 10 Firefox versions",
+    "last 4 Edge versions",
+    "last 7 Safari versions",
+    "last 8 Android versions",
+    "last 8 ChromeAndroid versions",
+    "last 8 FirefoxAndroid versions",
+    "last 10 iOS versions",
+    "last 5 Opera versions"
   ],
   "resolutions": {
     "ajv": "6.8.1"

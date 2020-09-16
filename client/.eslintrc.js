@@ -3,6 +3,7 @@ module.exports = {
 
   parserOptions: {
     parser: 'babel-eslint',
+    ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
     sourceType: 'module'
   },
 
@@ -15,6 +16,7 @@ module.exports = {
   extends: [
     'plugin:vue/essential',
     '@vue/standard'
+    // 'airbnb-base'
   ],
 
   // required to lint *.vue files

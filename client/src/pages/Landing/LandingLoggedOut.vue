@@ -4,7 +4,7 @@
       <section class="text-center fit">
         <div class="text-weight-thin text-h1 block q-pt-lg">
           <q-avatar size="80px">
-            <img src="../../assets/databrary-logo.png" />
+            <img src="~assets/databrary-logo.png" />
           </q-avatar>
           <span class="text-weight-light">Data</span>brary
         </div>
