@@ -8,7 +8,7 @@ export default function routes (store) {
     {
       name: 'projectLanding',
       path: ':projectId',
-      component: () => import('pages/Project/Landing.vue')
+      component: () => import('pages/project/Landing.vue')
     }
   ]
 }

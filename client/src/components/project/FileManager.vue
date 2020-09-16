@@ -116,7 +116,7 @@
 import { uid } from 'quasar'
 import { gql } from '@apollo/client'
 
-import FileUploader from '../Upload/FileUploader'
+import FileUploader from '../upload/FileUploader'
 import FileViewer from './FileViewer'
 
 export default {

@@ -71,8 +71,8 @@
   </div>
 </template>
 <script>
-import Map from '../../components/LandingPage/Map'
-import Stats from '../../components/LandingPage/Stats'
+import Map from '../../components/landingPage/Map'
+import Stats from '../../components/landingPage/Stats'
 
 export default {
   name: 'LandingLoggedOut',

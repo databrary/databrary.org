@@ -208,14 +208,15 @@
 <script>
 // TODO(Reda): Fetch project id info here
 import { date } from 'quasar'
-import citationBuilder from '../../components/CitationBuilder.vue'
-import FileManager from '../../components/Project/FileManager.vue'
 import { gql } from '@apollo/client'
+
+import CitationBuilder from '../../components/CitationBuilder'
+import FileManager from '../../components/project/FileManager'
 
 export default {
   name: 'PageId',
   components: {
-    citationBuilder,
+    CitationBuilder,
     FileManager
   },
   data: () => ({

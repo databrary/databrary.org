@@ -83,10 +83,11 @@
 </template>
 
 <script>
-import ProjectCard from '../../components/Search/ProjectCard'
-import ProfileCard from '../../components/Search/ProfileCard'
-import _ from 'lodash'
 import axios from 'axios'
+import _ from 'lodash'
+
+import ProjectCard from '../../components/search/ProjectCard'
+import ProfileCard from '../../components/search/ProfileCard'
 
 export default {
   name: 'PageSearch',
