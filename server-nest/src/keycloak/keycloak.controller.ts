@@ -44,7 +44,7 @@ export class KeycloakController {
   @Get('logout')
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   async logout (@Request() req, @Res() res, @Session() session): Promise<any> {
-    session.user = {}
+    session.user = null
 
     const url = `${this.keycloakService.getBaseUri}/logout?redirect_uri=http://localhost:8000`
     req.logout()

@@ -38,8 +38,7 @@ const actions = {
   },
   async syncSessionAsync ({ commit }) {
     const { data } = await axios({ url: '/session', method: 'GET' })
-    if (_.get(data, 'id') !== null) {
-      console.log('Session response', data)
+    if (_.get(data, 'id') != null) {
       commit('isLoggedIn', true)
       commit('dbId', data.id)
       commit('useGravatar', data.useGravatar === true)
