@@ -7,14 +7,28 @@
           :nodes="data"
           node-key="label"
           selected-color="primary"
-          :selected.sync="selected"
+          :selected.sync="treeSelected"
         />
       </div>
     </template>
     <template v-slot:after>
       <q-toolbar class="bg-white text-dark q-px-sm">
         <!-- The title tag is needed to align the btn to the right -->
-        <q-toolbar-title class="text-bold">{{selected}}</q-toolbar-title>
+        <q-toolbar-title class="text-bold">{{treeSelected}}</q-toolbar-title>
+
+        <q-btn
+          class="q-mx-lg"
+          color="primary"
+          icon-right="cloud_download"
+          label="Download"
+          :disable="tableSelected.length === 0"
+          no-caps
+        >
+          <q-tooltip>
+            Download selected files
+          </q-tooltip>
+        </q-btn>
+
         <q-btn-toggle
           v-model="viewSelected"
           push
@@ -36,7 +50,7 @@
         </q-btn-toggle>
       </q-toolbar>
       <q-tab-panels
-        v-model="selected"
+        v-model="treeSelected"
         animated
         transition-prev="jump-up"
         transition-next="jump-up"
@@ -51,11 +65,14 @@
               :grid="viewSelected == 'grid'"
               :data="ele.children ? ele.children : []"
               :columns="columns"
-              row-key="Name"
+              row-key="label"
+              selection="multiple"
               virtual-scroll
               :pagination.sync="pagination"
               :rows-per-page-options="rowsPerPageOptions"
               flat
+              hide-bottom
+              :selected.sync="tableSelected"
             >
               <template v-if="gridView" v-slot:item="props">
                 <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4">
@@ -84,7 +101,8 @@ export default {
   props: ['data'],
   data () {
     return {
-      selected: 'Data',
+      treeSelected: 'Data',
+      tableSelected: [],
       splitterModel: 30,
       gridView: true,
       pagination: {
@@ -123,16 +141,16 @@ export default {
           sortable: true,
           field: row => row.uploadedDatetime,
           format: val => `${date.formatDate(val, 'MM-DD-YYYY')}`
-        },
-        {
-          name: 'Format',
-          label: 'Format',
-          required: true,
-          align: 'left',
-          sortable: true,
-          field: row => row.format,
-          format: val => `${val}`
         }
+        // {
+        //   name: 'Format',
+        //   label: 'Format',
+        //   required: true,
+        //   align: 'left',
+        //   sortable: true,
+        //   field: row => row.format,
+        //   format: val => `${val}`
+        // }
       ]
     }
   },
