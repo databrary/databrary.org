@@ -25,7 +25,7 @@
     </q-toolbar>
 
     <div class="col-xs-12 col-sm-12 col-md-12">
-      <FilesViewer :data="data"/>
+      <FilesViewer :data.sync="data"/>
 
       <!-- Create a new Volume Dialog  -->
       <q-dialog

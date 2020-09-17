@@ -1,5 +1,5 @@
 <template>
-  <q-splitter v-model="splitterModel" style="height: 400px">
+  <q-splitter v-model="splitterModel" style="height: 400px" after-class="no-scroll">
     <template v-slot:before>
       <div class="q-pa-md">
         <q-tree
@@ -67,15 +67,15 @@
               :columns="columns"
               row-key="label"
               selection="multiple"
+              style="height: 350px"
               virtual-scroll
               :pagination.sync="pagination"
-              :rows-per-page-options="rowsPerPageOptions"
+              :rows-per-page-options="[0]"
               flat
-              hide-bottom
               :selected.sync="tableSelected"
             >
               <template v-if="gridView" v-slot:item="props">
-                <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4">
+                <div class="col-xs-12 col-sm-6 col-md-4">
                   <q-card flat>
                     <q-card-section class="text-center" >
                       <q-icon size="xl" name="insert_drive_file"/>
@@ -106,8 +106,7 @@ export default {
       splitterModel: 30,
       gridView: true,
       pagination: {
-        page: 1,
-        rowsPerPage: this.getItemsPerPage()
+        rowsPerPage: 0
       },
       viewSelected: 'grid',
       viewOptions: [
@@ -154,30 +153,6 @@ export default {
       ]
     }
   },
-  watch: {
-    '$q.screen.name' () {
-      this.pagination.rowsPerPage = this.getItemsPerPage()
-    }
-  },
-  computed: {
-    cardContainerClass () {
-      if (this.$q.screen.gt.xs) {
-        return 'grid-masonry grid-masonry--' + (this.$q.screen.gt.sm ? '3' : '2')
-      }
-
-      return void 0
-    },
-
-    rowsPerPageOptions () {
-      if (this.gridView) return [ 0 ]
-
-      if (this.$q.screen.gt.xs) {
-        return this.$q.screen.gt.sm ? [ 3, 6, 9 ] : [ 3, 6 ]
-      }
-
-      return [ 3 ]
-    }
-  },
   methods: {
     getElementObj (element, selected) {
       try {
@@ -189,17 +164,6 @@ export default {
         console.log(e.message)
       }
       return null
-    },
-    getItemsPerPage () {
-      if (!this.gridView) return 0
-      const { screen } = this.$q
-      if (screen.lt.sm) {
-        return 3
-      }
-      if (screen.lt.md) {
-        return 6
-      }
-      return 9
     }
   }
 }
