@@ -36,46 +36,40 @@
         </q-btn-toggle>
       </q-toolbar>
       <q-tab-panels
-          v-model="selected"
-          animated
-          transition-prev="jump-up"
-          transition-next="jump-up"
+        v-model="selected"
+        animated
+        transition-prev="jump-up"
+        transition-next="jump-up"
+        v-for="ele in data"
+        :key="ele.id"
       >
         <q-tab-panel
-            v-for="(ele) in data"
-            :key="ele.id"
-            :name="selected"
+          :name="ele.label"
         >
-          <div v-if="getElementObj(ele, selected).icon === 'folder'">
-              <q-table
-                :grid="viewSelected == 'grid'"
-                :data="getElementObj(ele, selected).children"
-                :columns="columns"
-                row-key="Name"
-                virtual-scroll
-                :pagination.sync="pagination"
-                :rows-per-page-options="rowsPerPageOptions"
-                flat
-              >
-                <template v-if="gridView" v-slot:item="props">
-                  <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4">
-                    <q-card flat>
-                      <q-card-section class="text-center" >
-                        <q-icon size="xl" name="insert_drive_file"/>
-                      </q-card-section>
-                      <q-card-section  class="text-center">
-                        <div>{{ props.row.label }}</div>
-                      </q-card-section>
-                    </q-card>
-                  </div>
-                </template>
-              </q-table>
-          </div>
-          <div v-else>
-              <div class="text-h4 q-mb-md">
-                  {{ getElementObj(ele, selected).label }}
-              </div>
-              <q-skeleton  height="150px" square />
+          <div v-if="ele.icon === 'folder'">
+            <q-table
+              :grid="viewSelected == 'grid'"
+              :data="ele.children ? ele.children : []"
+              :columns="columns"
+              row-key="Name"
+              virtual-scroll
+              :pagination.sync="pagination"
+              :rows-per-page-options="rowsPerPageOptions"
+              flat
+            >
+              <template v-if="gridView" v-slot:item="props">
+                <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4">
+                  <q-card flat>
+                    <q-card-section class="text-center" >
+                      <q-icon size="xl" name="insert_drive_file"/>
+                    </q-card-section>
+                    <q-card-section  class="text-center">
+                      <div>{{ props.row.label }}</div>
+                    </q-card-section>
+                  </q-card>
+                </div>
+              </template>
+            </q-table>
           </div>
         </q-tab-panel>
       </q-tab-panels>
@@ -167,12 +161,12 @@ export default {
     }
   },
   methods: {
-    getElementObj (data, selected) {
+    getElementObj (element, selected) {
       try {
-        if (data.label === selected) return data
-        if (!data.children) return null
+        if (element.label === selected) return element
+        if (!element.children) return null
 
-        return data.children.filter(el => el.label === selected)[0]
+        return element.children.filter(el => el.label === selected)[0]
       } catch (e) {
         console.log(e.message)
       }

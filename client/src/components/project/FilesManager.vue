@@ -71,11 +71,10 @@ export default {
     '$route': 'fetchData'
   },
   async created () {
-    this.projectId = this.$route.params.projectId
-    this.fetchData()
+    this.fetchData(this.$route.params.projectId)
   },
   methods: {
-    async fetchData () {
+    async fetchData (projectId) {
       const result = await this.$apollo.query({
         query: gql`
           query getProjectFiles($projectId: Int!) {
@@ -92,7 +91,7 @@ export default {
           }
         `,
         variables: {
-          projectId: this.projectId
+          projectId: projectId
         }
       })
       const projectFiles = result.data.assets[0].files
@@ -105,7 +104,26 @@ export default {
           id: uid(),
           label: 'Data',
           icon: 'folder',
+          expandable: false,
           children: [...files]
+        }
+      )
+      this.data.push(
+        {
+          id: uid(),
+          label: 'Fake Volume',
+          icon: 'folder',
+          expandable: false,
+          children: [
+            {
+              id: uid(),
+              label: 'Fake Picture.png',
+              size: 13245,
+              format: 'png',
+              uploadedDatetime: new Date(),
+              icon: 'insert_drive_file'
+            }
+          ]
         }
       )
     }
