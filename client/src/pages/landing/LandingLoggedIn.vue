@@ -41,7 +41,7 @@
 <script>
 import { sync } from 'vuex-pathify'
 import { date } from 'quasar'
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 
 export default {
   name: 'LandingLoggedIn',

@@ -8,8 +8,8 @@
 <script>
 import { get } from 'vuex-pathify'
 
-import LandingLoggedIn from './Landing/LandingLoggedIn.vue'
-import LandingLoggedOut from './Landing/LandingLoggedOut.vue'
+import LandingLoggedIn from './landing/LandingLoggedIn'
+import LandingLoggedOut from './landing/LandingLoggedOut'
 
 export default {
   name: 'LandingPage',

@@ -3,26 +3,26 @@ export default function routes (store) {
   return [
     {
       path: 'pages',
-      component: () => import('pages/pages/pages.vue')
+      component: () => import('pages/pages/Pages.vue')
     },
     {
       path: '/search/:pageId/contributors',
-      component: () => import('pages/pages/contributors.vue')
+      component: () => import('pages/pages/Contributors.vue')
     },
     {
       path: '/pages/:pageId/contributors',
-      component: () => import('pages/pages/contributors.vue')
+      component: () => import('pages/pages/Contributors.vue')
     },
     {
       path: '/pages/:pageId',
-      component: () => import('pages/pages/pageId.vue')
+      component: () => import('pages/pages/PageId.vue')
     },
     {
       path: '/search/:pageId',
-      component: () => import('pages/pages/pageId.vue')
+      component: () => import('pages/pages/PageId.vue')
     },
-    { path: '/search', component: () => import('pages/pages/search.vue') },
-    { path: '/notifications', component: () => import('pages/notifications.vue') },
-    { path: '/news', component: () => import('pages/news.vue') }
+    { path: '/search', component: () => import('pages/pages/Search.vue') },
+    { path: '/notifications', component: () => import('pages/Notifications.vue') },
+    { path: '/news', component: () => import('pages/News.vue') }
   ]
 }

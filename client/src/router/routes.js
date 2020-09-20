@@ -19,11 +19,11 @@ export default function routes (store) {
         },
         {
           path: '/settings',
-          component: () => import('pages/settings.vue')
+          component: () => import('pages/Settings.vue')
         },
         {
           path: '/about',
-          component: () => import('pages/about/index.vue'),
+          component: () => import('pages/about/Index.vue'),
           children: aboutRoutes(store)
         },
         ...otherRoutes(store)

@@ -9,10 +9,20 @@
   - name: creator
     using:
       foreign_key_constraint_on: createdById
+  - name: parentAsset
+    using:
+      foreign_key_constraint_on: parentId
   - name: permissionset
     using:
       foreign_key_constraint_on: permissionsetId
   array_relationships:
+  - name: childAssets
+    using:
+      foreign_key_constraint_on:
+        column: parentId
+        table:
+          schema: public
+          name: assets
   - name: files
     using:
       foreign_key_constraint_on:
@@ -60,6 +70,35 @@
 - table:
     schema: public
     name: fileobjects
+  array_relationships:
+  - name: fileObjects
+    using:
+      foreign_key_constraint_on:
+        column: fileobjectId
+        table:
+          schema: public
+          name: files
+  select_permissions:
+  - role: user
+    permission:
+      columns:
+      - size
+      filter:
+        _or:
+        - fileObjects:
+            asset:
+              privacyType:
+                _eq: public
+        - fileObjects:
+            asset:
+              permissionset:
+                permissions:
+                  permissionset:
+                    permissions:
+                      group:
+                        groups_users:
+                          userId:
+                            _eq: X-Hasura-User-Id
 - table:
     schema: public
     name: files
@@ -73,6 +112,31 @@
   - name: uploader
     using:
       foreign_key_constraint_on: uploadedById
+  select_permissions:
+  - role: user
+    permission:
+      columns:
+      - id
+      - name
+      - uploadedById
+      - fileobjectId
+      - assetId
+      - uploadedDatetime
+      - fileFormatId
+      filter:
+        _or:
+        - asset:
+            privacyType:
+              _eq: public
+        - asset:
+            permissionset:
+              permissions:
+                permissionset:
+                  permissions:
+                    group:
+                      groups_users:
+                        userId:
+                          _eq: X-Hasura-User-Id
 - table:
     schema: public
     name: group_types

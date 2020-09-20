@@ -10,7 +10,7 @@
       :selected.sync="selected"
       flat
     >
-     <template v-slot:top="props">
+     <template v-slot>
         <div class="col-2 q-table__title">
           <h5 class="q-ma-none">Contrubutors</h5>
         </div>

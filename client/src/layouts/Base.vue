@@ -28,7 +28,7 @@
 <script>
 import { get } from 'vuex-pathify'
 import { openURL } from 'quasar'
-import NavBar from '../components/Layout/NavBar.vue'
+import NavBar from '../components/layout/NavBar'
 
 export default {
   name: 'MyLayout',

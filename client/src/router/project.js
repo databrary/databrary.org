@@ -8,12 +8,7 @@ export default function routes (store) {
     {
       name: 'projectLanding',
       path: ':projectId',
-      component: () => import('pages/Project/Landing.vue')
-    },
-    {
-      name: 'uploadToProject',
-      path: ':projectId/upload',
-      component: () => import('components/Upload/UploadFiles.vue')
+      component: () => import('pages/project/Landing.vue')
     }
   ]
 }

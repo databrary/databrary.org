@@ -71,10 +71,10 @@
 
 <script>
 import { get } from 'vuex-pathify'
-import SettingsProfile from '../components/settings/settingsProfile.vue'
-import SettingsAccount from '../components/settings/settingsAccount.vue'
-import SettingsEmails from '../components/settings/settingsEmails.vue'
-import SettingsSecurity from '../components/settings/settingsSecurity.vue'
+import SettingsProfile from '../components/settings/SettingsProfile'
+import SettingsAccount from '../components/settings/SettingsAccount'
+import SettingsEmails from '../components/settings/SettingsEmails'
+import SettingsSecurity from '../components/settings/SettingsSecurity'
 
 export default {
   components: {

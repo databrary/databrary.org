@@ -1,13 +1,36 @@
 {
   "compilerOptions": {
-    "sourceMap": true,
-    "target": "es5",
-    "strict": true,
-    "experimentalDecorators": true,
-    "module": "es2015",
-    "moduleResolution": "node"
+    "baseUrl": ".",
+    "paths": {
+      "src/*": [
+        "./src/*"
+      ],
+      "app/*": [
+        "*"
+      ],
+      "components/*": [
+        "./src/components/*"
+      ],
+      "layouts/*": [
+        "./src/layouts/*"
+      ],
+      "pages/*": [
+        "./src/pages/*"
+      ],
+      "assets/*": [
+        "./src/assets/*"
+      ],
+      "boot/*": [
+        "./src/boot/*"
+      ],
+      "vue$": [
+        "./node_modules/vue/dist/vue.esm.js"
+      ]
+    }
   },
   "exclude": [
-    "node_modules"
+    "./dist",
+    "./.quasar",
+    "**/node_modules/*"
   ]
 }

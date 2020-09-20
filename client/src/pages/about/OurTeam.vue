@@ -57,7 +57,7 @@ export default {
       principalInvestigators: [
         {
           name: 'Karen Adolph',
-          avatar: './statics/karen.jpg',
+          avatar: './karen.jpg',
           postion: 'Director',
           role: 'Professor of Psychology and Neural Science',
           email: 'karen.adolph@nyu.edu',
@@ -74,7 +74,7 @@ export default {
         },
         {
           name: 'Rick O. Gilmore',
-          avatar: './statics/rick.jpg',
+          avatar: './rick.jpg',
           postion: 'Associate Director',
           role: 'Associate Professor of Psychology',
           email: 'rogilmore@psu.edu',
@@ -87,7 +87,7 @@ export default {
         },
         {
           name: 'David Millman',
-          avatar: './statics/david.jpg',
+          avatar: './david.jpg',
           postion: 'Co-Investigator',
           role: 'Director of Digital Library Technology Services',
           email: 'dsm@nyu.edu',
