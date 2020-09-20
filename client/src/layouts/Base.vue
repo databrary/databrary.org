@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { get } from 'vuex-pathify'
+import { sync } from 'vuex-pathify'
 import { openURL } from 'quasar'
 import NavBar from '../components/layout/NavBar'
 
@@ -41,14 +41,29 @@ export default {
       year: null
     }
   },
+  async mounted () {
+    await this.fetchData()
+  },
+  watch: {
+    $route: 'fetchData'
+  },
   computed: {
-    isBackendDisconnected: get('app/isBackendDisconnected')
+    isBackendDisconnected: sync('app/isBackendDisconnected')
   },
   async created () {
     this.year = (new Date()).getFullYear()
   },
   methods: {
     openURL,
+    async fetchData () {
+      const { status } = await this.$axios.get('http://localhost:8002/healthz')
+      console.log(status)
+      if (status !== 200) {
+        this.isBackendDisconnected = true
+      } else {
+        this.isBackendDisconnected = false
+      }
+    },
     toggleDrawer () {
       this.leftDrawerOpen = !this.leftDrawerOpen
     }
