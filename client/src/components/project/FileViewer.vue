@@ -7,14 +7,13 @@
           :nodes="data"
           node-key="label"
           selected-color="primary"
-          :selected.sync="treeSelected"
+          :selected.sync="folderSelected"
         >
           <template v-slot:default-header="prop">
             <div
               class="row items-center"
               @drop="onDrop($event, prop.node.id)"
               @dragover.prevent
-              @dragenter.prevent
             >
               <q-icon :name="prop.node.icon" />
               <div>{{ prop.node.label }}</div>
@@ -26,7 +25,7 @@
     <template v-slot:after>
       <q-toolbar class="bg-white text-dark q-px-sm">
         <!-- The title tag is needed to align the btn to the right -->
-        <q-toolbar-title class="text-bold">{{treeSelected}}</q-toolbar-title>
+        <q-toolbar-title class="text-bold">{{folderSelected}}</q-toolbar-title>
 
         <q-btn
           class="q-mx-lg"
@@ -62,7 +61,7 @@
         </q-btn-toggle>
       </q-toolbar>
       <q-tab-panels
-        v-model="treeSelected"
+        v-model="folderSelected"
         animated
         transition-prev="jump-up"
         transition-next="jump-up"
@@ -91,6 +90,7 @@
                   class="col-xs-12 col-sm-6 col-md-4"
                   draggable
                   @dragstart='onDragStart($event, ele.id, props.row.id)'
+                  @dragover.prevent
                 >
                   <q-card flat>
                     <q-card-section class="text-center" >
@@ -117,7 +117,7 @@ export default {
   props: ['data', 'icons'],
   data () {
     return {
-      treeSelected: 'Data',
+      folderSelected: 'Data',
       tableSelected: [],
       splitterModel: 30,
       gridView: true,
@@ -194,3 +194,8 @@ export default {
   }
 }
 </script>
+<style>
+.drag-enter {
+  outline-style: dashed
+}
+</style>
