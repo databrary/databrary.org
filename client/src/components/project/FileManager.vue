@@ -25,7 +25,7 @@
     </q-toolbar>
 
     <div class="col-xs-12 col-sm-12 col-md-12">
-      <FilesViewer :data.sync="data"/>
+      <FileViewer :data.sync="data"/>
 
       <!-- Create a new Volume Dialog  -->
       <q-dialog
@@ -52,13 +52,13 @@ import { gql } from '@apollo/client'
 
 import FileUploader from '../upload/FileUploader'
 import AddNewVolume from './modals/AddNewVolume'
-import FilesViewer from './FilesViewer'
+import FileViewer from './FileViewer'
 
 export default {
   name: 'FilesManager',
   components: {
     FileUploader,
-    FilesViewer,
+    FileViewer,
     AddNewVolume
   },
   data: () => ({
