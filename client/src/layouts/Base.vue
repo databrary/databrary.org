@@ -56,7 +56,7 @@ export default {
   methods: {
     openURL,
     async fetchData () {
-      const { status } = await this.$axios.get('http://localhost:8002/healthz')
+      const { status } = await this.$axios.get('/healthz')
       console.log(status)
       if (status !== 200) {
         this.isBackendDisconnected = true
