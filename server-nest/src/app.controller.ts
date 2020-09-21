@@ -26,7 +26,7 @@ export class AppController {
   ) {}
 
   @Get('/')
-  @Redirect('https://localhost/')
+  @Redirect('http://127.0.0.1:8000/')
   home (): void {
     // do nothing.
   }

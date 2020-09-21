@@ -64,7 +64,7 @@ upgrade-hasura-cli:
 # Hasura
 ##############################################################################
 migrate:
-	cd hasura && hasura console && cd ..
+	cd hasura && hasura console --skip-update-check --endpoint http://127.0.0.1:8000 && cd ..
 
 ##############################################################################
 # Minio
