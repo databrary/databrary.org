@@ -25,7 +25,7 @@
     </q-toolbar>
 
     <div class="col-xs-12 col-sm-12 col-md-12">
-      <FileViewer :data.sync="data"/>
+      <FileViewer :icons="icons" :data.sync="data"/>
 
       <!-- Create a new Volume Dialog  -->
       <q-dialog
@@ -54,12 +54,35 @@ import FileUploader from '../upload/FileUploader'
 import AddNewVolume from './modals/AddNewVolume'
 import FileViewer from './FileViewer'
 
+const fileIcons = {
+  zip: 'mdi-folder-zip-outline',
+  rar: 'mdi-folder-zip-outline',
+  json: 'mdi-json',
+  md: 'mdi-language-markdown-outline',
+  pdf: 'mdi-file-pdf',
+  png: 'mdi-file-image',
+  jpg: 'mdi-file-image',
+  jpeg: 'mdi-file-image',
+  mp4: 'mdi-filmstrip',
+  mkv: 'mdi-filmstrip',
+  avi: 'mdi-filmstrip',
+  wmv: 'mdi-filmstrip',
+  mov: 'mdi-filmstrip',
+  txt: 'mdi-file-document-outline',
+  xls: 'mdi-file-excel',
+  csv: 'mdi-file-delimited-outline',
+  other: 'mdi-file-outline'
+}
+
 export default {
   name: 'FilesManager',
   components: {
     FileUploader,
     FileViewer,
     AddNewVolume
+  },
+  props: {
+    icons: { type: Object, default: () => fileIcons }
   },
   data: () => ({
     data: [], // Tree
@@ -97,13 +120,14 @@ export default {
       const projectFiles = result.data.assets[0].files
       const files = projectFiles.map(
         ({ name: label, fileFormatId: format, fileobject: { size }, uploadedDatetime }) =>
-          ({ id: uid(), label, size, format, uploadedDatetime, icon: 'insert_drive_file' })
+          ({ id: uid(), label, size, format, uploadedDatetime, isDir: false })
       )
       this.data.push(
         {
           id: uid(),
           label: 'Data',
-          icon: 'folder',
+          isDir: true,
+          icon: 'mdi-folder',
           expandable: false,
           children: [...files]
         }
@@ -112,7 +136,8 @@ export default {
         {
           id: uid(),
           label: 'Fake Volume',
-          icon: 'folder',
+          isDir: true,
+          icon: 'mdi-folder',
           expandable: false,
           children: [
             {
@@ -120,8 +145,8 @@ export default {
               label: 'Fake Picture.png',
               size: 13245,
               format: 'png',
-              uploadedDatetime: new Date(),
-              icon: 'insert_drive_file'
+              isDir: false,
+              uploadedDatetime: new Date()
             }
           ]
         }

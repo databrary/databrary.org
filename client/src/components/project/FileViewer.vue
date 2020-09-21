@@ -60,7 +60,7 @@
         <q-tab-panel
           :name="ele.label"
         >
-          <div v-if="ele.icon === 'folder'">
+          <div v-if="ele.isDir">
             <q-table
               :grid="viewSelected == 'grid'"
               :data="ele.children ? ele.children : []"
@@ -78,7 +78,7 @@
                 <div class="col-xs-12 col-sm-6 col-md-4">
                   <q-card flat>
                     <q-card-section class="text-center" >
-                      <q-icon size="xl" name="insert_drive_file"/>
+                      <q-icon size="xl" :name="icons[props.row.format.toLowerCase()] || icons['other']"/>
                     </q-card-section>
                     <q-card-section  class="text-center">
                       <div>{{ props.row.label }}</div>
@@ -98,7 +98,7 @@
 import { date, format } from 'quasar'
 
 export default {
-  props: ['data'],
+  props: ['data', 'icons'],
   data () {
     return {
       treeSelected: 'Data',
