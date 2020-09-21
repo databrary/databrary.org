@@ -25,7 +25,11 @@
     </q-toolbar>
 
     <div class="col-xs-12 col-sm-12 col-md-12">
-      <FileViewer :icons="icons" :data.sync="data"/>
+      <FileViewer
+        @moveFile="moveFile"
+        :icons="icons"
+        :data.sync="data"
+      />
 
       <!-- Create a new Volume Dialog  -->
       <q-dialog
@@ -151,6 +155,23 @@ export default {
           ]
         }
       )
+    },
+    moveFile (fileId, folderId, newFolderId) {
+      const file = this.removeFile(folderId, fileId)
+      this.addFile(newFolderId, file)
+    },
+    removeFile (folderId, fileId) {
+      // Return the removed file's data
+      let files = this.getFiles(folderId)
+      const file = files.splice(files.map(e => e.id).indexOf(fileId), 1)
+      return file[0]
+    },
+    addFile (folderId, file) {
+      let files = this.getFiles(folderId)
+      files.push(file)
+    },
+    getFiles (folderId) {
+      return this.data.find(ele => ele.id === folderId).children
     }
   }
 }

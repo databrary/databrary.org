@@ -8,7 +8,19 @@
           node-key="label"
           selected-color="primary"
           :selected.sync="treeSelected"
-        />
+        >
+          <template v-slot:default-header="prop">
+            <div
+              class="row items-center"
+              @drop="onDrop($event, prop.node.id)"
+              @dragover.prevent
+              @dragenter.prevent
+            >
+              <q-icon :name="prop.node.icon" />
+              <div>{{ prop.node.label }}</div>
+            </div>
+          </template>
+      </q-tree>
       </div>
     </template>
     <template v-slot:after>
@@ -75,7 +87,11 @@
               :selected.sync="tableSelected"
             >
               <template v-if="gridView" v-slot:item="props">
-                <div class="col-xs-12 col-sm-6 col-md-4">
+                <div
+                  class="col-xs-12 col-sm-6 col-md-4"
+                  draggable
+                  @dragstart='onDragStart($event, ele.id, props.row.id)'
+                >
                   <q-card flat>
                     <q-card-section class="text-center" >
                       <q-icon size="xl" :name="icons[props.row.format.toLowerCase()] || icons['other']"/>
@@ -154,16 +170,26 @@ export default {
     }
   },
   methods: {
-    getElementObj (element, selected) {
-      try {
-        if (element.label === selected) return element
-        if (!element.children) return null
+    onDragStart (e, folderId, fileId) {
+      e.dataTransfer.dropEffect = 'move'
+      e.dataTransfer.effectAllowed = 'move'
+      e.dataTransfer.setData('fileId', fileId)
+      e.dataTransfer.setData('folderId', folderId)
+    },
+    onDrop (e, newFolderId) {
+      const folderId = e.dataTransfer.getData('folderId')
 
-        return element.children.filter(el => el.label === selected)[0]
-      } catch (e) {
-        console.log(e.message)
-      }
-      return null
+      if (folderId === newFolderId) return
+
+      // don't drop on other draggables
+      if (e.target.draggable === true) return
+
+      const fileId = e.dataTransfer.getData('fileId')
+
+      this.moveFile(fileId, folderId, newFolderId)
+    },
+    moveFile (fileId, folderId, newFolderId) {
+      this.$emit('moveFile', fileId, folderId, newFolderId)
     }
   }
 }
