@@ -71,7 +71,7 @@ services:
       - 6379:6379
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
-      - ./server/sessions:/sessions
+      - ./server-nest/sessions:/sessions
     restart: always
 
   elasticsearch:
