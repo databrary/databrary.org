@@ -13,10 +13,10 @@
           </div>
         </div>
       </div>
-      <div class="row">
+      <div class="row justify-between">
         <q-input
           v-model.trim="profile.givenName"
-          class="col-4 q-pr-sm"
+          class="col-4"
           label="First/Given Name:"
           dense
           outlined
@@ -25,16 +25,16 @@
 
         <q-input
           v-model="profile.additionalName"
-          class="col-4 q-pl-sm"
+          class="col-3"
           label="Middle/Additional Name:"
           dense
           outlined
-          :rules="[]"
+          :rules="[val]"
         />
 
         <q-input
           v-model.trim="profile.familyName"
-          class="col-4 q-pl-sm"
+          class="col-4"
           label="Last/Family Name:"
           dense
           outlined
