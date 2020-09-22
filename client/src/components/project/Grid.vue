@@ -1,7 +1,6 @@
 <template>
     <div>
         <q-toolbar class="bg-white text-dark q-px-sm">
-        <!-- The title tag is needed to align the btn to the right -->
         <q-toolbar-title class="text-bold">{{selectedFolder}}</q-toolbar-title>
 
         <q-btn-toggle
@@ -74,11 +73,9 @@
 </template>
 
 <script>
-import { date, format } from 'quasar'
-
 export default {
   name: 'Grid',
-  props: ['data', 'icons', 'folder'],
+  props: ['data', 'icons', 'folder', 'columns'],
   data () {
     return {
       selectedFiles: [],
@@ -91,53 +88,13 @@ export default {
       ],
       pagination: {
         rowsPerPage: 0
-      },
-      // Set this as props
-      columns: [
-        {
-          name: 'Name',
-          label: 'Name',
-          required: true,
-          align: 'left',
-          sortable: true,
-          field: row => row.label,
-          format: val => `${val}`
-        },
-        {
-          name: 'Size',
-          label: 'Size',
-          required: true,
-          align: 'left',
-          sortable: true,
-          field: row => row.size,
-          format: val => `${format.humanStorageSize(val)}`
-        },
-        {
-          name: 'Uploaded on',
-          label: 'Uploaded on',
-          required: true,
-          align: 'left',
-          sortable: true,
-          field: row => row.uploadedDatetime,
-          format: val => `${date.formatDate(val, 'MM-DD-YYYY')}`
-        }
-        // {
-        //   name: 'Format',
-        //   label: 'Format',
-        //   required: true,
-        //   align: 'left',
-        //   sortable: true,
-        //   field: row => row.format,
-        //   format: val => `${val}`
-        // }
-      ]
+      }
     }
   },
   mounted () {
     this.selectedFolder = this.folder
   },
   watch: {
-    // this comes from the parent
     folder () {
       this.selectedFolder = this.folder
     },

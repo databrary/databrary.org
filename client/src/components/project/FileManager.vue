@@ -11,7 +11,7 @@
           <div class="q-pa-md">
             <Tree
               :data="data"
-              :folder.sync="folderSelected"
+              :folder.sync="selectedFolder"
               @selected="onSelectedFolder"
               @moveFile="onMoveFile"
             />
@@ -22,7 +22,8 @@
             <Grid
               :data="data"
               :icons="icons"
-              :folder.sync="folderSelected"
+              :columns="columns"
+              :folder.sync="selectedFolder"
               @selectedFiles="onSelectedFiles"
             />
           </div>
@@ -49,7 +50,7 @@
 </template>
 
 <script>
-import { uid } from 'quasar'
+import { uid, date, format } from 'quasar'
 import { gql } from '@apollo/client'
 
 import FileUploader from '../upload/FileUploader'
@@ -78,6 +79,45 @@ const fileIcons = {
   other: 'mdi-file-outline'
 }
 
+const defaultColumns = [
+  {
+    name: 'Name',
+    label: 'Name',
+    required: true,
+    align: 'left',
+    sortable: true,
+    field: row => row.label,
+    format: val => `${val}`
+  },
+  {
+    name: 'Size',
+    label: 'Size',
+    required: true,
+    align: 'left',
+    sortable: true,
+    field: row => row.size,
+    format: val => `${format.humanStorageSize(val)}`
+  },
+  {
+    name: 'Uploaded on',
+    label: 'Uploaded on',
+    required: true,
+    align: 'left',
+    sortable: true,
+    field: row => row.uploadedDatetime,
+    format: val => `${date.formatDate(val, 'MM-DD-YYYY')}`
+  }
+  // {
+  //   name: 'Format',
+  //   label: 'Format',
+  //   required: true,
+  //   align: 'left',
+  //   sortable: true,
+  //   field: row => row.format,
+  //   format: val => `${val}`
+  // }
+]
+
 export default {
   name: 'FileManager',
   components: {
@@ -89,7 +129,8 @@ export default {
   },
   props: {
     icons: { type: Object, default: () => fileIcons },
-    splitterModel: { type: Number, default: () => 30 }
+    splitterModel: { type: Number, default: () => 30 },
+    columns: { type: Array, default: () => defaultColumns }
   },
   data () {
     return {
@@ -97,7 +138,7 @@ export default {
       volumesDialog: false,
       fileUploadDialog: false,
       maximizedToggle: true,
-      folderSelected: 'Data',
+      selectedFolder: 'Data',
       selectedFiles: []
     }
   },
@@ -191,7 +232,7 @@ export default {
 
     // Setters
     setSelectedFolder (folder) {
-      this.folderSelected = folder
+      this.selectedFolder = folder
     },
     setSelectedFiles (filesArray) {
       this.selectedFiles = filesArray

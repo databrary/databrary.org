@@ -1,20 +1,19 @@
 <template>
     <q-tree
-        default-expand-all
         :nodes="data"
         node-key="label"
         selected-color="primary"
         :selected.sync="selected"
     >
         <template v-slot:default-header="prop">
-        <div
-            class="row items-center"
-            @drop="onDrop($event, prop.node.id)"
-            @dragover.prevent
-        >
-            <q-icon :name="prop.node.icon" />
-            <div>{{ prop.node.label }}</div>
-        </div>
+            <div
+                class="row items-center"
+                @drop="onDrop($event, prop.node.id)"
+                @dragover.prevent
+            >
+                <q-icon :name="prop.node.icon" />
+                <div>{{ prop.node.label }}</div>
+            </div>
         </template>
     </q-tree>
 </template>

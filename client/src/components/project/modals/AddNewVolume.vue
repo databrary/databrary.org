@@ -29,7 +29,7 @@
                 </template>
             </q-input>
             <q-tree
-                :nodes="sharedData"
+                :nodes="data"
                 node-key="label"
                 tick-strategy="leaf"
                 :ticked.sync="ticked"
@@ -78,12 +78,10 @@ export default {
       ticked: [],
       newVolumeName: 'New Volume',
       filter: '',
-      sharedData: [],
       newVolumeChildren: []
     }
   },
   watch: {
-    // whenever question changes, this function will run
     ticked () {
       this.newVolumeChildren = []
       this.ticked.forEach((checkedEle) => {
