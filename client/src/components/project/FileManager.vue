@@ -1,35 +1,33 @@
 <template>
   <section class="row q-pa-xs">
-    <q-toolbar class="no-padding bg-white text-dark q-mt-sm">
-      <q-toolbar-title>Files</q-toolbar-title>
-      <q-btn
-        flat
-        icon="cloud_upload"
-        color="primary"
-        label="Upload"
-        @click="fileUploadDialog = true"
-      >
-        <q-tooltip>
-          Upload files or folders to your project
-        </q-tooltip>
-      </q-btn>
-      <q-btn
-        flat
-        icon="folder"
-        color="primary"
-        label="Create Virtual Volume"
-        @click="volumesDialog = true"
-      >
-        <q-tooltip>Create a new volume from selected data</q-tooltip>
-      </q-btn>
-    </q-toolbar>
-
     <div class="col-xs-12 col-sm-12 col-md-12">
-      <FileViewer
-        @moveFile="moveFile"
-        :icons="icons"
-        :data.sync="data"
+      <Toolbar
+        :selected.sync="selectedFiles"
+        @showVolumeDialog="onShowVolumeDialog"
+        @showFileUploadDialog="onShowFileUploadDialog"
       />
+      <q-splitter v-model="splitterModel" style="height: 400px" after-class="no-scroll">
+        <template v-slot:before>
+          <div class="q-pa-md">
+            <Tree
+              :data="data"
+              :folder.sync="folderSelected"
+              @selected="onSelectedFolder"
+              @moveFile="onMoveFile"
+            />
+          </div>
+        </template>
+        <template v-slot:after>
+          <div class="q-px-sm">
+            <Grid
+              :data="data"
+              :icons="icons"
+              :folder.sync="folderSelected"
+              @selectedFiles="onSelectedFiles"
+            />
+          </div>
+        </template>
+      </q-splitter>
 
       <!-- Create a new Volume Dialog  -->
       <q-dialog
@@ -56,7 +54,9 @@ import { gql } from '@apollo/client'
 
 import FileUploader from '../upload/FileUploader'
 import AddNewVolume from './modals/AddNewVolume'
-import FileViewer from './FileViewer'
+import Tree from './Tree'
+import Grid from './Grid'
+import Toolbar from './Toolbar'
 
 const fileIcons = {
   zip: 'mdi-folder-zip-outline',
@@ -79,23 +79,27 @@ const fileIcons = {
 }
 
 export default {
-  name: 'FilesManager',
+  name: 'FileManager',
   components: {
     FileUploader,
-    FileViewer,
-    AddNewVolume
+    AddNewVolume,
+    Tree,
+    Grid,
+    Toolbar
   },
   props: {
-    icons: { type: Object, default: () => fileIcons }
+    icons: { type: Object, default: () => fileIcons },
+    splitterModel: { type: Number, default: () => 30 }
   },
-  data: () => ({
-    data: [], // Tree
-    volumesDialog: false,
-    fileUploadDialog: false,
-    maximizedToggle: true
-  }),
-  watch: {
-    '$route': 'fetchData'
+  data () {
+    return {
+      data: [], // Tree
+      volumesDialog: false,
+      fileUploadDialog: false,
+      maximizedToggle: true,
+      folderSelected: 'Data',
+      selectedFiles: []
+    }
   },
   async created () {
     this.fetchData(this.$route.params.projectId)
@@ -109,10 +113,10 @@ export default {
               files {
                 name
                 fileFormatId
+                uploadedDatetime
                 fileobject {
                   size
                 }
-                uploadedDatetime
               }
             }
           }
@@ -170,9 +174,46 @@ export default {
       let files = this.getFiles(folderId)
       files.push(file)
     },
+    createNode (fileInfo) {
+      // This will add a node to the tree
+    },
+
+    // Getters
     getFiles (folderId) {
       return this.data.find(ele => ele.id === folderId).children
+    },
+    getFolderContents (folder) {
+      // Get the folder contents
+    },
+    getFolders (path) {
+      // Get folders from path
+    },
+
+    // Setters
+    setSelectedFolder (folder) {
+      this.folderSelected = folder
+    },
+    setSelectedFiles (filesArray) {
+      this.selectedFiles = filesArray
+    },
+
+    // Event handlers
+    onMoveFile (fileId, folderId, newFolderId) {
+      this.moveFile(fileId, folderId, newFolderId)
+    },
+    onSelectedFolder (folder) {
+      this.setSelectedFolder(folder)
+    },
+    onSelectedFiles (filesArray) {
+      this.setSelectedFiles(filesArray)
+    },
+    onShowVolumeDialog (show) {
+      this.volumesDialog = show
+    },
+    onShowFileUploadDialog (show) {
+      this.fileUploadDialog = show
     }
+
   }
 }
 </script>
