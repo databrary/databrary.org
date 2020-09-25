@@ -61,9 +61,9 @@
             class="q-mt-md"
             color="teal"
             >
-            <template v-slot:loading>
-                <q-spinner-facebook />
-            </template>
+              <template v-slot:loading>
+                  <q-spinner-facebook />
+              </template>
             </q-btn>
         </div>
         </q-card-section>

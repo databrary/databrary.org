@@ -1,9 +1,10 @@
 <template>
     <q-tree
         :nodes="data"
-        node-key="label"
+        node-key="id"
         selected-color="primary"
         :selected.sync="selected"
+        @lazy-load="lazyLoad"
     >
         <template v-slot:default-header="prop">
             <div
@@ -12,7 +13,7 @@
                 @dragover.prevent
             >
                 <q-icon :name="prop.node.icon" />
-                <div>{{ prop.node.label }}</div>
+                <div>{{ prop.node.name }}</div>
             </div>
         </template>
     </q-tree>
@@ -21,19 +22,32 @@
 <script>
 export default {
   name: 'Tree',
-  props: ['data', 'folder'],
+  props: {
+    data: {
+      type: Array,
+      required: true
+    },
+    selectedFolder: {
+      type: String,
+      required: false
+    },
+    lazyLoad: {
+      type: Function,
+      required: true
+    }
+  },
   data () {
     return {
       selected: ''
     }
   },
   mounted () {
-    this.selected = this.folder
+    this.selected = this.selectedFolder
   },
   watch: {
     // this comes from the parent
-    folder () {
-      this.selected = this.folder
+    selectedFolder () {
+      this.selected = this.selectedFolder
     },
 
     selected () {

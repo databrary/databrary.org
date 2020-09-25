@@ -10,21 +10,25 @@
         <template v-slot:before>
           <div class="q-pa-md">
             <Tree
-              :data="data"
-              :folder.sync="selectedFolder"
+              :data="nodes"
+              :selectedFolder.sync="selectedFolder"
               @selected="onSelectedFolder"
               @moveFile="onMoveFile"
+              :lazyLoad="onLazyLoad"
             />
           </div>
         </template>
         <template v-slot:after>
           <div class="q-px-sm">
             <Grid
-              :data="data"
+              :data.sync="contents"
               :icons="icons"
               :columns="columns"
-              :folder.sync="selectedFolder"
+              :selectedFolder.sync="selectedFolder"
+              @selected="onSelectedFolder"
+              @moveFile="onMoveFile"
               @selectedFiles="onSelectedFiles"
+              @dblClick="onDblClicked"
             />
           </div>
         </template>
@@ -59,7 +63,8 @@ import Tree from './Tree'
 import Grid from './Grid'
 import Toolbar from './Toolbar'
 
-const fileIcons = {
+const defaultIcons = {
+  folder: 'mdi-folder',
   zip: 'mdi-folder-zip-outline',
   rar: 'mdi-folder-zip-outline',
   json: 'mdi-json',
@@ -86,7 +91,7 @@ const defaultColumns = [
     required: true,
     align: 'left',
     sortable: true,
-    field: row => row.label,
+    field: row => row.name, // Make sure that the fields matches the field's name that you are getting from data
     format: val => `${val}`
   },
   {
@@ -96,7 +101,7 @@ const defaultColumns = [
     align: 'left',
     sortable: true,
     field: row => row.size,
-    format: val => `${format.humanStorageSize(val)}`
+    format: (val, row) => row.isDir ? `${val} items` : `${format.humanStorageSize(val)}`
   },
   {
     name: 'Uploaded on',
@@ -105,7 +110,7 @@ const defaultColumns = [
     align: 'left',
     sortable: true,
     field: row => row.uploadedDatetime,
-    format: val => `${date.formatDate(val, 'MM-DD-YYYY')}`
+    format: (val, row) => val ? `${date.formatDate(val, 'MM-DD-YYYY')}` : null
   }
   // {
   //   name: 'Format',
@@ -128,24 +133,107 @@ export default {
     Toolbar
   },
   props: {
-    icons: { type: Object, default: () => fileIcons },
-    splitterModel: { type: Number, default: () => 30 },
+    icons: { type: Object, default: () => defaultIcons },
     columns: { type: Array, default: () => defaultColumns }
   },
   data () {
     return {
       data: [], // Tree
+      nodes: [], // Tree nodes
+      contents: [], // Contents of a selected folder
+      contetnsBis: null,
+      selectedFolder: null,
+      selectedFiles: [],
       volumesDialog: false,
       fileUploadDialog: false,
       maximizedToggle: true,
-      selectedFolder: 'Data',
-      selectedFiles: []
+      splitterModel: 30
     }
   },
   async created () {
-    this.fetchData(this.$route.params.projectId)
+    await this.init()
+  },
+  watch: {
+    selectedFolder (newFolderId, oldFolderId) {
+      if (!newFolderId) {
+        newFolderId = this.data[0].id
+      }
+
+      this.contents.splice(0, this.contents.length)
+      this.contents.push(...this.getFolderContents(newFolderId))
+    },
+    data: {
+      deep: true,
+      // We refrech the contents every time the data change
+      handler () {
+        this.contents.splice(0, this.contents.length)
+        this.contents.push(...this.getFolderContents(this.selectedFolder))
+      }
+    }
   },
   methods: {
+    async init () {
+      const filesData = await this.fetchData(this.$route.params.projectId)
+      const files = filesData.map(
+        ({ name, fileFormatId: format, fileobject: { size }, uploadedDatetime }) =>
+          ({ id: uid(), name, size, format, uploadedDatetime, isDir: false })
+      )
+
+      const rootFolder = {
+        id: uid(),
+        isDir: true,
+        name: 'Root',
+        icon: this.icons['folder'],
+        expandable: true,
+        lazy: true,
+        children: []
+      }
+
+      // TODO: (Reda) Move this to createNode
+      rootFolder.children.push(
+        {
+          id: uid(),
+          name: 'Data',
+          isDir: true,
+          icon: this.icons['folder'],
+          lazy: true,
+          size: files.length,
+          children: [...files]
+        }
+      )
+      rootFolder.children.push(
+        {
+          id: uid(),
+          name: 'Fake Volume',
+          isDir: true,
+          icon: this.icons['folder'],
+          lazy: true,
+          size: 2,
+          children: [
+            {
+              id: uid(),
+              name: 'Fake Picture.png',
+              size: 13245,
+              format: 'png',
+              isDir: false,
+              uploadedDatetime: new Date()
+            },
+            {
+              id: uid(),
+              name: 'Fake Nested Volume',
+              isDir: true,
+              icon: 'mdi-folder',
+              format: 'folder',
+              size: 0,
+              children: []
+            }
+          ]
+        }
+      )
+      this.data = [rootFolder]
+      this.setSelectedFolder(rootFolder.id)
+      this.nodes.push(...this.getFolders(this.selectedFolder))
+    },
     async fetchData (projectId) {
       const result = await this.$apollo.query({
         query: gql`
@@ -166,84 +254,139 @@ export default {
           projectId: projectId
         }
       })
-      const projectFiles = result.data.assets[0].files
-      const files = projectFiles.map(
-        ({ name: label, fileFormatId: format, fileobject: { size }, uploadedDatetime }) =>
-          ({ id: uid(), label, size, format, uploadedDatetime, isDir: false })
-      )
-      this.data.push(
-        {
-          id: uid(),
-          label: 'Data',
-          isDir: true,
-          icon: 'mdi-folder',
-          expandable: false,
-          children: [...files]
-        }
-      )
-      this.data.push(
-        {
-          id: uid(),
-          label: 'Fake Volume',
-          isDir: true,
-          icon: 'mdi-folder',
-          expandable: false,
-          children: [
-            {
-              id: uid(),
-              label: 'Fake Picture.png',
-              size: 13245,
-              format: 'png',
-              isDir: false,
-              uploadedDatetime: new Date()
-            }
-          ]
-        }
-      )
+
+      return result.data.assets[0].files
     },
+
     moveFile (fileId, folderId, newFolderId) {
       const file = this.removeFile(folderId, fileId)
       this.addFile(newFolderId, file)
     },
+
     removeFile (folderId, fileId) {
       // Return the removed file's data
       let files = this.getFiles(folderId)
       const file = files.splice(files.map(e => e.id).indexOf(fileId), 1)
       return file[0]
     },
+
     addFile (folderId, file) {
       let files = this.getFiles(folderId)
       files.push(file)
     },
+
+    loadChildren (node, key) {
+      try {
+        node['children'] = []
+        if (node.children || node.children.length) {
+          node.children.splice(0, node.children.length)
+        }
+
+        const folder = this.findItem(key)
+
+        if (!folder || !folder.children) return []
+
+        for (const child of folder.children) {
+          // we only want folders
+          if (!child.isDir) {
+            continue
+          }
+          // // add child to parent
+          // node.children.push(this.createNode(child))
+          node.children.push(child)
+        }
+        return true
+      } catch (err) {
+        // usually access error
+        console.error('Error: ', err)
+      }
+      return false
+    },
+
     createNode (fileInfo) {
       // This will add a node to the tree
     },
 
     // Getters
     getFiles (folderId) {
-      return this.data.find(ele => ele.id === folderId).children
+      return this.findItem(folderId).children
     },
-    getFolderContents (folder) {
+
+    getFolderContents (folderId) {
       // Get the folder contents
+      if (!folderId || typeof folderId !== 'string') return []
+
+      const folder = this.findItem(folderId)
+
+      if (!folder || !folder.children) return []
+
+      let contents = []
+
+      for (const child of folder.children) {
+        contents.push(child)
+      }
+
+      return contents
     },
-    getFolders (path) {
-      // Get folders from path
+    getFolders (folderId) {
+      if (!folderId || typeof folderId !== 'string') return []
+
+      // We find the selected folder
+      const folder = this.findItem(folderId)
+
+      if (!folder || !folder.children) return []
+
+      let folders = []
+
+      for (const child of folder.children) {
+        if (!child.isDir) continue
+        const { children, ...folder } = child
+        // const node = this.createNode(child)
+        folders.push(folder)
+      }
+
+      return folders
+    },
+
+    findItem (itemId) {
+      let stack = []
+      stack.push(this.data[0]) // We push the root
+      while (stack.length > 0) {
+        let node = stack.pop()
+        if (node.id === itemId) {
+          return node
+        } else if (node.children && node.children.length) {
+          for (let i = 0; i < node.children.length; i++) {
+            stack.push(node.children[i])
+          }
+        }
+      }
+      return null
     },
 
     // Setters
-    setSelectedFolder (folder) {
-      this.selectedFolder = folder
+    setSelectedFolder (folderId) {
+      this.selectedFolder = folderId
     },
     setSelectedFiles (filesArray) {
       this.selectedFiles = filesArray
     },
 
     // Event handlers
+    onLazyLoad ({ node, key, done, fail }) {
+      if (this.loadChildren(node, key)) {
+        done()
+      } else {
+        // if we don't call done, then the tree will
+        // allow user to try and expand node again
+        fail()
+      }
+    },
     onMoveFile (fileId, folderId, newFolderId) {
       this.moveFile(fileId, folderId, newFolderId)
     },
-    onSelectedFolder (folder) {
-      this.setSelectedFolder(folder)
+    onSelectedFolder (folderId) {
+      this.setSelectedFolder(folderId)
     },
     onSelectedFiles (filesArray) {
       this.setSelectedFiles(filesArray)
@@ -253,8 +396,12 @@ export default {
     },
     onShowFileUploadDialog (show) {
       this.fileUploadDialog = show
+    },
+    onDblClicked (folderId, isDir) {
+      if (isDir) {
+        this.setSelectedFolder(folderId)
+      }
     }
-
   }
 }
 </script>
