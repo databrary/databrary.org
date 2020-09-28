@@ -1,6 +1,6 @@
 <template>
     <q-tree
-        :nodes="data"
+        :nodes="nodes"
         node-key="id"
         selected-color="primary"
         :selected.sync="selected"
@@ -23,11 +23,11 @@
 export default {
   name: 'Tree',
   props: {
-    data: {
+    nodes: {
       type: Array,
       required: true
     },
-    selectedFolder: {
+    selectedNode: {
       type: String,
       required: false
     },
@@ -42,12 +42,12 @@ export default {
     }
   },
   mounted () {
-    this.selected = this.selectedFolder
+    this.selected = this.selectedNode
   },
   watch: {
     // this comes from the parent
-    selectedFolder () {
-      this.selected = this.selectedFolder
+    selectedNode () {
+      this.selected = this.selectedNode
     },
 
     selected () {
@@ -55,20 +55,20 @@ export default {
     }
   },
   methods: {
-    onDrop (e, newFolderId) {
-      const folderId = e.dataTransfer.getData('folderId')
+    onDrop (e, newNodeId) {
+      const nodeId = e.dataTransfer.getData('nodeId')
 
-      if (folderId === newFolderId) return
+      if (nodeId === newNodeId) return
 
       // don't drop on other draggables
       if (e.target.draggable === true) return
 
-      const fileId = e.dataTransfer.getData('fileId')
+      const childId = e.dataTransfer.getData('childId')
 
-      this.moveFile(fileId, folderId, newFolderId)
+      this.moveFile(childId, nodeId, newNodeId)
     },
-    moveFile (fileId, folderId, newFolderId) {
-      this.$emit('moveFile', fileId, folderId, newFolderId)
+    moveFile (childId, nodeId, newNodeId) {
+      this.$emit('moveFile', childId, nodeId, newNodeId)
     }
   }
 }

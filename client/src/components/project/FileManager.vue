@@ -10,8 +10,8 @@
         <template v-slot:before>
           <div class="q-pa-md">
             <Tree
-              :data="nodes"
-              :selectedFolder.sync="selectedFolder"
+              :nodes="nodes"
+              :selectedNode.sync="selectedFolder"
               @selected="onSelectedFolder"
               @moveFile="onMoveFile"
               :lazyLoad="onLazyLoad"
@@ -19,12 +19,12 @@
           </div>
         </template>
         <template v-slot:after>
-          <div class="q-px-sm">
+          <div class="q-px-sm contentsContainer">
             <Grid
-              :data.sync="contents"
+              :children.sync="contents"
               :icons="icons"
               :columns="columns"
-              :selectedFolder.sync="selectedFolder"
+              :selectedNode.sync="selectedFolder"
               @selected="onSelectedFolder"
               @moveFile="onMoveFile"
               @selectedFiles="onSelectedFiles"
@@ -86,7 +86,7 @@ const defaultIcons = {
 
 const defaultColumns = [
   {
-    name: 'Name',
+    name: 'name',
     label: 'Name',
     required: true,
     align: 'left',
@@ -95,7 +95,7 @@ const defaultColumns = [
     format: val => `${val}`
   },
   {
-    name: 'Size',
+    name: 'size',
     label: 'Size',
     required: true,
     align: 'left',
@@ -104,7 +104,7 @@ const defaultColumns = [
     format: (val, row) => row.isDir ? `${val} items` : `${format.humanStorageSize(val)}`
   },
   {
-    name: 'Uploaded on',
+    name: 'uploaded',
     label: 'Uploaded on',
     required: true,
     align: 'left',
@@ -123,6 +123,21 @@ const defaultColumns = [
   // }
 ]
 
+const getProjectFiles = gql`
+    query getProjectFiles($projectId: Int!) {
+      assets(where: {assetType: {_eq: project}, id: {_eq: $projectId}}) {
+        files {
+          name
+          fileFormatId
+          uploadedDatetime
+          fileobject {
+            size
+          }
+        }
+      }
+    }
+  `
+
 export default {
   name: 'FileManager',
   components: {
@@ -138,7 +153,7 @@ export default {
   },
   data () {
     return {
-      data: [], // Tree
+      data: [], // Database data
       nodes: [], // Tree nodes
       contents: [], // Contents of a selected folder
       contetnsBis: null,
@@ -159,14 +174,14 @@ export default {
         newFolderId = this.data[0].id
       }
 
-      this.contents.splice(0, this.contents.length)
+      this.clearContents()
       this.contents.push(...this.getFolderContents(newFolderId))
     },
     data: {
       deep: true,
-      // We refrech the contents every time the data change
+      // We refrech the contents every time the data changes
       handler () {
-        this.contents.splice(0, this.contents.length)
+        this.clearContents()
         this.contents.push(...this.getFolderContents(this.selectedFolder))
       }
     }
@@ -225,7 +240,16 @@ export default {
               icon: 'mdi-folder',
               format: 'folder',
               size: 0,
-              children: []
+              children: [
+                {
+                  id: uid(),
+                  name: 'Fake Nested Volume 2',
+                  isDir: true,
+                  icon: this.icons['folder'],
+                  lazy: true,
+                  size: 2
+                }
+              ]
             }
           ]
         }
@@ -236,20 +260,7 @@ export default {
     },
     async fetchData (projectId) {
       const result = await this.$apollo.query({
-        query: gql`
-          query getProjectFiles($projectId: Int!) {
-            assets(where: {assetType: {_eq: project}, id: {_eq: $projectId}}) {
-              files {
-                name
-                fileFormatId
-                uploadedDatetime
-                fileobject {
-                  size
-                }
-              }
-            }
-          }
-        `,
+        query: getProjectFiles,
         variables: {
           projectId: projectId
         }
@@ -257,7 +268,9 @@ export default {
 
       return result.data.assets[0].files
     },
-
+    clearContents () {
+      this.contents.splice(0, this.contents.length)
+    },
     moveFile (fileId, folderId, newFolderId) {
       const file = this.removeFile(folderId, fileId)
       this.addFile(newFolderId, file)
@@ -377,8 +390,6 @@ export default {
       if (this.loadChildren(node, key)) {
         done()
       } else {
-        // if we don't call done, then the tree will
-        // allow user to try and expand node again
         fail()
       }
     },
@@ -405,3 +416,13 @@ export default {
   }
 }
 </script>
+<style scoped>
+.contentsContainer {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+</style>

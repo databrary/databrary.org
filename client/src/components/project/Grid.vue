@@ -1,12 +1,12 @@
 <template>
-    <div v-if="!data">
+    <div v-if="!children">
       <q-spinner-dots
         class="absolute-center"
         color="primary"
         size="4em"
       />
     </div>
-    <div v-else>
+    <div v-else class="contentsWrapper">
       <q-toolbar class="bg-white text-dark q-pa-sm">
         <q-toolbar-title class="text-bold"></q-toolbar-title>
 
@@ -39,57 +39,56 @@
           </template>
         </q-btn-toggle>
       </q-toolbar>
-      <q-table
-        flat
-        :grid="viewSelected === 'grid'"
-        :data="data"
-        :columns="columns"
-        row-key="id"
-        selection="multiple"
-        style="height: 350px"
-        virtual-scroll
-        :pagination.sync="pagination"
-        :rows-per-page-options="[0]"
-        :selected.sync="selectedFiles"
-      >
-        <template v-if="viewSelected == 'grid'" v-slot:item="props">
-          <div
-            class="non-selectable col-xs-12 col-sm-6 col-md-4"
-            :draggable="!props.row.isDir"
-            @dragstart="!props.row.isDir ? onDragStart($event, selected, props.row.id) :  null"
-            @drop="props.row.isDir ? onDrop($event, props.row.id) : null"
-            @dragover.prevent
-            @dblclick.prevent="props.row.isDir ? onDblClick($event, props.row.id, props.row.isDir) : null"
-          >
-            <q-card flat>
+      <div v-show="viewSelected === 'grid'" class="row justify-left">
+        <div v-for="node in children" :key="node.id">
+          <div class="itemContainer" :style="itemContainerStyleObject">
+            <q-card
+              flat
+              :draggable="!node.isDir"
+              @dragstart="!node.isDir ? onDragStart($event, selected, node.id) :  null"
+              @drop="node.isDir ? onDrop($event, node.id) : null"
+              @dragover.prevent
+              @dblclick.prevent="node.isDir ? onDblClick($event, node.id, node.isDir) : null"
+            >
               <q-card-section class="text-center" >
                 <q-icon
                   size="xl"
-                  :name="props.row.isDir ? icons['folder'] : icons[props.row.format.toLowerCase()] || icons['other']"
+                  :name="node.isDir ? icons['folder'] : icons[node.format.toLowerCase()] || icons['other']"
                 />
               </q-card-section>
-              <q-card-section  class="text-center">
-                <div>{{ props.row.name }}</div>
+              <q-card-section >
+                <div class="itemText" >{{ node.name }}</div>
               </q-card-section>
             </q-card>
           </div>
-        </template>
-      </q-table>
+        </div>
+      </div>
+      <div v-show="viewSelected === 'list'">
+        <q-table
+          id="content"
+          flat
+          :data="children"
+          :columns="columns"
+          row-key="id"
+          selection="multiple"
+          style="height: 350px"
+          virtual-scroll
+          :pagination.sync="pagination"
+          :rows-per-page-options="[0]"
+          :selected.sync="selectedChildren"
+        >
+        </q-table>
+      </div>
     </div>
 </template>
 
 <script>
-// import GridItem from './GridItem'
-
 export default {
   name: 'Grid',
-  props: ['data', 'icons', 'selectedFolder', 'columns'],
-  components: {
-    // GridItem
-  },
+  props: ['children', 'icons', 'selectedNode', 'columns'],
   data () {
     return {
-      selectedFiles: [],
+      selectedChildren: [],
       selected: '',
       viewSelected: 'list',
       timer: null,
@@ -100,50 +99,107 @@ export default {
       ],
       pagination: {
         rowsPerPage: 0
-      }
+      },
+      width: 175,
+      fontSize: 12
     }
   },
   mounted () {
-    this.selected = this.selectedFolder
+    this.selected = this.selectedNode
   },
   watch: {
-    selectedFolder () {
-      this.selected = this.selectedFolder
+    selectedNode () {
+      this.selected = this.selectedNode
     },
     selected () {
       this.$emit('selected', this.selected)
     },
-    selectedFiles () {
-      this.$emit('selectedFiles', this.selected)
+    selectedChildren () {
+      this.$emit('selectedChildren', this.selectedChildren)
+    }
+  },
+  computed: {
+    itemContainerStyleObject () {
+      if (this.children.id === this.selected) {
+        // current node is selected
+        return {
+          width: this.width + 'px'
+        }
+      } else {
+        return {
+          width: this.width + 'px'
+        }
+      }
+    },
+    itemTextStyleObject () {
+      return {
+        fontSize: this.fontSize + 'px'
+      }
+    },
+    itemImageStyleObject () {
+      return {
+        width: this.width + 'px',
+        height: this.width + 'px'
+      }
     }
   },
   methods: {
-    onDragStart (e, folderId, fileId) {
+    onDragStart (e, nodeId, childId) {
       e.dataTransfer.dropEffect = 'move'
       e.dataTransfer.effectAllowed = 'move'
-      e.dataTransfer.setData('fileId', fileId)
-      e.dataTransfer.setData('folderId', folderId)
+      e.dataTransfer.setData('childId', childId)
+      e.dataTransfer.setData('nodeId', nodeId)
     },
-    onDrop (e, newFolderId) {
-      const folderId = e.dataTransfer.getData('folderId')
+    onDrop (e, newNodeId) {
+      const nodeId = e.dataTransfer.getData('nodeId')
 
-      if (folderId === newFolderId) return
+      if (nodeId === newNodeId) return
 
       // don't drop on other draggables
       if (e.target.draggable === true) return
 
-      const fileId = e.dataTransfer.getData('fileId')
+      const fileId = e.dataTransfer.getData('childId')
 
-      this.moveFile(fileId, folderId, newFolderId)
+      this.moveFile(fileId, nodeId, newNodeId)
     },
-    moveFile (fileId, folderId, newFolderId) {
-      this.$emit('moveFile', fileId, folderId, newFolderId)
+    moveFile (fileId, nodeId, newNodeId) {
+      this.$emit('moveFile', fileId, nodeId, newNodeId)
     },
-    onDblClick (e, folderId, isDir) {
-      this.selected = folderId
+    onDblClick (e, nodeId, isDir) {
+      this.selected = nodeId
 
-      this.$emit('dblClick', this.selectedFolder, isDir)
+      this.$emit('dblClick', this.selected, isDir)
     }
   }
 }
 </script>
+<style scoped>
+.contentsWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.itemContainer {
+  margin: 5px;
+  height: auto;
+  word-wrap: break-word;
+  border-radius: 4px;
+  transition: 'all 0.5s ease-in-out';
+}
+.itemContainer:hover {
+  background-color: rgba(0, 0, 0, .05);
+  box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
+  transition: 'all 0.5s ease-in-out';
+  cursor: pointer
+}
+.itemText {
+  text-align: center;
+  word-wrap: break-word;
+}
+#content .q-table-container {
+  border-radius: 0 !important;
+  box-shadow: inherit !important;
+  position: relative;
+}
+</style>
