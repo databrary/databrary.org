@@ -42,7 +42,11 @@
         transition-show="slide-up"
         transition-hide="slide-down"
       >
-        <AddNewVolume :data.sync="data" :volumesDialog.sync="volumesDialog" />
+        <AddNewVolume
+          :data.sync="data"
+          :volumesDialog.sync="volumesDialog"
+          @addFolder="onAddFolder"
+        />
       </q-dialog>
 
       <!-- File Uploaded Dialog  -->
@@ -55,7 +59,7 @@
 
 <script>
 import { uid, date, format } from 'quasar'
-import { gql } from '@apollo/client'
+import { mapActions } from 'vuex'
 
 import FileUploader from '../upload/FileUploader'
 import AddNewVolume from './modals/AddNewVolume'
@@ -123,21 +127,6 @@ const defaultColumns = [
   // }
 ]
 
-const getProjectFiles = gql`
-    query getProjectFiles($projectId: Int!) {
-      assets(where: {assetType: {_eq: project}, id: {_eq: $projectId}}) {
-        files {
-          name
-          fileFormatId
-          uploadedDatetime
-          fileobject {
-            size
-          }
-        }
-      }
-    }
-  `
-
 export default {
   name: 'FileManager',
   components: {
@@ -155,8 +144,7 @@ export default {
     return {
       data: [], // Database data
       nodes: [], // Tree nodes
-      contents: [], // Contents of a selected folder
-      contetnsBis: null,
+      contents: [], // Contents of a selected node
       selectedFolder: null,
       selectedFiles: [],
       volumesDialog: false,
@@ -187,8 +175,9 @@ export default {
     }
   },
   methods: {
+    ...mapActions('assets', ['fetchProjectAssets']),
     async init () {
-      const filesData = await this.fetchData(this.$route.params.projectId)
+      const filesData = await this.fetchProjectAssets(this.$route.params.projectId)
       const files = filesData.map(
         ({ name, fileFormatId: format, fileobject: { size }, uploadedDatetime }) =>
           ({ id: uid(), name, size, format, uploadedDatetime, isDir: false })
@@ -258,16 +247,6 @@ export default {
       this.setSelectedFolder(rootFolder.id)
       this.nodes.push(...this.getFolders(this.selectedFolder))
     },
-    async fetchData (projectId) {
-      const result = await this.$apollo.query({
-        query: getProjectFiles,
-        variables: {
-          projectId: projectId
-        }
-      })
-
-      return result.data.assets[0].files
-    },
     clearContents () {
       this.contents.splice(0, this.contents.length)
     },
@@ -304,13 +283,11 @@ export default {
           if (!child.isDir) {
             continue
           }
-          // // add child to parent
-          // node.children.push(this.createNode(child))
+          // add child to parent
           node.children.push(child)
         }
         return true
       } catch (err) {
-        // usually access error
         console.error('Error: ', err)
       }
       return false
@@ -324,7 +301,6 @@ export default {
     getFiles (folderId) {
       return this.findItem(folderId).children
     },
-
     getFolderContents (folderId) {
       // Get the folder contents
       if (!folderId || typeof folderId !== 'string') return []
@@ -412,6 +388,9 @@ export default {
       if (isDir) {
         this.setSelectedFolder(folderId)
       }
+    },
+    async onAddFolder (folderName) {
+      console.log('Add folder', folderName)
     }
   }
 }

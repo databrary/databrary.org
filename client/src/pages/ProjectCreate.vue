@@ -25,8 +25,8 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 // TODO(Reda): Add here the wizard for creating a volume
-import mutation from '../graphql/createProject'
 
 export default {
   data () {
@@ -36,32 +36,42 @@ export default {
   },
 
   methods: {
+    ...mapActions('assets', ['insertAsset']),
     async onSubmit () {
-      await this.createProject()
+      try {
+        const projectId = await this.insertAsset(
+          {
+            name: this.name,
+            assetType: 'project',
+            privacyType: 'private'
+          }
+        )
 
-      this.$q.notify({
-        color: 'green-4',
-        textColor: 'white',
-        icon: 'cloud_done',
-        message: 'Submitted'
-      })
+        this.$router.push({
+          path: `/project/${projectId}`
+        })
+
+        this.$q.notify({
+          color: 'green-4',
+          textColor: 'white',
+          icon: 'cloud_done',
+          message: 'Submitted'
+        })
+      } catch (error) {
+        console.log(error.message)
+        this.$q.notify({
+          color: 'red-4',
+          textColor: 'white',
+          icon: 'cloud_done',
+          message: 'Failed!'
+        })
+      }
     },
 
     onReset () {
       this.name = null
       this.age = null
       this.accept = false
-    },
-
-    async createProject () {
-      // Call to the graphql mutation
-      console.log(this.name, mutation(this.name))
-      const results = await this.$apollo.mutate(mutation(this.name))
-
-      const project = results.data.insert_assets.returning[0]
-      this.$router.push({
-        path: `/project/${project.id}`
-      })
     }
   }
 }
