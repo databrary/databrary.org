@@ -39,6 +39,7 @@
       columns:
       - assetType
       - name
+      - parentId
       - privacyType
   select_permissions:
   - role: user

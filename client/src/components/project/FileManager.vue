@@ -51,6 +51,7 @@
 
       <!-- File Uploaded Dialog  -->
       <q-dialog v-model="fileUploadDialog" position="standard">
+        <!-- TODO: Pass the selected Folder id (the database id) as a prop to the FileUploader -->
         <FileUploader />
       </q-dialog>
     </div>

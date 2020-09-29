@@ -47,19 +47,21 @@ const actions = {
   },
   // the createdById field is set from the session variable X-Hasura-User-Id
   // That is required in the client side
-  async insertAsset (_, { name, assetType, privacyType }) {
+  async insertAsset (_, { name, assetType, privacyType, parentId }) {
     const result = await apolloClient.mutate({
       mutation: gql`
         mutation (
-          $name: String!, 
+          $name: String!
           $assetType: asset_types_enum!
-          $privacyType: privacy_types_enum!) 
+          $privacyType: privacy_types_enum!
+          $parentId: Int)
         {
           insert_assets(
             objects: {
               name: $name,
               assetType: $assetType,
-              privacyType: $privacyType
+              privacyType: $privacyType,
+              parentId: $parentId
             }) 
           {
             returning {
@@ -71,7 +73,8 @@ const actions = {
       variables: {
         name,
         assetType,
-        privacyType
+        privacyType,
+        parentId
       }
     })
 
