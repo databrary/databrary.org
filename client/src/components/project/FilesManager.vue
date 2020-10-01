@@ -78,7 +78,7 @@ export default {
       const result = await this.$apollo.query({
         query: gql`
           query getProjectFiles($projectId: Int!) {
-            assets(where: {assetType: {_eq: project}, id: {_eq: $projectId}}) {
+            assets(where: { id: {_eq: $projectId}}) {
               files {
                 name
                 fileFormatId
@@ -102,7 +102,7 @@ export default {
       this.data.push(
         {
           id: uid(),
-          label: 'Data',
+          label: 'Session 1',
           icon: 'folder',
           expandable: false,
           children: [...files]
@@ -111,7 +111,7 @@ export default {
       this.data.push(
         {
           id: uid(),
-          label: 'Fake Volume',
+          label: 'Session 2',
           icon: 'folder',
           expandable: false,
           children: [

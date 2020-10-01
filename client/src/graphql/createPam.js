@@ -1,14 +1,13 @@
 import { gql } from '@apollo/client'
 
-export default function createProject (name, parentId) {
+export default function createPam (name) {
   return {
     mutation: gql`
       mutation ($name: String!) {
         insert_assets(
           objects: {
-            parentId: $parentId,
             name: $name,
-            assetType: project,
+            assetType: pam,
             privacyType: private
           }
         ) {
@@ -19,7 +18,6 @@ export default function createProject (name, parentId) {
       }
     `,
     variables: {
-      parentId,
       name
     }
   }

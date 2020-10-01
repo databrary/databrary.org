@@ -5,6 +5,7 @@ import pathify from './pathify'
 
 import app from './app'
 import profile from './profile'
+import pam from './pam'
 
 Vue.use(Vuex)
 
@@ -19,7 +20,8 @@ export default function (/* { ssrContext } */) {
 
     modules: {
       app,
-      profile
+      profile,
+      pam
     },
 
     // enable strict mode (adds overhead!)

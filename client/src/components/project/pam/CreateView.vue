@@ -26,7 +26,8 @@
 
 <script>
 // TODO(Reda): Add here the wizard for creating a volume
-import mutation from '../graphql/createPam'
+import mutation from '../../../graphql/createPam'
+import { sync } from 'vuex-pathify'
 
 export default {
   data () {
@@ -34,7 +35,12 @@ export default {
       name: null
     }
   },
-
+  computed: {
+    asset: sync('pam/asset'),
+    selectedProjectView: sync('pam/selectedProjectView'),
+    createView: sync('pam/createView'),
+    pamId: sync('pam/pamId')
+  },
   methods: {
     async onSubmit () {
       await this.createProject()
@@ -55,13 +61,11 @@ export default {
 
     async createProject () {
       // Call to the graphql mutation
-      console.log(this.name, mutation(this.name))
-      const results = await this.$apollo.mutate(mutation(this.name))
-
-      const project = results.data.insert_assets.returning[0]
-      this.$router.push({
-        path: `/pam/${project.id}`
-      })
+      await this.$apollo.mutate(
+        mutation(this.name)
+      )
+      this.createView = false
+      // const project = results.data.insert_assets.returning[0]
     }
   }
 }

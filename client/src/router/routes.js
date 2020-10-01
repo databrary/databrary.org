@@ -18,6 +18,15 @@ export default function routes (store) {
           children: projectRoutes(store)
         },
         {
+          path: '/pam',
+          component: () => import('layouts/Project.vue'),
+          children: [{
+            name: 'pam',
+            path: ':projectId',
+            component: () => import('components/project/pam/Dashboard.vue')
+          }]
+        },
+        {
           path: '/settings',
           component: () => import('pages/Settings.vue')
         },
