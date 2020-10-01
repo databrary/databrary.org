@@ -25,6 +25,7 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 // TODO(Reda): Add here the wizard for creating a volume
 import mutation from '../graphql/createPam'
 
@@ -36,15 +37,36 @@ export default {
   },
 
   methods: {
+    ...mapActions('assets', ['insertAsset']),
     async onSubmit () {
-      await this.createProject()
+      try {
+        const projectId = await this.insertAsset(
+          {
+            name: this.name,
+            assetType: 'project',
+            privacyType: 'private'
+          }
+        )
 
-      this.$q.notify({
-        color: 'green-4',
-        textColor: 'white',
-        icon: 'cloud_done',
-        message: 'Submitted'
-      })
+        this.$router.push({
+          path: `/project/${projectId}`
+        })
+
+        this.$q.notify({
+          color: 'green-4',
+          textColor: 'white',
+          icon: 'cloud_done',
+          message: 'Submitted'
+        })
+      } catch (error) {
+        console.log(error.message)
+        this.$q.notify({
+          color: 'red-4',
+          textColor: 'white',
+          icon: 'cloud_done',
+          message: 'Failed!'
+        })
+      }
     },
 
     onReset () {

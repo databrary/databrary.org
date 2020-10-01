@@ -6,6 +6,7 @@ export class AssetDTO {
   createdById: number
   assetType: AssetType
   privacyType: PrivacyType
+  parentId: number
 
   constructor (asset: Partial<AssetDTO>) {
     Object.assign(this, asset)

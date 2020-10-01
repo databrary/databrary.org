@@ -21,19 +21,19 @@
             >
                 <template v-slot:append>
                 <q-icon
-                    v-if="filter !== ''"
-                    name="clear"
-                    class="cursor-pointer"
-                    @click="resetFilter"
+                  v-if="filter !== ''"
+                  name="clear"
+                  class="cursor-pointer"
+                  @click="resetFilter"
                 />
                 </template>
             </q-input>
             <q-tree
-                :nodes="sharedData"
-                node-key="label"
-                tick-strategy="leaf"
-                :ticked.sync="ticked"
-                :filter="filter"
+              :nodes="data"
+              node-key="label"
+              tick-strategy="leaf"
+              :ticked.sync="ticked"
+              :filter="filter"
             />
             </div>
             <div
@@ -55,15 +55,15 @@
         </div>
         <div class="row justify-end">
             <q-btn
-            type="submit"
-            @click="createVolume"
-            label="Create Volume"
-            class="q-mt-md"
-            color="teal"
+              type="submit"
+              @click="createVolume"
+              label="Create Volume"
+              class="q-mt-md"
+              color="teal"
             >
-            <template v-slot:loading>
+              <template v-slot:loading>
                 <q-spinner-facebook />
-            </template>
+              </template>
             </q-btn>
         </div>
         </q-card-section>
@@ -78,12 +78,10 @@ export default {
       ticked: [],
       newVolumeName: 'New Volume',
       filter: '',
-      sharedData: [],
       newVolumeChildren: []
     }
   },
   watch: {
-    // whenever question changes, this function will run
     ticked () {
       this.newVolumeChildren = []
       this.ticked.forEach((checkedEle) => {
@@ -107,6 +105,7 @@ export default {
       }
       // this.data.push(newVolume)
       this.$emit('input', this.data.push(newVolume))
+      this.$emit('addFolder', this.newVolumeName)
       this.ticked = []
       this.$emit('update:volumesDialog', false)
     }
