@@ -10,7 +10,7 @@
         <q-icon color="primary" name="folder" />
       </q-item-section>
       <q-item-section>
-        <q-item-label lines="1">Data</q-item-label>
+        <q-item-label lines="1">Files</q-item-label>
       </q-item-section>
     </q-item>
      <q-item-label header>Views</q-item-label>

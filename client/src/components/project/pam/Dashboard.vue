@@ -30,22 +30,9 @@
           <CreateView
             v-else-if="createView"
           />
-          <q-splitter
+          <FileManager
             v-else
-            v-model="secondModel"
-            :style="{height: ($q.screen.height-50-16)+'px'}"
-          >
-            <template v-slot:before>
-              <Panel2 />
-            </template>
-            <template v-slot:after>
-              <q-scroll-area
-                :style="{height: ($q.screen.height-50-16)+'px'}"
-              >
-                <Panel3 />
-              </q-scroll-area>
-            </template>
-          </q-splitter>
+          />
         </template>
       </q-splitter>
     </div>
@@ -59,19 +46,21 @@ import { gql } from '@apollo/client'
 import { sync } from 'vuex-pathify'
 
 import Panel1 from './Panel1.vue'
-import Panel2 from './Panel2.vue'
-import Panel3 from './Panel3.vue'
+// import Panel2 from './Panel2.vue'
+// import Panel3 from './Panel3.vue'
 import ProjectViewer from './ProjectViewer.vue'
 import CreateView from './CreateView.vue'
+import FileManager from '@/components/project/FileManager.vue'
 
 export default {
   name: 'PageIndex',
   components: {
     Panel1,
-    Panel2,
-    Panel3,
+    // Panel2,
+    // Panel3,
     ProjectViewer,
-    CreateView
+    CreateView,
+    FileManager
   },
   data: () => ({
     date,
