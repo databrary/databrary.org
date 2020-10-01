@@ -5,10 +5,8 @@ import {
   Session,
   Redirect,
   Res,
-  Request,
   ClassSerializerInterceptor,
-  UseInterceptors,
-  Post
+  UseInterceptors
 } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 
@@ -53,24 +51,6 @@ export class AppController {
     const dbUser = await this.userService.findUser(user)
 
     return dbUser
-  }
-
-  @Post('search')
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  async search (@Request() req, @Res() res): Promise<any> {
-    try {
-      const { search } = req.body
-
-      if (isEmpty(search)) return res.json([])
-
-      const result = await this.searchService.searchAll(search)
-
-      return res.json(result)
-    } catch (error) {
-      console.error('error')
-    }
-
-    res.json([])
   }
 
   @Get('logout')

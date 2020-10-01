@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.1.2",
+    "@babel/runtime": "^7.11.2",
     "@elastic/elasticsearch": "^7.7.1",
     "@golevelup/nestjs-hasura": "^0.4.0",
     "@nestjs/bull": "^0.1.1",
@@ -54,6 +55,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^6.5.4",
     "sharp": "^0.25.3",
+    "typesense": "^0.7.0",
     "uuid": "^8.0.0"
   },
   "devDependencies": {

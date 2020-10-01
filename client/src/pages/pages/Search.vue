@@ -65,8 +65,8 @@
         </div>
         <div v-else >
           <div class="q-mb-sm" v-for="(doc, index) in getData" :key="index">
-            <ProfileCard v-if="doc.index === 'databrary-users'" :search=search :profile=doc />
-            <ProjectCard v-else :project=doc />
+            <ProfileCard :search=search :profile=doc />
+            <!-- <ProjectCard v-else :project=doc /> -->
           </div>
           <q-pagination
             v-if="data.length > 0"
@@ -83,10 +83,11 @@
 </template>
 
 <script>
-import axios from 'axios'
 import _ from 'lodash'
 
-import ProjectCard from '../../components/search/ProjectCard'
+import { mapActions } from 'vuex'
+
+// import ProjectCard from '../../components/search/ProjectCard'
 import ProfileCard from '../../components/search/ProfileCard'
 
 export default {
@@ -104,7 +105,7 @@ export default {
     }
   },
   components: {
-    ProjectCard,
+    // ProjectCard,
     ProfileCard
   },
   mounted () {
@@ -114,7 +115,7 @@ export default {
     async search () {
       await this.esSearch()
       // Note: No need to push the search as a query string
-      // It will call the backend (syncSession) after each event in search input
+      // It will call the backend after each event in search input
       this.$router.push({
         path: 'search',
         query: { ...this.$route.query, q: this.search }
@@ -145,6 +146,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions('app', ['search']),
     async esSearch () {
       try {
         this.data = []
@@ -152,23 +154,23 @@ export default {
 
         if (_.isEmpty(this.search)) return
 
-        const { data } = await axios({ url: '/search', method: 'POST', data: { search: this.search } })
+        const { data } = await this.$axios(
+          {
+            url: '/search',
+            method: 'POST',
+            data: { search: this.search, types: [ 'users' ] }
+          }
+        )
 
         if (!_.isEmpty(data)) {
-          this.data = data
+          this.data = data['users']
         }
       } catch (error) {
-        console.error(error)
+        console.error(error.message)
       } finally {
-        // this.loading = false
-        // TODO(Reda): Remove this timeout when
-        setTimeout(() => {
-          this.loading = false
-        }, 1000)
+        this.loading = false
       }
     }
   }
 }
 </script>
-<style>
-</style>

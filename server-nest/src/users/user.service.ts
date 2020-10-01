@@ -26,7 +26,7 @@ export class UserService {
 
   async findByEmail (emailPrimary: string): Promise<UserDTO | null> {
     if (emailPrimary == null) return null
-    // TODO: Fix emailPrimary permission https://github.com/apollographql/apollo-client/issues/5080
+
     const users = await this.client.adminQuery(
       resolve(GQL_DIR, 'getUserByEmail.gql'),
       { emailPrimary },
@@ -101,16 +101,24 @@ export class UserService {
     try {
       const {
         event: {
-          data: { new: newUser }
+          data: {
+            new: newUser
+          }
         }
       } = evt
 
-      const user: UserDTO = new UserDTO(newUser)
+      const newDoc = new UserDTO(newUser).document
 
-      const status = await this.searchService.update(
-        user.id.toString(),
+      // const status = await this.searchService.update(
+      //   user.id.toString(),
+      //   'databrary-users',
+      //   user.document
+      // )
+
+      const status = await this.searchService.updateTypesense(
         'databrary-users',
-        user.document
+        newDoc.docId,
+        newDoc
       )
 
       return status
@@ -134,8 +142,13 @@ export class UserService {
 
       // console.log('Hasura Event users create Payload', user.document)
 
-      const status = await this.searchService.create(
-        user.id.toString(),
+      // const status = await this.searchService.create(
+      //   user.id.toString(),
+      //   'databrary-users',
+      //   user.document
+      // )
+
+      const status = await this.searchService.createTypesense(
         'databrary-users',
         user.document
       )
