@@ -1,0 +1,12 @@
+{
+  "name": "migrations",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.20",
+    "meilisearch": "^0.14.0",
+    "moby": "^1.1.2",
+    "rake-js": "^0.1.1"
+  }
+}

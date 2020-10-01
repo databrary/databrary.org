@@ -47,4 +47,5 @@ lerna-debug.log*
 # IDE - VSCode
 # **/.vscode/*
 
-/data
+/data/**/*
+!/data/.gitkeep
