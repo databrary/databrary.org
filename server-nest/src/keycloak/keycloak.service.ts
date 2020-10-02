@@ -49,7 +49,7 @@ export class KeycloakService {
     }
   }
 
-  async registerUser (email: string, password: string): Promise<void> {
+  async registerUser (email: string, firstName = 'Test', lastName = 'Testerson', password = 'dev'): Promise<string> {
     try {
       await this.authenticate()
 
@@ -59,11 +59,13 @@ export class KeycloakService {
         email: email,
         enabled: true,
         emailVerified: true,
-        firstName: 'Test',
-        lastName: 'Testerson'
+        firstName: firstName,
+        lastName: lastName
       })
 
       await this.resetUserPassword(user.id, password)
+
+      return user.id
     } catch (error) {
       console.error(error)
     }

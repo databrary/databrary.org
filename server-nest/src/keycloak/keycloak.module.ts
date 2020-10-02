@@ -26,6 +26,7 @@ const keycloakStrategyConfig = {
 @Module({
   imports: [PassportModule, Session, UserModule],
   providers: [KeycloakService, KeycloakStrategy, keycloakStrategyConfig],
-  controllers: [KeycloakController]
+  controllers: [KeycloakController],
+  exports: [KeycloakService]
 })
 export class KeycloakModule {}

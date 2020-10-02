@@ -6,6 +6,7 @@ async function bootstrap () {
   const app = await NestFactory.create(AppModule)
   const configService = app.get(ConfigService)
   const port = configService.get('NEST_PORT')
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   console.log(`Listening on ${port}`)
   await app.listen(port, '0.0.0.0')
 }

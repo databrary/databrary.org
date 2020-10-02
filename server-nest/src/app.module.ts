@@ -11,6 +11,7 @@ import { TaskModule } from './task/task.module'
 import { UserModule } from './users/user.module'
 import { AssetModule } from './asset/asset.module'
 import { SearchModule } from './search/search.module'
+import { IngestModule } from './ingest/ingest.module';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { SearchModule } from './search/search.module'
     SearchModule,
     TaskModule,
     UserModule,
-    AssetModule
+    AssetModule,
+    IngestModule
   ],
   controllers: [AppController],
   providers: [AppService]
