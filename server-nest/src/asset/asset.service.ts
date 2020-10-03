@@ -16,10 +16,7 @@ export class AssetService {
     const { returning: assets } = await this.client.adminMutate(
       resolve(GQL_DIR, 'insertAsset.gql'),
       {
-        createdById: asset.createdById,
-        name: asset.name,
-        assetType: asset.assetType,
-        privacyType: asset.privacyType
+        ...asset
       }
     )
 

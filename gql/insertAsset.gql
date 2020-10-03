@@ -3,13 +3,15 @@ mutation insertAsset (
     $name: String!
     $assetType: asset_types_enum!
     $privacyType: privacy_types_enum!
+    $parentId: Int
 ) {
   insert_assets(
       objects: {
           assetType: $assetType, 
           createdById: $createdById, 
           name: $name, 
-          privacyType: $privacyType
+          privacyType: $privacyType,
+          parentId: $parentId
     }
     ) {
         returning {
