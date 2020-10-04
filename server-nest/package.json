@@ -55,7 +55,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^6.5.4",
     "sharp": "^0.25.3",
-    "typesense": "^0.7.0",
+    "typesense": "^0.7.1",
     "uuid": "^8.0.0"
   },
   "devDependencies": {

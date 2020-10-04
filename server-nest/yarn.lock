@@ -9438,10 +9438,10 @@ typescript@^3.6.4, typescript@^3.7.4:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.8.3.tgz#409eb8544ea0335711205869ec458ab109ee1061"
   integrity sha512-MYlEfn5VrLNsgudQTVJeNaQFUAI7DkhnOjdpAp4T+ku1TfQClewlbSuTVHiA+8skNBgaf02TL/kLOvig4y3G8w==
 
-typesense@^0.7.0:
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/typesense/-/typesense-0.7.0.tgz#c9a81829c5596dd8f94c3bfb8128904dce28740c"
-  integrity sha512-3rt44PmpWVOxlW8xv15nybF+5Fd+DN8QPQ7X2OvA2huJa5iOvaDZkefZGQ/rGxBRUsnz1iHEyFAUu+u/iYmKpw==
+typesense@^0.7.1:
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/typesense/-/typesense-0.7.1.tgz#304e0f22dc9e06a2c0cc5f8539492d1faf9f98ba"
+  integrity sha512-ZoROcThAJJyPpCzNEWQu8ve3JkWCow4VIyEYE4KzuaRmNrqmvuDwImK7BSs5O16uMHsF7a1gQj/XbbUpERp2xA==
   dependencies:
     axios "^0.20.0"
     loglevel "^1.7.0"

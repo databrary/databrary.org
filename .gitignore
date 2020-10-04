@@ -6,7 +6,6 @@ NOTES.md
 
 # Server
 **/tmp/
-server/sessions
 
 # Client
 client/.quasar
