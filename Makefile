@@ -105,31 +105,8 @@ setup_minio: check-image-minio-cli $(MINIO_DIR)
 		-it $(MINIO_IMAGE)
 
 ##############################################################################
-
-start_docker: bin-exists-docker-compose
-	docker-compose up -d
-stop_docker: bin-exists-docker-compose
-	docker-compose stop
-
-#: Destroy all docker images and thus databases
-cleardb: bin-exists-docker-compose
-	docker-compose down -v
-
-#: Start docker in non-deamon mode
-docker: bin-exists-docker-compose
-	DOCKER_HOST_IP=$(DOCKER_HOST_IP) docker-compose up
-
-server_nest: check-node-version bin-exists-yarn server-nest/node_modules
-	cd server-nest && npm run start:dev && cd ..
-server_test: FORCE
-	cd server-nest && npm run test && cd ..
-server_debug: check-node-version bin-exists-yarn server-nest/node_modules
-	cd server-nest && npm run start:debug && cd ..
-
-#: Start the front-end in non-daemon mode
-client: check-node-version bin-exists-yarn client/node_modules
-	cd client && npm run dev && cd ..
-
+# Some prerequesities until we get everything dockerfied
+###############################################################################
 install-nvm: FORCE
 ifeq ($(wildcard $(NVM_DIR)),)
 	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
@@ -154,6 +131,34 @@ endif
 
 #: Install dependencies, some of which require sudo, for an ~Ubuntu machine
 install-ubuntu-dependencies: install-docker-compose install-nvm install-make install-hasura-cli
+
+###############################################################################
+# Primary commands for this app
+###############################################################################
+start_docker: bin-exists-docker-compose
+	docker-compose up -d
+stop_docker: bin-exists-docker-compose
+	docker-compose stop
+
+#: Destroy all docker images and thus databases
+cleardb: bin-exists-docker-compose
+	docker-compose down -v
+
+#: Start docker in non-deamon mode
+docker: bin-exists-docker-compose
+	DOCKER_HOST_IP=$(DOCKER_HOST_IP) docker-compose up
+
+#: Start the Nest.js server in non-daemon mode
+server_nest: check-node-version bin-exists-yarn server-nest/node_modules
+	cd server-nest && npm run start:dev && cd ..
+server_test: FORCE
+	cd server-nest && npm run test && cd ..
+server_debug: check-node-version bin-exists-yarn server-nest/node_modules
+	cd server-nest && npm run start:debug && cd ..
+
+#: Start the front-end in non-daemon mode
+client: check-node-version bin-exists-yarn client/node_modules
+	cd client && npm run dev && cd ..
 
 fix_es_lint: FORCE
 	npx eslint --ext .ts . --fix
