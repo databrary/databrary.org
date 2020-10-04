@@ -150,7 +150,7 @@ docker: bin-exists-docker-compose
 
 #: Start the Nest.js server in non-daemon mode
 server_nest: check-node-version bin-exists-yarn server-nest/node_modules
-	cd server-nest && npm run start:dev && cd ..
+	cd server-nest && rm -rf dist && npm run start:dev && cd ..
 server_test: FORCE
 	cd server-nest && npm run test && cd ..
 server_debug: check-node-version bin-exists-yarn server-nest/node_modules
