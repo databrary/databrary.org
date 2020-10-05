@@ -57,9 +57,7 @@ async function main () {
         return false
       }
 
-      if (!newUser.authServerId) {
-        return false
-      }
+      if (!newUser.authServerId) return false
 
       const userDTO: UserDTO = new UserDTO(newUser)
       try {
@@ -74,9 +72,6 @@ async function main () {
   })
 
   console.log(`Added ${_.sum(userSuccesses)} users`)
-
-  // Next projects
-  // TODO ingest projects
 
   const pamSuccesses = await pMap(ingestData, async (pam) => {
     // We only consider the first listed owner
@@ -168,15 +163,15 @@ async function main () {
         }        
       })
 
-      console.log(`Added ${_.sum(filesSuccesses)} files in folder ${folderId}`)
+      console.log(`Added ${filesSuccesses.length} files in folder ${folderId}`)
       return true
     })
 
-    console.log(`Added ${_.sum(foldersSuccesses)} folders in pam ${pamId}`)
-    return 1
+    console.log(`Added ${foldersSuccesses.length} folders in pam ${pamId}`)
+    return true
   })
 
-  console.log(`Added ${_.sum(pamSuccesses)} pams`)
+  console.log(`Added ${pamSuccesses.length} pams`)
   await knex.destroy()
   await app.close()
 }
