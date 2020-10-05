@@ -47,11 +47,17 @@ async function main () {
         authServerId: null
       }
       try {
-        newUser.authServerId = await keycloakService.registerUser(
-          newUser.emailPrimary,
-          newUser.givenName,
-          newUser.familyName
-        )
+        const keycloakUser = await keycloakService.findUser(newUser.emailPrimary)
+
+        if (!keycloakUser) {
+          newUser.authServerId = await keycloakService.registerUser(
+            newUser.emailPrimary,
+            newUser.givenName,
+            newUser.familyName
+          )
+        } else {
+          newUser.authServerId = keycloakUser.id
+        }
       } catch (error) {
         console.log(`Error when adding ${newUser.emailPrimary} to keycloak: ${error.message}`)
         return false
