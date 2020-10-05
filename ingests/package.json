@@ -6,6 +6,8 @@
   "dependencies": {
     "@types/lodash": "^4.14.161",
     "@types/node": "^14.11.2",
+    "crypto": "^1.0.1",
+    "faker": "^5.1.0",
     "knex": "^0.21.6",
     "lodash": "^4.17.20",
     "meilisearch": "^0.14.0",
@@ -13,5 +15,8 @@
     "p-map": "^4.0.0",
     "pg": "^8.4.0",
     "rake-js": "^0.1.1"
+  },
+  "devDependencies": {
+    "@types/faker": "^5.1.2"
   }
 }

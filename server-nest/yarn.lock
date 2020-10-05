@@ -461,10 +461,10 @@
   dependencies:
     lodash "^4.17.15"
 
-"@golevelup/nestjs-hasura@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@golevelup/nestjs-hasura/-/nestjs-hasura-0.4.0.tgz#c38df6ec375b2641c18f9b95eca1e2a90b3c1785"
-  integrity sha512-OzqSVu+UzTN27ovBrnPxQPnFQ0VCm8+kEP0xAGWjTKILGvIiym7TwFfLw7vGlSuyf0bEGcU/+cAsOlDejtEFQg==
+"@golevelup/nestjs-hasura@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@golevelup/nestjs-hasura/-/nestjs-hasura-0.6.0.tgz#4bcd4fab8acd32cee45debfc41702bdb7693187c"
+  integrity sha512-FOBpO99cm5/gA78+nvMl9tLRW8MjLDBWmq2wolhoDMxQJqzVCDKCTmHPYLhvFbmEen6eHwHgE/vlllELCw6yGg==
   dependencies:
     "@golevelup/nestjs-common" "^1.4.2"
     "@golevelup/nestjs-discovery" "^2.3.1"

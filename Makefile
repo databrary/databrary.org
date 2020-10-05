@@ -136,7 +136,7 @@ install-ubuntu-dependencies: install-docker-compose install-nvm install-make ins
 # Primary commands for this app
 ###############################################################################
 start_docker: bin-exists-docker-compose
-	docker-compose up -d
+	DOCKER_HOST_IP=$(DOCKER_HOST_IP) docker-compose up -d
 stop_docker: bin-exists-docker-compose
 	docker-compose stop
 
