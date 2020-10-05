@@ -25,10 +25,10 @@ async function main () {
   })
 
   const ingestData = JSON.parse(await fs.readFile('../data/ingests/20201004-lego.json', 'utf-8'))
-  const project = _.first(ingestData)
   
   // Start ingesting users
-  const userSuccesses = await pMap(_.get(project, 'access', []), async user => {
+ const userSuccesses = await pMap(ingestData, async (data) => {
+  const userSuccesses = await pMap(_.get(data, 'access', []), async user => {
     const party = _.get(user, 'party')
     const newUser = {
       id: party.id,
@@ -42,15 +42,22 @@ async function main () {
       newUser.givenName,
       newUser.familyName
     )
+
+    if (!newUser.authServerId) {
+      return false
+    }
+
     const userDTO: UserDTO = new UserDTO(newUser)
     try {
       await userService.createUser(userDTO)
       return true
     } catch (error) {
-      console.log(`Error when adding ${newUser.emailPrimary} (${newUser.authServerId}): ${error.msg}`)
+      console.log(`Error when adding ${newUser.emailPrimary} (${newUser.authServerId}): ${error.message}`)
       return false
     }
   })
+  return _.sum(userSuccesses)
+})
 
   console.log(`Added ${_.sum(userSuccesses)} users`)
 

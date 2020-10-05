@@ -1,4 +1,4 @@
-import { NestFactory, NestApplication } from '@nestjs/core'
+import { NestFactory } from '@nestjs/core'
 import { INestApplicationContext } from '@nestjs/common'
 import { AppModule } from './app.module'
 
