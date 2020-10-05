@@ -1,4 +1,4 @@
-import { Controller, Session, Res, Get } from '@nestjs/common'
+import { Controller, Session, Request, Res, Get, Post, Body } from '@nestjs/common'
 
 @Controller('hasura')
 export class HasuraController {
@@ -12,4 +12,6 @@ export class HasuraController {
       'X-Hasura-User-Id': user.id.toString()
     })
   }
+
+  // TODO add events endpoint for hasura
 }

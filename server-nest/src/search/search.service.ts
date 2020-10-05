@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@nestjs/common'
 // import { ElasticsearchService } from '@nestjs/elasticsearch'
 // import { isEmpty } from 'lodash'
 import { Index } from '../common/types'
-import { UserDTO } from 'src/dtos/user.dto'
+import { UserDTO } from '../dtos/user.dto'
 import { Client } from 'typesense'
 
 @Injectable()

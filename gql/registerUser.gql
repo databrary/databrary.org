@@ -1,4 +1,5 @@
 mutation registerUser(
+    $id: Int,
     $authServerId: String!,
     $emailPrimary: String!,
     $givenName: String!,
@@ -12,6 +13,7 @@ mutation registerUser(
     $bio: String
 ) {
     insert_users(objects: {
+      id: $id,
       authServerId: $authServerId,
       emailPrimary: $emailPrimary,
       givenName: $givenName,

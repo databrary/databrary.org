@@ -10,7 +10,7 @@ import { SearchService } from './search.service'
 import { Index } from '../common/types'
 import { UserDTO } from '../dtos/user.dto'
 
-@Controller('search')
+@Controller('index')
 export class SearchController {
   constructor (
     private readonly searchService: SearchService
@@ -47,6 +47,8 @@ export class SearchController {
         const docs = await this.searchService.searchTypesense(searchParameters, index)
 
         results[type] = docs.map(({ id, docId, ...doc }) => (doc))
+
+        console.log(results)
       }
 
       return res.json(results)

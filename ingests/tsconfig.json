@@ -1,0 +1,46 @@
+// {
+//   "compilerOptions": {
+//     "module": "commonjs",
+//     "declaration": true,
+//     "removeComments": true,
+//     "emitDecoratorMetadata": true,
+//     "experimentalDecorators": true,
+//     "target": "es2017",
+//     "sourceMap": true,
+//     "outDir": "./dist",
+//     "baseUrl": "./",
+//     "incremental": true,
+//     "esModuleInterop": true,
+//   },
+//   "exclude": ["node_modules", "dist"]
+// }
+
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Node 12",
+ 
+  "compilerOptions": {
+    "lib": ["es6"],
+    "allowJs": true,
+    "module": "commonjs",
+    "target": "esnext",
+    "outDir": "dist",
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "experimentalDecorators": true
+  },
+
+  "include": [
+    "src/**/*",
+    "runs/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.ts"
+  ]
+}

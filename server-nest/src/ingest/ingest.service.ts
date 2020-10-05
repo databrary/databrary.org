@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { KeycloakService } from '../keycloak/keycloak.service'
 import { UserService } from '../users/user.service'
-import { UserDTO } from '../dtos/user.dto'
 import { AssetDTO } from '../dtos/asset.dto'
-import { AssetService } from 'src/asset/asset.service'
+import { AssetService } from '../asset/asset.service'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { FileService } from 'src/file/file.service'
-import { FileObjectDTO } from 'src/dtos/fileobject.dto'
-import { FileDTO } from 'src/dtos/file.dto'
+import { FileService } from '../file/file.service'
+import { FileObjectDTO } from '../dtos/fileobject.dto'
+import { FileDTO } from '../dtos/file.dto'
 
 @Injectable()
 export class IngestService {
@@ -18,37 +17,6 @@ export class IngestService {
     private readonly assetService: AssetService,
     private readonly fileService: FileService
   ) {}
-
-  async ingestUsers (users: Array<Record<string, string>>): Promise<boolean> {
-    for (const user of users) {
-      console.log('Inegst user', user)
-
-      const { givenName, familyName, displayFullName, emailPrimary } = user
-      if (emailPrimary == null) continue
-      try {
-        // register a keycloak user
-        const authServerId = await this.keycloakService.registerUser(emailPrimary, givenName, familyName)
-
-        // register to hasura
-        const userDTO: UserDTO = new UserDTO({
-          authServerId,
-          emailPrimary,
-          givenName,
-          displayFullName,
-          familyName
-        })
-
-        let userDb = await this.userService.findUser(userDTO)
-
-        if (userDb != null) continue
-
-        userDb = await this.userService.createUser(userDTO)
-      } catch (error) {
-        console.log('Error during user ingest', error.message)
-      }
-    }
-    return true
-  }
 
   async ingestProjects (): Promise<boolean> {
     const data = readFileSync(resolve('../data/projects_ingest.json'), 'utf8')

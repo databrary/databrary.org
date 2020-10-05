@@ -11,7 +11,7 @@
             <q-input
               tabindex="-1"
               v-model="search"
-              debounce="500"
+              debounce="100"
               filled
               square
               placeholder="Search"
@@ -84,8 +84,9 @@
 
 <script>
 import _ from 'lodash'
+import { Client } from 'typesense'
 
-import { mapActions } from 'vuex'
+// import { mapActions } from 'vuex'
 
 // import ProjectCard from '../../components/search/ProjectCard'
 import ProfileCard from '../../components/search/ProfileCard'
@@ -101,7 +102,8 @@ export default {
       data: [],
       page: 1,
       cardPerPage: 10,
-      loading: false
+      loading: false,
+      client: null
     }
   },
   components: {
@@ -109,17 +111,27 @@ export default {
     ProfileCard
   },
   mounted () {
-    this.search = this.$route.query.q
+    // this.search = this.$route.query.q
+    this.client = new Client({
+      'nodes': [{
+        'host': 'localhost',
+        'path': '/typesense',
+        'port': '8000',
+        'protocol': 'http'
+      }],
+      'apiKey': 'e5325d85-7570-4d95-b95d-60c99cfba4bf',
+      'connectionTimeoutSeconds': 2
+    })
   },
   watch: {
     async search () {
-      await this.esSearch()
+      await this.doSearch()
       // Note: No need to push the search as a query string
       // It will call the backend after each event in search input
-      this.$router.push({
-        path: 'search',
-        query: { ...this.$route.query, q: this.search }
-      })
+      // this.$router.push({
+      //   path: 'search',
+      //   query: { ...this.$route.query, q: this.search }
+      // })
     },
     startDate () {
       this.$router.push({
@@ -146,30 +158,16 @@ export default {
     }
   },
   methods: {
-    ...mapActions('app', ['search']),
-    async esSearch () {
-      try {
-        this.data = []
-        this.loading = true
-
-        if (_.isEmpty(this.search)) return
-
-        const { data } = await this.$axios(
-          {
-            url: '/search',
-            method: 'POST',
-            data: { search: this.search, types: [ 'users' ] }
-          }
-        )
-
-        if (!_.isEmpty(data)) {
-          this.data = data['users']
-        }
-      } catch (error) {
-        console.error(error.message)
-      } finally {
-        this.loading = false
-      }
+    // ...mapActions('app', ['search']),
+    async doSearch () {
+      const { hits } = await this.client
+        .collections(['databrary-users'])
+        .documents()
+        .search({
+          q: this.search,
+          query_by: 'familyName,givenName,additionalName,displayFullName,bio'
+        })
+      this.data = _.map(hits, 'document')
     }
   }
 }
