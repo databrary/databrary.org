@@ -50,6 +50,7 @@
       - datetimeCreated
       - id
       - name
+      - parentId
       - permissionsetId
       - privacyType
       filter:
