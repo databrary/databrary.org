@@ -89,7 +89,7 @@ import { Client } from 'typesense'
 // import { mapActions } from 'vuex'
 
 // import ProjectCard from '../../components/search/ProjectCard'
-import ProfileCard from '../../components/search/ProfileCard'
+import ProfileCard from '@/components/search/ProfileCard'
 
 export default {
   name: 'PageSearch',

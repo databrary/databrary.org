@@ -21,7 +21,7 @@ export default function routes (store) {
       path: '/search/:pageId',
       component: () => import('pages/pages/PageId.vue')
     },
-    { path: '/search', component: () => import('pages/pages/Search.vue') },
+    { path: '/search', component: () => import('pages/Search.vue') },
     { path: '/notifications', component: () => import('pages/Notifications.vue') },
     { path: '/news', component: () => import('pages/News.vue') }
   ]
