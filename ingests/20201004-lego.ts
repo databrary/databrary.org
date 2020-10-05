@@ -27,7 +27,9 @@ async function main () {
   const ingestData = JSON.parse(await fs.readFile('../data/ingests/20201004-lego.json', 'utf-8'))
   const project = _.first(ingestData)
   
-  const successes = await pMap(_.get(project, 'access', []), async user => {
+
+  // Start ingesting users
+  const userSuccesses = await pMap(_.get(project, 'access', []), async user => {
     const party = _.get(user, 'party')
     const newUser = {
       id: party.id,
@@ -52,7 +54,10 @@ async function main () {
     }
   })
 
-  console.log(`Added ${_.sum(successes)} users`)
+  console.log(`Added ${_.sum(userSuccesses)} users`)
+
+  // Next projects
+  // TODO ingest projects
 
   await knex.destroy()
   await app.close()
