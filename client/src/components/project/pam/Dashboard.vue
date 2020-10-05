@@ -25,6 +25,7 @@
         </template>
         <template v-slot:after>
           <ProjectViewer
+            :projectId = "selectedProjectView"
             v-if="selectedProjectView && !createView"
           />
           <CreateView

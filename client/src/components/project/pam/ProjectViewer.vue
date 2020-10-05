@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-12 bg-grey-10">
         <q-img
-          src="https://nyu.databrary.org/volume/9/thumb?size"
+          :src="`https://picsum.photos/seed/${projectId}/1000/400`"
           style="max-height: 400px;"
           contain
         >
@@ -203,6 +203,7 @@ export default {
     CitationBuilder,
     FileManager
   },
+  props: ['projectId'],
   data: () => ({
     projectIdFromRoute: null,
     asset: null,
@@ -225,7 +226,6 @@ export default {
     newVolumeName: 'New Volume'
   }),
   computed: {
-    selectedProjectView: sync('pam/selectedProjectView')
   },
   watch: {
     // whenever question changes, this function will run
@@ -245,7 +245,7 @@ export default {
         this.editmodeLabel = 'Save'
       }
     },
-    'selectedProjectView': 'fetchData',
+    'projectId': 'fetchData',
     '$route': 'fetchData',
     'projectIdFromRoute': 'fetchData'
   },
@@ -272,7 +272,7 @@ export default {
           }
         `,
         variables: {
-          projectId: this.selectedProjectView
+          projectId: this.projectId || this.projectIdFromRoute
         }
       })
       this.asset = result.data.assets[0]
