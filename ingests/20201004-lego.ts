@@ -33,7 +33,6 @@ async function main () {
     const party = _.get(user, 'party')
     const newUser = {
       id: party.id,
-      displayFullName: `${party.prename} ${party.sortname}`,
       givenName: party.prename,
       familyName: party.sortname,
       emailPrimary: party.email,
