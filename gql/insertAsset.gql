@@ -1,4 +1,5 @@
 mutation insertAsset (
+    $id: Int,
     $createdById: Int!
     $name: String!
     $assetType: asset_types_enum!
@@ -7,6 +8,7 @@ mutation insertAsset (
 ) {
   insert_assets(
       objects: {
+          id: $id,
           assetType: $assetType, 
           createdById: $createdById, 
           name: $name, 

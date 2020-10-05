@@ -45,7 +45,7 @@ export class KeycloakService {
         }
       })
     } catch (error) {
-      console.error('resetUserPassword::', error.message)
+      throw new Error(error.message)
     }
   }
 
@@ -67,7 +67,7 @@ export class KeycloakService {
 
       return user.id
     } catch (error) {
-      console.error('registerUser::', error.message)
+      throw new Error(error.message)
     }
   }
 

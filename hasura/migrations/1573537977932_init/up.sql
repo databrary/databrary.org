@@ -26,6 +26,7 @@ INSERT INTO public.asset_types VALUES ('project');
 INSERT INTO public.asset_types VALUES ('file');
 INSERT INTO public.asset_types VALUES ('avatar');
 INSERT INTO public.asset_types VALUES ('folder');
+INSERT INTO public.asset_types VALUES ('pam');
 CREATE SEQUENCE public.assets_id_seq
     START WITH 1
     INCREMENT BY 1
