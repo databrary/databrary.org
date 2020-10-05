@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 
 import KcAdminClient from 'keycloak-admin'
+import UserRepresentation from 'keycloak-admin/lib/defs/userRepresentation'
+import { isEmpty } from 'lodash'
 
 @Injectable()
 export class KeycloakService {
@@ -44,6 +46,23 @@ export class KeycloakService {
           value: password
         }
       })
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
+
+  async findUser (email: string): Promise<UserRepresentation> {
+    try {
+      await this.authenticate()
+
+      const user: UserRepresentation[] = await this.kcAdminClient.users.find({
+        realm: this.realm,
+        email: email
+      })
+
+      if (isEmpty(user)) return null
+
+      return user[0]
     } catch (error) {
       throw new Error(error.message)
     }

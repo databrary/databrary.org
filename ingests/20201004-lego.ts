@@ -6,7 +6,7 @@ import * as crypto from 'crypto'
 import { promises as fs } from 'fs'
 
 import { bootstrap } from '../server-nest/dist/sdk'
-import { KeycloakService } from '../server-nest/dist/keycloak/keycloak.service'
+import { KeycloakService } from '../server-nest/src/keycloak/keycloak.service'
 import { UserService } from '../server-nest/dist/users/user.service'
 import { AssetService } from '../server-nest/src/asset/asset.service'
 import { FileService } from '../server-nest/src/file/file.service'
