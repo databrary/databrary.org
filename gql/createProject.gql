@@ -1,0 +1,14 @@
+mutation ($name: String!, $parentId: Int!) {
+  insert_assets(
+    objects: {
+      parentId: $parentId,
+      name: $name,
+      assetType: project,
+      privacyType: private
+    }
+  ) {
+    returning {
+      id
+    }
+  }
+}

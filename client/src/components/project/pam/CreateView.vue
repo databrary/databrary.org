@@ -18,6 +18,7 @@
       <div>
         <q-btn label="Submit" type="submit" color="primary"/>
         <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
+        <q-btn label="Back" @click="onBack()" color="primary" flat class="q-ml-sm" />
       </div>
     </q-form>
 
@@ -26,7 +27,7 @@
 
 <script>
 // TODO(Reda): Add here the wizard for creating a volume
-import mutation from '../../../graphql/createPam'
+import createProject from '@gql/createProject.gql'
 import { sync } from 'vuex-pathify'
 
 export default {
@@ -39,6 +40,7 @@ export default {
     asset: sync('pam/asset'),
     selectedProjectView: sync('pam/selectedProjectView'),
     createView: sync('pam/createView'),
+    viewCreated: sync('pam/viewCreated'),
     pamId: sync('pam/pamId')
   },
   methods: {
@@ -59,13 +61,21 @@ export default {
       this.accept = false
     },
 
+    onBack () {
+      this.createView = false
+    },
+
     async createProject () {
       // Call to the graphql mutation
-      await this.$apollo.mutate(
-        mutation(this.name)
-      )
+      await this.$apollo.mutate({
+        mutation: createProject,
+        variables: {
+          parentId: this.pamId,
+          name: this.name
+        }
+      })
+      this.viewCreated += 1
       this.createView = false
-      // const project = results.data.insert_assets.returning[0]
     }
   }
 }

@@ -138,6 +138,7 @@ export default {
     Toolbar
   },
   props: {
+    assetId: Number,
     icons: { type: Object, default: () => defaultIcons },
     columns: { type: Array, default: () => defaultColumns }
   },
@@ -178,7 +179,7 @@ export default {
   methods: {
     ...mapActions('assets', ['fetchProjectAssets']),
     async init () {
-      const filesData = await this.fetchProjectAssets(this.$route.params.projectId)
+      const filesData = await this.fetchProjectAssets(this.assetId || this.$route.params.projectId)
       const files = filesData.map(
         ({ name, fileFormatId: format, fileobject: { size }, uploadedDatetime }) =>
           ({ id: uid(), name, size, format, uploadedDatetime, isDir: false })
