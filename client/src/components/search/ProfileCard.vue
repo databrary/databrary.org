@@ -9,7 +9,7 @@
                 </q-avatar>
             </q-card-section>
             <q-card-section class="col-sm-11 col-xs-10">
-                <div>{{ fullName }}</div>
+                <div>{{ this.profile.displayFullName }}</div>
                 <div class="q-mt-xs" style="color: gray">Institution placeholder</div>
                 <div class="q-mt-xs" v-if="profile.bio !== null">{{ profile.bio }}</div>
             </q-card-section>

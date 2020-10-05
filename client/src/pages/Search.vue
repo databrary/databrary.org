@@ -168,6 +168,7 @@ export default {
           query_by: 'familyName,givenName,additionalName,displayFullName,bio'
         })
       this.data = _.map(hits, 'document')
+      console.log(_.map(hits, 'highlights'))
     }
   }
 }

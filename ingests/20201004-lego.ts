@@ -27,7 +27,6 @@ async function main () {
   const ingestData = JSON.parse(await fs.readFile('../data/ingests/20201004-lego.json', 'utf-8'))
   const project = _.first(ingestData)
   
-
   // Start ingesting users
   const userSuccesses = await pMap(_.get(project, 'access', []), async user => {
     const party = _.get(user, 'party')
