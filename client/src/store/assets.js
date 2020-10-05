@@ -1,6 +1,7 @@
 import { make } from 'vuex-pathify'
 import { gql } from '@apollo/client'
 import { apolloClient } from '../services/apolloClient'
+import _ from 'lodash'
 
 const state = {
   // data: [],
@@ -25,7 +26,7 @@ const actions = {
     const result = await apolloClient.query({
       query: gql`
         query getProjectFiles($projectId: Int!) {
-          assets(where: {assetType: {_eq: project}, id: {_eq: $projectId}}) {
+          assets(id: {_eq: $projectId}) {
             files {
               name
               fileFormatId
@@ -43,7 +44,7 @@ const actions = {
     })
 
     // commit('setData', result.data.assets[0].files)
-    return result.data.assets[0].files
+    return _.get(result, 'data.assets[0].files', [])
   },
   // the createdById field is set from the session variable X-Hasura-User-Id
   // That is required in the client side

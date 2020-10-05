@@ -192,6 +192,7 @@
 // TODO(Reda): Fetch project id info here
 import { date } from 'quasar'
 import { gql } from '@apollo/client'
+import { sync } from 'vuex-pathify'
 
 import CitationBuilder from '../../../components/CitationBuilder'
 import FileManager from '../../../components/project/FileManager'
@@ -223,6 +224,9 @@ export default {
     maximizedToggle: true,
     newVolumeName: 'New Volume'
   }),
+  computed: {
+    selectedProjectView: sync('pam/selectedProjectView')
+  },
   watch: {
     // whenever question changes, this function will run
     ticked () {
@@ -241,6 +245,7 @@ export default {
         this.editmodeLabel = 'Save'
       }
     },
+    'selectedProjectView': 'fetchData',
     '$route': 'fetchData',
     'projectIdFromRoute': 'fetchData'
   },
@@ -267,7 +272,7 @@ export default {
           }
         `,
         variables: {
-          projectId: 1
+          projectId: this.selectedProjectView
         }
       })
       this.asset = result.data.assets[0]

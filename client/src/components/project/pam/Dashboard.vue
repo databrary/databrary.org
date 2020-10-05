@@ -25,12 +25,13 @@
         </template>
         <template v-slot:after>
           <ProjectViewer
-            v-if="selectedProjectView"
+            v-if="selectedProjectView && !createView"
           />
           <CreateView
             v-else-if="createView"
           />
           <FileManager
+            :assetId = "asset.id"
             v-else
           />
         </template>
@@ -69,25 +70,29 @@ export default {
     datetimeCreated: null
   }),
   watch: {
-    '$route': 'fetchData'
+    '$route': 'fetchData',
+    'viewCreated': 'fetchData'
   },
   async created () {
     // this.generateCitation('http://doi.org/10.17910/B77P4V')
-    this.projectIdFromRoute = this.$route.params.projectId
+    this.pamId = this.$route.params.projectId
     this.fetchData()
   },
   computed: {
     asset: sync('pam/asset'),
+    views: sync('pam/views'),
+    viewCreated: sync('pam/viewCreated'),
     pamId: sync('pam/pamId'),
     selectedProjectView: sync('pam/selectedProjectView'),
     createView: sync('pam/createView')
   },
   methods: {
     async fetchData () {
+      this.views = []
       const result = await this.$apollo.query({
         query: gql`
           query GetProject($projectId: Int!) {
-            assets(where: {
+            pam: assets(where: {
               id: {_eq: $projectId},
               assetType: {_eq: pam}
             }) {
@@ -95,15 +100,23 @@ export default {
               assetType
               name
               datetimeCreated
+            },
+            views: assets(
+              where: {assetType: {_eq: project}, parentId: {_eq: $projectId}},
+              order_by: {datetimeCreated: desc}
+            ) {
+              id
+              name
+              datetimeCreated
             }
           }
         `,
         variables: {
-          projectId: this.projectIdFromRoute
+          projectId: this.pamId
         }
       })
-      this.asset = result.data.assets[0]
-      this.pamId = this.asset.id
+      this.asset = result.data.pam[0]
+      this.views = result.data.views
       this.datetimeCreated = date.formatDate(
         this.asset.datetimeCreated,
         'YYYY-MM-DD'

@@ -4,7 +4,9 @@ const state = {
   asset: null,
   pamId: null,
   selectedProjectView: null,
-  createView: false
+  createView: false,
+  viewCreated: null,
+  views: []
 }
 
 const getters = {

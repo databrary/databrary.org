@@ -13,69 +13,36 @@
         <q-item-label lines="1">Files</q-item-label>
       </q-item-section>
     </q-item>
-     <q-item-label header>Views</q-item-label>
 
     <q-expansion-item
-      v-if="groups.private.length"
       expand-separator
       default-opened
-      header-class="bg-primary text-white expansion-items"
-      label="Private"
+     :key="$route.params.slug"
     >
-      <q-item
-        clickable
-        v-ripple
-        v-for="(item, index) in groups.private"
-        :item="item"
-        :index="index"
-        :key="index"
-        @click="onClickView(item.id)"
-        active-class="bg-teal-1 text-grey-8"
-      >
-        <q-item-section>
-          <q-item-label lines="1">{{item.name}}</q-item-label>
+      <template v-slot:header>
+        <q-item-section avatar>
+          <q-icon color="primary" name="art_track" />
         </q-item-section>
-      </q-item>
-    </q-expansion-item>
-    <q-expansion-item
-      v-if="groups.network.length"
-      expand-separator
-      default-opened
-      header-class="bg-primary text-white expansion-items"
-      label="Network-Viewable"
-    >
-      <q-item
-        clickable
-        v-ripple
-        v-for="(item, index) in groups.network"
-        :item="item"
-        :index="index"
-        :key="index"
-        @click="onClickView(item.id)"
-        active-class="bg-teal-1 text-grey-8"
-      >
+
         <q-item-section>
-          <q-item-label lines="1">{{item.name}}</q-item-label>
+          Views
         </q-item-section>
-      </q-item>
-    </q-expansion-item>
-    <q-expansion-item
-      v-if="groups.public.length"
-      expand-separator
-      default-opened
-      header-class="bg-primary text-white expansion-items"
-      label="Publically-Viewable"
-    >
+      </template>
+
       <q-item
         clickable
         v-ripple
-        v-for="(item, index) in groups.public"
+        v-for="(item, index) in views"
         :item="item"
         :index="index"
         :key="index"
         @click="onClickView(item.id)"
         active-class="bg-teal-1 text-grey-8"
       >
+        <q-item-section avatar>
+          <q-icon color="primary" name="preview" />
+        </q-item-section>
+
         <q-item-section>
           <q-item-label lines="1">{{item.name}}</q-item-label>
         </q-item-section>
@@ -100,6 +67,8 @@
 </style>
 
 <script>
+import Vue from 'vue'
+import { gql } from '@apollo/client'
 import { sync } from 'vuex-pathify'
 
 export default {
@@ -107,28 +76,6 @@ export default {
   components: {
   },
   data: () => ({
-
-    groups: {
-      public: [{
-        id: 1,
-        name: 'Jeff et al. 2019'
-      },
-      {
-        id: 3,
-        name: 'Paper 2 for the Public'
-      }
-      ],
-      private: [{
-        id: 3,
-        name: 'Paper 1 in Progress'
-      }],
-      network: [
-        {
-          id: 3,
-          name: 'Paper 2 for with Data'
-        }
-      ]
-    },
     projectIdFromRoute: null
   }),
   watch: {
@@ -136,12 +83,11 @@ export default {
   },
   computed: {
     asset: sync('pam/asset'),
+    views: sync('pam/views'),
     selectedProjectView: sync('pam/selectedProjectView'),
     createView: sync('pam/createView')
   },
   async created () {
-    // this.generateCitation('http://doi.org/10.17910/B77P4V')
-    this.projectIdFromRoute = this.$route.params.projectId
     this.fetchData()
   },
   methods: {
