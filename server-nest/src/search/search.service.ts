@@ -1,6 +1,4 @@
 import { Injectable, Inject } from '@nestjs/common'
-// import { ElasticsearchService } from '@nestjs/elasticsearch'
-// import { isEmpty } from 'lodash'
 import { Index } from '../common/types'
 import { UserDTO } from '../dtos/user.dto'
 import { Client } from 'typesense'
@@ -9,7 +7,6 @@ import { Client } from 'typesense'
 export class SearchService {
   private readonly client
   constructor (
-    // private readonly client: ElasticsearchService,
     @Inject('TYPESENSE_CONFIG') private readonly config: Record<string, unknown>
   ) {
     this.client = new Client(config)
@@ -96,59 +93,4 @@ export class SearchService {
 
     return 400
   }
-
-  // ElasticSearch functions
-  // async create (id: string, index: Index, doc: Record<string, unknown>, refresh: any = 'true'): Promise<number> {
-  //   try {
-  //     const { statusCode } = await this.client.create({
-  //       id: id,
-  //       index: index,
-  //       refresh: refresh,
-  //       body: { doc: doc }
-  //     })
-  //     return statusCode
-  //   } catch (error) {
-  //     console.error(error.message)
-  //   }
-  //   return 400
-  // }
-
-  // async update (id: string, index: Index, doc: Record<string, unknown>, refresh = true): Promise<number> {
-  //   try {
-  //     const { statusCode } = await this.client.update({
-  //       id: id,
-  //       index: index,
-  //       refresh: refresh ? 'true' : 'false',
-  //       retry_on_conflict: 3,
-  //       body: { doc: doc }
-  //     })
-  //     return statusCode
-  //   } catch (error) {
-  //     throw new Error(error.message)
-  //   }
-  // }
-
-  // async searchAll (search: string): Promise<UserDTO []> {
-  //   const {
-  //     body: {
-  //       hits: { hits }
-  //     }
-  //   } = await this.client.search({
-  //     index: 'databrary-*',
-  //     body: {
-  //       query: { multi_match: { query: search } }
-  //     }
-  //   })
-
-  //   if (isEmpty(hits)) return []
-
-  //   const result: UserDTO [] = hits.map(
-  //     ({ id, _index: index, _score: score, _source: { doc, ...ingest } }) => {
-  //       const user = isEmpty(ingest) ? doc : ingest
-  //       return { index, id, score, ...user }
-  //     }
-  //   )
-
-  //   return result
-  // }
 }

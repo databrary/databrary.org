@@ -426,17 +426,6 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@elastic/elasticsearch@^7.7.1":
-  version "7.7.1"
-  resolved "https://registry.yarnpkg.com/@elastic/elasticsearch/-/elasticsearch-7.7.1.tgz#ad95145fcd779206d101560cb90cdeb3041d2984"
-  integrity sha512-OzCitXAMQ4pC6EwtPCO0KBygjDFcBMBrJ6pBguYuZxtMbRLOPjcS1Er31N0+J6mp2Q8pU0HGm1FAGfGe6FJReQ==
-  dependencies:
-    debug "^4.1.1"
-    decompress-response "^4.2.0"
-    ms "^2.1.1"
-    pump "^3.0.0"
-    secure-json-parse "^2.1.0"
-
 "@endemolshinegroup/cosmiconfig-typescript-loader@^1.0.0":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@endemolshinegroup/cosmiconfig-typescript-loader/-/cosmiconfig-typescript-loader-1.0.2.tgz#c1eadbb4c269f7898195ca8f7428bf5f5d1c449a"
@@ -749,11 +738,6 @@
     path-to-regexp "3.2.0"
     tslib "1.11.1"
     uuid "7.0.3"
-
-"@nestjs/elasticsearch@^7.1.0":
-  version "7.1.0"
-  resolved "https://registry.yarnpkg.com/@nestjs/elasticsearch/-/elasticsearch-7.1.0.tgz#ba77a11d419b9aa542252a83b6490ef8c458fed4"
-  integrity sha512-3ixmu9MkTh0DS+LKAKcWHLyf/1DPQTXoy+aVClVI14DJQU208oHR3V0e9klApC+GXCYW+BDhNReh4HRyekjTrw==
 
 "@nestjs/passport@^7.0.0":
   version "7.0.0"
@@ -8338,11 +8322,6 @@ schema-utils@^1.0.0:
     ajv "^6.1.0"
     ajv-errors "^1.0.0"
     ajv-keywords "^3.1.0"
-
-secure-json-parse@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/secure-json-parse/-/secure-json-parse-2.1.0.tgz#ae76f5624256b5c497af887090a5d9e156c9fb20"
-  integrity sha512-GckO+MS/wT4UogDyoI/H/S1L0MCcKS1XX/vp48wfmU7Nw4woBmb8mIpu4zPBQjKlRT88/bt9xdoV4111jPpNJA==
 
 "semver@2 || 3 || 4 || 5", semver@^5.4.1, semver@^5.5, semver@^5.5.0, semver@^5.6.0:
   version "5.7.1"
