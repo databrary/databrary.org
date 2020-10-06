@@ -27,7 +27,7 @@
 <script>
 import { mapActions } from 'vuex'
 // TODO(Reda): Add here the wizard for creating a volume
-import mutation from '../graphql/createPam'
+import { gql } from '@apollo/client'
 
 export default {
   data () {
@@ -77,12 +77,29 @@ export default {
 
     async createProject () {
       // Call to the graphql mutation
-      console.log(this.name, mutation(this.name))
-      const results = await this.$apollo.mutate(mutation(this.name))
-
+      const results = await this.$apollo.mutate({
+        mutation: gql`
+          mutation ($name: String!) {
+            insert_assets(
+              objects: {
+                name: $name,
+                assetType: pam,
+                privacyType: private
+              }
+            ) {
+              returning {
+                id
+              }
+            }
+          }
+        `,
+        variables: {
+          name: this.name
+        }
+      })
       const project = results.data.insert_assets.returning[0]
       this.$router.push({
-        path: `/pam/${project.id}`
+        path: `/project/${project.id}`
       })
     }
   }
