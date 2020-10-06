@@ -33,7 +33,7 @@ async function main () {
     }
   })
 
-  const ingestData = JSON.parse(await fs.readFile('../data/ingests/20201004-lego.json', 'utf-8'))
+  const ingestData = JSON.parse(await fs.readFile('../data/ingests/catherine_lego_volumes.json', 'utf-8'))
   
   // Start ingesting users
   const userSuccesses = await pMap(ingestData, async (data) => {
@@ -95,88 +95,92 @@ async function main () {
         assetType: 'pam',
         privacyType: 'private'
       }))
+
+
+      const foldersSuccesses = await pMap(_.get(pam, 'containers', []), async (folder) => {
+        const folderId = _.get(folder, 'id')
+        const folderName = _.get(folder, 'name') || `Folder ${folderId}`
+        try {
+          const folderAsset = await assetService.insertAsset(new AssetDTO({
+            id: folderId,
+            createdById: createdById,
+            name: folderName,
+            assetType: 'folder',
+            privacyType: 'private',
+            parentId: pamId,
+          }))
+        } catch (error) {
+          console.error(`Error when adding ${folderName} folder: ${error.message}`)
+          return false
+        }
+
+        const filesSuccesses = await pMap(_.get(folder, 'assets', []), async (file) => {
+          const fileId = _.get(file, 'id')
+          const fileName = _.get(file, 'name') || `File ${fileId}`
+
+          try {
+            const fileAsset = await assetService.insertAsset(new AssetDTO({
+              id: fileId,
+              createdById: createdById,
+              name: fileName,
+              assetType: 'file',
+              privacyType: 'private',
+              parentId: folderId,
+            }))
+          } catch (error) {
+            console.error(`Error when adding ${fileName} file: ${error.message}`)
+            return false
+          }
+
+          const fileobjectsSize = _.get(file, 'size') || faker.random.number(100000)
+
+          const fileobjectsSha256 = crypto.createHash('sha256').update(fileName).digest().toString('hex')
+          const fileobjectsSha1 = crypto.createHash('sha1').update(fileName).digest().toString('hex')
+          const fileobjectsMd5 = crypto.createHash('md5').update(fileName).digest().toString('hex')
+          try {
+            const fileobjectId = await fileService
+              .insertFileObject(new FileObjectDTO({
+                location: 's3://minio-1.nyu.edu/cas',
+                size: fileobjectsSize,
+                sha1: fileobjectsSha1,
+                sha256: fileobjectsSha256,
+                md5: fileobjectsMd5
+              }))
+            
+              if (!fileobjectId) return false
+              const fileFormat = fileName.split('.').pop().length > 4 
+                ? faker.system.commonFileExt()
+                : fileName.split('.').pop()
+      
+              await fileService
+                .insertFile(new FileDTO({
+                  name: fileName,
+                  assetId: fileId,
+                  fileFormatId: fileFormat,
+                  uploadedById: createdById,
+                  fileobjectId: fileobjectId
+                }))
+          
+              return true
+          } catch (error) {
+            console.error(`Error when adding fileobject and file for ${fileName} file asset: ${error.message}`)
+            return false
+          }        
+        })
+
+        console.log(`Added ${filesSuccesses.length} files in folder ${folderId}`)
+        return true
+      })
+
+      
+      console.log(`Added ${foldersSuccesses.length} folders in pam ${pamId}`)
+      return true
     } catch (error) {
       console.error(`Error when adding ${pamName} pam: ${error.message}`)
       return false
     }
-
-    const foldersSuccesses = await pMap(_.get(pam, 'containers', []), async (folder) => {
-      const folderId = _.get(folder, 'id')
-      const folderName = _.get(folder, 'name') || `Folder ${folderId}`
-      try {
-        const folderAsset = await assetService.insertAsset(new AssetDTO({
-          id: folderId,
-          createdById: createdById,
-          name: folderName,
-          assetType: 'folder',
-          privacyType: 'private',
-          parentId: pamId
-        }))
-      } catch (error) {
-        console.error(`Error when adding ${folderName} folder: ${error.message}`)
-        return false
-      }
-
-      const filesSuccesses = await pMap(_.get(folder, 'assets', []), async (file) => {
-        const fileId = _.get(file, 'id')
-        const fileName = _.get(file, 'name') || `File ${fileId}`
-
-        try {
-          const fileAsset = await assetService.insertAsset(new AssetDTO({
-            id: fileId,
-            createdById: createdById,
-            name: fileName,
-            assetType: 'file',
-            privacyType: 'private',
-            parentId: folderId
-          }))
-        } catch (error) {
-          console.error(`Error when adding ${fileName} file: ${error.message}`)
-          return false
-        }
-
-        const fileobjectsSize = _.get(file, 'size') || faker.random.number(100000)
-
-        const fileobjectsSha256 = crypto.createHash('sha256').update(fileName).digest().toString('hex')
-        const fileobjectsSha1 = crypto.createHash('sha1').update(fileName).digest().toString('hex')
-        const fileobjectsMd5 = crypto.createHash('md5').update(fileName).digest().toString('hex')
-        try {
-          const fileobjectId = await fileService
-            .insertFileObject(new FileObjectDTO({
-              location: 's3://minio-1.nyu.edu/cas',
-              size: fileobjectsSize,
-              sha1: fileobjectsSha1,
-              sha256: fileobjectsSha256,
-              md5: fileobjectsMd5
-            }))
-          
-            if (!fileobjectId) return false
-            const fileFormat = fileName.split('.').pop() || faker.system.commonFileExt()
-    
-            await fileService
-              .insertFile(new FileDTO({
-                name: fileName,
-                assetId: fileId,
-                fileFormatId: fileFormat,
-                uploadedById: createdById,
-                fileobjectId: fileobjectId
-              }))
-        
-            return true
-        } catch (error) {
-          console.error(`Error when adding fileobject and file for ${fileName} file asset: ${error.message}`)
-          return false
-        }        
-      })
-
-      console.log(`Added ${filesSuccesses.length} files in folder ${folderId}`)
-      return true
-    })
-
-    console.log(`Added ${foldersSuccesses.length} folders in pam ${pamId}`)
-    return true
   })
-
+  
   console.log(`Added ${pamSuccesses.length} pams`)
   await knex.destroy()
   await app.close()
