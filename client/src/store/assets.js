@@ -22,32 +22,8 @@ const mutations = {
 
 const actions = {
   ...make.actions(state),
-  async fetchProjectAssets ({ commit }, projectId) {
-    const result = await apolloClient.query({
-      query: gql`
-        query getProjectFiles($projectId: Int!) {
-          assets(id: {_eq: $projectId}) {
-            files {
-              name
-              fileFormatId
-              uploadedDatetime
-              fileobject {
-                size
-              }
-            }
-          }
-        }
-      `,
-      variables: {
-        projectId: projectId
-      }
-    })
-
-    // commit('setData', result.data.assets[0].files)
-    return _.get(result, 'data.assets[0].files', [])
-  },
   // the createdById field is set from the session variable X-Hasura-User-Id
-  // That is required in the client side
+  // That is not required in the client side
   async insertAsset (_, { name, assetType, privacyType, parentId }) {
     const result = await apolloClient.mutate({
       mutation: gql`

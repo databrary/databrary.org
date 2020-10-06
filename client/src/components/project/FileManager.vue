@@ -11,6 +11,7 @@
           <div class="q-pa-md">
             <Tree
               :nodes="nodes"
+              :icons="icons"
               :selectedNode.sync="selectedFolder"
               @selected="onSelectedFolder"
               @moveFile="onMoveFile"
@@ -60,7 +61,9 @@
 
 <script>
 import { uid, date, format } from 'quasar'
-import { mapActions } from 'vuex'
+import { gql } from '@apollo/client'
+
+import _ from 'lodash'
 
 import FileUploader from '../upload/FileUploader'
 import AddNewVolume from './modals/AddNewVolume'
@@ -138,7 +141,7 @@ export default {
     Toolbar
   },
   props: {
-    assetId: Number,
+    assetId: { type: Number, default: () => this.$route.params.projectId },
     icons: { type: Object, default: () => defaultIcons },
     columns: { type: Array, default: () => defaultColumns }
   },
@@ -174,16 +177,12 @@ export default {
         this.clearContents()
         this.contents.push(...this.getFolderContents(this.selectedFolder))
       }
-    }
+    },
+    '$route': 'fetchData'
   },
   methods: {
-    ...mapActions('assets', ['fetchProjectAssets']),
     async init () {
-      const filesData = await this.fetchProjectAssets(this.assetId || this.$route.params.projectId)
-      const files = filesData.map(
-        ({ name, fileFormatId: format, fileobject: { size }, uploadedDatetime }) =>
-          ({ id: uid(), name, size, format, uploadedDatetime, isDir: false })
-      )
+      const assets = await this.fetchData()
 
       const rootFolder = {
         id: uid(),
@@ -195,59 +194,87 @@ export default {
         children: []
       }
 
-      // TODO: (Reda) Move this to createNode
-      rootFolder.children.push(
-        {
-          id: uid(),
-          name: 'Data',
-          isDir: true,
-          icon: this.icons['folder'],
-          lazy: true,
-          size: files.length,
-          children: [...files]
-        }
-      )
-      rootFolder.children.push(
-        {
-          id: uid(),
-          name: 'Fake Volume',
-          isDir: true,
-          icon: this.icons['folder'],
-          lazy: true,
-          size: 2,
-          children: [
-            {
-              id: uid(),
-              name: 'Fake Picture.png',
-              size: 13245,
-              format: 'png',
-              isDir: false,
-              uploadedDatetime: new Date()
-            },
-            {
-              id: uid(),
-              name: 'Fake Nested Volume',
-              isDir: true,
-              icon: 'mdi-folder',
-              format: 'folder',
-              size: 0,
-              children: [
-                {
-                  id: uid(),
-                  name: 'Fake Nested Volume 2',
-                  isDir: true,
-                  icon: this.icons['folder'],
-                  lazy: true,
-                  size: 2
-                }
-              ]
+      if (_.isEmpty(assets)) {
+        this.data = rootFolder
+        return
+      }
+
+      const children = assets.map((asset) => {
+        const children = _.get(asset, 'childAssets', [])
+          .map((child) => {
+            const childObj = {
+              id: child.id.toString(),
+              name: child.name,
+              isDir: child.assetType === 'folder',
+              lazy: true,
+              size: _.get(child, 'childAssets', []).length,
+              children: []
             }
-          ]
-        }
-      )
+            const children = _.get(child, 'childAssets', [])
+              .map((child) => {
+                return {
+                  id: child.id.toString(),
+                  name: child.name,
+                  size: _.get(child, 'file.fileobject.size', 0),
+                  format: _.get(child, 'file.fileFormatId', 'mp4'),
+                  isDir: child.assetType === 'folder',
+                  uploadedDatetime: child.datetimeCreated
+                }
+              })
+            childObj.children = children
+            return childObj
+          })
+        return children
+      })
+
+      rootFolder.children = children[0]
       this.data = [rootFolder]
       this.setSelectedFolder(rootFolder.id)
       this.nodes.push(...this.getFolders(this.selectedFolder))
+    },
+    async fetchData () {
+      const result = await this.$apollo.query({
+        query: gql`
+          query GetAssets($assetId: Int!) {
+            assets(where: {id: {_eq: $assetId}, assetType: {_in: [pam,project]}}) {
+              id
+              name
+              assetType
+              datetimeCreated
+              parentId
+              childAssets {
+                id
+                name
+                assetType        
+                datetimeCreated
+                parentId
+                childAssets {
+                  id
+                  name
+                  assetType
+                  datetimeCreated
+                  parentId
+                  file {
+                    id
+                    name
+                    fileFormatId
+                    uploadedDatetime
+                    fileobject {
+                      size
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `,
+        variables: {
+          assetId: this.assetId
+        }
+      })
+
+      // commit('setData', result.data.assets[0].files)
+      return _.get(result, 'data.assets', [])
     },
     clearContents () {
       this.contents.splice(0, this.contents.length)
@@ -340,11 +367,16 @@ export default {
     },
 
     findItem (itemId) {
+      if (!itemId) return null
+
       let stack = []
       stack.push(this.data[0]) // We push the root
       while (stack.length > 0) {
         let node = stack.pop()
-        if (node.id === itemId) {
+
+        if (node == null) continue
+
+        if (node.id.toString() === itemId) {
           return node
         } else if (node.children && node.children.length) {
           for (let i = 0; i < node.children.length; i++) {

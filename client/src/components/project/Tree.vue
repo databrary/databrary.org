@@ -12,7 +12,7 @@
                 @drop="onDrop($event, prop.node.id)"
                 @dragover.prevent
             >
-                <q-icon :name="prop.node.icon" />
+                <q-icon :name="prop.node.isDir ? icons['folder'] : icons['other']" />
                 <div>{{ prop.node.name }}</div>
             </div>
         </template>
@@ -34,6 +34,9 @@ export default {
     lazyLoad: {
       type: Function,
       required: true
+    },
+    icons: {
+      type: Object
     }
   },
   data () {

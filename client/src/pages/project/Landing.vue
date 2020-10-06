@@ -210,6 +210,8 @@
 import { date } from 'quasar'
 import { gql } from '@apollo/client'
 
+import _ from 'lodash'
+
 import CitationBuilder from '../../components/CitationBuilder'
 import FileManager from '../../components/project/FileManager'
 
@@ -258,6 +260,16 @@ export default {
         this.editmodeLabel = 'Save'
       }
     },
+    asset: {
+      deep: true,
+      handler () {
+        console.log('Date time created', this.asset.datetimeCreated)
+        this.datetimeCreated = date.formatDate(
+          this.asset.datetimeCreated,
+          'YYYY-MM-DD'
+        )
+      }
+    },
     '$route': 'fetchData'
   },
   // TODO(Reda): Fetch project summary
@@ -265,6 +277,7 @@ export default {
     // this.generateCitation('http://doi.org/10.17910/B77P4V')
     this.projectIdFromRoute = this.$route.params.projectId
     this.fetchData()
+    // TODO: (Reda) push to 404 page if cannot fetch asset for the projectID
   },
   methods: {
     async fetchData () {
@@ -286,11 +299,7 @@ export default {
           projectId: this.projectIdFromRoute
         }
       })
-      this.asset = result.data.assets[0]
-      this.datetimeCreated = date.formatDate(
-        this.asset.datetime_created,
-        'YYYY-MM-DD'
-      )
+      this.asset = _.get(result, 'data.assets[0]', {})
     },
     toggleEditmode () {
       this.editMode = !this.editMode

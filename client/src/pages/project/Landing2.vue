@@ -1,5 +1,11 @@
 <template>
-  <div>
+  <div v-if="!asset" >
+    <q-spinner
+      class="absolute-center"
+      size="4em"
+    />
+  </div>
+  <div v-else>
     <Dashboard
       v-if="asset.assetType === 'pam'"
     />
@@ -23,15 +29,13 @@ export default {
     Landing
   },
   data: () => ({
-    projectIdFromRoute: null,
     asset: null
   }),
   watch: {
     '$route': 'fetchData'
   },
   async created () {
-    this.projectIdFromRoute = this.$route.params.projectId
-    this.fetchData()
+    await this.fetchData()
   },
   methods: {
     async fetchData () {
@@ -50,7 +54,7 @@ export default {
           }
         `,
         variables: {
-          projectId: this.projectIdFromRoute
+          projectId: this.$route.params.projectId
         }
       })
       this.asset = result.data.assets[0]
