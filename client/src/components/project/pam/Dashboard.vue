@@ -4,6 +4,7 @@
       <q-toolbar-title>
         {{ asset.name }}
       </q-toolbar-title>
+      <!-- TODO: (Reda) This btn is used in multiple places, need to be refactored as component -->
       <q-btn
         :to="asset.id + '/contributors'"
         flat
@@ -25,14 +26,14 @@
         </template>
         <template v-slot:after>
           <ProjectViewer
-            :projectId = "selectedProjectView"
+            :projectId="selectedProjectView"
             v-if="selectedProjectView && !createView"
           />
           <CreateView
             v-else-if="createView"
           />
           <FileManager
-            :assetId = "asset.id"
+            :assetId="asset.id"
             v-else
           />
         </template>
@@ -46,6 +47,8 @@
 import { date } from 'quasar'
 import { gql } from '@apollo/client'
 import { sync } from 'vuex-pathify'
+
+import _ from 'lodash'
 
 import Panel1 from './Panel1.vue'
 // import Panel2 from './Panel2.vue'
@@ -116,8 +119,8 @@ export default {
           projectId: this.pamId
         }
       })
-      this.asset = result.data.pam[0]
-      this.views = result.data.views
+      this.asset = _.get(result, 'data.pam[0]', {})
+      this.views = _.get(result, 'data.views', [])
       this.datetimeCreated = date.formatDate(
         this.asset.datetimeCreated,
         'YYYY-MM-DD'

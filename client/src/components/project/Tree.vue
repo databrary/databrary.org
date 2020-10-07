@@ -1,22 +1,53 @@
 <template>
-    <q-tree
-        :nodes="nodes"
-        node-key="id"
-        selected-color="primary"
-        :selected.sync="selected"
-        @lazy-load="lazyLoad"
+  <div class="row">
+    <!-- <q-input
+      class="col-12"
+      ref="filter"
+      dense
+      outlined
+      v-model="filter"
+      label="Filter"
     >
+      <template v-slot:append>
+        <q-icon
+          v-if="filter !== ''"
+          name="clear"
+          class="cursor-pointer"
+          @click="resetFilter"
+        />
+        <q-icon name="search" />
+      </template>
+    </q-input> -->
+    <div v-if="loading">
+      <q-spinner-facebook
+        class="absolute-center"
+        color="primary"
+        size="4em"
+      />
+    </div>
+    <div v-else>
+      <q-tree
+          class="col-12"
+          :nodes="nodes"
+          node-key="id"
+          selected-color="primary"
+          :filter="filter"
+          :selected.sync="selected"
+          @lazy-load="lazyLoad"
+      >
         <template v-slot:default-header="prop">
             <div
-                class="row items-center"
-                @drop="onDrop($event, prop.node.id)"
-                @dragover.prevent
+              class="row items-center"
+              @drop="onDrop($event, prop.node.id)"
+              @dragover.prevent
             >
-                <q-icon :name="prop.node.isDir ? icons['folder'] : icons['other']" />
-                <div>{{ prop.node.name }}</div>
+              <q-icon :name="prop.node.isDir ? icons['folder'] : icons['other']" />
+              <div class="col-10">{{ prop.node.name }}</div>
             </div>
         </template>
-    </q-tree>
+      </q-tree>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -36,12 +67,18 @@ export default {
       required: true
     },
     icons: {
-      type: Object
+      type: Object,
+      required: true
+    },
+    loading: {
+      type: Boolean,
+      required: true
     }
   },
   data () {
     return {
-      selected: ''
+      selected: '',
+      filter: ''
     }
   },
   mounted () {
@@ -52,7 +89,6 @@ export default {
     selectedNode () {
       this.selected = this.selectedNode
     },
-
     selected () {
       this.$emit('selected', this.selected)
     }
@@ -72,6 +108,10 @@ export default {
     },
     moveFile (childId, nodeId, newNodeId) {
       this.$emit('moveFile', childId, nodeId, newNodeId)
+    },
+    resetFilter () {
+      this.filter = ''
+      this.$refs.filter.focus()
     }
   }
 }

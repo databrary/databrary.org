@@ -1,9 +1,8 @@
 <template>
-    <div v-if="!children">
-      <q-spinner-dots
+    <div v-if="loading">
+      <q-spinner-facebook
         class="absolute-center"
         color="primary"
-        size="4em"
       />
     </div>
     <div v-else class="contentsWrapper">
@@ -53,7 +52,7 @@
               <q-card-section class="text-center" >
                 <q-icon
                   size="xl"
-                  :name="node.isDir ? icons['folder'] : icons[node.format.toLowerCase()] || icons['other']"
+                  :name="node.isDir ? icons['folder'] : icons[node.format.toLowerCase()]"
                 />
               </q-card-section>
               <q-card-section >
@@ -85,7 +84,28 @@
 <script>
 export default {
   name: 'Grid',
-  props: ['children', 'icons', 'selectedNode', 'columns'],
+  props: {
+    children: {
+      type: Array,
+      required: true
+    },
+    icons: {
+      type: Object,
+      required: true
+    },
+    selectedNode: {
+      type: String,
+      required: false
+    },
+    columns: {
+      type: Array,
+      required: true
+    },
+    loading: {
+      type: Boolean,
+      required: true
+    }
+  },
   data () {
     return {
       selectedChildren: [],

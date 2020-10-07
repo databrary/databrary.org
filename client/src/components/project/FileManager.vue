@@ -12,6 +12,7 @@
             <Tree
               :nodes="nodes"
               :icons="icons"
+              :loading.sync="loadingNodes"
               :selectedNode.sync="selectedFolder"
               @selected="onSelectedFolder"
               @moveFile="onMoveFile"
@@ -26,6 +27,7 @@
               :icons="icons"
               :columns="columns"
               :selectedNode.sync="selectedFolder"
+              :loading.sync="loadingContents"
               @selected="onSelectedFolder"
               @moveFile="onMoveFile"
               @selectedFiles="onSelectedFiles"
@@ -150,6 +152,8 @@ export default {
       data: [], // Database data
       nodes: [], // Tree nodes
       contents: [], // Contents of a selected node
+      loadingNodes: true,
+      loadingContents: true,
       selectedFolder: null,
       selectedFiles: [],
       volumesDialog: false,
@@ -169,6 +173,7 @@ export default {
 
       this.clearContents()
       this.contents.push(...this.getFolderContents(newFolderId))
+      this.loadingContents = false
     },
     data: {
       deep: true,
@@ -176,6 +181,7 @@ export default {
       handler () {
         this.clearContents()
         this.contents.push(...this.getFolderContents(this.selectedFolder))
+        this.loadingContents = false
       }
     },
     '$route': 'fetchData'
@@ -188,7 +194,6 @@ export default {
         id: uid(),
         isDir: true,
         name: 'Root',
-        icon: this.icons['folder'],
         expandable: true,
         lazy: true,
         children: []
@@ -199,40 +204,44 @@ export default {
         return
       }
 
-      const children = assets.map((asset) => {
-        const children = _.get(asset, 'childAssets', [])
-          .map((child) => {
-            const childObj = {
-              id: child.id.toString(),
-              name: child.name,
-              isDir: child.assetType === 'folder',
+      const folders = assets.map((asset) => {
+        const folders = _.get(asset, 'childAssets', [])
+          .map((folder) => {
+            const folderObj = {
+              id: folder.id.toString(),
+              name: folder.name,
+              isDir: folder.assetType === 'folder',
               lazy: true,
-              size: _.get(child, 'childAssets', []).length,
+              size: _.get(folder, 'childAssets', []).length,
               children: []
             }
-            const children = _.get(child, 'childAssets', [])
-              .map((child) => {
+            if (folder.assetType !== 'folder') console.log('Folders ', folderObj)
+            const files = _.get(folder, 'childAssets', [])
+              .map((file) => {
                 return {
-                  id: child.id.toString(),
-                  name: child.name,
-                  size: _.get(child, 'file.fileobject.size', 0),
-                  format: _.get(child, 'file.fileFormatId', 'mp4'),
-                  isDir: child.assetType === 'folder',
-                  uploadedDatetime: child.datetimeCreated
+                  id: file.id.toString(),
+                  name: file.name,
+                  size: _.get(file, 'file.fileobject.size', 0),
+                  format: _.get(file, 'file.fileFormatId', 'mp4'),
+                  isDir: file.assetType === 'folder',
+                  uploadedDatetime: file.datetimeCreated
                 }
               })
-            childObj.children = children
-            return childObj
+            folderObj.children = files
+            return folderObj
           })
-        return children
+        return folders
       })
 
-      rootFolder.children = children[0]
+      rootFolder.children = folders[0]
       this.data = [rootFolder]
       this.setSelectedFolder(rootFolder.id)
       this.nodes.push(...this.getFolders(this.selectedFolder))
+      this.loadingNodes = false
     },
     async fetchData () {
+      // Fetch Data will fetch pam's childAsset that could contains projects
+      // The FileManager can only display folder so look only for folders
       const result = await this.$apollo.query({
         query: gql`
           query GetAssets($assetId: Int!) {
@@ -242,7 +251,7 @@ export default {
               assetType
               datetimeCreated
               parentId
-              childAssets {
+              childAssets(where: {assetType: {_eq: folder}}) {
                 id
                 name
                 assetType        
