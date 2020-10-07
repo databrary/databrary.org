@@ -2,6 +2,7 @@
   <div v-if="!asset" >
     <q-spinner
       class="absolute-center"
+      color="primary"
       size="4em"
     />
   </div>

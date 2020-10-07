@@ -58,7 +58,7 @@ import CreateView from './CreateView.vue'
 import FileManager from '@/components/project/FileManager.vue'
 
 export default {
-  name: 'PageIndex',
+  name: 'Dashboard',
   components: {
     Panel1,
     // Panel2,

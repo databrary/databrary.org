@@ -41,6 +41,7 @@
       - assetType
       - name
       - parentId
+      - permissionsetId
       - privacyType
   select_permissions:
   - role: user
@@ -66,6 +67,28 @@
                     groups_users:
                       userId:
                         _eq: X-Hasura-User-Id
+  update_permissions:
+  - role: user
+    permission:
+      columns:
+      - assetType
+      - name
+      - parentId
+      - permissionsetId
+      - privacyType
+      filter:
+        _or:
+        - privacyType:
+            _eq: public
+        - permissionset:
+            permissions:
+              permissionset:
+                permissions:
+                  group:
+                    groups_users:
+                      userId:
+                        _eq: X-Hasura-User-Id
+      check: null
 - table:
     schema: public
     name: fileformats

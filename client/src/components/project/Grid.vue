@@ -52,7 +52,7 @@
               <q-card-section class="text-center" >
                 <q-icon
                   size="xl"
-                  :name="node.isDir ? icons['folder'] : icons[node.format.toLowerCase()]"
+                  :name="node.isDir ? icons['folder'] : icons[node.format.toLowerCase()] || icons['other']"
                 />
               </q-card-section>
               <q-card-section >

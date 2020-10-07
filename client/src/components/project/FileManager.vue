@@ -91,7 +91,7 @@ const defaultIcons = {
   txt: 'mdi-file-document-outline',
   xls: 'mdi-file-excel',
   csv: 'mdi-file-delimited-outline',
-  other: 'mdi-file-outline'
+  other: 'mdi-file'
 }
 
 const defaultColumns = [
@@ -282,15 +282,52 @@ export default {
         }
       })
 
-      // commit('setData', result.data.assets[0].files)
       return _.get(result, 'data.assets', [])
     },
     clearContents () {
       this.contents.splice(0, this.contents.length)
     },
-    moveFile (fileId, folderId, newFolderId) {
-      const file = this.removeFile(folderId, fileId)
-      this.addFile(newFolderId, file)
+    async moveFile (fileId, folderId, newFolderId) {
+      try {
+        this.loadingContents = true
+        const result = this.$apollo.mutate({
+          mutation: gql`
+            mutation ChangeParentId($assetId: Int!, $parentId: Int!) {
+              update_assets(
+                where: { id: {_eq: $assetId}}, 
+                _set: {parentId: $parentId}) 
+              {
+                returning {
+                  id
+                  parentId
+                }
+              }
+            }
+          `,
+          variables: {
+            assetId: fileId,
+            parentId: newFolderId
+          }
+        })
+        const file = this.removeFile(folderId, fileId)
+        this.addFile(newFolderId, file)
+        this.$q.notify({
+          color: 'green-4',
+          textColor: 'white',
+          icon: 'cloud_done',
+          message: 'Submitted'
+        })
+      } catch (error) {
+        console.error('moveFile::', error.message)
+        this.$q.notify({
+          color: 'red-4',
+          textColor: 'white',
+          icon: 'cloud_done',
+          message: 'Failed'
+        })
+      } finally {
+        this.loadingContents = false
+      }
     },
 
     removeFile (folderId, fileId) {
@@ -331,14 +368,11 @@ export default {
       return false
     },
 
-    createNode (fileInfo) {
-      // This will add a node to the tree
-    },
-
     // Getters
     getFiles (folderId) {
       return this.findItem(folderId).children
     },
+
     getFolderContents (folderId) {
       // Get the folder contents
       if (!folderId || typeof folderId !== 'string') return []
@@ -355,6 +389,7 @@ export default {
 
       return contents
     },
+
     getFolders (folderId) {
       if (!folderId || typeof folderId !== 'string') return []
 
@@ -412,8 +447,8 @@ export default {
         fail()
       }
     },
-    onMoveFile (fileId, folderId, newFolderId) {
-      this.moveFile(fileId, folderId, newFolderId)
+    async onMoveFile (fileId, folderId, newFolderId) {
+      await this.moveFile(fileId, folderId, newFolderId)
     },
     onSelectedFolder (folderId) {
       this.setSelectedFolder(folderId)
