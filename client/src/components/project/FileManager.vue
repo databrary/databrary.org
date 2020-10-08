@@ -6,9 +6,9 @@
         @showVolumeDialog="onShowVolumeDialog"
         @showFileUploadDialog="onShowFileUploadDialog"
       />
-      <q-splitter v-model="splitterModel" style="height: 400px" after-class="no-scroll">
+      <q-splitter v-model="splitterModel" before-class="window-height" after-class="no-scroll window-height">
         <template v-slot:before>
-          <div class="q-pa-md">
+          <div class="q-pa-md tree-container">
             <Tree
               :nodes="nodes"
               :icons="icons"
@@ -21,7 +21,7 @@
           </div>
         </template>
         <template v-slot:after>
-          <div class="q-px-sm contentsContainer">
+          <div class="q-px-sm contents-container">
             <Grid
               :children.sync="contents"
               :icons="icons"
@@ -474,7 +474,16 @@ export default {
 }
 </script>
 <style scoped>
-.contentsContainer {
+.contents-container {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+.tree-container {
   position: relative;
   top: 0;
   left: 0;

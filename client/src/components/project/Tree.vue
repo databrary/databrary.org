@@ -1,5 +1,5 @@
 <template>
-  <div class="row">
+  <div class="row tree-wrapper">
     <!-- <q-input
       class="col-12"
       ref="filter"
@@ -116,3 +116,11 @@ export default {
   }
 }
 </script>
+<style scoped>
+.tree-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+</style>

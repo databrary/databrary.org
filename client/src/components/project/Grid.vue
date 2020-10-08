@@ -5,7 +5,7 @@
         color="primary"
       />
     </div>
-    <div v-else class="contentsWrapper">
+    <div v-else class="contents-wrapper">
       <q-toolbar class="bg-white text-dark q-pa-sm">
         <q-toolbar-title class="text-bold"></q-toolbar-title>
 
@@ -40,7 +40,7 @@
       </q-toolbar>
       <div v-show="viewSelected === 'grid'" class="row justify-left">
         <div v-for="node in children" :key="node.id">
-          <div class="itemContainer" :style="itemContainerStyleObject">
+          <div class="item-container" :style="itemContainerStyleObject">
             <q-card
               flat
               :draggable="!node.isDir"
@@ -56,13 +56,13 @@
                 />
               </q-card-section>
               <q-card-section >
-                <div class="itemText" >{{ node.name }}</div>
+                <div class="item-text" >{{ node.name }}</div>
               </q-card-section>
             </q-card>
           </div>
         </div>
       </div>
-      <div v-show="viewSelected === 'list'">
+      <div class="col-12" v-show="viewSelected === 'list'">
         <q-table
           id="content"
           flat
@@ -70,7 +70,7 @@
           :columns="columns"
           row-key="id"
           selection="multiple"
-          style="height: 350px"
+          :style="tableStyleObj"
           virtual-scroll
           :pagination.sync="pagination"
           :rows-per-page-options="[0]"
@@ -121,10 +121,12 @@ export default {
         rowsPerPage: 0
       },
       width: 175,
+      height: 350,
       fontSize: 12
     }
   },
   mounted () {
+    this.height = this.$parent.$el.offsetHeight - 50
     this.selected = this.selectedNode
   },
   watch: {
@@ -139,6 +141,11 @@ export default {
     }
   },
   computed: {
+    tableStyleObj () {
+      return {
+        height: this.height + 'px'
+      }
+    },
     itemContainerStyleObject () {
       if (this.children.id === this.selected) {
         // current node is selected
@@ -194,32 +201,32 @@ export default {
 }
 </script>
 <style scoped>
-.contentsWrapper {
+.contents-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
 }
 
-.itemContainer {
+.item-container {
   margin: 5px;
   height: auto;
   word-wrap: break-word;
   border-radius: 4px;
   transition: 'all 0.5s ease-in-out';
 }
-.itemContainer:hover {
+.item-container:hover {
   background-color: rgba(0, 0, 0, .05);
   box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
   transition: 'all 0.5s ease-in-out';
   cursor: pointer
 }
-.itemText {
+.item-text {
   text-align: center;
   word-wrap: break-word;
 }
 #content .q-table-container {
+  position: relative;
   border-radius: 0 !important;
   box-shadow: inherit !important;
-  position: relative;
 }
 </style>
