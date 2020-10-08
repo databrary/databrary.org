@@ -37,12 +37,12 @@
       >
         <template v-slot:default-header="prop">
             <div
-              class="row items-center"
+              class="row inline items-center"
               @drop="onDrop($event, prop.node.id)"
               @dragover.prevent
             >
               <q-icon :name="prop.node.isDir ? icons['folder'] : icons['other']" />
-              <div class="col-10">{{ prop.node.name }}</div>
+              <span class="q-ml-sm node-text">{{ prop.node.name }}</span>
             </div>
         </template>
       </q-tree>
@@ -102,12 +102,12 @@ export default {
       // don't drop on other draggables
       if (e.target.draggable === true) return
 
-      const childId = e.dataTransfer.getData('childId')
+      const children = e.dataTransfer.getData('children').split(',')
 
-      this.moveFile(childId, nodeId, newNodeId)
+      this.moveFile(children, nodeId, newNodeId)
     },
-    moveFile (childId, nodeId, newNodeId) {
-      this.$emit('moveFile', childId, nodeId, newNodeId)
+    moveFile (children, nodeId, newNodeId) {
+      this.$emit('moveFile', children, nodeId, newNodeId)
     },
     resetFilter () {
       this.filter = ''
@@ -122,5 +122,10 @@ export default {
   width: 100%;
   height: 100%;
 }
-
+.node-text {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+}
 </style>

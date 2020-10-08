@@ -38,33 +38,9 @@
           </template>
         </q-btn-toggle>
       </q-toolbar>
-      <div v-show="viewSelected === 'grid'" class="row justify-left">
-        <div v-for="node in children" :key="node.id">
-          <div class="item-container" :style="itemContainerStyleObject">
-            <q-card
-              flat
-              :draggable="!node.isDir"
-              @dragstart="!node.isDir ? onDragStart($event, selected, node.id) :  null"
-              @drop="node.isDir ? onDrop($event, node.id) : null"
-              @dragover.prevent
-              @dblclick.prevent="node.isDir ? onDblClick($event, node.id, node.isDir) : null"
-            >
-              <q-card-section class="text-center" >
-                <q-icon
-                  size="xl"
-                  :name="node.isDir ? icons['folder'] : icons[node.format.toLowerCase()] || icons['other']"
-                />
-              </q-card-section>
-              <q-card-section >
-                <div class="item-text" >{{ node.name }}</div>
-              </q-card-section>
-            </q-card>
-          </div>
-        </div>
-      </div>
-      <div class="col-12" v-show="viewSelected === 'list'">
+      <div class="col-12">
         <q-table
-          id="content"
+          :grid="viewSelected === 'grid'"
           flat
           :data="children"
           :columns="columns"
@@ -76,6 +52,51 @@
           :rows-per-page-options="[0]"
           :selected.sync="selectedChildren"
         >
+          <template v-slot:body-cell-name="props">
+            <q-td>
+              <div
+                :class="!props.row.isDir ? 'items-center cursor-pointer' : 'items-center'"
+                :draggable="!props.row.isDir"
+                @dragstart="!props.row.isDir ? onDragStart($event, props.row.id) :  null"
+                @drop="props.row.isDir ? onDrop($event, props.row.id) : null"
+                @dragover.prevent
+                @dblclick.prevent="props.row.isDir ? onDblClick($event, props.row.id, props.row.isDir) : null"
+              >
+                <q-icon
+                  class="col-2"
+                  size="sm"
+                  :name="props.row.isDir ? icons['folder'] : icons[props.row.format.toLowerCase()] || icons['other']"
+                />
+                <span class="col-10 q-ml-sm text-center">{{props.row.name}}</span>
+              </div>
+            </q-td>
+          </template>
+          <template v-slot:item="props">
+            <q-card
+              flat
+              :class="props.selected
+                ? 'bg-grey-2 q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition justify-between content-start'
+                : 'q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition justify-between content-start'"
+              :draggable="!props.row.isDir"
+              @dragstart="!props.row.isDir ? onDragStart($event, props.row.id) :  null"
+              @drop="props.row.isDir ? onDrop($event, props.row.id) : null"
+              @dragover.prevent
+              @dblclick.prevent="props.row.isDir ? onDblClick($event, props.row.id, props.row.isDir) : null"
+            >
+              <q-card-section class="row">
+                <q-checkbox dense v-model="props.selected" />
+              </q-card-section>
+              <q-card-section class="row justify-center" >
+                <q-icon
+                  size="xl"
+                  :name="props.row.isDir ? icons['folder'] : icons[props.row.format.toLowerCase()] || icons['other']"
+                />
+              </q-card-section>
+              <q-card-section class="row justify-center">
+                <div class="text-center" >{{ props.row.name }}</div>
+              </q-card-section>
+            </q-card>
+          </template>
         </q-table>
       </div>
     </div>
@@ -145,37 +166,19 @@ export default {
       return {
         height: this.height + 'px'
       }
-    },
-    itemContainerStyleObject () {
-      if (this.children.id === this.selected) {
-        // current node is selected
-        return {
-          width: this.width + 'px'
-        }
-      } else {
-        return {
-          width: this.width + 'px'
-        }
-      }
-    },
-    itemTextStyleObject () {
-      return {
-        fontSize: this.fontSize + 'px'
-      }
-    },
-    itemImageStyleObject () {
-      return {
-        width: this.width + 'px',
-        height: this.width + 'px'
-      }
     }
   },
   methods: {
-    onDragStart (e, nodeId, childId) {
+    onDragStart (e, childId) {
       e.dataTransfer.dropEffect = 'move'
       e.dataTransfer.effectAllowed = 'move'
-      e.dataTransfer.setData('childId', childId)
-      e.dataTransfer.setData('nodeId', nodeId)
+      // We move all selected files, if not, only the draged one
+      let children = [childId]
+
+      if (this.selectedChildren.length > 0) children = this.selectedChildren.map((child) => child.id)
+
+      e.dataTransfer.setData('children', children)
+      e.dataTransfer.setData('nodeId', this.selected)
     },
     onDrop (e, newNodeId) {
       const nodeId = e.dataTransfer.getData('nodeId')
@@ -185,9 +188,11 @@ export default {
       // don't drop on other draggables
       if (e.target.draggable === true) return
 
-      const fileId = e.dataTransfer.getData('childId')
+      const children = e.dataTransfer.getData('children').split(',')
 
-      this.moveFile(fileId, nodeId, newNodeId)
+      children.every((childId) => {
+        this.moveFile(childId, nodeId, newNodeId)
+      })
     },
     moveFile (fileId, nodeId, newNodeId) {
       this.$emit('moveFile', fileId, nodeId, newNodeId)
@@ -205,28 +210,5 @@ export default {
   position: relative;
   width: 100%;
   height: 100%;
-}
-
-.item-container {
-  margin: 5px;
-  height: auto;
-  word-wrap: break-word;
-  border-radius: 4px;
-  transition: 'all 0.5s ease-in-out';
-}
-.item-container:hover {
-  background-color: rgba(0, 0, 0, .05);
-  box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
-  transition: 'all 0.5s ease-in-out';
-  cursor: pointer
-}
-.item-text {
-  text-align: center;
-  word-wrap: break-word;
-}
-#content .q-table-container {
-  position: relative;
-  border-radius: 0 !important;
-  box-shadow: inherit !important;
 }
 </style>

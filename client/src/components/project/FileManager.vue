@@ -287,14 +287,14 @@ export default {
     clearContents () {
       this.contents.splice(0, this.contents.length)
     },
-    async moveFile (fileId, folderId, newFolderId) {
+    async moveFile (filesArray, folderId, newFolderId) {
       try {
         this.loadingContents = true
         const result = this.$apollo.mutate({
           mutation: gql`
-            mutation ChangeParentId($assetId: Int!, $parentId: Int!) {
+            mutation ChangeParentId($assets: [Int!]!, $parentId: Int!) {
               update_assets(
-                where: { id: {_eq: $assetId}}, 
+                where: { id: {_in: $assets}}, 
                 _set: {parentId: $parentId}) 
               {
                 returning {
@@ -305,17 +305,20 @@ export default {
             }
           `,
           variables: {
-            assetId: fileId,
+            assets: filesArray,
             parentId: newFolderId
           }
         })
-        const file = this.removeFile(folderId, fileId)
-        this.addFile(newFolderId, file)
-        this.$q.notify({
-          color: 'green-4',
-          textColor: 'white',
-          icon: 'cloud_done',
-          message: 'Submitted'
+
+        filesArray.every((fileId) => {
+          const files = this.removeFile(folderId, fileId)
+          this.addFile(newFolderId, files)
+          this.$q.notify({
+            color: 'green-4',
+            textColor: 'white',
+            icon: 'cloud_done',
+            message: 'Submitted'
+          })
         })
       } catch (error) {
         console.error('moveFile::', error.message)
@@ -447,8 +450,8 @@ export default {
         fail()
       }
     },
-    async onMoveFile (fileId, folderId, newFolderId) {
-      await this.moveFile(fileId, folderId, newFolderId)
+    async onMoveFile (files, folderId, newFolderId) {
+      await this.moveFile(files, folderId, newFolderId)
     },
     onSelectedFolder (folderId) {
       this.setSelectedFolder(folderId)

@@ -28,7 +28,7 @@
         flat
         icon="folder"
         color="primary"
-        label="Create Virtual Volume"
+        label="Create Folder"
         @click="showVolumeDialog"
       >
         <q-tooltip>Create a new volume from selected data</q-tooltip>
