@@ -319,6 +319,7 @@ export default {
             icon: 'cloud_done',
             message: 'Submitted'
           })
+          return true
         })
       } catch (error) {
         console.error('moveFile::', error.message)
