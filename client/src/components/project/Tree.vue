@@ -27,23 +27,23 @@
     </div>
     <div v-else>
       <q-tree
-          class="col-12"
-          :nodes="nodes"
-          node-key="id"
-          selected-color="primary"
-          :filter="filter"
-          :selected.sync="selected"
-          @lazy-load="lazyLoad"
+        class="col-12"
+        :nodes="nodes"
+        node-key="id"
+        selected-color="primary"
+        :filter="filter"
+        :selected.sync="selected"
+        @lazy-load="lazyLoad"
       >
         <template v-slot:default-header="prop">
-            <div
-              class="row inline items-center"
-              @drop="onDrop($event, prop.node.id)"
-              @dragover.prevent
-            >
-              <q-icon :name="prop.node.isDir ? icons['folder'] : icons['other']" />
-              <span class="q-ml-sm node-text">{{ prop.node.name }}</span>
-            </div>
+          <div
+            class="row inline items-center"
+            @drop="onDrop($event, prop.node.id)"
+            @dragover.prevent
+          >
+            <q-icon :name="prop.node.isDir ? icons['folder'] : icons['other']" />
+            <span class="q-ml-sm node-text">{{ prop.node.name }}</span>
+          </div>
         </template>
       </q-tree>
     </div>
@@ -64,7 +64,8 @@ export default {
     },
     lazyLoad: {
       type: Function,
-      required: true
+      required: true,
+      default: () => null
     },
     icons: {
       type: Object,
@@ -72,7 +73,8 @@ export default {
     },
     loading: {
       type: Boolean,
-      required: true
+      required: true,
+      default: () => false
     }
   },
   data () {

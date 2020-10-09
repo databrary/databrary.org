@@ -10,7 +10,7 @@
 
         <q-card-section>
         <div class="row">
-            <div class="col-sm-5 col-md-5 col-lg-5 col-xl-5">
+          <div class="col-sm-5 col-md-5 col-lg-5 col-xl-5">
             <h6 class="no-margin">Shared Data</h6>
             <q-input
                 ref="filter"
@@ -29,16 +29,16 @@
                 </template>
             </q-input>
             <q-tree
-              :nodes="data"
-              node-key="label"
+              :nodes="nodes"
+              node-key="name"
               tick-strategy="leaf"
               :ticked.sync="ticked"
               :filter="filter"
             />
-            </div>
-            <div
+          </div>
+          <div
             class="col-sm-2 col-md-2 col-lg-2 col-xl-2 self-center text-center q-px-sm"
-            >
+           >
             <q-icon size="24px" name="arrow_forward" />
             <div>Select files on the left to create a new volume</div>
             <q-icon size="24px" name="arrow_forward" />
@@ -47,11 +47,11 @@
             <h6 class="no-margin">New Volume</h6>
             <q-input v-model="newVolumeName" dense />
             <q-tree
-                :nodes="newVolumeChildren"
-                node-key="label"
-                default-expand-all
+              :nodes="newVolumeChildren"
+              node-key="label"
+              default-expand-all
             />
-            </div>
+          </div>
         </div>
         <div class="row justify-end">
             <q-btn
@@ -71,8 +71,13 @@
 </template>
 
 <script>
+// import Tree from '../Tree'
+
 export default {
-  props: ['data', 'volumesDialog'],
+  props: ['nodes', 'icons', 'volumesDialog', 'lazyLoad'],
+  // components: {
+  //   Tree
+  // },
   data () {
     return {
       ticked: [],

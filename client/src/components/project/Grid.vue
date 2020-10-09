@@ -158,7 +158,7 @@ export default {
       this.$emit('selected', this.selected)
     },
     selectedChildren () {
-      this.$emit('selectedChildren', this.selectedChildren)
+      this.$emit('selectedFiles', this.selectedChildren)
     }
   },
   computed: {
