@@ -37,12 +37,25 @@
       >
         <template v-slot:default-header="prop">
           <div
-            class="row inline items-center"
+            class="row items-center"
             @drop="onDrop($event, prop.node.id)"
             @dragover.prevent
           >
             <q-icon :name="prop.node.isDir ? icons['folder'] : icons['other']" />
-            <span class="q-ml-sm node-text">{{ prop.node.name }}</span>
+            <span class="q-ml-sm node-text">
+              {{ prop.node.name }}
+            </span>
+            <q-btn
+              flat
+              dense
+              icon="cloud_upload"
+              color="primary"
+              @click.stop="onClickNodeUpload(prop.node.id)"
+            >
+              <q-tooltip>
+                Upload files
+              </q-tooltip>
+            </q-btn>
           </div>
         </template>
       </q-tree>
@@ -107,6 +120,9 @@ export default {
       const children = e.dataTransfer.getData('children').split(',')
 
       this.moveFile(children, nodeId, newNodeId)
+    },
+    onClickNodeUpload (nodeId) {
+      this.$emit('showFileUploadDialog', true, nodeId)
     },
     moveFile (children, nodeId, newNodeId) {
       this.$emit('moveFile', children, nodeId, newNodeId)

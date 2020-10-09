@@ -61,7 +61,7 @@ export default {
                   name: file.name,
                   assetType: 'file',
                   privacyType: 'private',
-                  parentId: this.parentId
+                  parentId: that.parentId
                 }
               ),
               uploadType: 'file'

@@ -16,6 +16,7 @@
               :selectedNode.sync="selectedFolder"
               @selected="onSelectedFolder"
               @moveFile="onMoveFile"
+              @showFileUploadDialog="onShowFileUploadDialog"
               :lazyLoad="onLazyLoad"
             />
           </div>
@@ -53,8 +54,8 @@
       </q-dialog>
 
       <!-- File Uploaded Dialog  -->
-      <q-dialog v-model="fileUploadDialog" position="standard">
-        <FileUploader />
+      <q-dialog v-model="fileUploadDialog.show" position="standard">
+        <FileUploader :parentId="fileUploadDialog.parentId"/>
       </q-dialog>
     </div>
   </section>
@@ -156,7 +157,10 @@ export default {
       selectedFolder: null,
       selectedFiles: [],
       volumesDialog: false,
-      fileUploadDialog: false,
+      fileUploadDialog: {
+        show: false,
+        parentId: null
+      },
       maximizedToggle: true,
       splitterModel: 30
     }
@@ -211,6 +215,8 @@ export default {
               name: folder.name,
               isDir: folder.assetType === 'folder',
               lazy: true,
+              parentId: folder.parentId,
+              uploadedDatetime: folder.datetimeCreated,
               size: _.get(folder, 'childAssets', []).length,
               children: []
             }
@@ -220,10 +226,11 @@ export default {
                 return {
                   id: file.id.toString(),
                   name: file.name,
-                  size: _.get(file, 'file.fileobject.size', 0),
-                  format: _.get(file, 'file.fileFormatId', 'mp4'),
                   isDir: file.assetType === 'folder',
-                  uploadedDatetime: file.datetimeCreated
+                  parentId: folder.parentId,
+                  uploadedDatetime: file.datetimeCreated,
+                  size: _.get(file, 'file.fileobject.size', 0),
+                  format: _.get(file, 'file.fileFormatId', 'mp4')
                 }
               })
             folderObj.children = files
@@ -462,8 +469,10 @@ export default {
     onShowVolumeDialog (show) {
       this.volumesDialog = show
     },
-    onShowFileUploadDialog (show) {
-      this.fileUploadDialog = show
+    onShowFileUploadDialog (show, parentId) {
+      // console.log('fileUploadDialog', parentId)
+      this.fileUploadDialog.parentId = parseInt(parentId)
+      this.fileUploadDialog.show = show
     },
     onDblClicked (folderId, isDir) {
       if (isDir) {
