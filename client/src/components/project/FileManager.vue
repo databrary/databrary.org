@@ -47,7 +47,8 @@
         transition-hide="slide-down"
       >
         <AddNewVolume
-          :data.sync="data"
+          :nodes.sync="data"
+          :icons="icons"
           :volumesDialog.sync="volumesDialog"
           @addFolder="onAddFolder"
         />
@@ -64,6 +65,7 @@
 <script>
 import { uid, date, format } from 'quasar'
 import { gql } from '@apollo/client'
+import { mapActions } from 'vuex'
 
 import _ from 'lodash'
 
@@ -190,6 +192,7 @@ export default {
     '$route': 'fetchData'
   },
   methods: {
+    ...mapActions('assets', ['insertAsset']),
     async init () {
       const assets = await this.fetchData()
 
@@ -419,6 +422,26 @@ export default {
 
       return folders
     },
+    async addFolder (folder) {
+      try {
+        await this.insertAsset(
+          {
+            name: folder.label,
+            assetType: 'folder',
+            privacyType: 'private',
+            parentId: this.assetId
+          }
+        )
+      } catch (error) {
+        console.error('Error', error.message)
+        this.$q.notify({
+          color: 'red-4',
+          textColor: 'white',
+          icon: 'cloud_done',
+          message: 'Failed'
+        })
+      }
+    },
 
     findItem (itemId) {
       if (!itemId) return null
@@ -479,8 +502,8 @@ export default {
         this.setSelectedFolder(folderId)
       }
     },
-    async onAddFolder (folderName) {
-      console.log('Add folder', folderName)
+    async onAddFolder (folder) {
+      await this.addFolder(folder)
     }
   }
 }

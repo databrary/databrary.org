@@ -31,7 +31,7 @@
         label="Create Folder"
         @click="showVolumeDialog"
       >
-        <q-tooltip>Create a new volume from selected data</q-tooltip>
+        <q-tooltip>Create a new folder from selected data</q-tooltip>
       </q-btn>
     </q-toolbar>
 </template>

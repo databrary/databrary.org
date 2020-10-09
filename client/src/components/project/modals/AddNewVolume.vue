@@ -1,7 +1,7 @@
 <template>
     <q-card class="bg-white text-dark">
         <q-bar>
-        <div class="text-h5">Create New Volume</div>
+        <div class="text-h5">Create New Folder</div>
         <q-space />
         <q-btn dense flat icon="close" v-close-popup>
             <q-tooltip>Close</q-tooltip>
@@ -29,25 +29,36 @@
                 </template>
             </q-input>
             <q-tree
-              :nodes="nodes"
-              node-key="name"
+              :nodes="nodes[0].children"
+              node-key="id"
               tick-strategy="leaf"
               :ticked.sync="ticked"
               :filter="filter"
-            />
+            >
+              <template v-slot:default-header="prop">
+                <div
+                  class="row items-center"
+                >
+                  <q-icon :name="prop.node.isDir ? icons['folder'] : icons['other']" />
+                  <span class="q-ml-sm node-text">
+                    {{ prop.node.name }}
+                  </span>
+                </div>
+              </template>
+            </q-tree>
           </div>
           <div
             class="col-sm-2 col-md-2 col-lg-2 col-xl-2 self-center text-center q-px-sm"
            >
             <q-icon size="24px" name="arrow_forward" />
-            <div>Select files on the left to create a new volume</div>
+            <div>Select files on the left to create a new folder</div>
             <q-icon size="24px" name="arrow_forward" />
             </div>
             <div class="col-sm-5 col-md-5 col-lg-5 col-xl-5">
-            <h6 class="no-margin">New Volume</h6>
-            <q-input v-model="newVolumeName" dense />
+            <h6 class="no-margin">New Folder</h6>
+            <q-input v-model="newFolderName" dense />
             <q-tree
-              :nodes="newVolumeChildren"
+              :nodes="newFolderChildren"
               node-key="label"
               default-expand-all
             />
@@ -56,7 +67,7 @@
         <div class="row justify-end">
             <q-btn
               type="submit"
-              @click="createVolume"
+              @click="createFolder"
               label="Create Volume"
               class="q-mt-md"
               color="teal"
@@ -71,26 +82,21 @@
 </template>
 
 <script>
-// import Tree from '../Tree'
-
 export default {
-  props: ['nodes', 'icons', 'volumesDialog', 'lazyLoad'],
-  // components: {
-  //   Tree
-  // },
+  props: ['nodes', 'volumesDialog', 'icons'],
   data () {
     return {
       ticked: [],
-      newVolumeName: 'New Volume',
+      newFolderName: 'New Volume',
       filter: '',
-      newVolumeChildren: []
+      newFolderChildren: []
     }
   },
   watch: {
     ticked () {
-      this.newVolumeChildren = []
+      this.newFolderChildren = []
       this.ticked.forEach((checkedEle) => {
-        this.newVolumeChildren.push({
+        this.newFolderChildren.push({
           label: checkedEle,
           icon: 'insert_drive_file'
         })
@@ -102,15 +108,15 @@ export default {
       this.filter = ''
       this.$refs.filter.focus()
     },
-    createVolume () {
+    createFolder () {
       const newVolume = {
-        label: this.newVolumeName,
+        label: this.newFolderName,
         icon: 'folder',
-        children: this.newVolumeChildren
+        children: this.newFolderChildren
       }
       // this.data.push(newVolume)
-      this.$emit('input', this.data.push(newVolume))
-      this.$emit('addFolder', this.newVolumeName)
+      this.$emit('input', this.nodes[0].children.push(newVolume))
+      this.$emit('addFolder', newVolume)
       this.ticked = []
       this.$emit('update:volumesDialog', false)
     }
