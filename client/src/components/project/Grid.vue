@@ -1,11 +1,5 @@
 <template>
-    <div v-if="loading">
-      <q-spinner-facebook
-        class="absolute-center"
-        color="primary"
-      />
-    </div>
-    <div v-else class="contents-wrapper">
+    <div class="contents-wrapper">
       <q-toolbar class="bg-white text-dark q-pa-sm">
         <q-toolbar-title class="text-bold"></q-toolbar-title>
 
@@ -51,6 +45,8 @@
           :pagination.sync="pagination"
           :rows-per-page-options="[0]"
           :selected.sync="selectedChildren"
+          :loading="loading"
+          color="primary"
         >
           <template v-slot:body-cell-name="props">
             <q-td>
@@ -71,6 +67,7 @@
               </div>
             </q-td>
           </template>
+          <!-- Grid View Cards -->
           <template v-slot:item="props">
             <q-card
               flat
