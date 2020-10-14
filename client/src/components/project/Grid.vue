@@ -211,7 +211,7 @@ export default {
       this.$emit('dblClick', this.selected, isDir)
     },
     onClickNodeUpload () {
-      this.$emit('showFileUploadDialog', true, this.selected)
+      this.$emit('showFileUploadDialog', true)
     }
   }
 }

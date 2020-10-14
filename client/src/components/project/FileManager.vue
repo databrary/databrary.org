@@ -55,8 +55,8 @@
       </q-dialog>
 
       <!-- File Uploaded Dialog  -->
-      <q-dialog v-model="fileUploadDialog.show" position="standard">
-        <FileUploader :parentId="fileUploadDialog.parentId"/>
+      <q-dialog v-model="showFileUploadDialog" position="standard">
+        <FileUploader :parentId="parseInt(selectedFolder)"/>
       </q-dialog>
     </div>
   </section>
@@ -145,13 +145,23 @@ export default {
     Toolbar
   },
   props: {
-    assetId: { type: Number, default: () => null },
+    assetId: { type: Number, required: true },
     icons: { type: Object, default: () => defaultIcons },
     columns: { type: Array, default: () => defaultColumns }
   },
   data () {
     return {
-      data: [], // Database data
+      // The id of the root folder must match the pam/project Id
+      data: [
+        {
+          id: this.assetId.toString(),
+          isDir: true,
+          name: 'Root',
+          expandable: true,
+          lazy: true,
+          children: []
+        }
+      ], // Database data
       nodes: [], // Tree nodes
       contents: [], // Contents of a selected node
       loadingNodes: true,
@@ -159,10 +169,7 @@ export default {
       selectedFolder: null,
       selectedFiles: [],
       volumesDialog: false,
-      fileUploadDialog: {
-        show: false,
-        parentId: null
-      },
+      showFileUploadDialog: false,
       maximizedToggle: true,
       splitterModel: 30
     }
@@ -194,59 +201,80 @@ export default {
   methods: {
     ...mapActions('assets', ['insertAsset']),
     async init () {
-      const assets = await this.fetchData()
+      const data = await this.fetchData()
 
-      const rootFolder = {
-        id: uid(),
-        isDir: true,
-        name: 'Root',
-        expandable: true,
-        lazy: true,
-        children: []
-      }
-
-      if (_.isEmpty(assets)) {
-        this.data = rootFolder
+      if (_.isEmpty(data)) {
         return
       }
 
-      const folders = assets.map((asset) => {
-        const folders = _.get(asset, 'childAssets', [])
-          .map((folder) => {
-            const folderObj = {
-              id: folder.id.toString(),
-              name: folder.name,
-              isDir: folder.assetType === 'folder',
-              lazy: true,
-              parentId: folder.parentId,
-              uploadedDatetime: folder.datetimeCreated,
-              size: _.get(folder, 'childAssets', []).length,
-              children: []
-            }
-            if (folder.assetType !== 'folder') console.log('Folders ', folderObj)
-            const files = _.get(folder, 'childAssets', [])
-              .map((file) => {
-                return {
-                  id: file.id.toString(),
-                  name: file.name,
-                  isDir: file.assetType === 'folder',
-                  parentId: folder.parentId,
-                  uploadedDatetime: file.datetimeCreated,
-                  size: _.get(file, 'file.fileobject.size', 0),
-                  format: _.get(file, 'file.fileFormatId', 'mp4')
-                }
-              })
-            folderObj.children = files
-            return folderObj
-          })
-        return folders
-      })
+      const children = this.loadAssets(data)
 
-      rootFolder.children = folders[0]
-      this.data = [rootFolder]
-      this.setSelectedFolder(rootFolder.id)
+      if (_.isEmpty(children)) {
+        return
+      }
+
+      this.data[0].children = children
+      this.setSelectedFolder(this.data[0].id)
       this.nodes.push(...this.getFolders(this.selectedFolder))
       this.loadingNodes = false
+    },
+    loadAssets (assets) {
+      const data = assets.map((asset) => {
+        const data = _.get(asset, 'childAssets', [])
+          .map((asset) => {
+            const node = this.createNode(asset)
+
+            if (node.isDir) {
+              const children = _.get(asset, 'childAssets', [])
+                .map((asset) => {
+                  return this.createNode(asset)
+                })
+
+              // Remove null nodes
+              node.children = children.filter((el) => el != null)
+            }
+            return node
+          })
+        // Remove null nodes
+        return data.filter((el) => el != null)
+      })
+
+      return data[0]
+    },
+    createNode (asset) {
+      if (!asset.assetType) {
+        console.error('assetType is required! Make use to add the field to you GraphQL query')
+        return null
+      }
+
+      switch (asset.assetType) {
+        case 'folder':
+          return {
+            id: asset.id.toString(),
+            name: asset.name,
+            isDir: asset.assetType === 'folder',
+            lazy: true,
+            parentId: asset.parentId,
+            uploadedDatetime: asset.datetimeCreated,
+            size: _.get(asset, 'childAssets', []).length,
+            children: []
+          }
+
+        case 'file':
+          return {
+            id: asset.id.toString(),
+            name: asset.name,
+            isDir: asset.assetType === 'folder',
+            parentId: asset.parentId,
+            uploadedDatetime: asset.datetimeCreated,
+            // TODO: (Reda): Remove default values from here and them to the ingest scripts
+            size: _.get(asset, 'file.fileobject.size', 0),
+            format: _.get(asset, 'file.fileFormatId', 'mp4')
+          }
+
+        default:
+          return null
+      }
     },
     async fetchData () {
       // Fetch Data will fetch pam's childAsset that could contains projects
@@ -254,18 +282,27 @@ export default {
       const result = await this.$apollo.query({
         query: gql`
           query GetAssets($assetId: Int!) {
-            assets(where: {id: {_eq: $assetId}, assetType: {_in: [pam,project]}}) {
+            assets(where: {id: {_eq: $assetId}, assetType: {_in: [pam, project]}}) {
               id
               name
               assetType
               datetimeCreated
               parentId
-              childAssets(where: {assetType: {_eq: folder}}) {
+              childAssets(where: {assetType: {_in: [file, folder]}}) {
                 id
                 name
-                assetType        
+                assetType
                 datetimeCreated
                 parentId
+                file {
+                  id
+                  name
+                  fileFormatId
+                  uploadedDatetime
+                  fileobject {
+                    size
+                  }
+                }
                 childAssets {
                   id
                   name
@@ -492,10 +529,8 @@ export default {
     onShowVolumeDialog (show) {
       this.volumesDialog = show
     },
-    onShowFileUploadDialog (show, parentId) {
-      // console.log('fileUploadDialog', parentId)
-      this.fileUploadDialog.parentId = parseInt(parentId)
-      this.fileUploadDialog.show = show
+    onShowFileUploadDialog (show) {
+      this.showFileUploadDialog = show
     },
     onDblClicked (folderId, isDir) {
       if (isDir) {
