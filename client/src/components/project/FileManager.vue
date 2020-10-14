@@ -151,6 +151,7 @@ export default {
   },
   data () {
     return {
+      assets: [],
       // The id of the root folder must match the pam/project Id
       data: [
         {
@@ -175,24 +176,28 @@ export default {
     }
   },
   async created () {
-    await this.init()
+    this.setSelectedFolder(this.assetId.toString())
+    this.nodes.push(...await this.getFolders(this.selectedFolder))
+    this.loadingNodes = false
   },
   watch: {
-    selectedFolder (newFolderId, oldFolderId) {
+    async selectedFolder (newFolderId, oldFolderId) {
       if (!newFolderId) {
         newFolderId = this.data[0].id
       }
 
+      this.loadingContents = true
       this.clearContents()
-      this.contents.push(...this.getFolderContents(newFolderId))
+      this.contents.push(...await this.getFolderContents(newFolderId))
       this.loadingContents = false
     },
     data: {
       deep: true,
       // We refrech the contents every time the data changes
-      handler () {
+      async handler () {
+        this.loadingContents = true
         this.clearContents()
-        this.contents.push(...this.getFolderContents(this.selectedFolder))
+        this.contents.push(...await this.getFolderContents(this.selectedFolder))
         this.loadingContents = false
       }
     }
@@ -200,47 +205,6 @@ export default {
   },
   methods: {
     ...mapActions('assets', ['insertAsset']),
-    async init () {
-      const data = await this.fetchData()
-
-      if (_.isEmpty(data)) {
-        return
-      }
-
-      const children = this.loadAssets(data)
-
-      if (_.isEmpty(children)) {
-        return
-      }
-
-      this.data[0].children = children
-      this.setSelectedFolder(this.data[0].id)
-      this.nodes.push(...this.getFolders(this.selectedFolder))
-      this.loadingNodes = false
-    },
-    loadAssets (assets) {
-      const data = assets.map((asset) => {
-        const data = _.get(asset, 'childAssets', [])
-          .map((asset) => {
-            const node = this.createNode(asset)
-
-            if (node.isDir) {
-              const children = _.get(asset, 'childAssets', [])
-                .map((asset) => {
-                  return this.createNode(asset)
-                })
-
-              // Remove null nodes
-              node.children = children.filter((el) => el != null)
-            }
-            return node
-          })
-        // Remove null nodes
-        return data.filter((el) => el != null)
-      })
-
-      return data[0]
-    },
     createNode (asset) {
       if (!asset.assetType) {
         console.error('assetType is required! Make use to add the field to you GraphQL query')
@@ -276,19 +240,26 @@ export default {
           return null
       }
     },
-    async fetchData () {
-      // Fetch Data will fetch pam's childAsset that could contains projects
-      // The FileManager can only display folder so look only for folders
+    async fetchData (assetId) {
       const result = await this.$apollo.query({
         query: gql`
           query GetAssets($assetId: Int!) {
-            assets(where: {id: {_eq: $assetId}, assetType: {_in: [pam, project]}}) {
+            assets(where: {id: {_eq: $assetId}, assetType: {_in: [pam, project, folder, file]}}) {
               id
               name
               assetType
               datetimeCreated
               parentId
-              childAssets(where: {assetType: {_in: [file, folder]}}) {
+              file {
+                id
+                name
+                fileFormatId
+                uploadedDatetime
+                fileobject {
+                  size
+                }
+              }
+              childAssets {
                 id
                 name
                 assetType
@@ -303,37 +274,21 @@ export default {
                     size
                   }
                 }
-                childAssets {
-                  id
-                  name
-                  assetType
-                  datetimeCreated
-                  parentId
-                  file {
-                    id
-                    name
-                    fileFormatId
-                    uploadedDatetime
-                    fileobject {
-                      size
-                    }
-                  }
-                }
               }
             }
           }
         `,
         variables: {
-          assetId: this.assetId
+          assetId: assetId
         }
       })
 
-      return _.get(result, 'data.assets', [])
+      return _.get(result, 'data.assets[0]', [])
     },
     clearContents () {
       this.contents.splice(0, this.contents.length)
     },
-    async moveFile (filesArray, folderId, newFolderId) {
+    async moveFile (children, folderId, newFolderId) {
       try {
         this.loadingContents = true
         const result = this.$apollo.mutate({
@@ -351,22 +306,22 @@ export default {
             }
           `,
           variables: {
-            assets: filesArray,
+            assets: children,
             parentId: newFolderId
           }
         })
 
-        filesArray.every((fileId) => {
-          const files = this.removeFile(folderId, fileId)
-          this.addFile(newFolderId, files)
-          this.$q.notify({
-            color: 'green-4',
-            textColor: 'white',
-            icon: 'cloud_done',
-            message: 'Submitted'
-          })
-          return true
-        })
+        // filesArray.every((fileId) => {
+        //   const files = this.removeFile(folderId, fileId)
+        //   this.addFile(newFolderId, files)
+        //   this.$q.notify({
+        //     color: 'green-4',
+        //     textColor: 'white',
+        //     icon: 'cloud_done',
+        //     message: 'Submitted'
+        //   })
+        //   return true
+        // })
       } catch (error) {
         console.error('moveFile::', error.message)
         this.$q.notify({
@@ -392,24 +347,21 @@ export default {
       files.push(file)
     },
 
-    loadChildren (node, key) {
+    async loadChildren (node, key) {
       try {
         node['children'] = []
         if (node.children || node.children.length) {
           node.children.splice(0, node.children.length)
         }
 
-        const folder = this.findItem(key)
+        const assets = await this.fetchData(key)
 
-        if (!folder || !folder.children) return []
-
-        for (const child of folder.children) {
+        for (const asset of _.get(assets, 'childAssets', [])) {
           // we only want folders
-          if (!child.isDir) {
-            continue
-          }
+          if (asset.assetType !== 'folder') continue
+
           // add child to parent
-          node.children.push(child)
+          node.children.push(this.createNode(asset))
         }
         return true
       } catch (err) {
@@ -423,42 +375,36 @@ export default {
       return this.findItem(folderId).children
     },
 
-    getFolderContents (folderId) {
+    async getFolderContents (folderId) {
       // Get the folder contents
-      if (!folderId || typeof folderId !== 'string') return []
+      if (!folderId) return []
 
-      const folder = this.findItem(folderId)
-
-      if (!folder || !folder.children) return []
+      const result = await this.fetchData(folderId)
 
       let contents = []
 
-      for (const child of folder.children) {
-        contents.push(child)
+      for (const child of _.get(result, 'childAssets', [])) {
+        contents.push(this.createNode(child))
       }
 
-      return contents
+      return contents.filter((el) => el != null)
     },
 
-    getFolders (folderId) {
-      if (!folderId || typeof folderId !== 'string') return []
+    async getFolders (assetId) {
+      if (!assetId) return []
 
-      // We find the selected folder
-      const folder = this.findItem(folderId)
+      const assets = await this.fetchData(assetId)
 
-      if (!folder || !folder.children) return []
+      const nodes = []
 
-      let folders = []
-
-      for (const child of folder.children) {
-        if (!child.isDir) continue
-        const { children, ...folder } = child
-        // const node = this.createNode(child)
-        folders.push(folder)
+      for (const asset of _.get(assets, 'childAssets', [])) {
+        if (asset.assetType !== 'folder') continue
+        nodes.push(this.createNode(asset))
       }
 
-      return folders
+      return nodes.filter((el) => el != null)
     },
+
     async addFolder (folder) {
       try {
         await this.insertAsset(
@@ -480,27 +426,6 @@ export default {
       }
     },
 
-    findItem (itemId) {
-      if (!itemId) return null
-
-      let stack = []
-      stack.push(this.data[0]) // We push the root
-      while (stack.length > 0) {
-        let node = stack.pop()
-
-        if (node == null) continue
-
-        if (node.id.toString() === itemId) {
-          return node
-        } else if (node.children && node.children.length) {
-          for (let i = 0; i < node.children.length; i++) {
-            stack.push(node.children[i])
-          }
-        }
-      }
-      return null
-    },
-
     // Setters
     setSelectedFolder (folderId) {
       this.selectedFolder = folderId
@@ -510,15 +435,15 @@ export default {
     },
 
     // Event handlers
-    onLazyLoad ({ node, key, done, fail }) {
-      if (this.loadChildren(node, key)) {
+    async onLazyLoad ({ node, key, done, fail }) {
+      if (await this.loadChildren(node, key)) {
         done()
       } else {
         fail()
       }
     },
-    async onMoveFile (files, folderId, newFolderId) {
-      await this.moveFile(files, folderId, newFolderId)
+    async onMoveFile (children, folderId, newFolderId) {
+      await this.moveFile(children, folderId, newFolderId)
     },
     onSelectedFolder (folderId) {
       this.setSelectedFolder(folderId)

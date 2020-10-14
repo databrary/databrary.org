@@ -63,8 +63,8 @@
             <q-td>
               <div
                 :class="!props.row.isDir ? 'items-center cursor-pointer' : 'items-center'"
-                :draggable="!props.row.isDir"
-                @dragstart="!props.row.isDir ? onDragStart($event, props.row.id) :  null"
+                draggable
+                @dragstart="onDragStart($event, props.row.id)"
                 @drop="props.row.isDir ? onDrop($event, props.row.id) : null"
                 @dragover.prevent
                 @dblclick.prevent="props.row.isDir ? onDblClick($event, props.row.id, props.row.isDir) : null"
@@ -85,8 +85,8 @@
               :class="props.selected
                 ? 'bg-grey-2 q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition justify-between content-start'
                 : 'q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition justify-between content-start'"
-              :draggable="!props.row.isDir"
-              @dragstart="!props.row.isDir ? onDragStart($event, props.row.id) :  null"
+              draggable
+              @dragstart="onDragStart($event, props.row.id)"
               @drop="props.row.isDir ? onDrop($event, props.row.id) : null"
               @dragover.prevent
               @dblclick.prevent="props.row.isDir ? onDblClick($event, props.row.id, props.row.isDir) : null"
@@ -177,15 +177,15 @@ export default {
     }
   },
   methods: {
-    onDragStart (e, childId) {
+    onDragStart (e, nodeId) {
       e.dataTransfer.dropEffect = 'move'
       e.dataTransfer.effectAllowed = 'move'
       // We move all selected files, if not, only the draged one
-      let children = [childId]
+      let nodes = [nodeId]
 
-      if (this.selectedChildren.length > 0) children = this.selectedChildren.map((child) => child.id)
+      if (this.selectedChildren.length > 0) nodes = this.selectedChildren.map((child) => child.id)
 
-      e.dataTransfer.setData('children', children)
+      e.dataTransfer.setData('children', nodes)
       e.dataTransfer.setData('nodeId', this.selected)
     },
     onDrop (e, newNodeId) {
@@ -198,12 +198,10 @@ export default {
 
       const children = e.dataTransfer.getData('children').split(',')
 
-      children.every((childId) => {
-        this.moveFile(childId, nodeId, newNodeId)
-      })
+      this.moveFile(children, nodeId, newNodeId)
     },
-    moveFile (fileId, nodeId, newNodeId) {
-      this.$emit('moveFile', fileId, nodeId, newNodeId)
+    moveFile (children, nodeId, newNodeId) {
+      this.$emit('moveFile', children, nodeId, newNodeId)
     },
     onDblClick (e, nodeId, isDir) {
       this.selected = nodeId
