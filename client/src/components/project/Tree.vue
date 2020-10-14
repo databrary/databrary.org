@@ -45,17 +45,6 @@
             <span class="q-ml-sm node-text">
               {{ prop.node.name }}
             </span>
-            <q-btn
-              flat
-              dense
-              icon="cloud_upload"
-              color="primary"
-              @click.stop="onClickNodeUpload(prop.node.id)"
-            >
-              <q-tooltip>
-                Upload files
-              </q-tooltip>
-            </q-btn>
           </div>
         </template>
       </q-tree>
@@ -120,9 +109,6 @@ export default {
       const children = e.dataTransfer.getData('children').split(',')
 
       this.moveFile(children, nodeId, newNodeId)
-    },
-    onClickNodeUpload (nodeId) {
-      this.$emit('showFileUploadDialog', true, nodeId)
     },
     moveFile (children, nodeId, newNodeId) {
       this.$emit('moveFile', children, nodeId, newNodeId)

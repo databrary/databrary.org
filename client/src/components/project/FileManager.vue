@@ -16,7 +16,6 @@
               :selectedNode.sync="selectedFolder"
               @selected="onSelectedFolder"
               @moveFile="onMoveFile"
-              @showFileUploadDialog="onShowFileUploadDialog"
               :lazyLoad="onLazyLoad"
             />
           </div>
@@ -33,6 +32,7 @@
               @moveFile="onMoveFile"
               @selectedFiles="onSelectedFiles"
               @dblClick="onDblClicked"
+              @showFileUploadDialog="onShowFileUploadDialog"
             />
           </div>
         </template>

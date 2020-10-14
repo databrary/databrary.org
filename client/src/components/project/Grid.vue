@@ -1,8 +1,18 @@
 <template>
     <div class="contents-wrapper">
       <q-toolbar class="bg-white text-dark q-pa-sm">
-        <q-toolbar-title class="text-bold"></q-toolbar-title>
-
+        <q-btn
+          flat
+          label="Upload"
+          icon="cloud_upload"
+          color="primary"
+          @click.stop="onClickNodeUpload()"
+        >
+          <q-tooltip>
+            Upload files
+          </q-tooltip>
+        </q-btn>
+        <q-space />
         <q-btn-toggle
           flat
           v-model="viewSelected"
@@ -48,6 +58,7 @@
           :loading="loading"
           color="primary"
         >
+          <!-- List view: custom name column -->
           <template v-slot:body-cell-name="props">
             <q-td>
               <div
@@ -198,6 +209,9 @@ export default {
       this.selected = nodeId
 
       this.$emit('dblClick', this.selected, isDir)
+    },
+    onClickNodeUpload () {
+      this.$emit('showFileUploadDialog', true, this.selected)
     }
   }
 }
