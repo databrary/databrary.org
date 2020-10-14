@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="asset">
     <div class="row">
       <div class="col-12 bg-grey-10">
         <q-img
@@ -182,7 +182,7 @@
           </q-item>
         </div>
         <div class="col-12">
-          <FileManager></FileManager>
+          <FileManager :assetId="projectId"></FileManager>
         </div>
       </div>
     </q-page>
@@ -246,7 +246,7 @@ export default {
       }
     },
     'projectId': 'fetchData',
-    '$route': 'fetchData',
+    // '$route': 'fetchData',
     'projectIdFromRoute': 'fetchData'
   },
   // TODO(Reda): Fetch project summary

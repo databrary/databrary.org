@@ -1,11 +1,11 @@
 <template>
   <section class="row q-pa-xs">
     <div class="col-xs-12 col-sm-12 col-md-12">
-      <Toolbar
+      <!-- <Toolbar
         :selected.sync="selectedFiles"
         @showVolumeDialog="onShowVolumeDialog"
         @showFileUploadDialog="onShowFileUploadDialog"
-      />
+      /> -->
       <q-splitter v-model="splitterModel" before-class="window-height" after-class="no-scroll window-height">
         <template v-slot:before>
           <div class="q-pa-md tree-container">
@@ -145,7 +145,7 @@ export default {
     Toolbar
   },
   props: {
-    assetId: { type: Number, default: () => this.$route.params.projectId },
+    assetId: { type: Number, default: () => null },
     icons: { type: Object, default: () => defaultIcons },
     columns: { type: Array, default: () => defaultColumns }
   },
@@ -188,8 +188,8 @@ export default {
         this.contents.push(...this.getFolderContents(this.selectedFolder))
         this.loadingContents = false
       }
-    },
-    '$route': 'fetchData'
+    }
+    // '$route': 'fetchData'
   },
   methods: {
     ...mapActions('assets', ['insertAsset']),

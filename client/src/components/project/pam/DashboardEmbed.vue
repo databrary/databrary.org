@@ -1,17 +1,5 @@
 <template>
-  <div v-if="asset">
-    <q-toolbar>
-      <q-toolbar-title>
-        {{ asset.name }}
-      </q-toolbar-title>
-      <!-- TODO: (Reda) This btn is used in multiple places, need to be refactored as component -->
-      <q-btn
-        :to="asset.id + '/contributors'"
-        flat
-        icon="person"
-        label="Contributors"
-      />
-    </q-toolbar>
+  <div v-if="pamId && asset">
     <div class="q-pa-md">
       <q-splitter
         v-model="firstModel"
@@ -74,14 +62,15 @@ export default {
     secondModel: 30,
     datetimeCreated: null
   }),
-  watch: {
-    '$route': 'fetchData',
-    'viewCreated': 'fetchData'
-  },
   async created () {
     // this.generateCitation('http://doi.org/10.17910/B77P4V')
-    this.pamId = this.id || this.$route.params.projectId
+    this.pamId = this.id
     this.fetchData()
+  },
+  watch: {
+    '$route': 'fetchData',
+    'viewCreated': 'fetchData',
+    'id': 'fetchData'
   },
   computed: {
     asset: sync('pam/asset'),

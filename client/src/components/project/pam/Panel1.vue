@@ -95,7 +95,6 @@ export default {
       this.selectedProjectView = null
     },
     async onClickView (id) {
-      console.log('id', id)
       this.selectedProjectView = id
     },
     async onCreateView () {
