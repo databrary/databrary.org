@@ -3,7 +3,8 @@
       <q-toolbar class="bg-white text-dark q-pa-sm">
         <q-btn
           flat
-          icon="chevron_left"
+          icon="subdirectory_arrow_left"
+          class="rotate-90"
           color="primary"
           :disable="goBackDisabled"
           @click.stop="onClickBack()"
