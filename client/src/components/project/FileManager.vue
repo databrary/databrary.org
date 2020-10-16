@@ -415,6 +415,7 @@ export default {
       if (node.isDir) {
         this.setSelectedFolder(node.id)
         // We expand the parent in the Tree component
+        if (node.parentId === this.assetId.toString()) return
         if (node.parentId) this.$refs.tree.$refs.qtree.setExpanded(node.parentId, true)
       }
     },
@@ -425,8 +426,6 @@ export default {
      */
     onGoBack () {
       if (this.selectedFolder === this.assetId.toString()) return
-
-      console.log('this.selectedFolder = ', this.selectedFolder)
 
       const node = this.$refs.tree.$refs.qtree.getNodeByKey(this.selectedFolder)
 
