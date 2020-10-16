@@ -19,10 +19,10 @@
       </template>
     </q-input> -->
     <div v-if="loading">
-      <q-spinner-facebook
+      <q-spinner
         class="absolute-center"
         color="primary"
-        size="4em"
+        size="3em"
       />
     </div>
     <div v-else>
@@ -38,7 +38,7 @@
         <template v-slot:default-header="prop">
           <div
             class="row items-center"
-            @drop="onDrop($event, prop.node.id)"
+            @drop="onDrop($event, prop.node)"
             @dragover.prevent
           >
             <q-icon :name="prop.node.isDir ? icons['folder'] : icons['other']" />
@@ -98,20 +98,22 @@ export default {
     }
   },
   methods: {
-    onDrop (e, newNodeId) {
-      const nodeId = e.dataTransfer.getData('nodeId')
+    onDrop (e, newNode) {
+      const oldNode = JSON.parse(e.dataTransfer.getData('node'))
 
-      if (nodeId === newNodeId) return
+      if (oldNode.id === newNode.id) return
 
       // don't drop on other draggables
       if (e.target.draggable === true) return
 
-      const children = e.dataTransfer.getData('children').split(',')
+      const children = JSON.parse(e.dataTransfer.getData('children'))
 
-      this.moveFile(children, nodeId, newNodeId)
+      console.log('Children on drop', children)
+
+      this.moveFile(children, oldNode, newNode)
     },
-    moveFile (children, nodeId, newNodeId) {
-      this.$emit('moveFile', children, nodeId, newNodeId)
+    moveFile (children, oldNode, newNode) {
+      this.$emit('moveFile', children, oldNode, newNode)
     },
     resetFilter () {
       this.filter = ''

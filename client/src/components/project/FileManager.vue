@@ -30,7 +30,7 @@
               :loading.sync="loadingContents"
               @selected="onSelectedFolder"
               @moveFile="onMoveFile"
-              @selectedFiles="onSelectedFiles"
+              @selectedChildren="onSelectedContents"
               @dblClick="onDblClicked"
               @showFileUploadDialog="onShowFileUploadDialog"
             />
@@ -39,7 +39,7 @@
       </q-splitter>
 
       <!-- Create a new Volume Dialog  -->
-      <q-dialog
+      <!-- <q-dialog
         v-model="volumesDialog"
         persistent
         :maximized="maximizedToggle"
@@ -52,7 +52,7 @@
           :volumesDialog.sync="volumesDialog"
           @addFolder="onAddFolder"
         />
-      </q-dialog>
+      </q-dialog> -->
 
       <!-- File Uploaded Dialog  -->
       <q-dialog v-model="showFileUploadDialog" position="standard">
@@ -151,18 +151,6 @@ export default {
   },
   data () {
     return {
-      assets: [],
-      // The id of the root folder must match the pam/project Id
-      data: [
-        {
-          id: this.assetId.toString(),
-          isDir: true,
-          name: 'Root',
-          expandable: true,
-          lazy: true,
-          children: []
-        }
-      ], // Database data
       nodes: [], // Tree nodes
       contents: [], // Contents of a selected node
       loadingNodes: true,
@@ -183,23 +171,13 @@ export default {
   watch: {
     async selectedFolder (newFolderId, oldFolderId) {
       if (!newFolderId) {
-        newFolderId = this.data[0].id
+        newFolderId = this.assetId
       }
 
       this.loadingContents = true
       this.clearContents()
       this.contents.push(...await this.getFolderContents(newFolderId))
       this.loadingContents = false
-    },
-    data: {
-      deep: true,
-      // We refrech the contents every time the data changes
-      async handler () {
-        this.loadingContents = true
-        this.clearContents()
-        this.contents.push(...await this.getFolderContents(this.selectedFolder))
-        this.loadingContents = false
-      }
     }
     // '$route': 'fetchData'
   },
@@ -220,8 +198,7 @@ export default {
             lazy: true,
             parentId: asset.parentId,
             uploadedDatetime: asset.datetimeCreated,
-            size: _.get(asset, 'childAssets', []).length,
-            children: []
+            size: _.get(asset, 'childAssets', []).length
           }
 
         case 'file':
@@ -231,7 +208,7 @@ export default {
             isDir: asset.assetType === 'folder',
             parentId: asset.parentId,
             uploadedDatetime: asset.datetimeCreated,
-            // TODO: (Reda): Remove default values from here and them to the ingest scripts
+            // TODO: (Reda): Remove default values from here and add them to the ingest scripts
             size: _.get(asset, 'file.fileobject.size', 0),
             format: _.get(asset, 'file.fileFormatId', 'mp4')
           }
@@ -288,7 +265,9 @@ export default {
     clearContents () {
       this.contents.splice(0, this.contents.length)
     },
-    async moveFile (children, folderId, newFolderId) {
+    async moveFile (children, oldNode, newNode) {
+      // IMPORTANT: New node object is forwarded from the tree so we can alter the reference
+      // IMPORTANT: oldNode is forwarded by the dataTransfer, therefore cannot alter the node
       try {
         this.loadingContents = true
         const result = this.$apollo.mutate({
@@ -306,22 +285,19 @@ export default {
             }
           `,
           variables: {
-            assets: children,
-            parentId: newFolderId
+            assets: children.map((child) => child.id),
+            parentId: newNode.id
           }
         })
+        // FIXME: only update affected nodes in the tree instead of fetching the full data from the backend
 
-        // filesArray.every((fileId) => {
-        //   const files = this.removeFile(folderId, fileId)
-        //   this.addFile(newFolderId, files)
-        //   this.$q.notify({
-        //     color: 'green-4',
-        //     textColor: 'white',
-        //     icon: 'cloud_done',
-        //     message: 'Submitted'
-        //   })
-        //   return true
-        // })
+        // Update the tree only when we are moving folders
+        if (children.find((child) => child.isDir)) {
+          this.loadingNodes = true
+          this.nodes.push(...await this.getFolders(this.selectedFolder))
+          this.loadingNodes = false
+        }
+        this.setSelectedFolder(newNode.id)
       } catch (error) {
         console.error('moveFile::', error.message)
         this.$q.notify({
@@ -335,46 +311,7 @@ export default {
       }
     },
 
-    removeFile (folderId, fileId) {
-      // Return the removed file's data
-      let files = this.getFiles(folderId)
-      const file = files.splice(files.map(e => e.id).indexOf(fileId), 1)
-      return file[0]
-    },
-
-    addFile (folderId, file) {
-      let files = this.getFiles(folderId)
-      files.push(file)
-    },
-
-    async loadChildren (node, key) {
-      try {
-        node['children'] = []
-        if (node.children || node.children.length) {
-          node.children.splice(0, node.children.length)
-        }
-
-        const assets = await this.fetchData(key)
-
-        for (const asset of _.get(assets, 'childAssets', [])) {
-          // we only want folders
-          if (asset.assetType !== 'folder') continue
-
-          // add child to parent
-          node.children.push(this.createNode(asset))
-        }
-        return true
-      } catch (err) {
-        console.error('Error: ', err)
-      }
-      return false
-    },
-
     // Getters
-    getFiles (folderId) {
-      return this.findItem(folderId).children
-    },
-
     async getFolderContents (folderId) {
       // Get the folder contents
       if (!folderId) return []
@@ -404,7 +341,6 @@ export default {
 
       return nodes.filter((el) => el != null)
     },
-
     async addFolder (folder) {
       try {
         await this.insertAsset(
@@ -436,19 +372,29 @@ export default {
 
     // Event handlers
     async onLazyLoad ({ node, key, done, fail }) {
-      if (await this.loadChildren(node, key)) {
-        done()
-      } else {
+      try {
+        const assets = await this.fetchData(key)
+        let children = []
+        for (const asset of _.get(assets, 'childAssets', [])) {
+          // we only want folders
+          if (asset.assetType !== 'folder') continue
+
+          // add child to parent
+          children.push(this.createNode(asset))
+        }
+
+        done(children)
+      } catch (error) {
         fail()
       }
     },
-    async onMoveFile (children, folderId, newFolderId) {
-      await this.moveFile(children, folderId, newFolderId)
+    async onMoveFile (children, oldNode, newNode) {
+      await this.moveFile(children, oldNode, newNode)
     },
     onSelectedFolder (folderId) {
       this.setSelectedFolder(folderId)
     },
-    onSelectedFiles (filesArray) {
+    onSelectedContents (filesArray) {
       this.setSelectedFiles(filesArray)
     },
     onShowVolumeDialog (show) {
