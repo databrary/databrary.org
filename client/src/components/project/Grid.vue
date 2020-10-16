@@ -24,6 +24,18 @@
             Upload files
           </q-tooltip>
         </q-btn>
+
+        <q-btn
+          flat
+          label="Add folder"
+          icon="create_new_folder"
+          color="primary"
+          @click.stop="onClickAddNode()"
+        >
+          <q-tooltip>
+            Add A New Folder
+          </q-tooltip>
+        </q-btn>
         <q-space />
         <q-btn-toggle
           flat
@@ -58,7 +70,7 @@
         <q-table
           :grid="viewSelected === 'grid'"
           flat
-          :data="children"
+          :data="nodes"
           :columns="columns"
           row-key="id"
           selection="multiple"
@@ -72,9 +84,9 @@
         >
           <!-- List view: custom name column -->
           <template v-slot:body-cell-name="props">
-            <q-td>
+            <q-td class="col-12">
               <div
-                :class="'items-center cursor-pointer'"
+                class="row-inline justify-start items-center cursor-pointer"
                 draggable
                 @dragstart="onDragStart($event, props.row)"
                 @drop="props.row.isDir ? onDrop($event, props.row) : null"
@@ -86,7 +98,26 @@
                   size="sm"
                   :name="props.row.isDir ? icons['folder'] : icons[props.row.format.toLowerCase()] || icons['other']"
                 />
-                <span class="col-10 q-ml-sm text-center">{{props.row.name}}</span>
+                <span
+                  class="col-10 q-ml-sm text-center"
+                >
+                  {{props.row.name}}
+                </span>
+                <q-popup-edit
+                  ref="edit"
+                  v-if="props.row.edit"
+                  v-model="props.row.name"
+                  @save="saveNode(props.row)"
+                >
+                  <q-input
+                    v-model="props.row.name"
+                    class="col-10 q-ml-sm"
+                    dense
+                    autofocus
+                    type="text"
+                    @focus="$event.target.select()"
+                  />
+                </q-popup-edit>
               </div>
             </q-td>
           </template>
@@ -123,10 +154,11 @@
 </template>
 
 <script>
+import { uid } from 'quasar'
 export default {
   name: 'Grid',
   props: {
-    children: {
+    contents: {
       type: Array,
       required: true
     },
@@ -154,6 +186,7 @@ export default {
   },
   data () {
     return {
+      nodes: [],
       selectedChildren: [],
       selected: '',
       viewSelected: 'list',
@@ -168,10 +201,12 @@ export default {
       },
       width: 175,
       height: 350,
-      fontSize: 12
+      fontSize: 12,
+      defaultName: 'New Folder'
     }
   },
   mounted () {
+    this.nodes = this.contents
     this.height = this.$parent.$el.offsetHeight - 50
     this.selected = this.selectedNode
   },
@@ -184,6 +219,9 @@ export default {
     },
     selectedChildren () {
       this.$emit('selectedChildren', this.selectedChildren)
+    },
+    contents () {
+      this.nodes = this.contents
     }
   },
   computed: {
@@ -217,9 +255,6 @@ export default {
 
       this.moveNode(children, oldNode, newNode)
     },
-    moveNode (children, oldNode, newNode) {
-      this.$emit('moveNode', children, oldNode, newNode)
-    },
     onDblClick (e, node) {
       this.$emit('dblClick', node)
     },
@@ -228,6 +263,35 @@ export default {
     },
     onClickBack () {
       this.$emit('goBack')
+    },
+    onClickAddNode () {
+      this.onAddNode()
+    },
+    onAddNode () {
+      this.nodes.push(
+        {
+          id: uid(),
+          name: this.defaultName,
+          isDir: true,
+          lazy: true,
+          parentId: this.selected,
+          uploadedDatetime: Date.now(),
+          size: 0,
+          edit: true
+        }
+      )
+      // Wait for Quasar to update the table to show the popup edit
+      setTimeout(() => {
+        if (this.$refs.edit) this.$refs.edit.show()
+      }, 300)
+    },
+    moveNode (children, oldNode, newNode) {
+      this.$emit('moveNode', children, oldNode, newNode)
+    },
+    saveNode (node) {
+      node.edit = false
+      const { edit, ...rest } = node
+      this.$emit('addNode', rest)
     }
   }
 }

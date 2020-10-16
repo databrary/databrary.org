@@ -24,7 +24,7 @@
         <template v-slot:after>
           <div class="q-px-sm contents-container">
             <Grid
-              :children.sync="contents"
+              :contents.sync="contents"
               :icons="icons"
               :columns="columns"
               :selectedNode.sync="selectedNode"
@@ -32,6 +32,7 @@
               :goBackDisabled.sync="goBackDisabled"
               @selected="onSelectedNode"
               @moveNode="onMoveNode"
+              @addNode="onAddNode"
               @selectedChildren="onSelectedContents"
               @dblClick="onDblClicked"
               @goBack="onGoBack"
@@ -53,7 +54,7 @@
           :nodes.sync="data"
           :icons="icons"
           :volumesDialog.sync="volumesDialog"
-          @addFolder="onAddFolder"
+          @addNode="onAddNode"
         />
       </q-dialog> -->
 
@@ -295,6 +296,9 @@ export default {
     clearContents () {
       this.contents.splice(0, this.contents.length)
     },
+    clearNodes () {
+      this.nodes.splice(0, this.nodes.length)
+    },
     clearConfirm () {
       this.confirm = {
         show: false,
@@ -306,7 +310,7 @@ export default {
     async copyNode (children, oldNode, newNode) {
       // IMPORTANT: New node object is forwarded from the tree so we can alter the reference
       // IMPORTANT: oldNode is forwarded by the dataTransfer, therefore cannot alter the node
-      // TODO: (Reda) put copy logique here!
+      // TODO: (Reda) put copy logic here!
     },
     async moveNode (children, oldNode, newNode) {
       // IMPORTANT: New node object is forwarded from the tree so we can alter the reference
@@ -337,7 +341,8 @@ export default {
         // Update the tree only when we are moving folders
         if (children.find((child) => child.isDir)) {
           this.loadingNodes = true
-          this.nodes.push(...await this.fetchNodes(this.selectedNode))
+          this.clearNodes()
+          this.nodes.push(...await this.fetchNodes(this.rootNode))
         }
         this.setSelectedNode(newNode.id)
       } catch (error) {
@@ -381,16 +386,23 @@ export default {
 
       return nodes.filter((el) => el != null)
     },
-    async addFolder (folder) {
+    async addNode (node) {
       try {
-        await this.insertAsset(
+        const assetId = await this.insertAsset(
           {
-            name: folder.label,
+            name: node.name,
             assetType: 'folder',
             privacyType: 'private',
-            parentId: this.rootNode
+            parentId: node.parentId
           }
         )
+
+        node.id = assetId
+
+        this.loadingNodes = true
+        this.clearNodes()
+        this.nodes.push(...await this.fetchNodes(this.rootNode))
+        this.setSelectedNode(this.selectedNode)
       } catch (error) {
         console.error('Error', error.message)
         this.$q.notify({
@@ -399,6 +411,8 @@ export default {
           icon: 'cloud_done',
           message: 'Failed'
         })
+      } finally {
+        this.loadingNodes = false
       }
     },
 
@@ -475,8 +489,8 @@ export default {
 
       this.setSelectedNode(node.parentId)
     },
-    async onAddFolder (folder) {
-      await this.addFolder(folder)
+    async onAddNode (node) {
+      await this.addNode(node)
     }
   }
 }
