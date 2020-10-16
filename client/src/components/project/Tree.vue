@@ -43,7 +43,7 @@
             @dragover.prevent
           >
             <!-- We should have only folders in the tree -->
-            <q-icon :name="prop.expanded ? icons['folderOpen'] : icons['folder']" />
+            <q-icon :name="prop.expanded || prop.node.id === selected ? icons['folderOpen'] : icons['folder']" />
             <span class="q-ml-sm node-text">
               {{ prop.node.name }}
             </span>
