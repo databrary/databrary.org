@@ -10,6 +10,7 @@
         <template v-slot:before>
           <div class="q-pa-md tree-container">
             <Tree
+              ref="tree"
               :nodes="nodes"
               :icons="icons"
               :loading.sync="loadingNodes"
@@ -28,10 +29,12 @@
               :columns="columns"
               :selectedNode.sync="selectedFolder"
               :loading.sync="loadingContents"
+              :goBackDisabled.sync="goBackDisabled"
               @selected="onSelectedFolder"
               @moveFile="onMoveFile"
               @selectedChildren="onSelectedContents"
               @dblClick="onDblClicked"
+              @goBack="onGoBack"
               @showFileUploadDialog="onShowFileUploadDialog"
             />
           </div>
@@ -153,32 +156,33 @@ export default {
   data () {
     return {
       nodes: [], // Tree nodes
-      contents: [], // Contents of a selected node
-      loadingNodes: true,
-      loadingContents: true,
-      selectedFolder: null,
-      selectedFiles: [],
-      volumesDialog: false,
-      showFileUploadDialog: false,
-      maximizedToggle: true,
+      contents: [], // Contents of a selected node, is updated on selectedFolder updates
+      loadingNodes: true, // The state of the Tree component
+      loadingContents: true, // The state of the Grid component
+      goBackDisabled: true, // The state of the go back button in the Grid component
+      selectedFolder: null, // The current selected folder (can be update from Grid and Tree)
+      selectedFiles: [], // List of selected files/folders updated from the Grid component
+      volumesDialog: false, // The state of the new volume dialog
+      maximizedToggle: true, // new volume dialog maximized toggle
+      showFileUploadDialog: false, // The state of the uppy upload dialog
       splitterModel: 30
     }
   },
   async created () {
     this.setSelectedFolder(this.assetId.toString())
-    this.nodes.push(...await this.getFolders(this.selectedFolder))
+    this.nodes.push(...await this.fetchFolders(this.selectedFolder))
     this.loadingNodes = false
   },
   watch: {
     async selectedFolder (newFolderId, oldFolderId) {
-      if (!newFolderId) {
-        newFolderId = this.assetId
-      }
+      if (!newFolderId) newFolderId = this.assetId
 
       this.loadingContents = true
       this.clearContents()
-      this.contents.push(...await this.getFolderContents(newFolderId))
+      this.contents.push(...await this.fetchFolderContents(newFolderId))
       this.loadingContents = false
+
+      newFolderId === this.assetId.toString() ? this.goBackDisabled = true : this.goBackDisabled = false
     }
     // '$route': 'fetchData'
   },
@@ -197,7 +201,7 @@ export default {
             name: asset.name,
             isDir: asset.assetType === 'folder',
             lazy: true,
-            parentId: asset.parentId,
+            parentId: asset.parentId.toString(),
             uploadedDatetime: asset.datetimeCreated,
             size: _.get(asset, 'childAssets', []).length
           }
@@ -207,7 +211,7 @@ export default {
             id: asset.id.toString(),
             name: asset.name,
             isDir: asset.assetType === 'folder',
-            parentId: asset.parentId,
+            parentId: asset.parentId.toString(),
             uploadedDatetime: asset.datetimeCreated,
             // TODO: (Reda): Remove default values from here and add them to the ingest scripts
             size: _.get(asset, 'file.fileobject.size', 0),
@@ -295,7 +299,7 @@ export default {
         // Update the tree only when we are moving folders
         if (children.find((child) => child.isDir)) {
           this.loadingNodes = true
-          this.nodes.push(...await this.getFolders(this.selectedFolder))
+          this.nodes.push(...await this.fetchFolders(this.selectedFolder))
           this.loadingNodes = false
         }
         this.setSelectedFolder(newNode.id)
@@ -311,9 +315,7 @@ export default {
         this.loadingContents = false
       }
     },
-
-    // Getters
-    async getFolderContents (folderId) {
+    async fetchFolderContents (folderId) {
       // Get the folder contents
       if (!folderId) return []
 
@@ -328,7 +330,7 @@ export default {
       return contents.filter((el) => el != null)
     },
 
-    async getFolders (assetId) {
+    async fetchFolders (assetId) {
       if (!assetId) return []
 
       const assets = await this.fetchData(assetId)
@@ -404,10 +406,33 @@ export default {
     onShowFileUploadDialog (show) {
       this.showFileUploadDialog = show
     },
-    onDblClicked (folderId, isDir) {
-      if (isDir) {
-        this.setSelectedFolder(folderId)
+
+    /**
+     * Emmited from the Grid compenent
+     * on folder's double click event
+     */
+    onDblClicked (node) {
+      if (node.isDir) {
+        this.setSelectedFolder(node.id)
+        // We expand the parent in the Tree component
+        if (node.parentId) this.$refs.tree.$refs.qtree.setExpanded(node.parentId, true)
       }
+    },
+
+    /**
+     * Emmited from the Grid compenent
+     * on Go Back click event
+     */
+    onGoBack () {
+      if (this.selectedFolder === this.assetId.toString()) return
+
+      console.log('this.selectedFolder = ', this.selectedFolder)
+
+      const node = this.$refs.tree.$refs.qtree.getNodeByKey(this.selectedFolder)
+
+      if (!node || !node.parentId) return
+
+      this.setSelectedFolder(node.parentId)
     },
     async onAddFolder (folder) {
       await this.addFolder(folder)

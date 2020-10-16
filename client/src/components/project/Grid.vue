@@ -3,10 +3,21 @@
       <q-toolbar class="bg-white text-dark q-pa-sm">
         <q-btn
           flat
+          icon="chevron_left"
+          color="primary"
+          :disable="goBackDisabled"
+          @click.stop="onClickBack()"
+        >
+          <q-tooltip>
+            Go Back
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          flat
           label="Upload"
           icon="cloud_upload"
           color="primary"
-          @click.stop="onClickNodeUpload()"
+          @click.stop="onClickUpload()"
         >
           <q-tooltip>
             Upload files
@@ -67,7 +78,7 @@
                 @dragstart="onDragStart($event, props.row)"
                 @drop="props.row.isDir ? onDrop($event, props.row) : null"
                 @dragover.prevent
-                @dblclick.prevent="props.row.isDir ? onDblClick($event, props.row.id, props.row.isDir) : null"
+                @dblclick.prevent="props.row.isDir ? onDblClick($event, props.row) : null"
               >
                 <q-icon
                   class="col-2"
@@ -133,6 +144,11 @@ export default {
     loading: {
       type: Boolean,
       required: true
+    },
+    goBackDisabled: {
+      type: Boolean,
+      required: false,
+      default: () => false
     }
   },
   data () {
@@ -203,13 +219,14 @@ export default {
     moveFile (children, oldNode, newNode) {
       this.$emit('moveFile', children, oldNode, newNode)
     },
-    onDblClick (e, nodeId, isDir) {
-      this.selected = nodeId
-
-      this.$emit('dblClick', this.selected, isDir)
+    onDblClick (e, node) {
+      this.$emit('dblClick', node)
     },
-    onClickNodeUpload () {
+    onClickUpload () {
       this.$emit('showFileUploadDialog', true)
+    },
+    onClickBack () {
+      this.$emit('goBack')
     }
   }
 }

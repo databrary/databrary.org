@@ -27,6 +27,7 @@
     </div>
     <div v-else>
       <q-tree
+        ref="qtree"
         class="col-12"
         :nodes="nodes"
         node-key="id"
