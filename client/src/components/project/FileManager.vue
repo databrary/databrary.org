@@ -76,7 +76,8 @@ import Grid from './Grid'
 import Toolbar from './Toolbar'
 
 const defaultIcons = {
-  folder: 'mdi-folder',
+  folder: 'mdi-folder-outline',
+  folderOpen: 'mdi-folder-open-outline',
   zip: 'mdi-folder-zip-outline',
   rar: 'mdi-folder-zip-outline',
   json: 'mdi-json',

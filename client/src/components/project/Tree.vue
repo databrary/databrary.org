@@ -41,7 +41,8 @@
             @drop="onDrop($event, prop.node)"
             @dragover.prevent
           >
-            <q-icon :name="prop.node.isDir ? icons['folder'] : icons['other']" />
+            <!-- We should have only folders in the tree -->
+            <q-icon :name="prop.expanded ? icons['folderOpen'] : icons['folder']" />
             <span class="q-ml-sm node-text">
               {{ prop.node.name }}
             </span>
