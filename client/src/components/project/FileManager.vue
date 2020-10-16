@@ -61,6 +61,20 @@
       <q-dialog v-model="showFileUploadDialog" position="standard">
         <FileUploader :parentId="parseInt(selectedNode)"/>
       </q-dialog>
+
+      <q-dialog v-model="confirm.show">
+        <q-card>
+          <q-card-section class="row items-center">
+            <span class="q-ml-sm">Select an action!.</span>
+          </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn flat label="Cancel" @click="clearConfirm()" color="primary" v-close-popup />
+            <q-btn flat label="Copy" disable @click="copyNode(confirm.children, confirm.oldNode, confirm.newNode)" color="primary" v-close-popup />
+            <q-btn flat label="Move" @click="moveNode(confirm.children, confirm.oldNode, confirm.newNode)" color="primary" v-close-popup />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </div>
   </section>
 </template>
@@ -166,6 +180,12 @@ export default {
       volumesDialog: false, // The state of the new volume dialog
       maximizedToggle: true, // new volume dialog maximized toggle
       showFileUploadDialog: false, // The state of the uppy upload dialog
+      confirm: {
+        show: false,
+        oldNode: null,
+        newNode: null,
+        children: null
+      }, // Object with data related to the move/copy action
       splitterModel: 30
     }
   },
@@ -275,6 +295,19 @@ export default {
     clearContents () {
       this.contents.splice(0, this.contents.length)
     },
+    clearConfirm () {
+      this.confirm = {
+        show: false,
+        oldNode: null,
+        newNode: null,
+        children: null
+      }
+    },
+    async copyNode (children, oldNode, newNode) {
+      // IMPORTANT: New node object is forwarded from the tree so we can alter the reference
+      // IMPORTANT: oldNode is forwarded by the dataTransfer, therefore cannot alter the node
+      // TODO: (Reda) put copy logique here!
+    },
     async moveNode (children, oldNode, newNode) {
       // IMPORTANT: New node object is forwarded from the tree so we can alter the reference
       // IMPORTANT: oldNode is forwarded by the dataTransfer, therefore cannot alter the node
@@ -317,6 +350,7 @@ export default {
       } finally {
         this.loadingContents = false
         this.loadingNodes = false
+        this.clearConfirm()
       }
     },
     async fetchContents (assetId) {
@@ -333,7 +367,6 @@ export default {
 
       return contents.filter((el) => el != null)
     },
-
     async fetchNodes (assetId) {
       if (!assetId) return []
 
@@ -396,7 +429,12 @@ export default {
       }
     },
     async onMoveNode (children, oldNode, newNode) {
-      await this.moveNode(children, oldNode, newNode)
+      this.confirm = {
+        show: true,
+        oldNode: oldNode,
+        newNode: newNode,
+        children: children
+      }
     },
     onSelectedNode (nodeId) {
       this.setSelectedNode(nodeId)
