@@ -110,12 +110,10 @@ export default {
 
       const children = JSON.parse(e.dataTransfer.getData('children'))
 
-      console.log('Children on drop', children)
-
-      this.moveFile(children, oldNode, newNode)
+      this.moveNode(children, oldNode, newNode)
     },
-    moveFile (children, oldNode, newNode) {
-      this.$emit('moveFile', children, oldNode, newNode)
+    moveNode (children, oldNode, newNode) {
+      this.$emit('moveNode', children, oldNode, newNode)
     },
     resetFilter () {
       this.filter = ''

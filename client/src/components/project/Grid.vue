@@ -214,10 +214,10 @@ export default {
 
       const children = JSON.parse(e.dataTransfer.getData('children'))
 
-      this.moveFile(children, oldNode, newNode)
+      this.moveNode(children, oldNode, newNode)
     },
-    moveFile (children, oldNode, newNode) {
-      this.$emit('moveFile', children, oldNode, newNode)
+    moveNode (children, oldNode, newNode) {
+      this.$emit('moveNode', children, oldNode, newNode)
     },
     onDblClick (e, node) {
       this.$emit('dblClick', node)

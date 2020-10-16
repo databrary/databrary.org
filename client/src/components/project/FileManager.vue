@@ -2,7 +2,7 @@
   <section class="row q-pa-xs">
     <div class="col-xs-12 col-sm-12 col-md-12">
       <!-- <Toolbar
-        :selected.sync="selectedFiles"
+        :selected.sync="selectedContents"
         @showVolumeDialog="onShowVolumeDialog"
         @showFileUploadDialog="onShowFileUploadDialog"
       /> -->
@@ -14,9 +14,9 @@
               :nodes="nodes"
               :icons="icons"
               :loading.sync="loadingNodes"
-              :selectedNode.sync="selectedFolder"
-              @selected="onSelectedFolder"
-              @moveFile="onMoveFile"
+              :selectedNode.sync="selectedNode"
+              @selected="onSelectedNode"
+              @moveNode="onMoveNode"
               :lazyLoad="onLazyLoad"
             />
           </div>
@@ -27,11 +27,11 @@
               :children.sync="contents"
               :icons="icons"
               :columns="columns"
-              :selectedNode.sync="selectedFolder"
+              :selectedNode.sync="selectedNode"
               :loading.sync="loadingContents"
               :goBackDisabled.sync="goBackDisabled"
-              @selected="onSelectedFolder"
-              @moveFile="onMoveFile"
+              @selected="onSelectedNode"
+              @moveNode="onMoveNode"
               @selectedChildren="onSelectedContents"
               @dblClick="onDblClicked"
               @goBack="onGoBack"
@@ -59,7 +59,7 @@
 
       <!-- File Uploaded Dialog  -->
       <q-dialog v-model="showFileUploadDialog" position="standard">
-        <FileUploader :parentId="parseInt(selectedFolder)"/>
+        <FileUploader :parentId="parseInt(selectedNode)"/>
       </q-dialog>
     </div>
   </section>
@@ -155,13 +155,14 @@ export default {
   },
   data () {
     return {
+      rootNode: null, // The assetId converted to string
       nodes: [], // Tree nodes
-      contents: [], // Contents of a selected node, is updated on selectedFolder updates
+      contents: [], // Contents of a selected node, is updated on selectedNode updates
       loadingNodes: true, // The state of the Tree component
       loadingContents: true, // The state of the Grid component
       goBackDisabled: true, // The state of the go back button in the Grid component
-      selectedFolder: null, // The current selected folder (can be update from Grid and Tree)
-      selectedFiles: [], // List of selected files/folders updated from the Grid component
+      selectedNode: null, // The current selected node (can be updated from Grid and Tree)
+      selectedContents: [], // List of selected files/folders updated from the Grid component
       volumesDialog: false, // The state of the new volume dialog
       maximizedToggle: true, // new volume dialog maximized toggle
       showFileUploadDialog: false, // The state of the uppy upload dialog
@@ -169,20 +170,24 @@ export default {
     }
   },
   async created () {
-    this.setSelectedFolder(this.assetId.toString())
-    this.nodes.push(...await this.fetchFolders(this.selectedFolder))
+    this.rootNode = this.assetId.toString()
+    this.setSelectedNode(this.rootNode)
+    this.nodes.push(...await this.fetchNodes(this.selectedNode))
     this.loadingNodes = false
   },
   watch: {
-    async selectedFolder (newFolderId, oldFolderId) {
-      if (!newFolderId) newFolderId = this.assetId
+    async selectedNode (newFolderId, oldFolderId) {
+      if (!newFolderId) newFolderId = this.rootNode
 
       this.loadingContents = true
       this.clearContents()
-      this.contents.push(...await this.fetchFolderContents(newFolderId))
+      this.contents.push(...await this.fetchContents(newFolderId))
       this.loadingContents = false
 
-      newFolderId === this.assetId.toString() ? this.goBackDisabled = true : this.goBackDisabled = false
+      newFolderId === this.rootNode ? this.goBackDisabled = true : this.goBackDisabled = false
+    },
+    assetId () {
+      this.rootNode = this.assetId.toString()
     }
     // '$route': 'fetchData'
   },
@@ -270,7 +275,7 @@ export default {
     clearContents () {
       this.contents.splice(0, this.contents.length)
     },
-    async moveFile (children, oldNode, newNode) {
+    async moveNode (children, oldNode, newNode) {
       // IMPORTANT: New node object is forwarded from the tree so we can alter the reference
       // IMPORTANT: oldNode is forwarded by the dataTransfer, therefore cannot alter the node
       try {
@@ -299,12 +304,10 @@ export default {
         // Update the tree only when we are moving folders
         if (children.find((child) => child.isDir)) {
           this.loadingNodes = true
-          this.nodes.push(...await this.fetchFolders(this.selectedFolder))
-          this.loadingNodes = false
+          this.nodes.push(...await this.fetchNodes(this.selectedNode))
         }
-        this.setSelectedFolder(newNode.id)
+        this.setSelectedNode(newNode.id)
       } catch (error) {
-        console.error('moveFile::', error.message)
         this.$q.notify({
           color: 'red-4',
           textColor: 'white',
@@ -313,24 +316,25 @@ export default {
         })
       } finally {
         this.loadingContents = false
+        this.loadingNodes = false
       }
     },
-    async fetchFolderContents (folderId) {
+    async fetchContents (assetId) {
       // Get the folder contents
-      if (!folderId) return []
+      if (!assetId) return []
 
-      const result = await this.fetchData(folderId)
+      const assets = await this.fetchData(assetId)
 
       let contents = []
 
-      for (const child of _.get(result, 'childAssets', [])) {
+      for (const child of _.get(assets, 'childAssets', [])) {
         contents.push(this.createNode(child))
       }
 
       return contents.filter((el) => el != null)
     },
 
-    async fetchFolders (assetId) {
+    async fetchNodes (assetId) {
       if (!assetId) return []
 
       const assets = await this.fetchData(assetId)
@@ -351,7 +355,7 @@ export default {
             name: folder.label,
             assetType: 'folder',
             privacyType: 'private',
-            parentId: this.assetId
+            parentId: this.rootNode
           }
         )
       } catch (error) {
@@ -366,11 +370,11 @@ export default {
     },
 
     // Setters
-    setSelectedFolder (folderId) {
-      this.selectedFolder = folderId
+    setSelectedNode (nodeId) {
+      this.selectedNode = nodeId
     },
-    setSelectedFiles (filesArray) {
-      this.selectedFiles = filesArray
+    setSelectedContents (nodesArray) {
+      this.selectedContents = nodesArray
     },
 
     // Event handlers
@@ -391,14 +395,14 @@ export default {
         fail()
       }
     },
-    async onMoveFile (children, oldNode, newNode) {
-      await this.moveFile(children, oldNode, newNode)
+    async onMoveNode (children, oldNode, newNode) {
+      await this.moveNode(children, oldNode, newNode)
     },
-    onSelectedFolder (folderId) {
-      this.setSelectedFolder(folderId)
+    onSelectedNode (nodeId) {
+      this.setSelectedNode(nodeId)
     },
-    onSelectedContents (filesArray) {
-      this.setSelectedFiles(filesArray)
+    onSelectedContents (nodesArray) {
+      this.setSelectedContents(nodesArray)
     },
     onShowVolumeDialog (show) {
       this.volumesDialog = show
@@ -413,9 +417,9 @@ export default {
      */
     onDblClicked (node) {
       if (node.isDir) {
-        this.setSelectedFolder(node.id)
+        this.setSelectedNode(node.id)
         // We expand the parent in the Tree component
-        if (node.parentId === this.assetId.toString()) return
+        if (node.parentId === this.rootNode) return
         if (node.parentId) this.$refs.tree.$refs.qtree.setExpanded(node.parentId, true)
       }
     },
@@ -425,13 +429,13 @@ export default {
      * on Go Back click event
      */
     onGoBack () {
-      if (this.selectedFolder === this.assetId.toString()) return
+      if (this.selectedNode === this.rootNode) return
 
-      const node = this.$refs.tree.$refs.qtree.getNodeByKey(this.selectedFolder)
+      const node = this.$refs.tree.$refs.qtree.getNodeByKey(this.selectedNode)
 
       if (!node || !node.parentId) return
 
-      this.setSelectedFolder(node.parentId)
+      this.setSelectedNode(node.parentId)
     },
     async onAddFolder (folder) {
       await this.addFolder(folder)
