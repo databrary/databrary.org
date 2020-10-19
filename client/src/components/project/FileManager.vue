@@ -60,7 +60,9 @@
 
       <!-- File Uploaded Dialog  -->
       <q-dialog v-model="showFileUploadDialog" position="standard">
-        <FileUploader :parentId="parseInt(selectedNode)"/>
+        <FileUploader
+          :parentId="parseInt(selectedNode)"
+        />
       </q-dialog>
 
       <q-dialog v-model="confirm.show">
@@ -70,9 +72,28 @@
           </q-card-section>
 
           <q-card-actions align="right">
-            <q-btn flat label="Cancel" @click="clearConfirm()" color="primary" v-close-popup />
-            <q-btn flat label="Copy" disable @click="copyNode(confirm.children, confirm.oldNode, confirm.newNode)" color="primary" v-close-popup />
-            <q-btn flat label="Move" @click="moveNode(confirm.children, confirm.oldNode, confirm.newNode)" color="primary" v-close-popup />
+            <q-btn
+              flat
+              label="Cancel"
+              color="primary"
+              @click="clearConfirm()"
+              v-close-popup
+            />
+            <q-btn
+              flat
+              label="Copy"
+              disable
+              color="primary"
+              @click="copyNode(confirm.children, confirm.oldNode, confirm.newNode)"
+              v-close-popup
+            />
+            <q-btn
+              flat
+              label="Move"
+              color="primary"
+              @click="moveNode(confirm.children, confirm.oldNode, confirm.newNode)"
+              v-close-popup
+            />
           </q-card-actions>
         </q-card>
       </q-dialog>
@@ -154,6 +175,57 @@ const defaultColumns = [
   // }
 ]
 
+const GET_ASSETS = gql`
+  query GetAssets($assetId: Int!) {
+    assets(where: {id: {_eq: $assetId}, assetType: {_in: [pam, project, folder, file]}}) {
+      id
+      name
+      assetType
+      datetimeCreated
+      parentId
+      file {
+        id
+        name
+        fileFormatId
+        uploadedDatetime
+        fileobject {
+          size
+        }
+      }
+      childAssets {
+        id
+        name
+        assetType
+        datetimeCreated
+        parentId
+        file {
+          id
+          name
+          fileFormatId
+          uploadedDatetime
+          fileobject {
+            size
+          }
+        }
+      }
+    }
+  }
+`
+
+const UPDATE_PARENT_ID = gql`
+  mutation UpdateParentId($assets: [Int!]!, $parentId: Int!) {
+    update_assets(
+      where: { id: {_in: $assets}}, 
+      _set: {parentId: $parentId}) 
+    {
+      returning {
+        id
+        parentId
+      }
+    }
+  }
+`
+
 export default {
   name: 'FileManager',
   components: {
@@ -170,7 +242,7 @@ export default {
   },
   data () {
     return {
-      rootNode: null, // The assetId converted to string
+      rootNode: null, // The assetId converted to string on created hook
       nodes: [], // Tree nodes
       contents: [], // Contents of a selected node, is updated on selectedNode updates
       loadingNodes: true, // The state of the Tree component
@@ -193,17 +265,13 @@ export default {
   async created () {
     this.rootNode = this.assetId.toString()
     this.setSelectedNode(this.rootNode)
-    this.nodes.push(...await this.fetchNodes(this.selectedNode))
-    this.loadingNodes = false
+    await this.updateNodes(this.selectedNode)
   },
   watch: {
     async selectedNode (newFolderId, oldFolderId) {
       if (!newFolderId) newFolderId = this.rootNode
 
-      this.loadingContents = true
-      this.clearContents()
-      this.contents.push(...await this.fetchContents(newFolderId))
-      this.loadingContents = false
+      this.updateContents(newFolderId)
 
       newFolderId === this.rootNode ? this.goBackDisabled = true : this.goBackDisabled = false
     },
@@ -214,6 +282,15 @@ export default {
   },
   methods: {
     ...mapActions('assets', ['insertAsset']),
+
+    /**
+     * Create a node model structure from asset's object, handles folder
+     * and file asset types that are used respectively for the quasar tree
+     * and quasar table components
+     * see https://quasar.dev/vue-components/tree#Nodes-model-structure
+     *
+     * @param {Object} asset - asset to be added to the nodes and contents array
+     */
     createNode (asset) {
       if (!asset.assetType) {
         console.error('assetType is required! Make use to add the field to you GraphQL query')
@@ -248,57 +325,71 @@ export default {
           return null
       }
     },
-    async fetchData (assetId) {
-      const result = await this.$apollo.query({
-        query: gql`
-          query GetAssets($assetId: Int!) {
-            assets(where: {id: {_eq: $assetId}, assetType: {_in: [pam, project, folder, file]}}) {
-              id
-              name
-              assetType
-              datetimeCreated
-              parentId
-              file {
-                id
-                name
-                fileFormatId
-                uploadedDatetime
-                fileobject {
-                  size
-                }
-              }
-              childAssets {
-                id
-                name
-                assetType
-                datetimeCreated
-                parentId
-                file {
-                  id
-                  name
-                  fileFormatId
-                  uploadedDatetime
-                  fileobject {
-                    size
-                  }
-                }
-              }
-            }
-          }
-        `,
-        variables: {
-          assetId: assetId
-        }
-      })
 
-      return _.get(result, 'data.assets[0]', [])
+    /**
+     * fetch asset's childAssets
+     *
+     * @param {String} assetId - Database asset id
+     */
+    async fetchData (assetId) {
+      try {
+        const result = await this.$apollo.query({
+          query: GET_ASSETS,
+          variables: {
+            assetId: assetId
+          }
+        })
+
+        return _.get(result, 'data.assets[0]', [])
+      } catch (error) {
+        throw new Error(error.message)
+      }
     },
+
     clearContents () {
       this.contents.splice(0, this.contents.length)
     },
+
     clearNodes () {
       this.nodes.splice(0, this.nodes.length)
     },
+
+    /**
+     * Clear and update the nodes array
+     *
+     * @param {String} assetId - Database asset id
+     */
+    async updateNodes (assetId) {
+      try {
+        this.loadingNodes = true
+        this.clearNodes()
+        this.nodes.push(...await this.fetchNodes(assetId))
+        this.loadingNodes = false
+      } catch (error) {
+        console.error('updateNodes::', error.message)
+      } finally {
+        this.loadingNodes = false
+      }
+    },
+
+    /**
+     * Clear and update the contents array
+     *
+     * @param {String} assetId - Database asset id
+     */
+    async updateContents (assetId) {
+      try {
+        this.loadingContents = true
+        this.clearContents()
+        this.contents.push(...await this.fetchContents(assetId))
+        this.loadingContents = false
+      } catch (error) {
+        console.error('updateContents::', error.message)
+      } finally {
+        this.loadingContents = false
+      }
+    },
+
     clearConfirm () {
       this.confirm = {
         show: false,
@@ -312,25 +403,21 @@ export default {
       // IMPORTANT: oldNode is forwarded by the dataTransfer, therefore cannot alter the node
       // TODO: (Reda) put copy logic here!
     },
+
+    /**
+     * Change the parent id of the children and update the tree and grid components
+     *
+     * @param {Array} children - children nodes to be moved
+     * @param {Object} oldNode - source node where the move started
+     * @param {Object} newNode - target node where the children will be moved to
+     */
+
     async moveNode (children, oldNode, newNode) {
       // IMPORTANT: New node object is forwarded from the tree so we can alter the reference
       // IMPORTANT: oldNode is forwarded by the dataTransfer, therefore cannot alter the node
       try {
-        this.loadingContents = true
         const result = this.$apollo.mutate({
-          mutation: gql`
-            mutation ChangeParentId($assets: [Int!]!, $parentId: Int!) {
-              update_assets(
-                where: { id: {_in: $assets}}, 
-                _set: {parentId: $parentId}) 
-              {
-                returning {
-                  id
-                  parentId
-                }
-              }
-            }
-          `,
+          mutation: UPDATE_PARENT_ID,
           variables: {
             assets: children.map((child) => child.id),
             parentId: newNode.id
@@ -340,11 +427,16 @@ export default {
 
         // Update the tree only when we are moving folders
         if (children.find((child) => child.isDir)) {
-          this.loadingNodes = true
-          this.clearNodes()
-          this.nodes.push(...await this.fetchNodes(this.rootNode))
+          await this.updateNodes(this.rootNode)
         }
         this.setSelectedNode(newNode.id)
+
+        this.$q.notify({
+          color: 'green-4',
+          textColor: 'white',
+          icon: 'cloud_done',
+          message: 'Moved'
+        })
       } catch (error) {
         this.$q.notify({
           color: 'red-4',
@@ -353,39 +445,67 @@ export default {
           message: 'Failed'
         })
       } finally {
-        this.loadingContents = false
-        this.loadingNodes = false
         this.clearConfirm()
       }
     },
+
+    /**
+     * Fetch childAssets of an asset id and update the contents array,
+     * the contents is forwarded to the Grid component and display files
+     * and folders of a selected tree node.
+     *
+     * @param {String} assetId - Database asset id
+     */
     async fetchContents (assetId) {
-      // Get the folder contents
-      if (!assetId) return []
+      try {
+        // Get the folder contents
+        if (!assetId) return []
 
-      const assets = await this.fetchData(assetId)
+        const assets = await this.fetchData(assetId)
 
-      let contents = []
+        let contents = []
 
-      for (const child of _.get(assets, 'childAssets', [])) {
-        contents.push(this.createNode(child))
+        for (const child of _.get(assets, 'childAssets', [])) {
+          contents.push(this.createNode(child))
+        }
+
+        return contents.filter((el) => el != null)
+      } catch (error) {
+        throw new Error(error.message)
       }
-
-      return contents.filter((el) => el != null)
     },
+
+    /**
+     * Fetch childAssets of an asset id and update the nodes array,
+     * the nodes is forwarded to the Tree component and display folders
+     * and sub-folders of a project|pam.
+     *
+     * @param {String} assetId - Database asset id
+     */
     async fetchNodes (assetId) {
-      if (!assetId) return []
+      try {
+        if (!assetId) return []
 
-      const assets = await this.fetchData(assetId)
+        const assets = await this.fetchData(assetId)
 
-      const nodes = []
+        const nodes = []
 
-      for (const asset of _.get(assets, 'childAssets', [])) {
-        if (asset.assetType !== 'folder') continue
-        nodes.push(this.createNode(asset))
+        for (const asset of _.get(assets, 'childAssets', [])) {
+          if (asset.assetType !== 'folder') continue
+          nodes.push(this.createNode(asset))
+        }
+
+        return nodes.filter((el) => el != null)
+      } catch (error) {
+        throw new Error(error.message)
       }
-
-      return nodes.filter((el) => el != null)
     },
+
+    /**
+     * Insert a new folder in the node's parent
+     *
+     * @param {Object} node - object forwarded from the Grid components
+     */
     async addNode (node) {
       try {
         const assetId = await this.insertAsset(
@@ -399,20 +519,22 @@ export default {
 
         node.id = assetId
 
-        this.loadingNodes = true
-        this.clearNodes()
-        this.nodes.push(...await this.fetchNodes(this.rootNode))
+        await this.updateNodes(this.rootNode)
         this.setSelectedNode(this.selectedNode)
+        this.$q.notify({
+          color: 'green-4',
+          textColor: 'white',
+          icon: 'cloud_done',
+          message: 'Created'
+        })
       } catch (error) {
-        console.error('Error', error.message)
+        console.error('addNode::', error.message)
         this.$q.notify({
           color: 'red-4',
           textColor: 'white',
           icon: 'cloud_done',
           message: 'Failed'
         })
-      } finally {
-        this.loadingNodes = false
       }
     },
 
@@ -464,8 +586,10 @@ export default {
     },
 
     /**
-     * Emmited from the Grid compenent
-     * on folder's double click event
+     * Emmited from the Grid component
+     * on folder's double click event.
+     *
+     * @param {Object} node - node object
      */
     onDblClicked (node) {
       if (node.isDir) {
@@ -477,7 +601,7 @@ export default {
     },
 
     /**
-     * Emmited from the Grid compenent
+     * Emmited from the Grid component
      * on Go Back click event
      */
     onGoBack () {
@@ -489,6 +613,11 @@ export default {
 
       this.setSelectedNode(node.parentId)
     },
+
+    /**
+     * Emmited from the Grid component
+     * on Add Folder action
+     */
     async onAddNode (node) {
       await this.addNode(node)
     }
