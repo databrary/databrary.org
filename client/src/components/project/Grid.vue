@@ -202,7 +202,8 @@ export default {
       width: 175,
       height: 350,
       fontSize: 12,
-      defaultName: 'New Folder'
+      defaultName: 'New Folder',
+      newFolderCount: 0
     }
   },
   mounted () {
@@ -212,6 +213,8 @@ export default {
   },
   watch: {
     selectedNode () {
+      if (this.selected === this.selectedNode) return
+
       this.selected = this.selectedNode
     },
     selected () {
@@ -221,6 +224,10 @@ export default {
       this.$emit('selectedChildren', this.selectedChildren)
     },
     contents () {
+      if (this.newFolderCount > 0) {
+        this.newFolderCount = 0
+        console.log('New Folders need to be changed')
+      }
       this.nodes = this.contents
     }
   },
@@ -271,7 +278,7 @@ export default {
       this.nodes.push(
         {
           id: uid(),
-          name: this.defaultName,
+          name: `${this.defaultName}  ${++this.newFolderCount}`,
           isDir: true,
           lazy: true,
           parentId: this.selected,
@@ -289,7 +296,10 @@ export default {
       this.$emit('moveNode', children, oldNode, newNode)
     },
     saveNode (node) {
+      if (node.name.includes('New Folder')) return
+
       node.edit = false
+      this.newFolderCount--
       const { edit, ...rest } = node
       this.$emit('addNode', rest)
     }

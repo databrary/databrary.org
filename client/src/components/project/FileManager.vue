@@ -350,11 +350,9 @@ export default {
           }
         })
 
-        console.log('result', result)
-
         return _.get(result, 'data.assets[0]', [])
       } catch (error) {
-        console.log('fetchData::', error.message)
+        console.error('fetchData::', error.message)
         throw new Error(error.message)
       }
     },

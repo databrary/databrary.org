@@ -93,6 +93,8 @@ export default {
   watch: {
     // this comes from the parent
     selectedNode () {
+      if (this.selected === this.selectedNode) return
+
       this.selected = this.selectedNode
     },
     selected () {
