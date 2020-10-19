@@ -183,6 +183,11 @@ const GET_ASSETS = gql`
       assetType
       datetimeCreated
       parentId
+      childAssets_aggregate {
+        aggregate {
+          count(columns: id)
+        }
+      }
       file {
         id
         name
@@ -198,6 +203,11 @@ const GET_ASSETS = gql`
         assetType
         datetimeCreated
         parentId
+        childAssets_aggregate {
+          aggregate {
+            count(columns: id)
+          }
+        }
         file {
           id
           name
@@ -306,7 +316,7 @@ export default {
             lazy: true,
             parentId: asset.parentId.toString(),
             uploadedDatetime: asset.datetimeCreated,
-            size: _.get(asset, 'childAssets', []).length
+            size: _.get(asset, 'childAssets_aggregate.aggregate.count', 0)
           }
 
         case 'file':
@@ -340,8 +350,11 @@ export default {
           }
         })
 
+        console.log('result', result)
+
         return _.get(result, 'data.assets[0]', [])
       } catch (error) {
+        console.log('fetchData::', error.message)
         throw new Error(error.message)
       }
     },
