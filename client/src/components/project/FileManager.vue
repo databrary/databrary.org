@@ -427,6 +427,12 @@ export default {
       // IMPORTANT: New node object is forwarded from the tree so we can alter the reference
       // IMPORTANT: oldNode is forwarded by the dataTransfer, therefore cannot alter the node
       try {
+        // TODO: (Reda) query assets to check if file's name exists in target
+        // const newContents = await this.fetchContents(newNode.id)
+        // Check for every child if exists in newContents
+        // remove child from children if exists in newContents
+        // Show a warning listing files/folders that couldn't be moved
+
         const result = this.$apollo.mutate({
           mutation: UPDATE_PARENT_ID,
           variables: {

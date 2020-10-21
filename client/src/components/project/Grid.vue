@@ -89,6 +89,7 @@
               class="row-inline justify-start items-center cursor-pointer"
               draggable
               @dragstart="onDragStart($event, props.row)"
+              @dragend="onDragEnd($event)"
               @drop="props.row.isDir ? onDrop($event, props.row) : null"
               @dragover.prevent
               @dblclick.prevent="props.row.isDir ? onDblClick($event, props.row) : null"
@@ -276,6 +277,7 @@ export default {
       }, ms)
     },
     onDragStart (e, node) {
+      e.currentTarget.style.opacity = 0.5
       e.dataTransfer.dropEffect = 'move'
       e.dataTransfer.effectAllowed = 'move'
       // We move all selected files, if not, only the draged one
@@ -286,7 +288,11 @@ export default {
       e.dataTransfer.setData('children', JSON.stringify(children))
       e.dataTransfer.setData('node', JSON.stringify(node))
     },
+    onDragEnd (e) {
+      e.currentTarget.style.opacity = ''
+    },
     onDrop (e, newNode) {
+      e.currentTarget.style.background = '#8fcba6'
       const oldNode = JSON.parse(e.dataTransfer.getData('node'))
 
       if (oldNode.id === newNode.id) return

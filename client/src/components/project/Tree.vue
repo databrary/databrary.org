@@ -39,11 +39,16 @@
         <template v-slot:default-header="prop">
           <div
             class="row items-center"
+            :style="nodeStyle"
             @drop="onDrop($event, prop.node)"
+            @dragenter="$event.currentTarget.style.background = '#8fcba6'"
+            @dragleave="$event.currentTarget.style.background = ''"
             @dragover.prevent
           >
             <!-- We should have only folders in the tree -->
-            <q-icon :name="prop.expanded || prop.node.id === selected ? icons['folderOpen'] : icons['folder']" />
+            <q-icon
+              :name="prop.expanded || prop.node.id === selected ? icons['folderOpen'] : icons['folder']"
+            />
             <span class="q-ml-sm node-text">
               {{ prop.node.name }}
             </span>
@@ -103,6 +108,7 @@ export default {
   },
   methods: {
     onDrop (e, newNode) {
+      e.currentTarget.style.background = ''
       const oldNode = JSON.parse(e.dataTransfer.getData('node'))
 
       if (oldNode.id === newNode.id) return
