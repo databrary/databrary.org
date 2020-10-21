@@ -105,12 +105,14 @@
               </span>
               <q-popup-edit
                 :ref="props.row.id"
-                v-if="props.row.edit"
+                v-if="props.row.canEdit"
                 v-model="props.row.name"
-                @save="saveNode(props.row)"
-                @hide="hidePopupEdit(props.row)"
                 @show="currentRef = props.row.id"
+                @save="(value, initialValue) => saveNode(value, initialValue, props.row)"
+                @cancel="(value, initialValue) => cancelNode(value, initialValue, props.row)"
+                @hide="hideNode(props.row)"
               >
+                <!-- @hide="hidePopupEdit(props.row)" -->
                 <q-input
                   v-model.trim="props.row.name"
                   class="col-10 q-ml-sm"
@@ -262,16 +264,16 @@ export default {
     }
   },
   methods: {
-    exists (node) {
-      return this.contents.some((el) => el.id !== node.id && el.name === node.name)
+    exists (id, name) {
+      if (!name) throw new Error('Name argument is required!')
+      return id
+        ? this.contents.some((el) => el.id !== id && el.name === name)
+        : this.contents.filter((el) => el.name === name).length >= 2
     },
     showPopupEdit (ref, ms = 300) {
       setTimeout(() => {
         if (this.$refs[ref]) this.$refs[ref].show()
       }, ms)
-    },
-    hidePopupEdit (node) {
-      this.saveNode(node)
     },
     onDragStart (e, node) {
       e.dataTransfer.dropEffect = 'move'
@@ -317,10 +319,7 @@ export default {
         parentId: this.selected,
         uploadedDatetime: Date.now(),
         size: 0,
-        edit: {
-          state: true,
-          defaultName: `${this.defaultName} ${this.newFolderCount}`
-        }
+        canEdit: true
       }
 
       this.nodes.push(newNode)
@@ -332,26 +331,28 @@ export default {
     moveNode (children, oldNode, newNode) {
       this.$emit('moveNode', children, oldNode, newNode)
     },
-    saveNode (node) {
-      if (this.exists(node)) {
-        this.warnDuplicateName = true
-        node.name = node.edit.defaultName
-        return
+    saveNode (value, initialValue, node) {
+      try {
+        if (this.exists(node.id, value)) {
+          this.warnDuplicateName = true
+          node.name = initialValue
+          return
+        }
+        node.canEdit = false
+        delete node.canEdit
+        this.$emit('addNode', node)
+      } catch (error) {
+        console.error(error.message)
       }
-
-      if (!node.edit) {
-        // When there is no edit object, means that the node is fetched from the db
-        // and therefore need to be updated and not inserted
-      }
-
-      // if we find a node.edit means that the node is created and not saved yet
-      node.edit.state = node.name === node.edit.defaultName
-
-      // we do not save the file if we still have the default name
-      if (node.edit.state) return
-
-      const { edit, ...rest } = node
-      this.$emit('addNode', rest)
+    },
+    cancelNode (value, initialValue, node) {
+      node.name = value
+      this.saveNode(value, initialValue, node)
+    },
+    hideNode (node) {
+      // Check canEdit property to prevent from saving the node twice
+      if (node.canEdit) return
+      this.saveNode(node.name, node.name, node)
     }
   }
 }
