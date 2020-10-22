@@ -12,6 +12,7 @@
             <Tree
               ref="tree"
               :nodes="nodes"
+              :rootNode="rootNode"
               :icons="icons"
               :loading.sync="loadingNodes"
               :selectedNode.sync="selectedNode"
@@ -42,22 +43,6 @@
         </template>
       </q-splitter>
 
-      <!-- Create a new Volume Dialog  -->
-      <!-- <q-dialog
-        v-model="volumesDialog"
-        persistent
-        :maximized="maximizedToggle"
-        transition-show="slide-up"
-        transition-hide="slide-down"
-      >
-        <AddNewVolume
-          :nodes.sync="data"
-          :icons="icons"
-          :volumesDialog.sync="volumesDialog"
-          @addNode="onAddNode"
-        />
-      </q-dialog> -->
-
       <!-- File Uploaded Dialog  -->
       <q-dialog v-model="showFileUploadDialog" position="standard">
         <FileUploader
@@ -84,14 +69,14 @@
               label="Copy"
               disable
               color="primary"
-              @click="copyNode(confirm.children, confirm.oldNode, confirm.newNode)"
+              @click="copyNode(confirm.children, confirm.target)"
               v-close-popup
             />
             <q-btn
               flat
               label="Move"
               color="primary"
-              @click="moveNode(confirm.children, confirm.oldNode, confirm.newNode)"
+              @click="moveNode(confirm.children, confirm.target)"
               v-close-popup
             />
           </q-card-actions>
@@ -265,7 +250,6 @@ export default {
       showFileUploadDialog: false, // The state of the uppy upload dialog
       confirm: {
         show: false,
-        oldNode: null,
         newNode: null,
         children: null
       }, // Object with data related to the move/copy action
@@ -404,12 +388,11 @@ export default {
     clearConfirm () {
       this.confirm = {
         show: false,
-        oldNode: null,
         newNode: null,
         children: null
       }
     },
-    async copyNode (children, oldNode, newNode) {
+    async copyNode (children, newNode) {
       // IMPORTANT: New node object is forwarded from the tree so we can alter the reference
       // IMPORTANT: oldNode is forwarded by the dataTransfer, therefore cannot alter the node
       // TODO: (Reda) put copy logic here!
@@ -423,7 +406,7 @@ export default {
      * @param {Object} newNode - target node where the children will be moved to
      */
 
-    async moveNode (children, oldNode, newNode) {
+    async moveNode (children, targetNodeId) {
       // IMPORTANT: New node object is forwarded from the tree so we can alter the reference
       // IMPORTANT: oldNode is forwarded by the dataTransfer, therefore cannot alter the node
       try {
@@ -437,7 +420,7 @@ export default {
           mutation: UPDATE_PARENT_ID,
           variables: {
             assets: children.map((child) => child.id),
-            parentId: newNode.id
+            parentId: targetNodeId
           }
         })
         // FIXME: only update affected nodes in the tree instead of fetching the full data from the backend
@@ -446,7 +429,7 @@ export default {
         if (children.find((child) => child.isDir)) {
           await this.updateNodes(this.rootNode)
         }
-        this.setSelectedNode(newNode.id)
+        this.setSelectedNode(targetNodeId)
 
         this.$q.notify({
           color: 'green-4',
@@ -581,11 +564,10 @@ export default {
         fail()
       }
     },
-    async onMoveNode (children, oldNode, newNode) {
+    async onMoveNode (children, targetNodeId) {
       this.confirm = {
         show: true,
-        oldNode: oldNode,
-        newNode: newNode,
+        target: targetNodeId,
         children: children
       }
     },

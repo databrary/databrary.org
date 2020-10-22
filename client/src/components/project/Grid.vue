@@ -89,8 +89,10 @@
               class="row-inline justify-start items-center cursor-pointer"
               draggable
               @dragstart="onDragStart($event, props.row)"
-              @dragend="onDragEnd($event)"
-              @drop="props.row.isDir ? onDrop($event, props.row) : null"
+              @dragenter="props.row.isDir ? $event.currentTarget.style.background = '#8fcba6': null"
+              @dragleave="props.row.isDir ? $event.currentTarget.style.background = '' : null"
+              @dragend="$event.currentTarget.style.opacity = ''"
+              @drop="props.row.isDir ? onDrop($event, props.row.id) : null"
               @dragover.prevent
               @dblclick.prevent="props.row.isDir ? onDblClick($event, props.row) : null"
             >
@@ -134,7 +136,7 @@
               ? 'bg-grey-2 q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition justify-between content-start'
               : 'q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition justify-between content-start'"
             draggable
-            @dragstart="onDragStart($event, props.row.id)"
+            @dragstart="onDragStart($event, props.row)"
             @drop="props.row.isDir ? onDrop($event, props.row.id) : null"
             @dragover.prevent
             @dblclick.prevent="props.row.isDir ? onDblClick($event, props.row.id, props.row.isDir) : null"
@@ -288,21 +290,18 @@ export default {
       e.dataTransfer.setData('children', JSON.stringify(children))
       e.dataTransfer.setData('node', JSON.stringify(node))
     },
-    onDragEnd (e) {
-      e.currentTarget.style.opacity = ''
-    },
-    onDrop (e, newNode) {
-      e.currentTarget.style.background = '#8fcba6'
+    onDrop (e, targetNodeId) {
+      e.currentTarget.style.background = ''
       const oldNode = JSON.parse(e.dataTransfer.getData('node'))
 
-      if (oldNode.id === newNode.id) return
+      if (oldNode.id === targetNodeId) return
 
       // don't drop on other draggables
       if (e.target.draggable === true) return
 
       const children = JSON.parse(e.dataTransfer.getData('children'))
 
-      this.moveNode(children, oldNode, newNode)
+      this.moveNode(children, targetNodeId)
     },
     onDblClick (e, node) {
       this.$emit('dblClick', node)
@@ -334,8 +333,8 @@ export default {
       // Wait for Quasar to update the table to show the popup edit
       this.showPopupEdit(newNode.id)
     },
-    moveNode (children, oldNode, newNode) {
-      this.$emit('moveNode', children, oldNode, newNode)
+    moveNode (children, targetNodeId) {
+      this.$emit('moveNode', children, targetNodeId)
     },
     saveNode (value, initialValue, node) {
       try {
