@@ -149,6 +149,7 @@ docker: bin-exists-docker-compose
 	DOCKER_HOST_IP=$(DOCKER_HOST_IP) docker-compose up
 
 #: Start the Nest.js server in non-daemon mode
+server: server_nest
 server_nest: check-node-version bin-exists-yarn server-nest/node_modules
 	cd server-nest && rm -rf dist && npm run start:dev && cd ..
 server_test: FORCE
