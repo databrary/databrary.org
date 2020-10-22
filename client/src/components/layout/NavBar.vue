@@ -96,6 +96,7 @@
     </q-list>
     </q-btn-dropdown>
     <q-space/>
+    <q-btn clickable icon="shopping_cart" dense flat />
     <q-btn v-if="isLoggedIn" dense flat class="text-weight-light text-grey-8 q-ma-sm" icon="notifications">
       <q-badge color="red-5" floating>3</q-badge>
       <q-menu>
@@ -171,22 +172,22 @@
         </q-avatar>
         <q-menu>
           <q-list style="min-width: 200px">
-          <q-item to="/settings" clickable v-close-popup>
-            <q-item-section>
-              <q-item-label>
-                <q-icon name="settings" class="q-pr-sm"/>Account Settings
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-          <q-separator inset/>
-          <q-item @click='onClickLogout' clickable v-close-popup>
-            <q-item-section>
-              <q-item-label>
-                <q-icon name="lock" class="q-pr-sm"/>Logout
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-list>
+            <q-item to="/settings" clickable v-close-popup>
+              <q-item-section>
+                <q-item-label>
+                  <q-icon name="settings" class="q-pr-sm"/>Account Settings
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-separator inset/>
+            <q-item @click='onClickLogout' clickable v-close-popup>
+              <q-item-section>
+                <q-item-label>
+                  <q-icon name="lock" class="q-pr-sm"/>Logout
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
         </q-menu>
       </q-btn>
     </q-btn-group>
