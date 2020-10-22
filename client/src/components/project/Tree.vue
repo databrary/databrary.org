@@ -123,7 +123,7 @@ export default {
     onDrop (e, targetNodeId) {
       e.currentTarget.style.background = ''
       const sourceNode = JSON.parse(e.dataTransfer.getData('node'))
-      console.log('targetNode = ', targetNodeId)
+
       if (sourceNode.id === targetNodeId) return
 
       // don't drop on other draggables

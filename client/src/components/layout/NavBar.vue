@@ -96,7 +96,7 @@
     </q-list>
     </q-btn-dropdown>
     <q-space/>
-    <q-btn clickable icon="shopping_cart" dense flat />
+    <q-btn clickable icon="shopping_cart" dense flat @drop="onCartDrop($event)"/>
     <q-btn v-if="isLoggedIn" dense flat class="text-weight-light text-grey-8 q-ma-sm" icon="notifications">
       <q-badge color="red-5" floating>3</q-badge>
       <q-menu>
@@ -232,6 +232,17 @@ export default {
     },
     toggleDrawer () {
       this.$emit('toggleDrawer')
+    },
+    onCartDrop (e) {
+      const children = JSON.parse(e.dataTransfer.getData('children'))
+
+      this.addToCart(children)
+    },
+    addToCart (children) {
+      children.map((child) => {
+        // child.id is the assetId of the file/folder
+        // Add child.id reference to the cart data structure here
+      })
     }
   }
 }
