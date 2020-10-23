@@ -1,12 +1,12 @@
 <template>
-  <div class="contents-wrapper">
+  <div ref="contentsRef" class="contents-wrapper">
     <q-toolbar class="bg-white text-dark q-pa-sm">
       <q-btn
         flat
         icon="subdirectory_arrow_left"
         class="rotate-90"
         color="primary"
-        :disable="goBackDisabled"
+        :disable="selected === root"
         @click.stop="onClickBack()"
       >
         <q-tooltip>
@@ -209,14 +209,15 @@ export default {
       type: Boolean,
       required: true
     },
-    goBackDisabled: {
-      type: Boolean,
-      required: false,
-      default: () => false
+    rootNode: {
+      type: String,
+      required: true,
+      default: () => null
     }
   },
   data () {
     return {
+      root: null, // the assetId of the root folder (pam | project)
       nodes: [],
       selectedChildren: [],
       selected: '',
@@ -242,8 +243,9 @@ export default {
   },
   mounted () {
     this.nodes = this.contents
-    this.height = this.$parent.$el.offsetHeight - 50
+    this.height = this.$parent.$el.offsetHeight
     this.selected = this.selectedNode
+    this.root = this.rootNode
   },
   watch: {
     selectedNode () {
@@ -259,6 +261,9 @@ export default {
     },
     contents () {
       this.nodes = this.contents
+    },
+    rootNode () {
+      this.root = this.rootNode
     }
   },
   computed: {

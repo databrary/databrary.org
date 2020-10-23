@@ -1,11 +1,6 @@
 <template>
   <section class="row q-pa-xs">
     <div class="col-xs-12 col-sm-12 col-md-12">
-      <!-- <Toolbar
-        :selected.sync="selectedContents"
-        @showVolumeDialog="onShowVolumeDialog"
-        @showFileUploadDialog="onShowFileUploadDialog"
-      /> -->
       <q-splitter v-model="splitterModel" before-class="window-height" after-class="no-scroll window-height">
         <template v-slot:before>
           <div class="q-pa-md tree-container">
@@ -30,7 +25,7 @@
               :columns="columns"
               :selectedNode.sync="selectedNode"
               :loading.sync="loadingContents"
-              :goBackDisabled.sync="goBackDisabled"
+              :rootNode="rootNode"
               @selected="onSelectedNode"
               @moveNode="onMoveNode"
               @addNode="onAddNode"
@@ -237,7 +232,7 @@ export default {
   },
   data () {
     return {
-      rootNode: null, // The assetId converted to string on created hook
+      rootNode: null, // The assetId (pam | project) converted to string on created hook
       nodes: [], // Tree nodes
       contents: [], // Contents of a selected node, is updated on selectedNode updates
       loadingNodes: true, // The state of the Tree component
@@ -349,6 +344,13 @@ export default {
       this.nodes.splice(0, this.nodes.length)
     },
 
+    clearConfirm () {
+      this.confirm = {
+        show: false,
+        newNode: null,
+        children: null
+      }
+    },
     /**
      * Clear and update the nodes array
      *
@@ -385,13 +387,6 @@ export default {
       }
     },
 
-    clearConfirm () {
-      this.confirm = {
-        show: false,
-        newNode: null,
-        children: null
-      }
-    },
     async copyNode (children, newNode) {
       // IMPORTANT: New node object is forwarded from the tree so we can alter the reference
       // IMPORTANT: oldNode is forwarded by the dataTransfer, therefore cannot alter the node
@@ -576,9 +571,6 @@ export default {
     },
     onSelectedContents (nodesArray) {
       this.setSelectedContents(nodesArray)
-    },
-    onShowVolumeDialog (show) {
-      this.volumesDialog = show
     },
     onShowFileUploadDialog (show) {
       this.showFileUploadDialog = show
