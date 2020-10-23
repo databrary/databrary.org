@@ -8,7 +8,7 @@
           clickable
           v-ripple
           active-class="row bg-teal-1 text-grey-8"
-          @drop="onDrop($event, rootNode)"
+          @drop="onDrop($event, root)"
           @dragenter.prevent="isRootActive = true"
           @dragleave.prevent="isRootActive = false"
           @dragover.prevent="isRootActive = true"
@@ -41,11 +41,12 @@
       >
         <template v-slot:default-header="prop">
           <div
+            :ref="prop.node.id"
             class="row items-center"
             @drop="onDrop($event, prop.node.id)"
-            @dragenter="$event.currentTarget.style.background = '#8fcba6'"
-            @dragleave="$event.currentTarget.style.background = ''"
-            @dragover.prevent
+            @dragenter.prevent="setNodeActive(prop.node.id, true)"
+            @dragover.prevent="setNodeActive(prop.node.id, true)"
+            @dragleave.prevent="setNodeActive(prop.node.id, false)"
           >
             <!-- We should have only folders in the tree -->
             <q-icon
@@ -100,7 +101,7 @@ export default {
       isRootActive: false
     }
   },
-  mounted () {
+  created () {
     this.selected = this.selectedNode
     this.root = this.rootNode
   },
@@ -120,10 +121,18 @@ export default {
     }
   },
   methods: {
+    setNodeActive (ref, isActive) {
+      if (ref === this.selected) return
+
+      if (isActive) this.$refs[ref].classList.add('bg-teal-1', 'text-grey-8')
+      else this.$refs[ref].classList.remove('bg-teal-1', 'text-grey-8')
+    },
     onDrop (e, targetNodeId) {
-      e.currentTarget.style.background = ''
+      this.setNodeActive(targetNodeId, false)
       const sourceNode = JSON.parse(e.dataTransfer.getData('node'))
 
+      // prevent dropping in the same(source) folder
+      // source and destination must be different
       if (sourceNode.id === targetNodeId) return
 
       // don't drop on other draggables

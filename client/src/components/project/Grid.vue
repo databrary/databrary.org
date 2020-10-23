@@ -86,14 +86,15 @@
         <template v-slot:body-cell-name="props">
           <q-td class="col-12">
             <div
+              :ref="props.row.id"
               class="row-inline justify-start items-center cursor-pointer"
               draggable
               @dragstart="onDragStart($event, props.row)"
-              @dragenter="props.row.isDir ? $event.currentTarget.style.background = '#8fcba6': null"
-              @dragleave="props.row.isDir ? $event.currentTarget.style.background = '' : null"
               @dragend="$event.currentTarget.style.opacity = ''"
+              @dragenter.prevent="props.row.isDir ? setNodeActive(props.row.id, true): null"
+              @dragover.prevent="props.row.isDir ? setNodeActive(props.row.id, true): null"
+              @dragleave.prevent="props.row.isDir ? setNodeActive(props.row.id, false) : null"
               @drop="props.row.isDir ? onDrop($event, props.row.id) : null"
-              @dragover.prevent
               @dblclick.prevent="props.row.isDir ? onDblClick($event, props.row) : null"
             >
               <q-icon
@@ -232,6 +233,7 @@ export default {
       width: 175,
       height: 350,
       fontSize: 12,
+      opacityOnDragged: 0.5,
       defaultName: 'New Folder',
       newFolderCount: 1,
       warnDuplicateName: false,
@@ -267,6 +269,12 @@ export default {
     }
   },
   methods: {
+    setNodeActive (ref, isActive) {
+      if (ref === this.selected) return
+
+      if (isActive) this.$refs[ref].classList.add('bg-teal-1', 'text-grey-8')
+      else this.$refs[ref].classList.remove('bg-teal-1', 'text-grey-8')
+    },
     exists (id, name) {
       if (!name) throw new Error('Name argument is required!')
       return id
@@ -279,7 +287,7 @@ export default {
       }, ms)
     },
     onDragStart (e, node) {
-      e.currentTarget.style.opacity = 0.5
+      e.currentTarget.style.opacity = this.opacityOnDragged
       e.dataTransfer.dropEffect = 'move'
       e.dataTransfer.effectAllowed = 'move'
       // We move all selected files, if not, only the draged one
@@ -291,7 +299,7 @@ export default {
       e.dataTransfer.setData('node', JSON.stringify(node))
     },
     onDrop (e, targetNodeId) {
-      e.currentTarget.style.background = ''
+      this.setNodeActive(targetNodeId, false)
       const oldNode = JSON.parse(e.dataTransfer.getData('node'))
 
       if (oldNode.id === targetNodeId) return
