@@ -122,7 +122,7 @@ export default {
   },
   methods: {
     setNodeActive (ref, isActive) {
-      if (ref === this.selected) return
+      if (!this.$refs[ref] || ref === this.selected) return
 
       if (isActive) this.$refs[ref].classList.add('bg-teal-1', 'text-grey-8')
       else this.$refs[ref].classList.remove('bg-teal-1', 'text-grey-8')

@@ -515,7 +515,8 @@ export default {
         node.id = assetId
 
         await this.updateNodes(this.rootNode)
-        this.setSelectedNode(this.selectedNode)
+
+        this.setSelectedNode(node.parentId)
         this.$q.notify({
           color: 'green-4',
           textColor: 'white',

@@ -108,7 +108,7 @@
                 {{props.row.name}}
               </span>
               <q-popup-edit
-                :ref="props.row.id"
+                :ref="`${props.row.id}-edit`"
                 v-if="props.row.canEdit"
                 v-model="props.row.name"
                 @show="currentRef = props.row.id"
@@ -288,7 +288,8 @@ export default {
     },
     showPopupEdit (ref, ms = 300) {
       setTimeout(() => {
-        if (this.$refs[ref]) this.$refs[ref].show()
+        const popEditRef = `${ref}-edit`
+        if (this.$refs[popEditRef]) this.$refs[popEditRef].show()
       }, ms)
     },
     onDragStart (e, node) {
