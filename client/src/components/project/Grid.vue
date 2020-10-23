@@ -110,10 +110,8 @@
               <q-popup-edit
                 :ref="`${props.row.id}-edit`"
                 v-if="props.row.canEdit"
-                v-model="props.row.name"
-                @show="currentRef = props.row.id"
-                @save="(value, initialValue) => saveNode(value, initialValue, props.row)"
-                @cancel="(value, initialValue) => cancelNode(value, initialValue, props.row)"
+                v-model="props.row.id"
+                @show="lastRef = props.row.id"
                 @hide="hideNode(props.row)"
               >
                 <!-- @hide="hidePopupEdit(props.row)" -->
@@ -158,29 +156,6 @@
         </template>
       </q-table>
     </div>
-
-    <q-dialog
-      v-model="warnDuplicateName"
-    >
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Alert</div>
-        </q-card-section>
-        <q-card-section class="row items-center">
-          <span class="q-mx-sm">Another file with the same name already exists in this folder</span>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn
-            flat
-            label="OK"
-            color="primary"
-            @click.prevent="showPopupEdit(currentRef)"
-            v-close-popup
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </div>
 </template>
 
@@ -238,7 +213,7 @@ export default {
       defaultName: 'New Folder',
       newFolderCount: 1,
       warnDuplicateName: false,
-      currentRef: null
+      lastRef: null
     }
   },
   mounted () {
@@ -280,13 +255,7 @@ export default {
       if (isActive) this.$refs[ref].classList.add('bg-teal-1', 'text-grey-8')
       else this.$refs[ref].classList.remove('bg-teal-1', 'text-grey-8')
     },
-    exists (id, name) {
-      if (!name) throw new Error('Name argument is required!')
-      return id
-        ? this.contents.some((el) => el.id !== id && el.name === name)
-        : this.contents.filter((el) => el.name === name).length >= 2
-    },
-    showPopupEdit (ref, ms = 300) {
+    showPopupEdit (ref = this.lastRef, ms = 300) {
       setTimeout(() => {
         const popEditRef = `${ref}-edit`
         if (this.$refs[popEditRef]) this.$refs[popEditRef].show()
@@ -329,37 +298,21 @@ export default {
         parentId: this.selected,
         uploadedDatetime: Date.now(),
         size: 0,
-        canEdit: true
+        canEdit: true,
+        initialName: `${this.defaultName} ${this.newFolderCount}`
       }
 
-      this.nodes.push(newNode)
+      this.nodes.unshift(newNode)
 
       this.newFolderCount++
       // Wait for Quasar to update the table to show the popup edit
       this.showPopupEdit(newNode.id)
     },
-    saveNode (value, initialValue, node) {
-      try {
-        if (this.exists(node.id, value)) {
-          this.warnDuplicateName = true
-          node.name = initialValue
-          return
-        }
-        node.canEdit = false
-        delete node.canEdit
-        this.$emit('addNode', node)
-      } catch (error) {
-        console.error(error.message)
-      }
+    saveNode (node, name, initialName) {
+      this.$emit('addNode', node, name, initialName)
     },
-    cancelNode (value, initialValue, node) {
-      node.name = value
-      this.saveNode(value, initialValue, node)
-    },
-    hideNode (node) {
-      // Check canEdit property to prevent from saving the node twice
-      if (node.canEdit) return
-      this.saveNode(node.name, node.name, node)
+    hideNode (node, currentName) {
+      this.saveNode(node, node.name, node.initialName)
     }
   }
 }

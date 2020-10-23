@@ -20,6 +20,7 @@
         <template v-slot:after>
           <div class="q-px-sm contents-container">
             <Grid
+              ref="grid"
               :contents.sync="contents"
               :icons="icons"
               :columns="columns"
@@ -72,6 +73,26 @@
               label="Move"
               color="primary"
               @click="moveNode(confirm.children, confirm.target)"
+              v-close-popup
+            />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+      <q-dialog v-model="alertDuplicateName">
+        <q-card>
+          <q-card-section>
+            <div class="text-h6">Alert</div>
+          </q-card-section>
+          <q-card-section class="row items-center">
+            <span class="q-mx-sm">Another file with the same name already exists in this folder</span>
+          </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn
+              flat
+              label="OK"
+              color="primary"
+              @click="showContentsPopupEdit()"
               v-close-popup
             />
           </q-card-actions>
@@ -248,7 +269,8 @@ export default {
         newNode: null,
         children: null
       }, // Object with data related to the move/copy action
-      splitterModel: 30
+      splitterModel: 30,
+      alertDuplicateName: false
     }
   },
   async created () {
@@ -606,8 +628,23 @@ export default {
      * Emmited from the Grid component
      * on Add Folder action
      */
-    async onAddNode (node) {
-      await this.addNode(node)
+    async onAddNode (node, name, initialName) {
+      try {
+        if (this.existsInContents(node.id, name)) {
+          this.alertDuplicateName = true
+          node.name = initialName
+          return
+        }
+
+        node.canEdit = false
+        node.initialName = ''
+        delete node.canEdit
+        delete node.initialName
+
+        await this.addNode(node)
+      } catch (error) {
+        console.error(error.message)
+      }
     },
 
     onNodeDrop (e, targetNodeId) {
@@ -623,6 +660,15 @@ export default {
       const children = JSON.parse(e.dataTransfer.getData('children'))
 
       this.setConfirmData({ show: true, target: targetNodeId, children: children })
+    },
+    showContentsPopupEdit () {
+      this.$refs.grid.showPopupEdit()
+    },
+    existsInContents (id, name) {
+      if (!name) throw new Error('Name argument is required!')
+      return id
+        ? this.contents.some((el) => el.id !== id && el.name === name)
+        : this.contents.filter((el) => el.name === name).length >= 2
     }
   }
 }
