@@ -129,21 +129,7 @@ export default {
     },
     onDrop (e, targetNodeId) {
       this.setNodeActive(targetNodeId, false)
-      const sourceNode = JSON.parse(e.dataTransfer.getData('node'))
-
-      // prevent dropping in the same(source) folder
-      // source and destination must be different
-      if (sourceNode.id === targetNodeId) return
-
-      // don't drop on other draggables
-      if (e.target.draggable === true) return
-
-      const children = JSON.parse(e.dataTransfer.getData('children'))
-
-      this.moveNode(children, targetNodeId)
-    },
-    moveNode (children, targetNodeId) {
-      this.$emit('moveNode', children, targetNodeId)
+      this.$emit('onDrop', e, targetNodeId)
     }
   }
 }

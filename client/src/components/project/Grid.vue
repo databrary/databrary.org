@@ -305,16 +305,7 @@ export default {
     },
     onDrop (e, targetNodeId) {
       this.setNodeActive(targetNodeId, false)
-      const oldNode = JSON.parse(e.dataTransfer.getData('node'))
-
-      if (oldNode.id === targetNodeId) return
-
-      // don't drop on other draggables
-      if (e.target.draggable === true) return
-
-      const children = JSON.parse(e.dataTransfer.getData('children'))
-
-      this.moveNode(children, targetNodeId)
+      this.$emit('onDrop', e, targetNodeId)
     },
     onDblClick (e, node) {
       this.$emit('dblClick', node)
@@ -345,9 +336,6 @@ export default {
       this.newFolderCount++
       // Wait for Quasar to update the table to show the popup edit
       this.showPopupEdit(newNode.id)
-    },
-    moveNode (children, targetNodeId) {
-      this.$emit('moveNode', children, targetNodeId)
     },
     saveNode (value, initialValue, node) {
       try {

@@ -12,7 +12,7 @@
               :loading.sync="loadingNodes"
               :selectedNode.sync="selectedNode"
               @selected="onSelectedNode"
-              @moveNode="onMoveNode"
+              @onDrop="onNodeDrop"
               :lazyLoad="onLazyLoad"
             />
           </div>
@@ -27,7 +27,7 @@
               :loading.sync="loadingContents"
               :rootNode="rootNode"
               @selected="onSelectedNode"
-              @moveNode="onMoveNode"
+              @onDrop="onNodeDrop"
               @addNode="onAddNode"
               @selectedChildren="onSelectedContents"
               @dblClick="onDblClicked"
@@ -559,12 +559,8 @@ export default {
         fail()
       }
     },
-    async onMoveNode (children, targetNodeId) {
-      this.confirm = {
-        show: true,
-        target: targetNodeId,
-        children: children
-      }
+    async setConfirmData (confirm) {
+      this.confirm = confirm
     },
     onSelectedNode (nodeId) {
       this.setSelectedNode(nodeId)
@@ -611,6 +607,21 @@ export default {
      */
     async onAddNode (node) {
       await this.addNode(node)
+    },
+
+    onNodeDrop (e, targetNodeId) {
+      const oldNode = JSON.parse(e.dataTransfer.getData('node'))
+
+      // prevent dropping in the same(source) folder
+      // source and destination must be different
+      if (oldNode.id === targetNodeId) return
+
+      // don't drop on other draggables
+      if (e.target.draggable === true) return
+
+      const children = JSON.parse(e.dataTransfer.getData('children'))
+
+      this.setConfirmData({ show: true, target: targetNodeId, children: children })
     }
   }
 }
