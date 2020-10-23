@@ -49,7 +49,7 @@
       <q-dialog v-model="confirm.show">
         <q-card>
           <q-card-section class="row items-center">
-            <span class="q-ml-sm">Select an action!.</span>
+            <span class="q-ml-sm">Select an action!. Note all duplicate will not be processed!</span>
           </q-card-section>
 
           <q-card-actions align="right">
@@ -282,7 +282,7 @@ export default {
     async selectedNode (newFolderId, oldFolderId) {
       if (!newFolderId) newFolderId = this.rootNode
 
-      this.updateContents(newFolderId)
+      await this.updateContents(newFolderId)
 
       newFolderId === this.rootNode ? this.goBackDisabled = true : this.goBackDisabled = false
     },
@@ -424,14 +424,37 @@ export default {
      */
 
     async moveNode (children, targetNodeId) {
-      // IMPORTANT: New node object is forwarded from the tree so we can alter the reference
-      // IMPORTANT: oldNode is forwarded by the dataTransfer, therefore cannot alter the node
       try {
         // TODO: (Reda) query assets to check if file's name exists in target
         // const newContents = await this.fetchContents(newNode.id)
         // Check for every child if exists in newContents
         // remove child from children if exists in newContents
         // Show a warning listing files/folders that couldn't be moved
+
+        const tmpContents = await this.fetchContents(targetNodeId)
+
+        const newChildren = children.filter((child) => !this.existsInContents(child.id, child.name, tmpContents))
+        const duplicateChildren = children.filter((child) => this.existsInContents(child.id, child.name, tmpContents))
+
+        if (duplicateChildren.length) {
+          const html = `
+          <span>
+          Found duplicate! 
+          <br />
+          <ul>
+          ${duplicateChildren.map((child) => (`<li>${child.name}</li>`))}
+          </ul>
+          </span>
+          `
+
+          this.$q.notify({
+            type: 'warning',
+            message: html,
+            html: true
+          })
+        }
+
+        if (_.isEmpty(newChildren)) return
 
         const result = this.$apollo.mutate({
           mutation: UPDATE_PARENT_ID,
@@ -558,9 +581,11 @@ export default {
 
     // Setters
     setSelectedNode (nodeId) {
+      // if (nodeId === this.selectedNode) return
       this.selectedNode = nodeId
     },
     setSelectedContents (nodesArray) {
+      // if (nodesArray === this.selectedContents) return
       this.selectedContents = nodesArray
     },
 
@@ -664,11 +689,11 @@ export default {
     showContentsPopupEdit () {
       this.$refs.grid.showPopupEdit()
     },
-    existsInContents (id, name) {
+    existsInContents (id, name, contents = this.contents) {
       if (!name) throw new Error('Name argument is required!')
       return id
-        ? this.contents.some((el) => el.id !== id && el.name === name)
-        : this.contents.filter((el) => el.name === name).length >= 2
+        ? contents.some((el) => el.id !== id && el.name === name)
+        : contents.filter((el) => el.name === name).length >= 2
     }
   }
 }
