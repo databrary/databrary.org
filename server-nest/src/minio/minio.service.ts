@@ -67,6 +67,14 @@ export class MinioService {
     }
   }
 
+  async getPresignedUrl (bucket: Buckets, name: string, expiry: number = 24 * 60 * 60): Promise<string> {
+    try {
+      return await this.client.presignedGetObject(bucket, name, expiry)
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
+
   async uploadObject (
     bucket: Buckets,
     name: string,

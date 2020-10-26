@@ -1114,10 +1114,35 @@
   resolved "https://registry.yarnpkg.com/@quasar/extras/-/extras-1.9.5.tgz#266663cb728d71706038fa7eaaa7e6a2c97218f7"
   integrity sha512-eUJrYw51qWtJfw12Ha2VBK8wBqkperHh8iaktQoMUrda4goUZ8nYpbfq/ZQdmsDiBku/kpUIrr0pPRmjzVJwkQ==
 
+"@quasar/extras@^1.9.9":
+  version "1.9.10"
+  resolved "https://registry.yarnpkg.com/@quasar/extras/-/extras-1.9.10.tgz#e0d8f98a7234d8bd996a7afbdba9763d4e331788"
+  integrity sha512-pVM2lLiX2vHhibL4VUCjAfYhhYtQLDLYccq/ee6PdpyJ394lJQSkFnnGntcmpQk4QPcgIQ8GZSVpsUd1qgabaw==
+
 "@quasar/fastclick@1.1.4":
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/@quasar/fastclick/-/fastclick-1.1.4.tgz#21ed3e9a4387dcb43022a08af4ef08a5f1abf159"
   integrity sha512-i9wbyV4iT+v4KhtHJynUFhH5LiEPvAEgSnwMqPN4hf/8uRe82nDl5qP5agrp2el1h0HzyBpbvHaW7NB0BPrtvA==
+
+"@quasar/quasar-app-extension-qmediaplayer@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@quasar/quasar-app-extension-qmediaplayer/-/quasar-app-extension-qmediaplayer-1.1.2.tgz#5624d6ea09c38ed7f94c771ce6911fe99e5da037"
+  integrity sha512-4z3hbrjADW32meC97S7V0+I7LyssyzU4jLRBBkISMbeW+WQqY5joyqY0SLc9ddctDwp0nOExNodLo4TNqUYeOg==
+  dependencies:
+    "@quasar/quasar-ui-qmediaplayer" "^1.1.2"
+
+"@quasar/quasar-app-extension-qpdfviewer@^1.0.0-beta.8":
+  version "1.0.0-beta.8"
+  resolved "https://registry.yarnpkg.com/@quasar/quasar-app-extension-qpdfviewer/-/quasar-app-extension-qpdfviewer-1.0.0-beta.8.tgz#61dd8549251585ea7105cb3a4e19b0671388ccb9"
+  integrity sha512-WtH1qeGtDvq9CZ+lcoYJw91bqkCRHpU1aV3s8nggYqBy4qj9numamP8LCTSc9CT1b86hjmwvlMEnwjFT9xk8KA==
+
+"@quasar/quasar-ui-qmediaplayer@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@quasar/quasar-ui-qmediaplayer/-/quasar-ui-qmediaplayer-1.1.2.tgz#2ab5fda3556bae8112b52b29740cddd8f108b16f"
+  integrity sha512-vQbYU1M6hmJDRGLRJxmc5WKVF2HItE0xy+1f+oZhrEUq/PpFOvHQsS4nYAsNOyReMqK96KA/V3X8v56R/lDsiA==
+  dependencies:
+    "@quasar/extras" "^1.9.9"
+    q-colorize-mixin "^1.0.9"
 
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
@@ -8556,6 +8581,11 @@ pupa@^2.0.1:
   integrity sha512-hEJH0s8PXLY/cdXh66tNEQGndDrIKNqNC5xmrysZy3i5C3oEoLna7YAOad+7u125+zH1HNXUmGEkrhb3c2VriA==
   dependencies:
     escape-goat "^2.0.0"
+
+q-colorize-mixin@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/q-colorize-mixin/-/q-colorize-mixin-1.0.9.tgz#f7ceafbae73e68b27754861b63e7d460552ce830"
+  integrity sha512-p1L45Fdeem2cCuHohi4m1EIPeFUbx1Y6qSvtL4iWIhSkGTZEXoBo/knr/5BNwpUO9Pni7iSFjY2b5yTuUsR6Zg==
 
 q@^1.1.2:
   version "1.5.1"

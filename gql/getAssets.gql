@@ -1,0 +1,48 @@
+query GetAssets($assetId: Int!) {
+    assets(where: {id: {_eq: $assetId}, assetType: {_in: [pam, project, folder, file]}}) {
+      id
+      name
+      assetType
+      datetimeCreated
+      parentId
+      privacyType
+      childAssets_aggregate {
+        aggregate {
+          count(columns: id)
+        }
+      }
+      file {
+        id
+        name
+        fileFormatId
+        uploadedDatetime
+        fileobject {
+          location
+          sha256
+          size
+        }
+      }
+      childAssets {
+        id
+        name
+        assetType
+        datetimeCreated
+        parentId
+        privacyType
+        childAssets_aggregate {
+          aggregate {
+            count(columns: id)
+          }
+        }
+        file {
+          id
+          name
+          fileFormatId
+          uploadedDatetime
+          fileobject {
+            size
+          }
+        }
+      }
+    }
+  }

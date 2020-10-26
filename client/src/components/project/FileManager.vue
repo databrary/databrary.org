@@ -98,6 +98,26 @@
           </q-card-actions>
         </q-card>
       </q-dialog>
+      <q-dialog v-model="fileViewer.show">
+        <q-pdfviewer
+          v-if="fileViewer.format === 'pdf'"
+          v-model="fileViewer.show"
+          :src="fileViewer.sources[0].src"
+          type="html5"
+          content-class="fit container"
+          inner-content-class="fit container"
+        />
+        <q-media-player
+          v-else
+          type="video"
+          background-color="black"
+          :autoplay="true"
+          :show-big-play-button="true"
+          :sources="fileViewer.sources"
+          track-language="English"
+        >
+        </q-media-player>
+      </q-dialog>
     </div>
   </section>
 </template>
@@ -269,6 +289,11 @@ export default {
         newNode: null,
         children: null
       }, // Object with data related to the move/copy action
+      fileViewer: {
+        show: false,
+        format: null,
+        sources: null
+      },
       splitterModel: 30,
       alertDuplicateName: false
     }
@@ -292,7 +317,7 @@ export default {
     // '$route': 'fetchData'
   },
   methods: {
-    ...mapActions('assets', ['insertAsset']),
+    ...mapActions('assets', ['insertAsset', 'getAssetUrl']),
 
     /**
      * Create a node model structure from asset's object, handles folder
@@ -626,12 +651,22 @@ export default {
      *
      * @param {Object} node - node object
      */
-    onDblClicked (node) {
+    async onDblClicked (node) {
       if (node.isDir) {
         this.setSelectedNode(node.id)
         // We expand the parent in the Tree component
         if (node.parentId === this.rootNode) return
         if (node.parentId) this.$refs.tree.$refs.qtree.setExpanded(node.parentId, true)
+      } else {
+        // We request the URL for the file
+        const data = await this.getAssetUrl(node.id)
+        if (data) {
+          this.fileViewer = {
+            show: true,
+            format: data.format,
+            sources: [{ src: data.url, type: data.format === 'pdf' ? 'pdf' : 'video/mp4' }]
+          }
+        }
       }
     },
 

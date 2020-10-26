@@ -14,7 +14,7 @@ server {
     proxy_set_header "X-TYPESENSE-API-KEY" "e5325d85-7570-4d95-b95d-60c99cfba4bf";
   }
 
-  location ~ /(login|register|index|session|logout|keycloak|minio|hasura|ingest) {
+  location ~ /(login|register|index|session|logout|keycloak|minio|hasura|ingest|asset) {
     proxy_pass http://${DOCKER_HOST_IP}:${NEST_PORT};
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;

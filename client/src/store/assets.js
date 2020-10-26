@@ -1,6 +1,7 @@
 import { make } from 'vuex-pathify'
 import { gql } from '@apollo/client'
 import { apolloClient } from '../services/apolloClient'
+import axios from 'axios'
 import _ from 'lodash'
 
 const state = {
@@ -56,6 +57,10 @@ const actions = {
     })
 
     return result.data.insert_assets.returning[0].id
+  },
+  async getAssetUrl (_, assetId) {
+    const { data } = await axios({ url: `/asset/${assetId}`, method: 'GET' })
+    return data
   }
 }
 

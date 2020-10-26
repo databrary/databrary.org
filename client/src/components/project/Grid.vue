@@ -95,7 +95,7 @@
               @dragover.prevent="props.row.isDir ? setNodeActive(props.row.id, true): null"
               @dragleave.prevent="props.row.isDir ? setNodeActive(props.row.id, false) : null"
               @drop="props.row.isDir ? onDrop($event, props.row.id) : null"
-              @dblclick.prevent="props.row.isDir ? onDblClick($event, props.row) : null"
+              @dblclick.prevent="onDblClick($event, props.row)"
             >
               <q-icon
                 class="col-2"
@@ -138,7 +138,7 @@
             @dragstart="onDragStart($event, props.row)"
             @drop="props.row.isDir ? onDrop($event, props.row.id) : null"
             @dragover.prevent
-            @dblclick.prevent="props.row.isDir ? onDblClick($event, props.row.id, props.row.isDir) : null"
+            @dblclick.prevent="onDblClick($event, props.row)"
           >
             <q-card-section class="row">
               <q-checkbox dense v-model="props.selected" />
