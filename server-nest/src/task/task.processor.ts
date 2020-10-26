@@ -357,7 +357,6 @@ export class TaskProcessor {
 
     if (fileExistsInBucket) {
       console.error(`File ${file} already exists in ${targetBucket} bucket`)
-      return null
     }
 
     return fileObject
