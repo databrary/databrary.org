@@ -14,10 +14,9 @@
 
     <q-toolbar bordered class="databrary-footer max-page-width bg-white text-black">
       <div class="row full-width">
-        <hr />
         <div class="text-h6 col-12">
           <div class="text-center text-subtitle1 col-12">
-            Copyright &copy;2014-{{year}} Databrary
+            <small>Copyright &copy;2014-{{year}} Databrary</small>
           </div>
         </div>
       </div>

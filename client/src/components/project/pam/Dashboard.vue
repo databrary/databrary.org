@@ -15,11 +15,10 @@
     <div class="q-pa-md">
       <q-splitter
         v-model="firstModel"
-        :style="{height: ($q.screen.height-50-16)+'px'}"
       >
         <template v-slot:before>
           <q-scroll-area
-            :style="{height: ($q.screen.height-50-16)+'px'}"
+            :style="{height: ($q.screen.height-50-16-50)+'px'}"
           >
             <Panel1 />
           </q-scroll-area>

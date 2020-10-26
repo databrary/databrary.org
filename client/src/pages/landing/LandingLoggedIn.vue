@@ -2,10 +2,9 @@
   <div class="q-pa-md">
     <q-splitter
       v-model="firstModel"
-      :style="{height: ($q.screen.height-50-16)+'px'}"
     >
       <template v-slot:before>
-        <q-scroll-area v-if="projects" :style="{height: ($q.screen.height-250)+'px'}" style="max-width: 400px;">
+        <q-scroll-area v-if="projects" :style="{height: ($q.screen.height-50-16-16-50-1)+'px'}" style="max-width: 400px;">
           <q-list>
             <q-item header>
               <q-item-section>
@@ -13,7 +12,6 @@
               </q-item-section>
               <q-item-section side>
                 <q-icon name="add_circle_outline" :to="{ name: 'createProject' }"/>
-                <!-- <q-icon name="arrow" color="green" /> -->
               </q-item-section>
             </q-item>
             <SelectableListItem
@@ -65,7 +63,8 @@ export default {
     }
   },
   computed: {
-    userId: sync('app/dbId')
+    userId: sync('app/dbId'),
+    selectedProjectView: sync('pam/selectedProjectView')
   },
   async created () {
     this.fetchData()
@@ -73,6 +72,7 @@ export default {
   methods: {
     clickPam (id) {
       this.pamId = id
+      this.selectedProjectView = null
     },
     async fetchData () {
       const result = await this.$apollo.query({

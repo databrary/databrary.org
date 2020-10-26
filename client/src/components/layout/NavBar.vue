@@ -123,23 +123,13 @@
           <q-item
             clickable
             v-close-popup
-            @drop="onBookmarkListDrop($event, 'Favorites')"
+            v-for="(list, index) in lists"
+            :key="index"
+            @drop="onBookmarkListDrop($event, list.name)"
           >
             <q-item-section>
               <q-item-label>
-                <q-icon name="article" class="q-pr-sm"/>Favorites
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-          <q-separator inset/>
-          <q-item
-            clickable
-            v-close-popup
-            @drop="onBookmarkListDrop($event, 'Favorites')"
-          >
-            <q-item-section>
-              <q-item-label>
-                <q-icon name="article" class="q-pr-sm"/>Manuscript 1
+                <q-icon name="article" class="q-pr-sm"/>{{list.name}}
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -262,7 +252,9 @@
 </template>
 
 <script>
-import { get } from 'vuex-pathify'
+import Vue from 'vue'
+import { get, sync } from 'vuex-pathify'
+import _ from 'lodash'
 
 export default {
   data () {
@@ -275,7 +267,7 @@ export default {
   computed: {
     isLoggedIn: get('app/isLoggedIn'),
     thumbnail: get('app/thumbnail'),
-    lists: get('cart/lists')
+    lists: sync('bookmarks/lists')
   },
   methods: {
     onClickLogout () {
@@ -286,8 +278,13 @@ export default {
       this.$emit('toggleDrawer')
     },
     onBookmarkListDrop (e, listName) {
-      const children = e.dataTransfer.getData('children')
-      console.log(listName, e.dataTransfer.getData('children'))
+      const assets = JSON.parse(e.dataTransfer.getData('children')) // TODO(jeff) necessary to originally stringify?
+      for (let asset of assets) {
+        this.$store.dispatch('bookmarks/addToList', {
+          listName,
+          item: asset.name
+        })
+      }
     },
     onBookmarksDragover (e) {
       if (this.menuTimeout) {

@@ -1,7 +1,7 @@
 <template>
   <section class="row q-pa-xs">
     <div class="col-xs-12 col-sm-12 col-md-12">
-      <q-splitter v-model="splitterModel" before-class="window-height" after-class="no-scroll window-height">
+      <q-splitter v-model="splitterModel" :style="{height: ($q.screen.height-50-16-16-50-1)+'px'}">
         <template v-slot:before>
           <div class="q-pa-md tree-container">
             <Tree
