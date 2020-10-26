@@ -690,6 +690,11 @@ export default {
      */
     async onAddNode (node, name, initialName) {
       try {
+        if (name.length < 1) {
+          node.name = initialName
+          return
+        }
+
         if (this.existsInContents(node.id, name)) {
           this.alertDuplicateName = true
           node.name = initialName
