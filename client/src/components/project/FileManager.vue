@@ -464,10 +464,10 @@ export default {
         if (duplicateChildren.length) {
           const html = `
           <span>
-          Found duplicate! 
+          Another element(s) with the same name already exists in the destination folder
           <br />
           <ul>
-          ${duplicateChildren.map((child) => (`<li>${child.name}</li>`))}
+          ${duplicateChildren.map((child) => (`<li>${child.name}</li>`)).join(' ')}
           </ul>
           </span>
           `
