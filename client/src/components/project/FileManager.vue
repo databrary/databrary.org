@@ -583,7 +583,7 @@ export default {
           }
         )
 
-        node.id = assetId
+        node.id = assetId.toString()
 
         await this.updateNodes(this.rootNode)
 
