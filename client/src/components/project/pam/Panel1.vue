@@ -14,6 +14,9 @@
         <q-item-section>
           Views
         </q-item-section>
+        <q-item-section side>
+            <q-icon name="add_circle_outline"  @click="onCreateView"/>
+        </q-item-section>
       </template>
 
       <q-item
@@ -35,16 +38,6 @@
         </q-item-section>
       </q-item>
     </q-expansion-item>
-
-    <q-item
-      active-class="bg-teal-1 text-grey-8"
-      class="fixed-bottom"
-      label="Create View"
-    >
-      <q-btn color="primary" label="Create View"
-        @click="onCreateView"
-      />
-    </q-item>
   </q-list>
 </template>
 

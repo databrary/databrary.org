@@ -12,15 +12,20 @@
           </q-scroll-area>
         </template>
         <template v-slot:after>
-          <ProjectViewer
-            :projectId="selectedProjectView"
+          <q-scroll-area
+            :style="{height: ($q.screen.height-50-16-16-50-1)+'px'}"
             v-if="selectedProjectView && !createView"
-          />
+          >
+            <ProjectViewer
+              :projectId="selectedProjectView"
+            />
+          </q-scroll-area>
           <CreateView
             v-else-if="createView"
           />
           <FileManager
             :assetId="asset.id"
+            :height="$q.screen.height-50-16-16-50-1"
             v-else
           />
         </template>
