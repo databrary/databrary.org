@@ -1,7 +1,8 @@
 import { make } from 'vuex-pathify'
 
 const state = {
-  items: []
+  items: [],
+  lists: []
 }
 
 const getters = {

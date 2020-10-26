@@ -96,7 +96,56 @@
     </q-list>
     </q-btn-dropdown>
     <q-space/>
-    <q-btn clickable icon="shopping_cart" dense flat @drop="onCartDrop($event)"/>
+    <q-btn
+      clickable
+      to="/bookmarks"
+      dense
+      flat
+      class="text-weight-light text-grey-8"
+    >
+      <q-icon
+        name="book"
+        @mouseover="onBookmarksDragover($event)"
+        @mouseout="onBookmarksLeave($event)"
+        @dragover="onBookmarksDragover($event)"
+        @dragenter.prevent
+        @dragLeave="onBookmarksLeave($event)"
+      />
+      <q-menu
+        v-model="bookmarksShowing"
+      >
+        <q-list
+          style="min-width: 200px"
+          @dragover="onBookmarksDragover($event)"
+          @dragenter.prevent
+          @dragleave="onBookmarksLeave($event)"
+        >
+          <q-item
+            clickable
+            v-close-popup
+            @drop="onBookmarkListDrop($event, 'Favorites')"
+          >
+            <q-item-section>
+              <q-item-label>
+                <q-icon name="article" class="q-pr-sm"/>Favorites
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-separator inset/>
+          <q-item
+            clickable
+            v-close-popup
+            @drop="onBookmarkListDrop($event, 'Favorites')"
+          >
+            <q-item-section>
+              <q-item-label>
+                <q-icon name="article" class="q-pr-sm"/>Manuscript 1
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-menu>
+    </q-btn>
     <q-btn v-if="isLoggedIn" dense flat class="text-weight-light text-grey-8 q-ma-sm" icon="notifications">
       <q-badge color="red-5" floating>3</q-badge>
       <q-menu>
@@ -218,12 +267,15 @@ import { get } from 'vuex-pathify'
 export default {
   data () {
     return {
-      loginUrl: `http://localhost:8000/login`
+      loginUrl: `http://localhost:8000/login`,
+      bookmarksShowing: false,
+      menuTimeout: null
     }
   },
   computed: {
     isLoggedIn: get('app/isLoggedIn'),
-    thumbnail: get('app/thumbnail')
+    thumbnail: get('app/thumbnail'),
+    lists: get('cart/lists')
   },
   methods: {
     onClickLogout () {
@@ -233,16 +285,24 @@ export default {
     toggleDrawer () {
       this.$emit('toggleDrawer')
     },
-    onCartDrop (e) {
-      const children = JSON.parse(e.dataTransfer.getData('children'))
-
-      this.addToCart(children)
+    onBookmarkListDrop (e, listName) {
+      const children = e.dataTransfer.getData('children')
+      console.log(listName, e.dataTransfer.getData('children'))
     },
-    addToCart (children) {
-      children.map((child) => {
-        // child.id is the assetId of the file/folder
-        // Add child.id reference to the cart data structure here
-      })
+    onBookmarksDragover (e) {
+      if (this.menuTimeout) {
+        clearTimeout(this.menuTimeout)
+      }
+      if (!this.bookmarksShowing) {
+        this.bookmarksShowing = true
+      }
+      e.preventDefault()
+    },
+    onBookmarksLeave (e) {
+      this.menuTimeout = setTimeout(() => {
+        this.bookmarksShowing = false
+      }, 1000)
+      e.preventDefault()
     }
   }
 }
