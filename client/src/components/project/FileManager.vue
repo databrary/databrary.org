@@ -1,7 +1,7 @@
 <template>
   <section class="row q-pa-xs">
     <div class="col-xs-12 col-sm-12 col-md-12">
-      <q-splitter v-model="splitterModel" :style="height ? {height: height+'px'} : {}">
+      <q-splitter v-model="splitterModel" after-class="no-scroll" :style="height ? {height: height+'px'} : {}">
         <template v-slot:before>
           <div class="q-pa-md tree-container">
             <Tree
@@ -34,6 +34,7 @@
               @dblClick="onDblClicked"
               @goBack="onGoBack"
               @showFileUploadDialog="onShowFileUploadDialog"
+              :height.sync="height"
             />
           </div>
         </template>
@@ -269,8 +270,7 @@ export default {
   props: {
     assetId: { type: Number, required: true },
     icons: { type: Object, default: () => defaultIcons },
-    columns: { type: Array, default: () => defaultColumns },
-    height: null
+    columns: { type: Array, default: () => defaultColumns }
   },
   data () {
     return {
@@ -303,6 +303,11 @@ export default {
     this.rootNode = this.assetId.toString()
     this.setSelectedNode(this.rootNode)
     await this.updateNodes(this.selectedNode)
+  },
+  computed: {
+    height () {
+      return this.$q.screen.height - 50 - 16 - 50
+    }
   },
   watch: {
     async selectedNode (newFolderId, oldFolderId) {

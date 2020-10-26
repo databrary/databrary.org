@@ -74,6 +74,7 @@
         :columns="columns"
         row-key="id"
         selection="multiple"
+        :style="tableStyleObj"
         virtual-scroll
         :pagination.sync="pagination"
         :rows-per-page-options="[0]"
@@ -187,6 +188,10 @@ export default {
       type: String,
       required: true,
       default: () => null
+    },
+    height: {
+      type: Number,
+      default: () => this.$q.screen.height - 50 - 16 - 50 - 55
     }
   },
   data () {
@@ -206,7 +211,6 @@ export default {
         rowsPerPage: 0
       },
       width: 175,
-      height: 350,
       fontSize: 12,
       opacityOnDragged: 0.5,
       defaultName: 'New Folder',
@@ -217,7 +221,6 @@ export default {
   },
   mounted () {
     this.nodes = this.contents
-    this.height = this.$parent.$el.offsetHeight
     this.selected = this.selectedNode
     this.root = this.rootNode
   },
@@ -241,11 +244,12 @@ export default {
     }
   },
   computed: {
-    // tableStyleObj () {
-    //   return {
-    //     height: this.height + 'px'
-    //   }
-    // }
+    tableStyleObj () {
+      console.log('height = ', this.height)
+      return {
+        height: this.height - 55 + 'px'
+      }
+    }
   },
   methods: {
     setNodeActive (ref, isActive) {
