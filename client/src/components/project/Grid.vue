@@ -74,7 +74,7 @@
         :columns="columns"
         row-key="id"
         selection="multiple"
-        :style="tableStyleObj"
+        :style="{ height: this.$parent.$el.offsetHeight - 52 + 'px' }"
         virtual-scroll
         :pagination.sync="pagination"
         :rows-per-page-options="[0]"
@@ -242,11 +242,11 @@ export default {
     }
   },
   computed: {
-    tableStyleObj () {
-      return {
-        height: this.height + 'px'
-      }
-    }
+    // tableStyleObj () {
+    //   return {
+    //     height: this.height + 'px'
+    //   }
+    // }
   },
   methods: {
     setNodeActive (ref, isActive) {

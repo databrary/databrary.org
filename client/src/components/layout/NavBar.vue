@@ -285,6 +285,12 @@ export default {
           item: asset.name
         })
       }
+      this.$q.notify({
+        color: 'green-4',
+        textColor: 'white',
+        icon: 'cloud_done',
+        message: 'Bookmark added!'
+      })
     },
     onBookmarksDragover (e) {
       if (this.menuTimeout) {
