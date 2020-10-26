@@ -198,7 +198,7 @@ const defaultColumns = [
 
 const GET_ASSETS = gql`
   query GetAssets($assetId: Int!) {
-    assets(where: {id: {_eq: $assetId}, assetType: {_in: [pam, project, folder, file]}}) {
+    assets(where: {id: {_eq: $assetId}, assetType: {_in: [pam, project, folder, file]}}, order_by: {datetimeCreated: desc}) {
       id
       name
       assetType
@@ -218,7 +218,7 @@ const GET_ASSETS = gql`
           size
         }
       }
-      childAssets {
+      childAssets(order_by: {datetimeCreated: desc}) {
         id
         name
         assetType
