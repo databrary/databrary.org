@@ -74,7 +74,6 @@
         :columns="columns"
         row-key="id"
         selection="multiple"
-        :style="{ height: this.$parent.$el.offsetHeight - 52 + 'px' }"
         virtual-scroll
         :pagination.sync="pagination"
         :rows-per-page-options="[0]"
