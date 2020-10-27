@@ -1,6 +1,6 @@
 <template>
-  <div ref="contentsRef" class="contents-wrapper">
-    <q-toolbar class="bg-white text-dark q-pa-sm">
+  <div ref="contentsRef" class="col-12">
+    <q-toolbar class="row bg-white text-dark q-pa-sm">
       <q-btn
         flat
         icon="subdirectory_arrow_left"
@@ -245,7 +245,6 @@ export default {
   },
   computed: {
     tableStyleObj () {
-      console.log('height = ', this.height)
       return {
         height: this.height - 55 + 'px'
       }
@@ -320,10 +319,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-.contents-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-</style>

@@ -1,42 +1,44 @@
 <template>
   <section class="row q-pa-xs">
-    <div class="col-xs-12 col-sm-12 col-md-12">
-      <q-splitter v-model="splitterModel" after-class="no-scroll" :style="height ? {height: height+'px'} : {}">
+    <div class="col-12">
+      <q-splitter
+        v-model="splitterModel"
+        before-class="row no-scroll"
+        after-class="row no-scroll"
+        :style="height ? {height: height+'px'} : {}"
+      >
         <template v-slot:before>
-          <div class="q-pa-md tree-container">
-            <Tree
-              ref="tree"
-              :nodes="nodes"
-              :rootNode="rootNode"
-              :icons="icons"
-              :loading.sync="loadingNodes"
-              :selectedNode.sync="selectedNode"
-              @selected="onSelectedNode"
-              @onDrop="onNodeDrop"
-              :lazyLoad="onLazyLoad"
-            />
-          </div>
+          <Tree
+            ref="tree"
+            :nodes="nodes"
+            :rootNode="rootNode"
+            :icons="icons"
+            :loading.sync="loadingNodes"
+            :selectedNode.sync="selectedNode"
+            @selected="onSelectedNode"
+            @onDrop="onNodeDrop"
+            :lazyLoad="onLazyLoad"
+            :height.sync="height"
+          />
         </template>
         <template v-slot:after>
-          <div class="q-px-sm contents-container">
-            <Grid
-              ref="grid"
-              :contents.sync="contents"
-              :icons="icons"
-              :columns="columns"
-              :selectedNode.sync="selectedNode"
-              :loading.sync="loadingContents"
-              :rootNode="rootNode"
-              @selected="onSelectedNode"
-              @onDrop="onNodeDrop"
-              @addNode="onAddNode"
-              @selectedChildren="onSelectedContents"
-              @dblClick="onDblClicked"
-              @goBack="onGoBack"
-              @showFileUploadDialog="onShowFileUploadDialog"
-              :height.sync="height"
-            />
-          </div>
+          <Grid
+            ref="grid"
+            :contents.sync="contents"
+            :icons="icons"
+            :columns="columns"
+            :selectedNode.sync="selectedNode"
+            :loading.sync="loadingContents"
+            :rootNode="rootNode"
+            @selected="onSelectedNode"
+            @onDrop="onNodeDrop"
+            @addNode="onAddNode"
+            @selectedChildren="onSelectedContents"
+            @dblClick="onDblClicked"
+            @goBack="onGoBack"
+            @showFileUploadDialog="onShowFileUploadDialog"
+            :height.sync="height"
+          />
         </template>
       </q-splitter>
 
@@ -744,22 +746,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-.contents-container {
-  position: relative;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-}
-
-.tree-container {
-  position: relative;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-}
-</style>

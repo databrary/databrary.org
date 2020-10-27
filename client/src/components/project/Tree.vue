@@ -7,7 +7,8 @@
           :active="isRootActive"
           clickable
           v-ripple
-          active-class="row bg-teal-1 text-grey-8"
+          class="row"
+          active-class="bg-teal-1 text-grey-8"
           @drop="onDrop($event, root)"
           @dragenter.prevent="isRootActive = true"
           @dragleave.prevent="isRootActive = false"
@@ -22,17 +23,21 @@
         </q-item>
       </q-list>
     </div>
-    <div v-if="loading">
+    <div v-if="loading" class="row">
       <q-spinner
         class="absolute-center"
         color="primary"
         size="3em"
       />
     </div>
-    <div v-else class="row">
+    <q-scroll-area
+      v-else
+      :style="height ? {height: height+'px'} : {}"
+      class="row q-mt-sm"
+    >
       <q-tree
+        class="col-12 full-height overflow-auto"
         ref="qtree"
-        class="col-12"
         :nodes="nodes"
         node-key="id"
         selected-color="primary"
@@ -42,7 +47,7 @@
         <template v-slot:default-header="prop">
           <div
             :ref="prop.node.id"
-            class="row items-center"
+            class="row-inline ellipsis"
             @drop="onDrop($event, prop.node.id)"
             @dragenter.prevent="setNodeActive(prop.node.id, true)"
             @dragover.prevent="setNodeActive(prop.node.id, true)"
@@ -50,15 +55,16 @@
           >
             <!-- We should have only folders in the tree -->
             <q-icon
+              class="col-2"
               :name="prop.expanded || prop.node.id === selected ? icons['folderOpen'] : icons['folder']"
             />
-            <span class="q-ml-sm node-text">
+            <span class="q-ml-sm col-10">
               {{ prop.node.name }}
             </span>
           </div>
         </template>
       </q-tree>
-    </div>
+    </q-scroll-area>
   </div>
 </template>
 
@@ -92,6 +98,10 @@ export default {
       type: Boolean,
       required: true,
       default: () => false
+    },
+    height: {
+      type: Number,
+      default: () => this.$q.screen.height - 50 - 16 - 50 - 55
     }
   },
   data () {
@@ -134,16 +144,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-.tree-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-.node-text {
-  display: inline-block;
-  white-space: nowrap;
-  overflow: hidden !important;
-  text-overflow: ellipsis;
-}
-</style>
