@@ -265,15 +265,13 @@ export default {
     },
     onDragStart (e, node) {
       e.currentTarget.style.opacity = this.opacityOnDragged
-      e.dataTransfer.dropEffect = 'move'
-      e.dataTransfer.effectAllowed = 'move'
+
       // We move all selected files, if not, only the draged one
-      let children = [node]
+      let children = this.selectedChildren.length > 0
+        ? this.selectedChildren
+        : [node]
 
-      if (this.selectedChildren.length > 0) children = this.selectedChildren
-
-      e.dataTransfer.setData('children', JSON.stringify(children))
-      e.dataTransfer.setData('node', JSON.stringify(node))
+      this.$emit('onDragStart', e, node, children)
     },
     onDrop (e, targetNodeId) {
       this.setNodeActive(targetNodeId, false)

@@ -48,10 +48,12 @@
           <div
             :ref="prop.node.id"
             class="row-inline ellipsis"
+            draggable
+            @dragstart="onDragStart($event, prop.node)"
             @drop="onDrop($event, prop.node.id)"
-            @dragenter.prevent="setNodeActive(prop.node.id, true)"
-            @dragover.prevent="setNodeActive(prop.node.id, true)"
-            @dragleave.prevent="setNodeActive(prop.node.id, false)"
+            @dragenter.prevent="setNodeActive($event, prop.node.id, true)"
+            @dragover.prevent="setNodeActive($event, prop.node.id, true)"
+            @dragleave.prevent="setNodeActive($event, prop.node.id, false)"
           >
             <!-- We should have only folders in the tree -->
             <q-icon
@@ -131,11 +133,19 @@ export default {
     }
   },
   methods: {
-    setNodeActive (ref, isActive) {
+    setNodeActive (e, ref, isActive) {
       if (!this.$refs[ref] || ref === this.selected) return
 
       if (isActive) this.$refs[ref].classList.add('bg-teal-1', 'text-grey-8')
       else this.$refs[ref].classList.remove('bg-teal-1', 'text-grey-8')
+    },
+    onDragStart (e, node) {
+      e.currentTarget.style.opacity = this.opacityOnDragged
+
+      // We move all selected files, if not, only the draged one
+      let children = [node]
+
+      this.$emit('onDragStart', e, node, children)
     },
     onDrop (e, targetNodeId) {
       this.setNodeActive(targetNodeId, false)

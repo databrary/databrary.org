@@ -17,6 +17,7 @@
             :selectedNode.sync="selectedNode"
             @selected="onSelectedNode"
             @onDrop="onNodeDrop"
+            @onDragStart="onNodeDragStart"
             :lazyLoad="onLazyLoad"
             :height.sync="height"
           />
@@ -32,6 +33,7 @@
             :rootNode="rootNode"
             @selected="onSelectedNode"
             @onDrop="onNodeDrop"
+            @onDragStart="onNodeDragStart"
             @addNode="onAddNode"
             @selectedChildren="onSelectedContents"
             @dblClick="onDblClicked"
@@ -722,7 +724,6 @@ export default {
 
     onNodeDrop (e, targetNodeId) {
       const oldNode = JSON.parse(e.dataTransfer.getData('node'))
-
       // prevent dropping in the same(source) folder
       // source and destination must be different
       if (oldNode.id === targetNodeId) return
@@ -731,8 +732,13 @@ export default {
       if (e.target.draggable === true) return
 
       const children = JSON.parse(e.dataTransfer.getData('children'))
-
       this.setConfirmData({ show: true, target: targetNodeId, children: children })
+    },
+    onNodeDragStart (e, sourceNode, children) {
+      e.dataTransfer.dropEffect = 'move'
+      e.dataTransfer.effectAllowed = 'move'
+      e.dataTransfer.setData('children', JSON.stringify(children))
+      e.dataTransfer.setData('node', JSON.stringify(sourceNode))
     },
     showContentsPopupEdit () {
       this.$refs.grid.showPopupEdit()
