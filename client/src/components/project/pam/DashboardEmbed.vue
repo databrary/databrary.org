@@ -1,5 +1,12 @@
 <template>
-  <div v-if="pamId && asset">
+  <div v-if="!pamId" class="row">
+    <q-spinner
+      class="absolute-center"
+      color="primary"
+      size="3em"
+    />
+  </div>
+  <div v-else>
     <div class="q-pa-md">
       <q-splitter
         v-model="firstModel"
@@ -24,7 +31,7 @@
             v-else-if="createView"
           />
           <FileManager
-            :assetId="asset.id"
+            :assetId="assetId"
             :height="$q.screen.height-50-16-16-50-1"
             v-else
           />
@@ -38,7 +45,7 @@
 // import Vue from 'vue'
 import { date } from 'quasar'
 import { gql } from '@apollo/client'
-import { sync } from 'vuex-pathify'
+import { sync, get } from 'vuex-pathify'
 
 import _ from 'lodash'
 
@@ -49,9 +56,10 @@ import ProjectViewer from './ProjectViewer.vue'
 import CreateView from './CreateView.vue'
 import FileManager from '@/components/project/FileManager.vue'
 
+import getAssetsByType from '@gql/getAssetsByType.gql'
+
 export default {
   name: 'Dashboard',
-  props: ['id'],
   components: {
     Panel1,
     // Panel2,
@@ -64,61 +72,40 @@ export default {
     date,
     firstModel: 20,
     secondModel: 30,
-    datetimeCreated: null
+    assetId: null
   }),
   async created () {
     // this.generateCitation('http://doi.org/10.17910/B77P4V')
-    this.pamId = this.id
-    this.fetchData()
+    this.assetId = this.pamId
   },
   watch: {
     '$route': 'fetchData',
     'viewCreated': 'fetchData',
-    'id': 'fetchData'
+    pamId () {
+      this.assetId = this.pamId
+    },
+    async assetId () {
+      await this.fetchData()
+    }
+
   },
   computed: {
-    asset: sync('pam/asset'),
     views: sync('pam/views'),
     viewCreated: sync('pam/viewCreated'),
-    pamId: sync('pam/pamId'),
+    pamId: get('pam/pamId'),
     selectedProjectView: sync('pam/selectedProjectView'),
     createView: sync('pam/createView')
   },
   methods: {
     async fetchData () {
-      this.views = []
-      const result = await this.$apollo.query({
-        query: gql`
-          query GetProject($projectId: Int!) {
-            pam: assets(where: {
-              id: {_eq: $projectId},
-              assetType: {_eq: pam}
-            }) {
-              id
-              assetType
-              name
-              datetimeCreated
-            },
-            views: assets(
-              where: {assetType: {_eq: project}, parentId: {_eq: $projectId}},
-              order_by: {datetimeCreated: desc}
-            ) {
-              id
-              name
-              datetimeCreated
-            }
-          }
-        `,
+      const { data } = await this.$apollo.query({
+        query: getAssetsByType,
         variables: {
-          projectId: this.pamId
+          parentId: this.assetId,
+          assetType: 'project'
         }
       })
-      this.asset = _.get(result, 'data.pam[0]', {})
-      this.views = _.get(result, 'data.views', [])
-      this.datetimeCreated = date.formatDate(
-        this.asset.datetimeCreated,
-        'YYYY-MM-DD'
-      )
+      this.views = _.get(data, 'assets', [])
     }
   }
 }

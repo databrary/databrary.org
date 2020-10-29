@@ -279,6 +279,7 @@ export default {
   data () {
     return {
       rootNode: null, // The assetId (pam | project) converted to string on created hook
+      assets: [], // raw data fetched
       nodes: [], // Tree nodes
       contents: [], // Contents of a selected node, is updated on selectedNode updates
       loadingNodes: true, // The state of the Tree component
@@ -305,8 +306,6 @@ export default {
   },
   async created () {
     this.rootNode = this.assetId.toString()
-    this.setSelectedNode(this.rootNode)
-    await this.updateNodes(this.selectedNode)
   },
   computed: {
     height () {
@@ -323,6 +322,10 @@ export default {
     },
     assetId () {
       this.rootNode = this.assetId.toString()
+    },
+    async rootNode () {
+      this.setSelectedNode(this.rootNode)
+      await this.updateNodes(this.rootNode)
     }
     // '$route': 'fetchData'
   },

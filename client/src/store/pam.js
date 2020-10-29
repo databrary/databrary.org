@@ -1,7 +1,7 @@
 import { make } from 'vuex-pathify'
 
 const state = {
-  asset: null,
+  pams: [],
   pamId: null,
   selectedProjectView: null,
   createView: false,

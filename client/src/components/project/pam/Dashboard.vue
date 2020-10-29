@@ -83,7 +83,6 @@ export default {
     this.fetchData()
   },
   computed: {
-    asset: sync('pam/asset'),
     views: sync('pam/views'),
     viewCreated: sync('pam/viewCreated'),
     pamId: sync('pam/pamId'),
@@ -96,15 +95,6 @@ export default {
       const result = await this.$apollo.query({
         query: gql`
           query GetProject($projectId: Int!) {
-            pam: assets(where: {
-              id: {_eq: $projectId},
-              assetType: {_eq: pam}
-            }) {
-              id
-              assetType
-              name
-              datetimeCreated
-            },
             views: assets(
               where: {assetType: {_eq: project}, parentId: {_eq: $projectId}},
               order_by: {datetimeCreated: desc}

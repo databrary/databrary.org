@@ -91,9 +91,9 @@
               draggable
               @dragstart="onDragStart($event, props.row)"
               @dragend="$event.currentTarget.style.opacity = ''"
-              @dragenter.prevent="props.row.isDir ? setNodeActive(props.row.id, true): null"
-              @dragover.prevent="props.row.isDir ? setNodeActive(props.row.id, true): null"
-              @dragleave.prevent="props.row.isDir ? setNodeActive(props.row.id, false) : null"
+              @dragenter.prevent="props.row.isDir ? setNodeActive($event, props.row.id, true): null"
+              @dragover.prevent="props.row.isDir ? setNodeActive($event,props.row.id, true): null"
+              @dragleave.prevent="props.row.isDir ? setNodeActive($event,props.row.id, false) : null"
               @drop="props.row.isDir ? onDrop($event, props.row.id) : null"
               @dblclick.prevent="onDblClick($event, props.row)"
             >
@@ -251,7 +251,7 @@ export default {
     }
   },
   methods: {
-    setNodeActive (ref, isActive) {
+    setNodeActive (e, ref, isActive) {
       if (ref === this.selected) return
 
       if (isActive) this.$refs[ref].classList.add('bg-teal-1', 'text-grey-8')
