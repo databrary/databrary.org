@@ -13,6 +13,9 @@ mutation (
   ) {
     returning {
       id
+      name
+      datetimeCreated
+      privacyType
     }
   }
 }

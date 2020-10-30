@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!pamId" class="row">
+  <div v-if="!assetId" class="row">
     <q-spinner
       class="absolute-center"
       color="primary"
@@ -15,25 +15,30 @@
           <q-scroll-area
             :style="{height: ($q.screen.height-50-16-16-50-1)+'px'}"
           >
-            <Panel1 />
+            <Panel1
+              @onShowCreateAsset="showCreateAsset = true"
+            />
           </q-scroll-area>
         </template>
         <template v-slot:after>
           <q-scroll-area
             :style="{height: ($q.screen.height-50-16-16-50-1)+'px'}"
-            v-if="selectedProjectView && !createView"
+            v-if="selectedProjectView && !showCreateAsset"
           >
             <ProjectViewer
               :projectId="selectedProjectView"
             />
           </q-scroll-area>
-          <CreateView
-            v-else-if="createView"
+          <CreateAsset
+            v-else-if="showCreateAsset"
+            @onHideShowCreateAsset="showCreateAsset = false"
+            assetType="project"
+            :parentId="assetId"
           />
           <FileManager
+            v-else-if="assetId && !showCreateAsset"
             :assetId="assetId"
             :height="$q.screen.height-50-16-16-50-1"
-            v-else
           />
         </template>
       </q-splitter>
@@ -50,10 +55,8 @@ import { sync, get } from 'vuex-pathify'
 import _ from 'lodash'
 
 import Panel1 from './Panel1.vue'
-// import Panel2 from './Panel2.vue'
-// import Panel3 from './Panel3.vue'
 import ProjectViewer from './ProjectViewer.vue'
-import CreateView from './CreateView.vue'
+import CreateAsset from '@/components/project/pam/CreateAsset.vue'
 import FileManager from '@/components/project/FileManager.vue'
 
 import getAssetsByType from '@gql/getAssetsByType.gql'
@@ -62,27 +65,36 @@ export default {
   name: 'Dashboard',
   components: {
     Panel1,
-    // Panel2,
-    // Panel3,
     ProjectViewer,
-    CreateView,
+    CreateAsset,
     FileManager
+  },
+  props: {
+    id: {
+      type: Number,
+      required: true
+    }
   },
   data: () => ({
     date,
     firstModel: 20,
     secondModel: 30,
-    assetId: null
+    assetId: null,
+    showCreateAsset: false
   }),
-  async created () {
-    // this.generateCitation('http://doi.org/10.17910/B77P4V')
-    this.assetId = this.pamId
+  created () {
+    this.assetId = this.id
   },
   watch: {
     '$route': 'fetchData',
-    'viewCreated': 'fetchData',
-    pamId () {
-      this.assetId = this.pamId
+    async refreshViews () {
+      if (this.refreshViews) {
+        await this.fetchData()
+        this.refreshViews = false
+      }
+    },
+    id () {
+      this.assetId = this.id
     },
     async assetId () {
       await this.fetchData()
@@ -91,10 +103,8 @@ export default {
   },
   computed: {
     views: sync('pam/views'),
-    viewCreated: sync('pam/viewCreated'),
-    pamId: get('pam/pamId'),
-    selectedProjectView: sync('pam/selectedProjectView'),
-    createView: sync('pam/createView')
+    refreshViews: sync('pam/refreshViews'),
+    selectedProjectView: sync('pam/selectedProjectView')
   },
   methods: {
     async fetchData () {

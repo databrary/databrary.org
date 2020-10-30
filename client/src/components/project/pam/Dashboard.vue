@@ -20,16 +20,21 @@
           <q-scroll-area
             :style="{height: ($q.screen.height-50-16-50)+'px'}"
           >
-            <Panel1 />
+            <Panel1
+              @onShowCreateAsset="showCreateAsset = true"
+            />
           </q-scroll-area>
         </template>
         <template v-slot:after>
           <ProjectViewer
             :projectId="selectedProjectView"
-            v-if="selectedProjectView && !createView"
+            v-if="selectedProjectView && !showCreateAsset"
           />
-          <CreateView
-            v-else-if="createView"
+          <CreateAsset
+            v-else-if="showCreateAsset"
+            @onHideShowCreateAsset="showCreateAsset = false"
+            assetType="project"
+            :parentId="assetId"
           />
           <FileManager
             :assetId="asset.id"
@@ -50,10 +55,8 @@ import { sync } from 'vuex-pathify'
 import _ from 'lodash'
 
 import Panel1 from './Panel1.vue'
-// import Panel2 from './Panel2.vue'
-// import Panel3 from './Panel3.vue'
 import ProjectViewer from './ProjectViewer.vue'
-import CreateView from './CreateView.vue'
+import CreateAsset from '@/components/project/pam/CreateAsset.vue'
 import FileManager from '@/components/project/FileManager.vue'
 
 export default {
@@ -61,17 +64,16 @@ export default {
   props: ['id'],
   components: {
     Panel1,
-    // Panel2,
-    // Panel3,
     ProjectViewer,
-    CreateView,
+    CreateAsset,
     FileManager
   },
   data: () => ({
     date,
     firstModel: 20,
     secondModel: 30,
-    datetimeCreated: null
+    datetimeCreated: null,
+    showCreateAsset: false
   }),
   watch: {
     '$route': 'fetchData',
@@ -86,8 +88,7 @@ export default {
     views: sync('pam/views'),
     viewCreated: sync('pam/viewCreated'),
     pamId: sync('pam/pamId'),
-    selectedProjectView: sync('pam/selectedProjectView'),
-    createView: sync('pam/createView')
+    selectedProjectView: sync('pam/selectedProjectView')
   },
   methods: {
     async fetchData () {

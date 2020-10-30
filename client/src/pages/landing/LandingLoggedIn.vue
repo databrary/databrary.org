@@ -17,27 +17,39 @@
               <q-item-section side>
                 <q-icon
                   name="add_circle_outline"
-                  @click="onClickAddPam"
+                  @click="showCreateAsset = true"
                 />
               </q-item-section>
             </q-item>
-            <SelectableListItem
+            <q-item
               v-for="pam in pams"
               :key="pam.id"
               clickable
               v-ripple
-              :activeList="activeList"
-              :level="activeListLevel"
-              :label="pam.name"
-              @click="clickPam(pam.id)"
-            />
-            <!-- <q-item-label caption>{{date.formatDate(new Date(item.datetime_created), 'YYYY-MM-DD HH:mm')}}</q-item-label> -->
+              @click="selectedPam = pam.id"
+              :active="selectedPam == pam.id"
+              active-class="text-white bg-secondary"
+            >
+              <q-item-section>{{pam.name}}</q-item-section>
+              <q-item-section side>
+                <q-icon
+                  name="keyboard_arrow_right"
+                  :color="selectedPam == pam.id ? 'white' : 'green'"
+                />
+              </q-item-section>
+            </q-item>
           </q-list>
         </q-scroll-area>
       </template>
       <template v-slot:after>
         <DashboardEmbed
-          v-if="pamId"
+          v-if="selectedPam && !showCreateAsset"
+          :id.sync="selectedPam"
+        />
+        <CreateAsset
+          v-else-if="showCreateAsset"
+          @onHideShowCreateAsset="showCreateAsset = false"
+          assetType="pam"
         />
       </template>
     </q-splitter>
@@ -54,14 +66,14 @@ import _ from 'lodash'
 
 import getAssetsByType from '@gql/getAssetsByType.gql'
 
-import SelectableListItem from '@/components/generic/SelectableListItem.vue'
+import CreateAsset from '@/components/project/pam/CreateAsset.vue'
 import DashboardEmbed from '@/components/project/pam/DashboardEmbed.vue'
 
 export default {
   name: 'LandingLoggedIn',
   components: {
     DashboardEmbed,
-    SelectableListItem
+    CreateAsset
   },
   data () {
     return {
@@ -69,22 +81,33 @@ export default {
       activeListLevel: 1,
       date,
       projects: [],
-      firstModel: 20
+      firstModel: 20,
+      showCreateAsset: false
     }
   },
   computed: {
-    userId: sync('app/dbId'),
     pams: sync('pam/pams'),
-    pamId: sync('pam/pamId'),
+    selectedPam: sync('pam/selectedPam'),
+    refreshPams: sync('pam/refreshPams'),
     selectedProjectView: sync('pam/selectedProjectView')
   },
   async created () {
-    this.fetchData()
+    await this.fetchData()
+  },
+  watch: {
+    async refreshPams () {
+      if (this.refreshPams) {
+        await this.fetchData()
+        this.refreshPams = false
+      }
+    },
+    selectedPam () {
+      this.selectedProjectView = null
+    }
   },
   methods: {
     clickPam (id) {
-      this.pamId = id
-      this.selectedProjectView = null
+      this.selectedPam = id
     },
     async fetchData () {
       try {
@@ -98,15 +121,6 @@ export default {
       } catch (error) {
         console.error(error.message)
       }
-    },
-    async onClickAddPam () {
-      await this.$apollo.mutate({
-        mutation: createAsset,
-        variables: {
-          name: this.name,
-          assertType: 'pam'
-        }
-      })
     }
   }
 }
