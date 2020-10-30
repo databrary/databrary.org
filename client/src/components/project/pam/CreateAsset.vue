@@ -9,8 +9,8 @@
       <q-input
         filled
         v-model="name"
-        :label="`${assetType === 'pam' ? 'Project' : 'View'} title *`"
-        :hint="`Name your ${assetType === 'pam' ? 'Project' : 'View'} something descriptive`"
+        :label="`${assetType === 'pam' ? 'Project' : assetType === 'list' ? 'List' : 'View'} title *`"
+        :hint="`Name your ${assetType === 'pam' ? 'Project' : assetType === 'list' ? 'List' :'View'} something descriptive`"
         lazy-rules
         :rules="[ val => val && val.length > 0 || 'Please type a title']"
       />
@@ -45,20 +45,30 @@ export default {
   },
   data () {
     return {
-      name: null,
-      type: null
+      name: null
     }
   },
   computed: {
     refreshViews: sync('pam/refreshViews'),
-    pamId: get('pam/pamId'),
-    refreshPams: sync('pam/refreshPams')
+    refreshPams: sync('pam/refreshPams'),
+    refreshBookmarks: sync('pam/refreshBookmarks'),
+    pamId: get('pam/pamId')
   },
   methods: {
     async onSubmit () {
       try {
         const asset = await this.createAsset()
-        this.type === 'pam' ? this.refreshPams = true : this.refreshViews = true
+        switch (this.assetType) {
+          case 'views':
+            this.refreshViews = true
+            break
+          case 'list':
+            this.refreshBookmarks = true
+            break
+          default:
+            this.refreshPams = true
+            break
+        }
         this.$q.notify({
           color: 'green-4',
           textColor: 'white',

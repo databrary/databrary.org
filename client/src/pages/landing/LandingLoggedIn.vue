@@ -2,25 +2,25 @@
   <div class="q-pa-md">
     <q-splitter
       v-model="firstModel"
+      :limits="[10, 30]"
     >
       <template v-slot:before>
-        <q-scroll-area
-          v-if="pams"
-          :style="{height: ($q.screen.height-50-16-16-50-1)+'px'}"
-          style="max-width: 400px;"
-        >
-          <q-list>
-            <q-item header>
-              <q-item-section>
-                Projects
-              </q-item-section>
-              <q-item-section side>
-                <q-icon
-                  name="add_circle_outline"
-                  @click="showCreateAsset = true"
-                />
-              </q-item-section>
-            </q-item>
+        <q-list>
+          <q-item header>
+            <q-item-section class="text-bold">
+              Projects
+            </q-item-section>
+            <q-item-section side>
+              <q-icon
+                name="add_circle_outline"
+                @click="onAddClick('pam')"
+              />
+            </q-item-section>
+          </q-item>
+          <q-scroll-area
+            :style="{height: ($q.screen.height-50-16-16-50-1) / 2+'px'}"
+            v-if="pams"
+          >
             <q-item
               v-for="pam in pams"
               :key="pam.id"
@@ -38,8 +38,43 @@
                 />
               </q-item-section>
             </q-item>
-          </q-list>
-        </q-scroll-area>
+          </q-scroll-area>
+        </q-list>
+        <q-list>
+          <q-item class="col-12" header>
+            <q-item-section class="text-bold">
+              Bookmarks
+            </q-item-section>
+            <q-item-section side>
+              <q-icon
+                name="add_circle_outline"
+                @click="onAddClick('list')"
+              />
+            </q-item-section>
+          </q-item>
+          <q-scroll-area
+            :style="{height: ($q.screen.height-50-16-16-50-1) / 2+'px'}"
+            v-if="bookmarks"
+          >
+            <q-item
+              v-for="bookmark in bookmarks"
+              :key="bookmark.id"
+              clickable
+              v-ripple
+              @click="selectedPam = bookmark.id"
+              :active="selectedPam == bookmark.id"
+              active-class="text-white bg-secondary"
+            >
+              <q-item-section>{{bookmark.name}}</q-item-section>
+              <q-item-section side>
+                <q-icon
+                  name="keyboard_arrow_right"
+                  :color="selectedPam == bookmark.id ? 'white' : 'green'"
+                />
+              </q-item-section>
+            </q-item>
+          </q-scroll-area>
+        </q-list>
       </template>
       <template v-slot:after>
         <DashboardEmbed
@@ -49,7 +84,7 @@
         <CreateAsset
           v-else-if="showCreateAsset"
           @onHideShowCreateAsset="showCreateAsset = false"
-          assetType="pam"
+          :assetType="assetType"
         />
       </template>
     </q-splitter>
@@ -59,7 +94,6 @@
 <script>
 import createAsset from '@gql/createAsset.gql'
 import { sync } from 'vuex-pathify'
-import { date } from 'quasar'
 import { gql } from '@apollo/client'
 
 import _ from 'lodash'
@@ -77,28 +111,35 @@ export default {
   },
   data () {
     return {
-      activeList: [],
-      activeListLevel: 1,
-      date,
-      projects: [],
       firstModel: 20,
-      showCreateAsset: false
+      showCreateAsset: false,
+      assetType: 'pam'
     }
   },
   computed: {
     pams: sync('pam/pams'),
+    bookmarks: sync('pam/bookmarks'),
     selectedPam: sync('pam/selectedPam'),
     refreshPams: sync('pam/refreshPams'),
+    refreshBookmarks: sync('pam/refreshBookmarks'),
     selectedProjectView: sync('pam/selectedProjectView')
   },
   async created () {
-    await this.fetchData()
+    await this.fetchData('pam')
+    await this.fetchData('list')
+    this.selectedPam = this.pams[0].id
   },
   watch: {
     async refreshPams () {
       if (this.refreshPams) {
-        await this.fetchData()
+        await this.fetchData('pam')
         this.refreshPams = false
+      }
+    },
+    async refreshBookmarks () {
+      if (this.refreshBookmarks) {
+        await this.fetchData('list')
+        this.refreshBookmarks = false
       }
     },
     selectedPam () {
@@ -106,18 +147,26 @@ export default {
     }
   },
   methods: {
-    clickPam (id) {
-      this.selectedPam = id
+    onAddClick (assetType) {
+      this.assetType = assetType
+      this.showCreateAsset = true
     },
-    async fetchData () {
+    async fetchData (assetType = 'pam') {
       try {
         const { data } = await this.$apollo.query({
           query: getAssetsByType,
           variables: {
-            assetType: 'pam'
+            assetType
           }
         })
-        this.pams = _.get(data, 'assets', [])
+        switch (assetType) {
+          case 'pam':
+            this.pams = _.get(data, 'assets', [])
+            break
+          case 'list':
+            this.bookmarks = _.get(data, 'assets', [])
+            break
+        }
       } catch (error) {
         console.error(error.message)
       }

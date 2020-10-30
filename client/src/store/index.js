@@ -7,7 +7,6 @@ import app from './app'
 import profile from './profile'
 import pam from './pam'
 import assets from './assets'
-import bookmarks from './bookmarks'
 
 Vue.use(Vuex)
 
@@ -24,8 +23,7 @@ export default function (/* { ssrContext } */) {
       app,
       profile,
       pam,
-      assets,
-      bookmarks
+      assets
     },
 
     // enable strict mode (adds overhead!)

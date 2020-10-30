@@ -88,7 +88,6 @@ export default {
               console.log('response', response)
               return response.json()
             }).then((data) => {
-              console.log('data', data)
               return {
                 method: data.method,
                 url: data.url,

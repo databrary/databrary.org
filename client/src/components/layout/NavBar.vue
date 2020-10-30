@@ -97,8 +97,10 @@
     </q-btn-dropdown>
     <q-space/>
     <q-btn
+      v-if="isLoggedIn"
       clickable
-      to="/bookmarks"
+      to="/"
+      @click="selectedPam == null ? selectedPam = bookmarks[0].id : null"
       dense
       flat
       class="text-weight-light text-grey-8"
@@ -121,15 +123,18 @@
           @dragleave="onBookmarksLeave($event)"
         >
           <q-item
+            to="/"
+            class="text-black"
             clickable
             v-close-popup
-            v-for="(list, index) in lists"
-            :key="index"
-            @drop="onBookmarkListDrop($event, list.name)"
+            v-for="bookmark in bookmarks"
+            :key="bookmark.id"
+            @click="selectedPam = bookmark.id"
+            @drop="onBookmarkListDrop($event, bookmark.name)"
           >
             <q-item-section>
               <q-item-label>
-                <q-icon name="article" class="q-pr-sm"/>{{list.name}}
+                <q-icon name="article" class="q-pr-sm"/>{{bookmark.name}}
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -267,7 +272,8 @@ export default {
   computed: {
     isLoggedIn: get('app/isLoggedIn'),
     thumbnail: get('app/thumbnail'),
-    lists: sync('bookmarks/lists')
+    bookmarks: sync('pam/bookmarks'),
+    selectedPam: sync('pam/selectedPam')
   },
   methods: {
     onClickLogout () {

@@ -3,10 +3,12 @@ import { make } from 'vuex-pathify'
 const state = {
   pams: [],
   views: [],
+  bookmarks: [],
   selectedPam: null,
   selectedProjectView: null,
   refreshViews: false,
-  refreshPams: false
+  refreshPams: false,
+  refreshBookmarks: false
 }
 
 const getters = {
