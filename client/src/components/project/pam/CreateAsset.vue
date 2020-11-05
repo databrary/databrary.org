@@ -35,8 +35,7 @@ export default {
   props: {
     assetType: {
       type: String,
-      required: true,
-      default: () => 'pam'
+      required: true
     },
     parentId: {
       type: Number,
@@ -51,15 +50,14 @@ export default {
   computed: {
     refreshViews: sync('pam/refreshViews'),
     refreshPams: sync('pam/refreshPams'),
-    refreshBookmarks: sync('pam/refreshBookmarks'),
-    pamId: get('pam/pamId')
+    refreshBookmarks: sync('pam/refreshBookmarks')
   },
   methods: {
     async onSubmit () {
       try {
         const asset = await this.createAsset()
         switch (this.assetType) {
-          case 'views':
+          case 'project':
             this.refreshViews = true
             break
           case 'list':
@@ -98,7 +96,7 @@ export default {
     },
 
     hideShowCreateAsset () {
-      this.$emit('onHideShowCreateAsset', null)
+      this.$emit('update:assetType', null)
     },
 
     async createAsset () {
@@ -111,7 +109,6 @@ export default {
           assetType: this.assetType
         }
       })
-      this.viewCreated += 1
       this.hideShowCreateAsset()
       return data.insert_assets.returning[0]
     }

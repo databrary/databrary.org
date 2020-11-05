@@ -39,6 +39,7 @@
         createdById: x-hasura-User-Id
       columns:
       - assetType
+      - listAssets
       - name
       - parentId
       - permissionsetId
@@ -51,6 +52,7 @@
       - createdById
       - datetimeCreated
       - id
+      - listAssets
       - name
       - parentId
       - permissionsetId
@@ -73,6 +75,7 @@
     permission:
       columns:
       - assetType
+      - listAssets
       - name
       - parentId
       - permissionsetId

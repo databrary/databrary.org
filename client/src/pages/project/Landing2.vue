@@ -7,7 +7,7 @@
     />
   </div>
   <div v-else>
-    <Dashboard
+    <DashboardEmbed
       v-if="asset.assetType === 'pam'"
     />
     <Landing
@@ -20,13 +20,13 @@
 // import { date } from 'quasar'
 import { gql } from '@apollo/client'
 
-import Dashboard from '@/components/project/pam/Dashboard'
+import DashboardEmbed from '@/components/project/pam/DashboardEmbed'
 import Landing from '@/pages/project/Landing'
 
 export default {
   name: 'Project',
   components: {
-    Dashboard,
+    DashboardEmbed,
     Landing
   },
   data: () => ({

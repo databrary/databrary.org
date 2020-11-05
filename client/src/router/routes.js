@@ -23,7 +23,7 @@ export default function routes (store) {
           children: [{
             name: 'pam',
             path: ':projectId',
-            component: () => import('components/project/pam/Dashboard.vue')
+            component: () => import('components/project/pam/DashboardEmbed.vue')
           }]
         },
         {

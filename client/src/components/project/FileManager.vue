@@ -203,12 +203,13 @@ const defaultColumns = [
 
 const GET_ASSETS = gql`
   query GetAssets($assetId: Int!) {
-    assets(where: {id: {_eq: $assetId}, assetType: {_in: [pam, project, folder, file]}}, order_by: {datetimeCreated: desc}) {
+    assets(where: {id: {_eq: $assetId}, assetType: {_in: [list, pam, project, folder, file]}}, order_by: {datetimeCreated: desc}) {
       id
       name
       assetType
       datetimeCreated
       parentId
+      listAssets
       childAssets_aggregate {
         aggregate {
           count(columns: id)
@@ -229,6 +230,7 @@ const GET_ASSETS = gql`
         assetType
         datetimeCreated
         parentId
+        listAssets
         childAssets_aggregate {
           aggregate {
             count(columns: id)
@@ -547,6 +549,14 @@ export default {
           contents.push(this.createNode(child))
         }
 
+        if (this.assetType === 'list') {
+          for (const assetId of _.get(assets, 'listAssets', [])) {
+            const asset = await this.fetchData(assetId)
+            if (asset.assetType === 'pam' || asset.assetType === 'project') continue
+            contents.push(this.createNode(asset))
+          }
+        }
+
         return contents.filter((el) => el != null)
       } catch (error) {
         throw new Error(error.message)
@@ -571,6 +581,14 @@ export default {
         for (const asset of _.get(assets, 'childAssets', [])) {
           if (asset.assetType !== 'folder') continue
           nodes.push(this.createNode(asset))
+        }
+
+        if (this.assetType === 'list') {
+          for (const assetId of _.get(assets, 'listAssets', [])) {
+            const asset = await this.fetchData(assetId)
+            if (asset.assetType !== 'folder') continue
+            nodes.push(this.createNode(asset))
+          }
         }
 
         return nodes.filter((el) => el != null)

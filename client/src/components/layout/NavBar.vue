@@ -100,7 +100,7 @@
       v-if="isLoggedIn"
       clickable
       to="/"
-      @click="selectedPam == null ? selectedPam = bookmarks[0].id : null"
+      @click="selectedBookmark == null ? selectedBookmark = bookmarks[0].id : null"
       dense
       flat
       class="text-weight-light text-grey-8"
@@ -130,7 +130,7 @@
             v-for="bookmark in bookmarks"
             :key="bookmark.id"
             @click="selectedPam = bookmark.id"
-            @drop="onBookmarkListDrop($event, bookmark.name)"
+            @drop="onBookmarkListDrop($event, bookmark.id)"
           >
             <q-item-section>
               <q-item-label>
@@ -260,22 +260,49 @@
 import Vue from 'vue'
 import { get, sync } from 'vuex-pathify'
 import _ from 'lodash'
+import { gql } from '@apollo/client'
+
+import getAssetsByType from '@gql/getAssetsByType.gql'
 
 export default {
-  data () {
-    return {
-      loginUrl: `http://localhost:8000/login`,
-      bookmarksShowing: false,
-      menuTimeout: null
-    }
-  },
+  data: () => ({
+    loginUrl: `http://localhost:8000/login`,
+    bookmarksShowing: false,
+    menuTimeout: null,
+    bookmarks: []
+  }),
   computed: {
     isLoggedIn: get('app/isLoggedIn'),
     thumbnail: get('app/thumbnail'),
-    bookmarks: sync('pam/bookmarks'),
-    selectedPam: sync('pam/selectedPam')
+    refreshBookmarks: sync('pam/refreshBookmarks'),
+    selectedBookmark: sync('pam/selectedBookmark')
+  },
+  async created () {
+    await this.fetchData()
+  },
+  watch: {
+    async refreshBookmarks () {
+      if (this.refreshBookmarks) {
+        await this.fetchData()
+        this.refreshBookmarks = false
+      }
+    }
   },
   methods: {
+    async fetchData () {
+      try {
+        const { data } = await this.$apollo.query({
+          query: getAssetsByType,
+          variables: {
+            assetType: 'list'
+          }
+        })
+
+        this.bookmarks = _.get(data, 'assets', [])
+      } catch (error) {
+        console.error(error.message)
+      }
+    },
     onClickLogout () {
       // TODO(Reda): Fix this
       window.location.href = 'http://localhost:8000/logout'
@@ -283,14 +310,34 @@ export default {
     toggleDrawer () {
       this.$emit('toggleDrawer')
     },
-    onBookmarkListDrop (e, listName) {
+    async onBookmarkListDrop (e, bookmarId) {
       const assets = JSON.parse(e.dataTransfer.getData('children')) // TODO(jeff) necessary to originally stringify?
-      for (let asset of assets) {
-        this.$store.dispatch('bookmarks/addToList', {
-          listName,
-          item: asset.name
-        })
-      }
+      const listAssets = assets.map(asset => parseInt(asset.id))
+
+      const result = await this.$apollo.mutate({
+        mutation: gql`
+          mutation UpdateBookmarkedAssets(
+            $assetId: Int!, 
+            $listAssets: jsonb!
+          ) {
+            update_assets(
+              where: {
+                id: {_eq: $assetId}, 
+                assetType: {_eq: list}
+              }, 
+              _append: {listAssets: $listAssets}
+            ) {
+              returning {
+                listAssets
+              }
+            }
+          }
+        `,
+        variables: {
+          assetId: bookmarId,
+          listAssets: listAssets
+        }
+      })
       this.$q.notify({
         color: 'green-4',
         textColor: 'white',

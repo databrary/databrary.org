@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!assetId" class="row">
+  <div v-if="!selected" class="row">
     <q-spinner
       class="absolute-center"
       color="primary"
@@ -15,10 +15,11 @@
           <q-scroll-area
             :style="{height: ($q.screen.height-50-16-16-50-1)+'px'}"
           >
-            <Panel1
+            <BookmarkPanel
               :createAssetType.sync="createAssetType"
               :assetId.sync="assetId"
               :selectedView.sync="selectedView"
+              :selectedPam.sync="selectedPam"
             />
           </q-scroll-area>
         </template>
@@ -33,15 +34,20 @@
               />
             </q-scroll-area>
             <FileManager
-              v-else-if="assetId"
-              :assetId="assetId"
+              v-else-if="selectedPam"
+              :assetId.sync="selectedPam"
+              :height="$q.screen.height-50-16-16-50-1"
+            />
+            <FileManager
+              v-else
+              :assetId.sync="assetId"
               :height="$q.screen.height-50-16-16-50-1"
             />
           </div>
           <CreateAsset
             v-else
             :assetType.sync="createAssetType"
-            :parentId="assetId"
+            :parentId="selectedPam"
           />
         </template>
       </q-splitter>
@@ -63,10 +69,12 @@ import ProjectViewer from './ProjectViewer.vue'
 import CreateAsset from '@/components/project/pam/CreateAsset.vue'
 import FileManager from '@/components/project/FileManager.vue'
 
+import getAssetsByType from '@gql/getAssetsByType.gql'
+
 export default {
   name: 'Dashboard',
   components: {
-    Panel1,
+    BookmarkPanel,
     ProjectViewer,
     CreateAsset,
     FileManager
@@ -83,26 +91,40 @@ export default {
   data: () => ({
     firstModel: 20,
     secondModel: 30,
-    assetId: null,
     createAssetType: null,
     selectedView: null,
-    refresh: false
+    selectedPam: null,
+    refresh: false,
+    assetId: null
   }),
   created () {
     this.assetId = this.selected
+    this.refresh = this.refreshDashboard
   },
   watch: {
     refreshDashboard () {
       this.refresh = this.refreshDashboard
     },
     refresh () {
+      this.selectedPam = null
       this.selectedView = null
       this.assetId = this.selected
       this.$emit('update:refreshDashboard', false)
     },
     selected () {
+      this.selectedPam = null
       this.selectedView = null
       this.assetId = this.selected
+    },
+    selectedView () {
+      if (this.selectedView != null) {
+        this.selectedPam = null
+      }
+    },
+    selectedPam () {
+      if (this.selectedPam != null) {
+        this.selectedView = null
+      }
     }
   }
 }

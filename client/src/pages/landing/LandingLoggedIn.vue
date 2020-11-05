@@ -6,85 +6,100 @@
     >
       <template v-slot:before>
         <q-list>
-          <q-item header>
-            <q-item-section class="text-bold">
-              Projects
-            </q-item-section>
-            <q-item-section side>
-              <q-icon
-                name="add_circle_outline"
-                @click="onAddClick('pam')"
-              />
-            </q-item-section>
-          </q-item>
-          <q-scroll-area
-            :style="{height: ($q.screen.height-50-16-16-50-1) / 2+'px'}"
-            v-if="pams"
+          <q-expansion-item
+            expand-separator
+            default-opened
           >
-            <q-item
-              v-for="pam in pams"
-              :key="pam.id"
-              clickable
-              v-ripple
-              @click="selectedPam = pam.id"
-              :active="selectedPam == pam.id"
-              active-class="text-white bg-secondary"
-            >
-              <q-item-section>{{pam.name}}</q-item-section>
+            <template v-slot:header>
+              <q-item-section class="text-bold">
+                Projects
+              </q-item-section>
               <q-item-section side>
                 <q-icon
-                  name="keyboard_arrow_right"
-                  :color="selectedPam == pam.id ? 'white' : 'green'"
+                  name="add_circle_outline"
+                  @click.stop="onAddClick('pam')"
                 />
               </q-item-section>
-            </q-item>
-          </q-scroll-area>
-        </q-list>
-        <q-list>
-          <q-item class="col-12" header>
-            <q-item-section class="text-bold">
-              Bookmarks
-            </q-item-section>
-            <q-item-section side>
-              <q-icon
-                name="add_circle_outline"
-                @click="onAddClick('list')"
-              />
-            </q-item-section>
-          </q-item>
-          <q-scroll-area
-            :style="{height: ($q.screen.height-50-16-16-50-1) / 2+'px'}"
-            v-if="bookmarks"
-          >
-            <q-item
-              v-for="bookmark in bookmarks"
-              :key="bookmark.id"
-              clickable
-              v-ripple
-              @click="selectedPam = bookmark.id"
-              :active="selectedPam == bookmark.id"
-              active-class="text-white bg-secondary"
+            </template>
+            <q-scroll-area
+              :style="{height: ($q.screen.height-50-16-16-50-1) / 2+'px'}"
+              v-if="pams"
             >
-              <q-item-section>{{bookmark.name}}</q-item-section>
+              <q-item
+                v-for="pam in pams"
+                :key="pam.id"
+                clickable
+                v-ripple
+                @click="onClick(pam)"
+                :active="pamId == pam.id"
+                active-class="text-white bg-secondary"
+              >
+                <q-item-section>{{pam.name}}</q-item-section>
+                <q-item-section side>
+                  <q-icon
+                    name="keyboard_arrow_right"
+                    :color="pamId == pam.id ? 'white' : 'green'"
+                  />
+                </q-item-section>
+              </q-item>
+            </q-scroll-area>
+          </q-expansion-item>
+          <q-expansion-item
+            expand-separator
+            default-opened
+          >
+            <template v-slot:header>
+              <q-item-section class="text-bold">
+                Bookmarks
+              </q-item-section>
               <q-item-section side>
                 <q-icon
-                  name="keyboard_arrow_right"
-                  :color="selectedPam == bookmark.id ? 'white' : 'green'"
+                  name="add_circle_outline"
+                  @click.stop="onAddClick('list')"
                 />
               </q-item-section>
-            </q-item>
-          </q-scroll-area>
+            </template>
+            <q-scroll-area
+              :style="{height: ($q.screen.height-50-16-16-50-1) / 2+'px'}"
+              v-if="bookmarks"
+            >
+              <q-item
+                v-for="bookmark in bookmarks"
+                :key="bookmark.id"
+                clickable
+                v-ripple
+                @click="onClick(bookmark)"
+                :active="bookmarkId == bookmark.id"
+                active-class="text-white bg-secondary"
+              >
+                <q-item-section>{{bookmark.name}}</q-item-section>
+                <q-item-section side>
+                  <q-icon
+                    name="keyboard_arrow_right"
+                    :color="bookmarkId == bookmark.id ? 'white' : 'green'"
+                  />
+                </q-item-section>
+              </q-item>
+            </q-scroll-area>
+          </q-expansion-item>
         </q-list>
       </template>
       <template v-slot:after>
-        <DashboardEmbed
-          v-if="selectedPam && !showCreateAsset"
-          :id.sync="selectedPam"
-        />
+        <div v-if="!createAssetType">
+          <DashboardEmbed
+            v-if="isPamSelected"
+            :selected.sync="pamId"
+            :refreshDashboard.sync="refreshDashboard"
+          />
+          <DashboardBookmark
+            v-else-if="isBookmarkSelected"
+            :selected.sync="bookmarkId"
+            :refreshDashboard.sync="refreshDashboard"
+          />
+        </div>
         <CreateAsset
-          v-else-if="showCreateAsset"
-          @onHideShowCreateAsset="showCreateAsset = false"
-          :assetType="assetType"
+          v-else
+          :assetType.sync="createAssetType"
         />
       </template>
     </q-splitter>
@@ -102,32 +117,42 @@ import getAssetsByType from '@gql/getAssetsByType.gql'
 
 import CreateAsset from '@/components/project/pam/CreateAsset.vue'
 import DashboardEmbed from '@/components/project/pam/DashboardEmbed.vue'
+import DashboardBookmark from '@/components/project/pam/DashboardBookmark.vue'
 
 export default {
   name: 'LandingLoggedIn',
   components: {
     DashboardEmbed,
+    DashboardBookmark,
     CreateAsset
   },
   data () {
     return {
+      pams: [],
+      bookmarks: [],
       firstModel: 20,
-      showCreateAsset: false,
-      assetType: 'pam'
+      createAssetType: null,
+      pamId: null,
+      bookmarkId: null,
+      refreshDashboard: false
     }
   },
   computed: {
-    pams: sync('pam/pams'),
-    bookmarks: sync('pam/bookmarks'),
     selectedPam: sync('pam/selectedPam'),
+    selectedBookmark: sync('pam/selectedBookmark'),
     refreshPams: sync('pam/refreshPams'),
     refreshBookmarks: sync('pam/refreshBookmarks'),
-    selectedProjectView: sync('pam/selectedProjectView')
+    isPamSelected () {
+      return this.pamId !== null && this.bookmarkId == null
+    },
+    isBookmarkSelected () {
+      return this.pamId == null && this.bookmarkId !== null
+    }
   },
   async created () {
     await this.fetchData('pam')
     await this.fetchData('list')
-    this.selectedPam = this.pams[0].id
+    this.pamId = this.selectedPam ? this.selectedPam : this.pams[0].id
   },
   watch: {
     async refreshPams () {
@@ -142,14 +167,27 @@ export default {
         this.refreshBookmarks = false
       }
     },
-    selectedPam () {
-      this.selectedProjectView = null
+    pamId () {
+      this.selectedPam = this.pamId
+    },
+    bookmarkId () {
+      this.selectedBookmark = this.bookmarkId
     }
   },
   methods: {
+    onClick (asset) {
+      if (asset.assetType === 'pam') {
+        this.pamId = asset.id
+        this.bookmarkId = null
+      } else {
+        this.bookmarkId = asset.id
+        this.pamId = null
+      }
+
+      this.refreshDashboard = true
+    },
     onAddClick (assetType) {
-      this.assetType = assetType
-      this.showCreateAsset = true
+      this.createAssetType = assetType
     },
     async fetchData (assetType = 'pam') {
       try {

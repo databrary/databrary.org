@@ -276,10 +276,10 @@ export default {
         }
       })
       this.asset = result.data.assets[0]
-      this.datetimeCreated = date.formatDate(
-        this.asset.datetime_created,
-        'YYYY-MM-DD'
-      )
+      // this.datetimeCreated = date.formatDate(
+      //   this.asset.datetime_created,
+      //   'YYYY-MM-DD'
+      // )
     },
     toggleEditmode () {
       this.editMode = !this.editMode
