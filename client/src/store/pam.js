@@ -6,7 +6,8 @@ const state = {
   selectedProjectView: null,
   refreshViews: false,
   refreshPams: false,
-  refreshBookmarks: false
+  refreshBookmarks: false,
+  refreshDashboard: false
 }
 
 const getters = {

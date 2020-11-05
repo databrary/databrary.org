@@ -50,10 +50,9 @@
 </template>
 
 <script>
-// import Vue from 'vue'
+import Vue from 'vue'
 import { date } from 'quasar'
-import { defaultDataIdFromObject, gql } from '@apollo/client'
-import { sync, get } from 'vuex-pathify'
+import { gql } from '@apollo/client'
 
 import _ from 'lodash'
 
@@ -75,9 +74,6 @@ export default {
     selected: {
       type: Number,
       required: true
-    },
-    refreshDashboard: {
-      type: Boolean
     }
   },
   data: () => ({
@@ -85,22 +81,24 @@ export default {
     secondModel: 30,
     assetId: null,
     createAssetType: null,
-    selectedView: null,
-    refresh: false
+    selectedView: null
   }),
   created () {
     this.assetId = this.selected
+    this.forceRefresh = this.refresh
   },
   watch: {
-    refreshDashboard () {
-      this.refresh = this.refreshDashboard
-    },
     refresh () {
-      this.selectedView = null
-      this.assetId = this.selected
-      this.$emit('update:refreshDashboard', false)
+      this.forceRefresh = this.refresh
     },
     selected () {
+      this.selectedView = null
+      this.assetId = this.selected
+    }
+  },
+  methods: {
+    reset () {
+      console.log('reset')
       this.selectedView = null
       this.assetId = this.selected
     }
