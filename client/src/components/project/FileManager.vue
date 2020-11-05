@@ -132,6 +132,8 @@ import { uid, date, format } from 'quasar'
 import { gql } from '@apollo/client'
 import { mapActions } from 'vuex'
 
+import { get } from 'vuex-pathify'
+
 import _ from 'lodash'
 
 import FileUploader from '../upload/FileUploader'
@@ -310,6 +312,7 @@ export default {
     this.rootNode = this.assetId.toString()
   },
   computed: {
+    selectedBookmark: get('pam/selectedBookmark'),
     height () {
       return this.$q.screen.height - 50 - 16 - 50
     }
@@ -329,7 +332,6 @@ export default {
       this.setSelectedNode(this.rootNode)
       await this.updateNodes(this.rootNode)
     }
-    // '$route': 'fetchData'
   },
   methods: {
     ...mapActions('assets', ['insertAsset', 'getAssetUrl']),
@@ -391,7 +393,25 @@ export default {
           }
         })
 
-        return _.get(result, 'data.assets[0]', [])
+        let data = _.get(result, 'data.assets[0]', [])
+
+        if (this.selectedBookmark && !_.isEmpty(_.get(data, 'listAssets', []))) {
+          for (const assetId of _.get(data, 'listAssets', [])) {
+            const result = await this.$apollo.query({
+              query: GET_ASSETS,
+              variables: {
+                assetId: assetId
+              }
+            })
+            const asset = _.get(result, 'data.assets[0]')
+
+            if (asset.assetType === 'pam' || asset.assetType === 'project') continue
+
+            data.childAssets.push(asset)
+          }
+        }
+
+        return data
       } catch (error) {
         console.error('fetchData::', error.message)
         throw new Error(error.message)

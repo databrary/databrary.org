@@ -12,7 +12,7 @@
             :id.sync="pamId"
             type="pam"
             :addType.sync="createAssetType"
-            :height="($q.screen.height-50-16-16-50-1) / 2"
+            :height="($q.screen.height-50-16-16-50-10) / 2"
             @onClick="onClick"
           >
             Projects
@@ -23,7 +23,7 @@
             :id.sync="bookmarkId"
             type="list"
             :addType.sync="createAssetType"
-            :height="($q.screen.height-50-16-16-50-1) / 2"
+            :height="($q.screen.height-50-16-16-50-10) / 2"
             @onClick="onClick"
           >
             Bookmarks
