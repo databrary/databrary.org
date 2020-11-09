@@ -10,9 +10,9 @@
           class="row"
           active-class="bg-teal-1 text-grey-8"
           @drop="onDrop($event, root)"
-          @dragenter.prevent="isRootActive = true"
-          @dragleave.prevent="isRootActive = false"
-          @dragover.prevent="isRootActive = true"
+          @dragenter.prevent="$event.currentTarget.classList.add('bg-teal-1', 'text-grey-8')"
+          @dragleave.prevent="$event.currentTarget.classList.remove('bg-teal-1', 'text-grey-8')"
+          @dragover.prevent="$event.currentTarget.classList.add('bg-teal-1', 'text-grey-8')"
         >
           <q-item-section avatar>
             <q-icon color="primary" name="folder" />
@@ -108,9 +108,8 @@ export default {
   },
   data () {
     return {
-      root: '', // The id of the root folder, could be pam | project
-      selected: '', // The id of the selected node,
-      isRootActive: false
+      root: null, // The id of the root folder, could be pam | project
+      selected: null // The id of the selected node,
     }
   },
   created () {
@@ -128,8 +127,12 @@ export default {
       this.root = this.rootNode
     },
     selected () {
-      this.isRootActive = this.selected === this.rootNode
-      this.$emit('selected', this.selected)
+      this.$emit('update:selectedNode', this.selected)
+    }
+  },
+  computed: {
+    isRootActive () {
+      return this.selected === this.root
     }
   },
   methods: {

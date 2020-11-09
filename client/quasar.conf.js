@@ -64,6 +64,10 @@ module.exports = function (ctx) {
       // preloadChunks: false,
       // extractCSS: false,
 
+      // this is a configuration passed on
+      // to the underlying Webpack
+      devtool: 'source-map',
+
       // https://quasar.dev/quasar-cli/cli-documentation/handling-webpack
       extendWebpack (cfg) {
         cfg.resolve.alias = {

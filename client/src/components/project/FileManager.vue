@@ -15,31 +15,91 @@
             :icons="icons"
             :loading.sync="loadingNodes"
             :selectedNode.sync="selectedNode"
-            @selected="onSelectedNode"
-            @onDrop="onNodeDrop"
-            @onDragStart="onNodeDragStart"
             :lazyLoad="onLazyLoad"
             :height.sync="height"
+            @onDrop="onNodeDrop"
+            @onDragStart="onNodeDragStart"
           />
         </template>
         <template v-slot:after>
+          <q-toolbar class="row bg-white text-dark q-pa-sm">
+            <q-btn
+              flat
+              icon="subdirectory_arrow_left"
+              class="rotate-90"
+              color="primary"
+              :disable="selectedNode === rootNode"
+              @click.stop="onGoBack"
+            >
+              <q-tooltip>
+                Go Back
+              </q-tooltip>
+            </q-btn>
+            <q-btn
+              flat
+              label="Upload"
+              icon="cloud_upload"
+              color="primary"
+              @click.stop="showFileUploadDialog = true"
+            >
+              <q-tooltip>
+                Upload files
+              </q-tooltip>
+            </q-btn>
+
+            <q-btn
+              flat
+              label="Add folder"
+              icon="create_new_folder"
+              color="primary"
+              @click.stop="onAddNode()"
+            >
+              <q-tooltip>
+                Add A New Folder
+              </q-tooltip>
+            </q-btn>
+            <q-space />
+            <q-btn-toggle
+              flat
+              v-model="selectedView"
+              push
+              dense
+              toggle-color="primary"
+              :options="viewOptions"
+            >
+              <template v-slot:grid>
+                <div class="row items-center no-wrap">
+                  <q-icon name="view_module" >
+                    <q-tooltip>
+                      Grid View
+                    </q-tooltip>
+                  </q-icon>
+                </div>
+              </template>
+
+              <template v-slot:list>
+                <div class="row items-center no-wrap">
+                  <q-icon name="format_list_bulleted">
+                    <q-tooltip>
+                      List View
+                    </q-tooltip>
+                  </q-icon>
+                </div>
+              </template>
+            </q-btn-toggle>
+          </q-toolbar>
           <Grid
             ref="grid"
             :contents.sync="contents"
             :icons="icons"
             :columns="columns"
             :selectedNode.sync="selectedNode"
+            :selectedContents.sync="selectedContents"
             :loading.sync="loadingContents"
-            :rootNode="rootNode"
-            @selected="onSelectedNode"
+            :selectedView="selectedView"
+            :height.sync="height"
             @onDrop="onNodeDrop"
             @onDragStart="onNodeDragStart"
-            @addNode="onAddNode"
-            @selectedChildren="onSelectedContents"
-            @dblClick="onDblClicked"
-            @goBack="onGoBack"
-            @showFileUploadDialog="onShowFileUploadDialog"
-            :height.sync="height"
           />
         </template>
       </q-splitter>
@@ -103,26 +163,6 @@
           </q-card-actions>
         </q-card>
       </q-dialog>
-      <q-dialog v-model="fileViewer.show">
-        <q-pdfviewer
-          v-if="fileViewer.format === 'pdf'"
-          v-model="fileViewer.show"
-          :src="fileViewer.sources[0].src"
-          type="html5"
-          content-class="fit container"
-          inner-content-class="fit container"
-        />
-        <q-media-player
-          v-else
-          type="video"
-          background-color="black"
-          :autoplay="true"
-          :show-big-play-button="true"
-          :sources="fileViewer.sources"
-          track-language="English"
-        >
-        </q-media-player>
-      </q-dialog>
     </div>
   </section>
 </template>
@@ -130,9 +170,8 @@
 <script>
 import { uid, date, format } from 'quasar'
 import { gql } from '@apollo/client'
-import { mapActions } from 'vuex'
-
 import { get } from 'vuex-pathify'
+import { mapActions } from 'vuex'
 
 import _ from 'lodash'
 
@@ -141,6 +180,11 @@ import AddNewVolume from './modals/AddNewVolume'
 import Tree from './Tree'
 import Grid from './Grid'
 import Toolbar from './Toolbar'
+
+const defaultViewOptions = [
+  { value: 'grid', slot: 'grid' },
+  { value: 'list', slot: 'list' }
+]
 
 const defaultIcons = {
   folder: 'mdi-folder-outline',
@@ -191,6 +235,12 @@ const defaultColumns = [
     sortable: true,
     field: row => row.uploadedDatetime,
     format: (val, row) => val ? `${date.formatDate(val, 'MM-DD-YYYY')}` : null
+  },
+  {
+    name: 'action',
+    align: 'center',
+    label: 'Action',
+    field: 'action'
   }
   // {
   //   name: 'Format',
@@ -278,7 +328,9 @@ export default {
   props: {
     assetId: { type: Number, required: true },
     icons: { type: Object, default: () => defaultIcons },
-    columns: { type: Array, default: () => defaultColumns }
+    columns: { type: Array, default: () => defaultColumns },
+    viewOptions: { type: Array, default: () => defaultViewOptions },
+    defaultView: { type: String, default: () => 'list' }
   },
   data () {
     return {
@@ -288,7 +340,6 @@ export default {
       contents: [], // Contents of a selected node, is updated on selectedNode updates
       loadingNodes: true, // The state of the Tree component
       loadingContents: true, // The state of the Grid component
-      goBackDisabled: true, // The state of the go back button in the Grid component
       selectedNode: null, // The current selected node (can be updated from Grid and Tree)
       selectedContents: [], // List of selected files/folders updated from the Grid component
       volumesDialog: false, // The state of the new volume dialog
@@ -299,17 +350,14 @@ export default {
         newNode: null,
         children: null
       }, // Object with data related to the move/copy action
-      fileViewer: {
-        show: false,
-        format: null,
-        sources: null
-      },
       splitterModel: 30,
-      alertDuplicateName: false
+      alertDuplicateName: false,
+      selectedView: null
     }
   },
   async created () {
     this.rootNode = this.assetId.toString()
+    this.selectedView = this.defaultView
   },
   computed: {
     selectedBookmark: get('pam/selectedBookmark'),
@@ -318,12 +366,19 @@ export default {
     }
   },
   watch: {
-    async selectedNode (newFolderId, oldFolderId) {
-      if (!newFolderId) newFolderId = this.rootNode
+    async selectedNode () {
+      if (this.selectedNode == null) this.selectedNode = this.rootNode
 
-      await this.updateContents(newFolderId)
+      await this.updateContents(this.selectedNode)
 
-      newFolderId === this.rootNode ? this.goBackDisabled = true : this.goBackDisabled = false
+      if (this.selectedNode === this.rootNode) return
+
+      // expand the selectedNode's parent in the tree
+      const node = this.getNodeByKey(this.selectedNode)
+
+      if (node == null) return
+
+      this.setNodeExpanded(node.id, true)
     },
     assetId () {
       this.rootNode = this.assetId.toString()
@@ -331,10 +386,13 @@ export default {
     async rootNode () {
       this.setSelectedNode(this.rootNode)
       await this.updateNodes(this.rootNode)
+    },
+    defaultView () {
+      this.selectedView = this.defaultView
     }
   },
   methods: {
-    ...mapActions('assets', ['insertAsset', 'getAssetUrl']),
+    ...mapActions('assets', ['insertAsset']),
 
     /**
      * Create a node model structure from asset's object, handles folder
@@ -686,40 +744,6 @@ export default {
     async setConfirmData (confirm) {
       this.confirm = confirm
     },
-    onSelectedNode (nodeId) {
-      this.setSelectedNode(nodeId)
-    },
-    onSelectedContents (nodesArray) {
-      this.setSelectedContents(nodesArray)
-    },
-    onShowFileUploadDialog (show) {
-      this.showFileUploadDialog = show
-    },
-
-    /**
-     * Emmited from the Grid component
-     * on folder's double click event.
-     *
-     * @param {Object} node - node object
-     */
-    async onDblClicked (node) {
-      if (node.isDir) {
-        this.setSelectedNode(node.id)
-        // We expand the parent in the Tree component
-        if (node.parentId === this.rootNode) return
-        if (node.parentId) this.$refs.tree.$refs.qtree.setExpanded(node.parentId, true)
-      } else {
-        // We request the URL for the file
-        const data = await this.getAssetUrl(node.id)
-        if (data) {
-          this.fileViewer = {
-            show: true,
-            format: data.format,
-            sources: [{ src: data.url, type: data.format === 'pdf' ? 'pdf' : 'video/mp4' }]
-          }
-        }
-      }
-    },
 
     /**
      * Emmited from the Grid component
@@ -728,11 +752,21 @@ export default {
     onGoBack () {
       if (this.selectedNode === this.rootNode) return
 
-      const node = this.$refs.tree.$refs.qtree.getNodeByKey(this.selectedNode)
+      const node = this.getNodeByKey(this.selectedNode)
 
       if (!node || !node.parentId) return
 
       this.setSelectedNode(node.parentId)
+    },
+
+    getNodeByKey (key) {
+      return this.$refs.tree.$refs.qtree.getNodeByKey(this.selectedNode)
+    },
+
+    setNodeExpanded (key, expand) {
+      if (key === this.rootNode || key == null) return
+
+      this.$refs.tree.$refs.qtree.setExpanded(key, expand)
     },
 
     /**

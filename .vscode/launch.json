@@ -1,14 +1,25 @@
 {
     "configurations": [
-    {
-        "name": "Attach NestJS Server",
-        "port": 9229,
-        "request": "attach",
-        "skipFiles": [
-            "<node_internals>/**"
-        ],
-        "type": "node",
-        "restart": true,
-    }
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Quasar App: chrome",
+            "url": "http://localhost:8000",
+            "webRoot": "${workspaceFolder}/src",
+            "breakOnLoad": true,
+            "sourceMapPathOverrides": {
+            "webpack:///./src/*": "${webRoot}/*"
+            }
+        },
+        {
+            "name": "Attach NestJS Server",
+            "port": 9229,
+            "request": "attach",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node",
+            "restart": true,
+        }
     ]
 }

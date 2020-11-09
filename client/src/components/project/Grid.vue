@@ -1,74 +1,8 @@
 <template>
   <div ref="contentsRef" class="col-12">
-    <q-toolbar class="row bg-white text-dark q-pa-sm">
-      <q-btn
-        flat
-        icon="subdirectory_arrow_left"
-        class="rotate-90"
-        color="primary"
-        :disable="selected === root"
-        @click.stop="onClickBack()"
-      >
-        <q-tooltip>
-          Go Back
-        </q-tooltip>
-      </q-btn>
-      <q-btn
-        flat
-        label="Upload"
-        icon="cloud_upload"
-        color="primary"
-        @click.stop="onClickUpload()"
-      >
-        <q-tooltip>
-          Upload files
-        </q-tooltip>
-      </q-btn>
-
-      <q-btn
-        flat
-        label="Add folder"
-        icon="create_new_folder"
-        color="primary"
-        @click.stop="onClickAddNode()"
-      >
-        <q-tooltip>
-          Add A New Folder
-        </q-tooltip>
-      </q-btn>
-      <q-space />
-      <q-btn-toggle
-        flat
-        v-model="viewSelected"
-        push
-        dense
-        toggle-color="primary"
-        :options="viewOptions"
-      >
-        <template v-slot:grid>
-          <div class="row items-center no-wrap">
-            <q-icon name="view_module" >
-              <q-tooltip>
-                Grid View
-              </q-tooltip>
-            </q-icon>
-          </div>
-        </template>
-
-        <template v-slot:list>
-          <div class="row items-center no-wrap">
-            <q-icon name="format_list_bulleted">
-              <q-tooltip>
-                List View
-              </q-tooltip>
-            </q-icon>
-          </div>
-        </template>
-      </q-btn-toggle>
-    </q-toolbar>
     <div class="col-12">
       <q-table
-        :grid="viewSelected === 'grid'"
+        :grid="view === 'grid'"
         flat
         :data="nodes"
         :columns="columns"
@@ -82,6 +16,22 @@
         :loading="loading"
         color="primary"
       >
+        <template v-slot:body-cell-action>
+          <q-td class="col-12">
+            <div class="row-inline items-center justify-start">
+              <q-btn class="col-6" flat dense icon="edit">
+                <q-tooltip>
+                  Rename
+                </q-tooltip>
+              </q-btn>
+              <q-btn class="col-6" flat dense icon="clear">
+                <q-tooltip>
+                  Delete
+                </q-tooltip>
+              </q-btn>
+            </div>
+          </q-td>
+        </template>
         <!-- List view: custom name column -->
         <template v-slot:body-cell-name="props">
           <q-td class="col-12">
@@ -95,7 +45,7 @@
               @dragover.prevent="props.row.isDir ? setNodeActive($event,props.row.id, true): null"
               @dragleave.prevent="props.row.isDir ? setNodeActive($event,props.row.id, false) : null"
               @drop="props.row.isDir ? onDrop($event, props.row.id) : null"
-              @dblclick.prevent="onDblClick($event, props.row)"
+              @dblclick.prevent="props.row.isDir ? selected = props.row.id : getFile(props.row.id)"
             >
               <q-icon
                 class="col-2"
@@ -138,7 +88,7 @@
             @dragstart="onDragStart($event, props.row)"
             @drop="props.row.isDir ? onDrop($event, props.row.id) : null"
             @dragover.prevent
-            @dblclick.prevent="onDblClick($event, props.row)"
+            @dblclick.prevent="props.row.isDir ? selected = props.row.id : getFile(props.row.id)"
           >
             <q-card-section class="row">
               <q-checkbox dense v-model="props.selected" />
@@ -156,16 +106,46 @@
         </template>
       </q-table>
     </div>
+    <q-dialog v-model="fileViewer.show">
+      <q-pdfviewer
+        v-if="fileViewer.format === 'pdf'"
+        v-model="fileViewer.show"
+        :src="fileViewer.sources[0].src"
+        type="html5"
+        content-class="fit container"
+        inner-content-class="fit container"
+      />
+      <q-media-player
+        v-else
+        type="video"
+        background-color="black"
+        :autoplay="true"
+        :show-big-play-button="true"
+        :sources="fileViewer.sources"
+        track-language="English"
+      >
+      </q-media-player>
+    </q-dialog>
   </div>
 </template>
 
 <script>
 import { uid } from 'quasar'
+import { mapActions } from 'vuex'
+
 export default {
   name: 'Grid',
   props: {
     contents: {
       type: Array,
+      required: true
+    },
+    selectedContents: {
+      type: Array,
+      required: true
+    },
+    selectedView: {
+      type: String,
       required: true
     },
     icons: {
@@ -184,11 +164,6 @@ export default {
       type: Boolean,
       required: true
     },
-    rootNode: {
-      type: String,
-      required: true,
-      default: () => null
-    },
     height: {
       type: Number,
       default: () => this.$q.screen.height - 50 - 16 - 50 - 55
@@ -196,17 +171,11 @@ export default {
   },
   data () {
     return {
-      root: null, // the assetId of the root folder (pam | project)
       nodes: [],
       selectedChildren: [],
       selected: '',
-      viewSelected: 'list',
       timer: null,
       delay: 200,
-      viewOptions: [
-        { value: 'grid', slot: 'grid' },
-        { value: 'list', slot: 'list' }
-      ],
       pagination: {
         rowsPerPage: 0
       },
@@ -216,13 +185,19 @@ export default {
       defaultName: 'New Folder',
       newFolderCount: 1,
       warnDuplicateName: false,
-      lastRef: null
+      lastRef: null,
+      view: null,
+      fileViewer: {
+        show: false,
+        format: null,
+        sources: null
+      }
     }
   },
   mounted () {
     this.nodes = this.contents
     this.selected = this.selectedNode
-    this.root = this.rootNode
+    this.view = this.selectedView
   },
   watch: {
     selectedNode () {
@@ -231,16 +206,16 @@ export default {
       this.selected = this.selectedNode
     },
     selected () {
-      this.$emit('selected', this.selected)
+      this.$emit('update:selectedNode', this.selected)
     },
     selectedChildren () {
-      this.$emit('selectedChildren', this.selectedChildren)
+      this.$emit('update:selectedContents', this.selectedChildren)
     },
     contents () {
       this.nodes = this.contents
     },
-    rootNode () {
-      this.root = this.rootNode
+    selectedView () {
+      this.view = this.selectedView
     }
   },
   computed: {
@@ -251,6 +226,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions('assets', ['getAssetUrl']),
     setNodeActive (e, ref, isActive) {
       if (ref === this.selected) return
 
@@ -277,18 +253,6 @@ export default {
       this.setNodeActive(targetNodeId, false)
       this.$emit('onDrop', e, targetNodeId)
     },
-    onDblClick (e, node) {
-      this.$emit('dblClick', node)
-    },
-    onClickUpload () {
-      this.$emit('showFileUploadDialog', true)
-    },
-    onClickBack () {
-      this.$emit('goBack')
-    },
-    onClickAddNode () {
-      this.createNode()
-    },
     createNode () {
       const newNode = {
         id: uid(),
@@ -313,7 +277,18 @@ export default {
     },
     hideNode (node, currentName) {
       this.saveNode(node, node.name, node.initialName)
+    },
+    async getFile (assetId) {
+      const data = await this.getAssetUrl(assetId)
+      if (data) {
+        this.fileViewer = {
+          show: true,
+          format: data.format,
+          sources: [{ src: data.url, type: data.format === 'pdf' ? 'pdf' : 'video/mp4' }]
+        }
+      }
     }
+
   }
 }
 </script>
