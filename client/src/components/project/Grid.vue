@@ -173,7 +173,7 @@ export default {
     return {
       nodes: [],
       selectedChildren: [],
-      selected: '',
+      selected: null,
       timer: null,
       delay: 200,
       pagination: {

@@ -98,7 +98,6 @@ export default {
   },
   methods: {
     reset () {
-      console.log('reset')
       this.selectedView = null
       this.assetId = this.selected
     }
