@@ -90,26 +90,6 @@
           </q-card-actions>
         </q-card>
       </q-dialog>
-      <q-dialog v-model="alertDuplicateName">
-        <q-card>
-          <q-card-section>
-            <div class="text-h6">Alert</div>
-          </q-card-section>
-          <q-card-section class="row items-center">
-            <span class="q-mx-sm">Another file with the same name already exists in this folder</span>
-          </q-card-section>
-
-          <q-card-actions align="right">
-            <q-btn
-              flat
-              label="OK"
-              color="primary"
-              @click="editNode()"
-              v-close-popup
-            />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
     </div>
   </section>
 </template>
