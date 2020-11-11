@@ -31,6 +31,7 @@
               @dragleave.prevent="props.row.isDir ? setNodeActive($event,props.row.id, false) : null"
               @drop="props.row.isDir ? onDrop($event, props.row.id) : null"
               @dblclick.prevent="props.row.isDir ? selected = props.row.id : getFile(props.row.id)"
+              @click.prevent="selectedChildren.push(props.rowsPerPage)"
             >
               <q-icon
                 class="col-2"
@@ -53,8 +54,10 @@
                 :error-message="errorMessage"
                 :error="!isValid(props.row)"
                 @focus="$event.target.select()"
-                @keypress.enter="validate(props.row)"
+                @keydown.enter="saveNode(props.row)"
+                @keydown.esc="resetNode(props.row)"
               />
+                <!-- @blur="saveNode(props.row)" -->
               <span
                 v-else
                 class="col-10"
@@ -222,24 +225,34 @@ export default {
     clearSelection () {
       this.$refs.table.clearSelection()
     },
+    exists (node) {
+      if (!node.id) throw new Error('Name is required!')
+      return this.nodes.some((el) => el.id !== node.id && el.name === node.name)
+    },
     isValid (node) {
       if (node.name.length <= 0) {
         this.errorMessage = 'Field is required'
+        this.error = true
         return false
       }
 
       if (this.exists(node)) {
         this.errorMessage = 'Name already exists'
+        this.error = true
         return false
       }
 
+      this.error = false
       return true
     },
-    validate (node) {
-      if (this.isValid(node)) {
-        node.edit = false
-        this.$emit('save-node', node)
-      }
+    saveNode (node) {
+      if (this.error) return
+      node.initialName = node.name
+      this.$emit('save-node', node)
+    },
+    resetNode (node) {
+      node.name = node.initialName
+      this.$emit('save-node', node)
     },
     setNodeActive (e, ref, isActive) {
       if (ref === this.selected) return
@@ -257,13 +270,12 @@ export default {
 
       this.$emit('onDragStart', e, node, children)
     },
+    isError () {
+      return this.error
+    },
     onDrop (e, targetNodeId) {
       this.setNodeActive(targetNodeId, false)
       this.$emit('onDrop', e, targetNodeId)
-    },
-    exists (node) {
-      if (!node.id) throw new Error('Name is required!')
-      return this.nodes.some((el) => el.id !== node.id && el.name === node.name)
     },
     async getFile (assetId) {
       const data = await this.getAssetUrl(assetId)

@@ -288,21 +288,29 @@ export default {
   },
   watch: {
     async selectedNode () {
-      if (this.selectedNode == null) this.selectedNode = this.rootNode
+      if (this.isContentsError()) return
 
-      await this.updateContents(this.selectedNode)
-
-      if (this.selectedNode === this.rootNode) {
-        this.collapseAll()
-        return
+      if (this.isContentsInEditMode()) {
+        this.$q.dialog({
+          component: Confirmation,
+          parent: this, // becomes child of this Vue node
+          text: 'You have unsaved changes that will be lost',
+          title: 'Unsaved Changes',
+          okLabel: 'SAVE',
+          cancelLabel: 'DISCARD'
+        }).onOk(async () => {
+          this.contents.every(async (node) => {
+            if (node.edit) {
+              this.saveNode(node)
+            }
+          })
+          await this.updateSelectedNode()
+        }).onCancel(async () => {
+          await this.updateSelectedNode()
+        }).onDismiss(() => {})
+      } else {
+        await this.updateSelectedNode()
       }
-
-      // expand the selectedNode's parent in the tree
-      const node = this.getNodeByKey(this.selectedNode)
-
-      if (node == null) return
-
-      this.setNodeExpanded(node.id, true)
     },
     assetId () {
       this.rootNode = this.assetId.toString()
@@ -411,13 +419,13 @@ export default {
           contents.push(this.createNode(child))
         }
 
-        if (this.assetType === 'list') {
-          for (const assetId of _.get(assets, 'listAssets', [])) {
-            const asset = await this.fetchData(assetId)
-            if (asset.assetType === 'pam' || asset.assetType === 'project') continue
-            contents.push(this.createNode(asset))
-          }
-        }
+        // if (this.assetType === 'list') {
+        //   for (const assetId of _.get(assets, 'listAssets', [])) {
+        //     const asset = await this.fetchData(assetId)
+        //     if (asset.assetType === 'pam' || asset.assetType === 'project') continue
+        //     contents.push(this.createNode(asset))
+        //   }
+        // }
 
         return contents.filter((el) => el != null)
       } catch (error) {
@@ -445,18 +453,36 @@ export default {
           nodes.push(this.createNode(asset))
         }
 
-        if (this.assetType === 'list') {
-          for (const assetId of _.get(assets, 'listAssets', [])) {
-            const asset = await this.fetchData(assetId)
-            if (asset.assetType !== 'folder') continue
-            nodes.push(this.createNode(asset))
-          }
-        }
+        // if (this.assetType === 'list') {
+        //   for (const assetId of _.get(assets, 'listAssets', [])) {
+        //     const asset = await this.fetchData(assetId)
+        //     if (asset.assetType !== 'folder') continue
+        //     nodes.push(this.createNode(asset))
+        //   }
+        // }
 
         return nodes.filter((el) => el != null)
       } catch (error) {
         throw new Error(error.message)
       }
+    },
+
+    async updateSelectedNode () {
+      if (this.selectedNode == null) this.selectedNode = this.rootNode
+
+      await this.updateContents(this.selectedNode)
+
+      if (this.selectedNode === this.rootNode) {
+        this.collapseAll()
+        return
+      }
+
+      // expand the selectedNode's parent in the tree
+      const node = this.getNodeByKey(this.selectedNode)
+
+      if (node == null) return
+
+      this.setNodeExpanded(node.id, true)
     },
 
     /**
@@ -557,20 +583,9 @@ export default {
           await this.updateNodes(this.rootNode)
         }
         this.setSelectedNode(targetNodeId)
-
-        this.$q.notify({
-          color: 'green-4',
-          textColor: 'white',
-          icon: 'cloud_done',
-          message: 'Moved'
-        })
+        this.notifySuccess('Moved')
       } catch (error) {
-        this.$q.notify({
-          color: 'red-4',
-          textColor: 'white',
-          icon: 'cloud_done',
-          message: 'Failed'
-        })
+        this.notifyFailure()
       } finally {
         this.clearConfirm()
       }
@@ -581,7 +596,7 @@ export default {
      *
      * @param {Object} node - object forwarded from the Grid components
      */
-    async updateNode (node) {
+    async update (node) {
       try {
         const assetName = await this.updateAsset(
           {
@@ -590,23 +605,15 @@ export default {
           }
         )
 
+        node.edit = false
+
         await this.updateNodes(this.rootNode)
 
         this.setSelectedNode(node.parentId)
-        this.$q.notify({
-          color: 'green-4',
-          textColor: 'white',
-          icon: 'cloud_done',
-          message: 'Updated'
-        })
+        this.notifySuccess('Updated')
       } catch (error) {
-        console.error('updateNode::', error.message)
-        this.$q.notify({
-          color: 'red-4',
-          textColor: 'white',
-          icon: 'cloud_done',
-          message: 'Failed'
-        })
+        console.error('update::', error.message)
+        this.notifyFailure()
       }
     },
 
@@ -614,31 +621,17 @@ export default {
      * delete an existing folder in the node's parent
      *
      */
-    async deleteNodes () {
+    async delete (assets) {
       try {
-        await this.deleteAssets(
-          {
-            assets: this.selectedContents.map((el) => parseInt(el.id))
-          }
-        )
+        await this.deleteAssets({ assets })
 
         await this.updateNodes(this.rootNode)
 
         this.setSelectedNode(null)
-        this.$q.notify({
-          color: 'green-4',
-          textColor: 'white',
-          icon: 'cloud_done',
-          message: 'Deleted'
-        })
+        this.notifySuccess('Deleted')
       } catch (error) {
         console.error('deleteNodes::', error.message)
-        this.$q.notify({
-          color: 'red-4',
-          textColor: 'white',
-          icon: 'cloud_done',
-          message: 'Failed'
-        })
+        this.notifyFailure()
       }
     },
 
@@ -647,7 +640,7 @@ export default {
      *
      * @param {Object} node - object forwarded from the Grid components
      */
-    async insertNode (node) {
+    async insert (node) {
       try {
         const assetId = await this.insertAsset(
           {
@@ -660,51 +653,19 @@ export default {
 
         node.id = assetId.toString()
         node.saved = true
+        node.edit = false
 
         await this.updateNodes(this.rootNode)
 
         this.setSelectedNode(node.parentId)
-        this.$q.notify({
-          color: 'green-4',
-          textColor: 'white',
-          icon: 'cloud_done',
-          message: 'Created'
-        })
+        this.notifySuccess('Created')
       } catch (error) {
-        console.error('insertNode::', error.message)
-        this.$q.notify({
-          color: 'red-4',
-          textColor: 'white',
-          icon: 'cloud_done',
-          message: 'Failed'
-        })
+        console.error('insert::', error.message)
+        this.notifyFailure()
       }
     },
 
-    // Event handlers
-    async onLazyLoad ({ node, key, done, fail }) {
-      try {
-        const assets = await this.fetchData(key)
-        let children = []
-        for (const asset of _.get(assets, 'childAssets', [])) {
-          // we only want folders
-          if (asset.assetType !== 'folder') continue
-
-          // add child to parent
-          children.push(this.createNode(asset))
-        }
-
-        done(children)
-      } catch (error) {
-        fail()
-      }
-    },
-
-    /**
-     * Emmited from the Grid component
-     * on Go Back click event
-     */
-    onGoBack () {
+    goBack () {
       if (this.selectedNode === this.rootNode) return
 
       const node = this.getNodeByKey(this.selectedNode)
@@ -714,33 +675,29 @@ export default {
       this.setSelectedNode(node.parentId)
     },
 
-    async onSaveNode (node) {
+    async saveNode (node) {
       if (node.saved) {
         // update the asset
-        await this.updateNode(node)
+        await this.update(node)
       } else {
         // insert a new asset
-        await this.insertNode(node)
+        await this.insert(node)
       }
     },
 
-    async onDeleteNodes () {
+    deleteNodes () {
       this.$q.dialog({
         component: Confirmation,
         parent: this, // becomes child of this Vue node
         text: 'Are you sure you want to permanently remove this items',
         title: 'Confirm Deletion'
       }).onOk(async () => {
-        await this.deleteNodes()
+        await this.delete(this.selectedContents.map((el) => parseInt(el.id)))
       }).onCancel(() => {
       }).onDismiss(() => {})
     },
 
-    /**
-     * Emmited from the Toolbar component
-     * on Add Folder action
-     */
-    async onAddNode () {
+    addNode () {
       try {
         const id = uid()
         const newAsset = {
@@ -759,32 +716,40 @@ export default {
 
         this.contents.unshift(newNode)
       } catch (error) {
-        console.error(error.message)
+        console.error('addNode::', error.message)
+        this.notifyFailure()
       }
     },
 
-    onNodeDrop (e, targetNodeId) {
-      const oldNode = JSON.parse(e.dataTransfer.getData('node'))
-      // prevent dropping in the same(source) folder
-      // source and destination must be different
-      if (oldNode.id === targetNodeId) return
-
-      // don't drop on other draggables
-      if (e.target.draggable === true) return
-
-      const children = JSON.parse(e.dataTransfer.getData('children'))
-      this.setConfirmData({ show: true, target: targetNodeId, children: children })
-    },
-    onNodeDragStart (e, sourceNode, children) {
-      e.dataTransfer.dropEffect = 'move'
-      e.dataTransfer.effectAllowed = 'move'
-      e.dataTransfer.setData('children', JSON.stringify(children))
-      e.dataTransfer.setData('node', JSON.stringify(sourceNode))
+    isContentsInEditMode () {
+      return this.contents.some((el) => el.edit === true)
     },
 
-    onEditNode () {
+    isContentsError () {
+      return this.$refs.grid.isError()
+    },
+
+    editNode () {
       if (this.selectedContents.length !== 1) return
       this.selectedContents[0].edit = true
+    },
+
+    notifySuccess (message, icon = 'cloud_done', color = 'green-4') {
+      this.$q.notify({
+        color,
+        textColor: 'white',
+        icon,
+        message
+      })
+    },
+
+    notifyFailure (message = 'Failed', icon = 'cloud_done', color = 'red-4') {
+      this.$q.notify({
+        color,
+        textColor: 'white',
+        icon,
+        message
+      })
     },
 
     getNodeByKey (key) {
@@ -797,13 +762,10 @@ export default {
       this.$refs.tree.$refs.qtree.setExpanded(key, expand)
     },
 
-    // Setters
     setSelectedNode (nodeId) {
       this.selectedNode = nodeId
     },
-    setSelectedContents (nodesArray) {
-      this.selectedContents = nodesArray
-    },
+
     setConfirmData (confirm) {
       this.confirm = confirm
     },
@@ -830,6 +792,58 @@ export default {
         newNode: null,
         children: null
       }
+    },
+
+    // Event handlers
+    async onLazyLoad ({ node, key, done, fail }) {
+      try {
+        const assets = await this.fetchData(key)
+        let children = []
+        for (const asset of _.get(assets, 'childAssets', [])) {
+          if (asset.assetType !== 'folder') continue
+          children.push(this.createNode(asset))
+        }
+
+        done(children)
+      } catch (error) {
+        fail()
+      }
+    },
+
+    onNodeDrop (e, targetNodeId) {
+      const oldNode = JSON.parse(e.dataTransfer.getData('node'))
+      // prevent dropping in the same(source) folder
+      // source and destination must be different
+      if (oldNode.id === targetNodeId) return
+
+      // don't drop on other draggables
+      if (e.target.draggable === true) return
+
+      const children = JSON.parse(e.dataTransfer.getData('children'))
+      this.setConfirmData({ show: true, target: targetNodeId, children: children })
+    },
+
+    onNodeDragStart (e, sourceNode, children) {
+      e.dataTransfer.dropEffect = 'move'
+      e.dataTransfer.effectAllowed = 'move'
+      e.dataTransfer.setData('children', JSON.stringify(children))
+      e.dataTransfer.setData('node', JSON.stringify(sourceNode))
+    },
+
+    onEditNode () {
+      this.editNode()
+    },
+    onAddNode () {
+      this.addNode()
+    },
+    onDeleteNodes () {
+      this.deleteNodes()
+    },
+    onGoBack () {
+      this.goBack()
+    },
+    onSaveNode (node) {
+      this.saveNode(node)
     }
   }
 }
