@@ -31,7 +31,7 @@
               @dragleave.prevent="props.row.isDir ? setNodeActive($event,props.row.id, false) : null"
               @drop="props.row.isDir ? onDrop($event, props.row.id) : null"
               @dblclick.prevent="props.row.isDir ? selected = props.row.id : getFile(props.row.id)"
-              @click.prevent="selectedChildren.push(props.rowsPerPage)"
+              @click.prevent="selectedChildren.push(props.row)"
             >
               <q-icon
                 class="col-2"
