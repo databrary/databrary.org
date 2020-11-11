@@ -37,7 +37,8 @@
                 size="sm"
                 :name="props.row.isDir
                   ? icons['folder']
-                  : props.row.format ? icons[props.row.format.toLowerCase()] : icons['other']"
+                  : props.row.format && props.row.format.toLowerCase() in icons
+                    ? icons[props.row.format.toLowerCase()] : icons['other']"
               />
               <q-input
                 v-if="props.row.edit"
@@ -84,7 +85,8 @@
                 size="xl"
                 :name="props.row.isDir
                   ? icons['folder']
-                  : props.row.format ? icons[props.row.format.toLowerCase()] : icons['other']"
+                  : props.row.format && props.row.format.toLowerCase() in icons
+                    ? icons[props.row.format.toLowerCase()] : icons['other']"
               />
             </q-card-section>
             <q-card-section class="row justify-center">
