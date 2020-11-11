@@ -103,7 +103,7 @@ import { mapActions } from 'vuex'
 import _ from 'lodash'
 
 import FileUploader from '../upload/FileUploader'
-import AddNewVolume from './modals/AddNewVolume'
+import Confirmation from './modals/Confirmation'
 import Tree from './Tree'
 import Grid from './Grid'
 import Toolbar from './Toolbar'
@@ -241,10 +241,10 @@ export default {
   name: 'FileManager',
   components: {
     FileUploader,
-    AddNewVolume,
     Tree,
     Grid,
-    Toolbar
+    Toolbar,
+    Confirmation
   },
   props: {
     assetId: { type: Number, required: true },
@@ -725,7 +725,15 @@ export default {
     },
 
     async onDeleteNodes () {
-      await this.deleteNodes()
+      this.$q.dialog({
+        component: Confirmation,
+        parent: this, // becomes child of this Vue node
+        text: 'Are you sure you want to permanently remove this items',
+        title: 'Confirm Deletion'
+      }).onOk(async () => {
+        await this.deleteNodes()
+      }).onCancel(() => {
+      }).onDismiss(() => {})
     },
 
     /**
