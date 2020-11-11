@@ -58,6 +58,32 @@ const actions = {
 
     return result.data.insert_assets.returning[0].id
   },
+  async updateAsset (_, { assetId, name }) {
+    const result = await apolloClient.mutate({
+      mutation: gql`
+        mutation (
+          $assetId: Int!
+          $name: String!
+        ) {
+          update_assets(
+            where: {id: {_eq: $assetId}}, 
+            _set: {name: $name}
+          ) {
+            returning {
+              id
+              name
+            }
+          }
+        }
+      `,
+      variables: {
+        name,
+        assetId
+      }
+    })
+
+    return result.data.update_assets.returning[0].name
+  },
   async getAssetUrl (_, assetId) {
     const { data } = await axios({ url: `/asset/${assetId}`, method: 'GET' })
     return data

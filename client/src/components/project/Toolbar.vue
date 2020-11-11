@@ -17,7 +17,7 @@
       label="Upload"
       icon="cloud_upload"
       color="primary"
-      @click.stop="showFileUploadDialog = true"
+      @click.stop="$emit('update:', true)"
     >
       <q-tooltip>
         Upload files
@@ -29,7 +29,7 @@
       label="Add folder"
       icon="create_new_folder"
       color="primary"
-      @click.stop="onAddNode()"
+      @click.stop="$emit('add-node')"
     >
       <q-tooltip>
         Add A New Folder

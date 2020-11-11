@@ -16,15 +16,26 @@
         :loading="loading"
         color="primary"
       >
-        <template v-slot:body-cell-action>
+        <template v-slot:body-cell-action="props">
           <q-td class="col-12">
             <div class="row-inline items-center justify-start">
-              <q-btn class="col-6" flat dense icon="edit">
+              <q-btn
+                class="col-6"
+                flat
+                dense
+                icon="edit"
+                @click.stop="props.row.edit = true"
+              >
                 <q-tooltip>
                   Rename
                 </q-tooltip>
               </q-btn>
-              <q-btn class="col-6" flat dense icon="clear">
+              <q-btn
+                class="col-6"
+                flat
+                dense
+                icon="clear"
+              >
                 <q-tooltip>
                   Delete
                 </q-tooltip>
@@ -37,7 +48,7 @@
           <q-td class="col-12">
             <div
               :ref="props.row.id"
-              class="row-inline justify-start items-center cursor-pointer"
+              class="row justify-start items-center cursor-pointer"
               draggable
               @dragstart="onDragStart($event, props.row)"
               @dragend="$event.currentTarget.style.opacity = ''"
@@ -50,30 +61,31 @@
               <q-icon
                 class="col-2"
                 size="sm"
-                :name="props.row.isDir ? icons['folder'] : icons[props.row.format.toLowerCase()] || icons['other']"
+                :name="props.row.isDir
+                  ? icons['folder']
+                  : props.row.format ? icons[props.row.format.toLowerCase()] : icons['other']"
+              />
+              <q-input
+                v-if="props.row.edit"
+                :ref="`${props.row.id}-edit`"
+                v-model.trim="props.row.name"
+                class="col-10"
+                dense
+                autofocus
+                type="text"
+                hide-bottom-space
+                :bottom-slots="false"
+                :error-message="errorMessage"
+                :error="!isValid(props.row)"
+                @focus="$event.target.select()"
+                @keypress.enter="validate(props.row)"
               />
               <span
-                class="col-10 q-ml-sm text-center"
+                v-else
+                class="col-10"
               >
                 {{props.row.name}}
               </span>
-              <q-popup-edit
-                :ref="`${props.row.id}-edit`"
-                v-if="props.row.canEdit"
-                v-model="props.row.id"
-                @show="lastRef = props.row.id"
-                @hide="hideNode(props.row)"
-              >
-                <!-- @hide="hidePopupEdit(props.row)" -->
-                <q-input
-                  v-model.trim="props.row.name"
-                  class="col-10 q-ml-sm"
-                  dense
-                  autofocus
-                  type="text"
-                  @focus="$event.target.select()"
-                />
-              </q-popup-edit>
             </div>
           </q-td>
         </template>
@@ -96,7 +108,9 @@
             <q-card-section class="row justify-center" >
               <q-icon
                 size="xl"
-                :name="props.row.isDir ? icons['folder'] : icons[props.row.format.toLowerCase()] || icons['other']"
+                :name="props.row.isDir
+                  ? icons['folder']
+                  : props.row.format ? icons[props.row.format.toLowerCase()] : icons['other']"
               />
             </q-card-section>
             <q-card-section class="row justify-center">
@@ -185,13 +199,15 @@ export default {
       defaultName: 'New Folder',
       newFolderCount: 1,
       warnDuplicateName: false,
-      lastRef: null,
+      lastRef: null, // lastRef is used when an error occurs while saving a node
       view: null,
       fileViewer: {
         show: false,
         format: null,
         sources: null
-      }
+      },
+      error: false,
+      errorMessage: 'Field is required'
     }
   },
   mounted () {
@@ -227,17 +243,30 @@ export default {
   },
   methods: {
     ...mapActions('assets', ['getAssetUrl']),
+    isValid (node) {
+      if (node.name.length <= 0) {
+        this.errorMessage = 'Field is required'
+        return false
+      }
+
+      if (this.exists(node)) {
+        this.errorMessage = 'Name already exists'
+        return false
+      }
+
+      return true
+    },
+    validate (node) {
+      if (this.isValid(node)) {
+        node.edit = false
+        this.$emit('save-node', node)
+      }
+    },
     setNodeActive (e, ref, isActive) {
       if (ref === this.selected) return
 
       if (isActive) this.$refs[ref].classList.add('bg-teal-1', 'text-grey-8')
       else this.$refs[ref].classList.remove('bg-teal-1', 'text-grey-8')
-    },
-    showPopupEdit (ref = this.lastRef, ms = 300) {
-      setTimeout(() => {
-        const popEditRef = `${ref}-edit`
-        if (this.$refs[popEditRef]) this.$refs[popEditRef].show()
-      }, ms)
     },
     onDragStart (e, node) {
       e.currentTarget.style.opacity = this.opacityOnDragged
@@ -253,30 +282,9 @@ export default {
       this.setNodeActive(targetNodeId, false)
       this.$emit('onDrop', e, targetNodeId)
     },
-    createNode () {
-      const newNode = {
-        id: uid(),
-        name: `${this.defaultName} ${this.newFolderCount}`,
-        isDir: true,
-        lazy: true,
-        parentId: this.selected,
-        uploadedDatetime: Date.now(),
-        size: 0,
-        canEdit: true,
-        initialName: `${this.defaultName} ${this.newFolderCount}`
-      }
-
-      this.nodes.unshift(newNode)
-
-      this.newFolderCount++
-      // Wait for Quasar to update the table to show the popup edit
-      this.showPopupEdit(newNode.id)
-    },
-    saveNode (node, name, initialName) {
-      this.$emit('addNode', node, name, initialName)
-    },
-    hideNode (node, currentName) {
-      this.saveNode(node, node.name, node.initialName)
+    exists (node) {
+      if (!node.id) throw new Error('Name is required!')
+      return this.nodes.some((el) => el.id !== node.id && el.name === node.name)
     },
     async getFile (assetId) {
       const data = await this.getAssetUrl(assetId)

@@ -26,7 +26,9 @@
             :isRootNode="selectedNode === rootNode"
             :selectedView.sync="selectedView"
             :viewOptions="viewOptions"
+            :showFileUploadDialog.sync="showFileUploadDialog"
             @go-back="onGoBack"
+            @add-node="onAddNode"
           />
           <Grid
             ref="grid"
@@ -38,6 +40,7 @@
             :loading.sync="loadingContents"
             :selectedView="selectedView"
             :height.sync="height"
+            @save-node="onSaveNode"
             @onDrop="onNodeDrop"
             @onDragStart="onNodeDragStart"
           />
@@ -97,7 +100,7 @@
               flat
               label="OK"
               color="primary"
-              @click="showContentsPopupEdit()"
+              @click="editNode()"
               v-close-popup
             />
           </q-card-actions>
@@ -178,8 +181,9 @@ const defaultColumns = [
   },
   {
     name: 'action',
-    align: 'center',
     label: 'Action',
+    required: true,
+    align: 'center',
     field: 'action'
   }
   // {
@@ -335,7 +339,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('assets', ['insertAsset']),
+    ...mapActions('assets', ['insertAsset', 'updateAsset']),
 
     /**
      * Create a node model structure from asset's object, handles folder
@@ -351,32 +355,22 @@ export default {
         return null
       }
 
-      switch (asset.assetType) {
-        case 'folder':
-          return {
-            id: asset.id.toString(),
-            name: asset.name,
-            isDir: asset.assetType === 'folder',
-            lazy: true,
-            parentId: asset.parentId.toString(),
-            uploadedDatetime: asset.datetimeCreated,
-            size: _.get(asset, 'childAssets_aggregate.aggregate.count', 0)
-          }
-
-        case 'file':
-          return {
-            id: asset.id.toString(),
-            name: asset.name,
-            isDir: asset.assetType === 'folder',
-            parentId: asset.parentId.toString(),
-            uploadedDatetime: asset.datetimeCreated,
-            // TODO: (Reda): Remove default values from here and add them to the ingest scripts
-            size: _.get(asset, 'file.fileobject.size', 0),
-            format: _.get(asset, 'file.fileFormatId', 'mp4')
-          }
-
-        default:
-          return null
+      return {
+        id: asset.id.toString(),
+        name: asset.name,
+        isDir: asset.assetType === 'folder',
+        parentId: asset.parentId.toString(),
+        uploadedDatetime: asset.datetimeCreated,
+        lazy: asset.assetType === 'folder',
+        size: asset.assetType === 'folder'
+          ? _.get(asset, 'childAssets_aggregate.aggregate.count', 0)
+          : _.get(asset, 'file.fileobject.size', 0),
+        format: asset.assetType === 'file'
+          ? _.get(asset, 'file.fileFormatId', 'mp4')
+          : null,
+        initialName: asset.name,
+        edit: false,
+        saved: true
       }
     },
 
@@ -567,6 +561,7 @@ export default {
         let contents = []
 
         for (const child of _.get(assets, 'childAssets', [])) {
+          if (child.assetType !== 'file' && child.assetType !== 'folder') continue
           contents.push(this.createNode(child))
         }
 
@@ -619,11 +614,47 @@ export default {
     },
 
     /**
+     * update an existing folder in the node's parent
+     *
+     * @param {Object} node - object forwarded from the Grid components
+     */
+    async updateNode (node) {
+      try {
+        const assetName = await this.updateAsset(
+          {
+            name: node.name,
+            assetId: node.id
+          }
+        )
+
+        console.log('new Asset Name', assetName)
+
+        await this.updateNodes(this.rootNode)
+
+        this.setSelectedNode(node.parentId)
+        this.$q.notify({
+          color: 'green-4',
+          textColor: 'white',
+          icon: 'cloud_done',
+          message: 'Updated'
+        })
+      } catch (error) {
+        console.error('updateNode::', error.message)
+        this.$q.notify({
+          color: 'red-4',
+          textColor: 'white',
+          icon: 'cloud_done',
+          message: 'Failed'
+        })
+      }
+    },
+
+    /**
      * Insert a new folder in the node's parent
      *
      * @param {Object} node - object forwarded from the Grid components
      */
-    async addNode (node) {
+    async insertNode (node) {
       try {
         const assetId = await this.insertAsset(
           {
@@ -635,6 +666,7 @@ export default {
         )
 
         node.id = assetId.toString()
+        node.saved = true
 
         await this.updateNodes(this.rootNode)
 
@@ -646,7 +678,7 @@ export default {
           message: 'Created'
         })
       } catch (error) {
-        console.error('addNode::', error.message)
+        console.error('insertNode::', error.message)
         this.$q.notify({
           color: 'red-4',
           textColor: 'white',
@@ -658,11 +690,9 @@ export default {
 
     // Setters
     setSelectedNode (nodeId) {
-      // if (nodeId === this.selectedNode) return
       this.selectedNode = nodeId
     },
     setSelectedContents (nodesArray) {
-      // if (nodesArray === this.selectedContents) return
       this.selectedContents = nodesArray
     },
 
@@ -716,29 +746,38 @@ export default {
       this.$refs.tree.$refs.qtree.collapseAll()
     },
 
+    async onSaveNode (node) {
+      if (node.saved) {
+        // update the asset
+        await this.updateNode(node)
+      } else {
+        // insert a new asset
+        await this.insertNode(node)
+      }
+    },
+
     /**
-     * Emmited from the Grid component
+     * Emmited from the Toolbar component
      * on Add Folder action
      */
-    async onAddNode (node, name, initialName) {
+    async onAddNode () {
       try {
-        if (name.length < 1) {
-          node.name = initialName
-          return
+        const id = uid()
+        const newAsset = {
+          id: id,
+          name: id,
+          assetType: 'folder',
+          parentId: this.selectedNode,
+          datetimeCreated: Date.now(),
+          size: 0
         }
 
-        if (this.existsInContents(node.id, name)) {
-          this.alertDuplicateName = true
-          node.name = initialName
-          return
-        }
+        const newNode = this.createNode(newAsset)
 
-        node.canEdit = false
-        node.initialName = ''
-        delete node.canEdit
-        delete node.initialName
+        newNode.edit = true
+        newNode.saved = false
 
-        await this.addNode(node)
+        this.contents.unshift(newNode)
       } catch (error) {
         console.error(error.message)
       }
@@ -762,14 +801,8 @@ export default {
       e.dataTransfer.setData('children', JSON.stringify(children))
       e.dataTransfer.setData('node', JSON.stringify(sourceNode))
     },
-    showContentsPopupEdit () {
-      this.$refs.grid.showPopupEdit()
-    },
-    existsInContents (id, name, contents = this.contents) {
-      if (!name) throw new Error('Name argument is required!')
-      return id
-        ? contents.some((el) => el.id !== id && el.name === name)
-        : contents.filter((el) => el.name === name).length >= 2
+    editNode (nodeId) {
+      this.$refs.grid.editNode(nodeId)
     }
   }
 }
