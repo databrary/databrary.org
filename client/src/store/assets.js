@@ -84,6 +84,22 @@ const actions = {
 
     return result.data.update_assets.returning[0].name
   },
+  async deleteAssets (_, { assets }) {
+    const result = await apolloClient.mutate({
+      mutation: gql`
+        mutation ($assets: [Int!]!) {
+          delete_assets(where: {id: {_in: $assets}}) {
+            returning {
+              id
+            }
+          }
+        }      
+      `,
+      variables: {
+        assets
+      }
+    })
+  },
   async getAssetUrl (_, assetId) {
     const { data } = await axios({ url: `/asset/${assetId}`, method: 'GET' })
     return data

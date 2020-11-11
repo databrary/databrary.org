@@ -27,8 +27,12 @@
             :selectedView.sync="selectedView"
             :viewOptions="viewOptions"
             :showFileUploadDialog.sync="showFileUploadDialog"
+            :selectedContentsSize="selectedContents.length"
             @go-back="onGoBack"
             @add-node="onAddNode"
+            @edit-node="onEditNode"
+            @delete-node="onDeleteNodes"
+            @clear-selection="clearSelectedContents"
           />
           <Grid
             ref="grid"
@@ -178,13 +182,6 @@ const defaultColumns = [
     sortable: true,
     field: row => row.uploadedDatetime,
     format: (val, row) => val ? `${date.formatDate(val, 'MM-DD-YYYY')}` : null
-  },
-  {
-    name: 'action',
-    label: 'Action',
-    required: true,
-    align: 'center',
-    field: 'action'
   }
   // {
   //   name: 'Format',
@@ -339,7 +336,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('assets', ['insertAsset', 'updateAsset']),
+    ...mapActions('assets', ['insertAsset', 'updateAsset', 'deleteAssets']),
 
     /**
      * Create a node model structure from asset's object, handles folder
@@ -413,21 +410,75 @@ export default {
       }
     },
 
-    clearContents () {
-      this.contents.splice(0, this.contents.length)
-    },
+    /**
+     * Fetch childAssets of an asset id and update the contents array,
+     * the contents is forwarded to the Grid component and display files
+     * and folders of a selected tree node.
+     *
+     * @param {String} assetId - Database asset id
+     */
+    async fetchContents (assetId) {
+      try {
+        // Get the folder contents
+        if (!assetId) return []
 
-    clearNodes () {
-      this.nodes.splice(0, this.nodes.length)
-    },
+        const assets = await this.fetchData(assetId)
 
-    clearConfirm () {
-      this.confirm = {
-        show: false,
-        newNode: null,
-        children: null
+        let contents = []
+
+        for (const child of _.get(assets, 'childAssets', [])) {
+          if (child.assetType !== 'file' && child.assetType !== 'folder') continue
+          contents.push(this.createNode(child))
+        }
+
+        if (this.assetType === 'list') {
+          for (const assetId of _.get(assets, 'listAssets', [])) {
+            const asset = await this.fetchData(assetId)
+            if (asset.assetType === 'pam' || asset.assetType === 'project') continue
+            contents.push(this.createNode(asset))
+          }
+        }
+
+        return contents.filter((el) => el != null)
+      } catch (error) {
+        throw new Error(error.message)
       }
     },
+
+    /**
+     * Fetch childAssets of an asset id and update the nodes array,
+     * the nodes is forwarded to the Tree component and display folders
+     * and sub-folders of a project|pam.
+     *
+     * @param {String} assetId - Database asset id
+     */
+    async fetchNodes (assetId) {
+      try {
+        if (!assetId) return []
+
+        const assets = await this.fetchData(assetId)
+
+        const nodes = []
+
+        for (const asset of _.get(assets, 'childAssets', [])) {
+          if (asset.assetType !== 'folder') continue
+          nodes.push(this.createNode(asset))
+        }
+
+        if (this.assetType === 'list') {
+          for (const assetId of _.get(assets, 'listAssets', [])) {
+            const asset = await this.fetchData(assetId)
+            if (asset.assetType !== 'folder') continue
+            nodes.push(this.createNode(asset))
+          }
+        }
+
+        return nodes.filter((el) => el != null)
+      } catch (error) {
+        throw new Error(error.message)
+      }
+    },
+
     /**
      * Clear and update the nodes array
      *
@@ -454,6 +505,7 @@ export default {
     async updateContents (assetId) {
       try {
         this.loadingContents = true
+        this.clearSelectedContents()
         this.clearContents()
         this.contents.push(...await this.fetchContents(assetId))
         this.loadingContents = false
@@ -545,75 +597,6 @@ export default {
     },
 
     /**
-     * Fetch childAssets of an asset id and update the contents array,
-     * the contents is forwarded to the Grid component and display files
-     * and folders of a selected tree node.
-     *
-     * @param {String} assetId - Database asset id
-     */
-    async fetchContents (assetId) {
-      try {
-        // Get the folder contents
-        if (!assetId) return []
-
-        const assets = await this.fetchData(assetId)
-
-        let contents = []
-
-        for (const child of _.get(assets, 'childAssets', [])) {
-          if (child.assetType !== 'file' && child.assetType !== 'folder') continue
-          contents.push(this.createNode(child))
-        }
-
-        if (this.assetType === 'list') {
-          for (const assetId of _.get(assets, 'listAssets', [])) {
-            const asset = await this.fetchData(assetId)
-            if (asset.assetType === 'pam' || asset.assetType === 'project') continue
-            contents.push(this.createNode(asset))
-          }
-        }
-
-        return contents.filter((el) => el != null)
-      } catch (error) {
-        throw new Error(error.message)
-      }
-    },
-
-    /**
-     * Fetch childAssets of an asset id and update the nodes array,
-     * the nodes is forwarded to the Tree component and display folders
-     * and sub-folders of a project|pam.
-     *
-     * @param {String} assetId - Database asset id
-     */
-    async fetchNodes (assetId) {
-      try {
-        if (!assetId) return []
-
-        const assets = await this.fetchData(assetId)
-
-        const nodes = []
-
-        for (const asset of _.get(assets, 'childAssets', [])) {
-          if (asset.assetType !== 'folder') continue
-          nodes.push(this.createNode(asset))
-        }
-
-        if (this.assetType === 'list') {
-          for (const assetId of _.get(assets, 'listAssets', [])) {
-            const asset = await this.fetchData(assetId)
-            if (asset.assetType !== 'folder') continue
-            nodes.push(this.createNode(asset))
-          }
-        }
-
-        return nodes.filter((el) => el != null)
-      } catch (error) {
-        throw new Error(error.message)
-      }
-    },
-
-    /**
      * update an existing folder in the node's parent
      *
      * @param {Object} node - object forwarded from the Grid components
@@ -627,8 +610,6 @@ export default {
           }
         )
 
-        console.log('new Asset Name', assetName)
-
         await this.updateNodes(this.rootNode)
 
         this.setSelectedNode(node.parentId)
@@ -640,6 +621,38 @@ export default {
         })
       } catch (error) {
         console.error('updateNode::', error.message)
+        this.$q.notify({
+          color: 'red-4',
+          textColor: 'white',
+          icon: 'cloud_done',
+          message: 'Failed'
+        })
+      }
+    },
+
+    /**
+     * delete an existing folder in the node's parent
+     *
+     */
+    async deleteNodes () {
+      try {
+        await this.deleteAssets(
+          {
+            assets: this.selectedContents.map((el) => parseInt(el.id))
+          }
+        )
+
+        await this.updateNodes(this.rootNode)
+
+        this.setSelectedNode(null)
+        this.$q.notify({
+          color: 'green-4',
+          textColor: 'white',
+          icon: 'cloud_done',
+          message: 'Deleted'
+        })
+      } catch (error) {
+        console.error('deleteNodes::', error.message)
         this.$q.notify({
           color: 'red-4',
           textColor: 'white',
@@ -688,14 +701,6 @@ export default {
       }
     },
 
-    // Setters
-    setSelectedNode (nodeId) {
-      this.selectedNode = nodeId
-    },
-    setSelectedContents (nodesArray) {
-      this.selectedContents = nodesArray
-    },
-
     // Event handlers
     async onLazyLoad ({ node, key, done, fail }) {
       try {
@@ -714,9 +719,6 @@ export default {
         fail()
       }
     },
-    async setConfirmData (confirm) {
-      this.confirm = confirm
-    },
 
     /**
      * Emmited from the Grid component
@@ -732,20 +734,6 @@ export default {
       this.setSelectedNode(node.parentId)
     },
 
-    getNodeByKey (key) {
-      return this.$refs.tree.$refs.qtree.getNodeByKey(this.selectedNode)
-    },
-
-    setNodeExpanded (key, expand) {
-      if (key === this.rootNode || key == null) return
-
-      this.$refs.tree.$refs.qtree.setExpanded(key, expand)
-    },
-
-    collapseAll () {
-      this.$refs.tree.$refs.qtree.collapseAll()
-    },
-
     async onSaveNode (node) {
       if (node.saved) {
         // update the asset
@@ -754,6 +742,10 @@ export default {
         // insert a new asset
         await this.insertNode(node)
       }
+    },
+
+    async onDeleteNodes () {
+      await this.deleteNodes()
     },
 
     /**
@@ -801,8 +793,55 @@ export default {
       e.dataTransfer.setData('children', JSON.stringify(children))
       e.dataTransfer.setData('node', JSON.stringify(sourceNode))
     },
-    editNode (nodeId) {
-      this.$refs.grid.editNode(nodeId)
+
+    onEditNode () {
+      if (this.selectedContents.length !== 1) return
+      this.selectedContents[0].edit = true
+    },
+
+    getNodeByKey (key) {
+      return this.$refs.tree.$refs.qtree.getNodeByKey(this.selectedNode)
+    },
+
+    setNodeExpanded (key, expand) {
+      if (key === this.rootNode || key == null) return
+
+      this.$refs.tree.$refs.qtree.setExpanded(key, expand)
+    },
+
+    // Setters
+    setSelectedNode (nodeId) {
+      this.selectedNode = nodeId
+    },
+    setSelectedContents (nodesArray) {
+      this.selectedContents = nodesArray
+    },
+    setConfirmData (confirm) {
+      this.confirm = confirm
+    },
+
+    collapseAll () {
+      this.$refs.tree.$refs.qtree.collapseAll()
+    },
+
+    clearContents () {
+      this.contents.splice(0, this.contents.length)
+    },
+
+    clearNodes () {
+      this.nodes.splice(0, this.nodes.length)
+    },
+
+    clearSelectedContents () {
+      this.$refs.grid.clearSelection()
+    },
+
+    clearConfirm () {
+      this.confirm = {
+        show: false,
+        newNode: null,
+        children: null
+      }
     }
   }
 }

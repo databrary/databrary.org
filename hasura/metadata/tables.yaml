@@ -93,6 +93,21 @@
                       userId:
                         _eq: X-Hasura-User-Id
       check: null
+  delete_permissions:
+  - role: user
+    permission:
+      filter:
+        _or:
+        - privacyType:
+            _eq: public
+        - permissionset:
+            permissions:
+              permissionset:
+                permissions:
+                  group:
+                    groups_users:
+                      userId:
+                        _eq: X-Hasura-User-Id
 - table:
     schema: public
     name: fileformats

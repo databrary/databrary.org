@@ -2,6 +2,7 @@
   <div ref="contentsRef" class="col-12">
     <div class="col-12">
       <q-table
+        ref="table"
         :grid="view === 'grid'"
         flat
         :data="nodes"
@@ -16,33 +17,6 @@
         :loading="loading"
         color="primary"
       >
-        <template v-slot:body-cell-action="props">
-          <q-td class="col-12">
-            <div class="row-inline items-center justify-start">
-              <q-btn
-                class="col-6"
-                flat
-                dense
-                icon="edit"
-                @click.stop="props.row.edit = true"
-              >
-                <q-tooltip>
-                  Rename
-                </q-tooltip>
-              </q-btn>
-              <q-btn
-                class="col-6"
-                flat
-                dense
-                icon="clear"
-              >
-                <q-tooltip>
-                  Delete
-                </q-tooltip>
-              </q-btn>
-            </div>
-          </q-td>
-        </template>
         <!-- List view: custom name column -->
         <template v-slot:body-cell-name="props">
           <q-td class="col-12">
@@ -243,6 +217,9 @@ export default {
   },
   methods: {
     ...mapActions('assets', ['getAssetUrl']),
+    clearSelection () {
+      this.$refs.table.clearSelection()
+    },
     isValid (node) {
       if (node.name.length <= 0) {
         this.errorMessage = 'Field is required'

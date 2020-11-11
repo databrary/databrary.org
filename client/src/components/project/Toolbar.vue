@@ -17,7 +17,7 @@
       label="Upload"
       icon="cloud_upload"
       color="primary"
-      @click.stop="$emit('update:', true)"
+      @click.stop="$emit('update:showFileUploadDialog', true)"
     >
       <q-tooltip>
         Upload files
@@ -35,7 +35,48 @@
         Add A New Folder
       </q-tooltip>
     </q-btn>
+    <q-btn
+      v-show="selectedContentsSize >= 1"
+      flat
+      dense
+      icon="clear"
+      label="Delete"
+      color="primary"
+      @click.stop="$emit('delete-node')"
+    >
+      <q-tooltip>
+        Delete Selected Items
+      </q-tooltip>
+    </q-btn>
+    <q-btn
+      v-show="selectedContentsSize === 1"
+      flat
+      dense
+      icon="edit"
+      label="Edit"
+      color="primary"
+      @click.stop="$emit('edit-node')"
+    >
+      <q-tooltip>
+        Rename Selected Item
+      </q-tooltip>
+    </q-btn>
+
     <q-space />
+    <q-btn
+      v-show="selectedContentsSize >= 1"
+      flat
+      dense
+      icon="clear"
+      label="Clear"
+      color="primary"
+      @click.stop="$emit('clear-selection')"
+    >
+      <q-tooltip>
+        Clear Selection
+      </q-tooltip>
+    </q-btn>
+
     <q-btn-toggle
       flat
       v-model="view"
@@ -81,6 +122,10 @@ export default {
     },
     viewOptions: {
       type: Array,
+      required: true
+    },
+    selectedContentsSize: {
+      type: Number,
       required: true
     }
   },
