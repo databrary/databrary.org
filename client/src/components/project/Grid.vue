@@ -31,7 +31,7 @@
               @dragleave.prevent="props.row.isDir ? setNodeActive($event,props.row.id, false) : null"
               @drop="props.row.isDir ? onDrop($event, props.row.id) : null"
               @dblclick.prevent="props.row.isDir ? selected = props.row.id : getFile(props.row.id)"
-              @click.prevent="selectedChildren.push(props.row)"
+              @click.prevent="props.selected = !props.selected"
             >
               <q-icon
                 class="col-2"
@@ -125,6 +125,8 @@
 <script>
 import { uid } from 'quasar'
 import { mapActions } from 'vuex'
+
+import _ from 'lodash'
 
 export default {
   name: 'Grid',
