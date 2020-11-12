@@ -54,10 +54,11 @@
                 :error-message="errorMessage"
                 :error="!isValid(props.row)"
                 @focus="$event.target.select()"
-                @keydown.enter="saveNode(props.row)"
-                @keydown.esc="resetNode(props.row)"
+                @keydown.enter="onEnterEvent(props.row)"
+                @keydown.esc="onEscEvent(props.row)"
+                @blur="onBlurEvent(props.row)"
               />
-                <!-- @blur="saveNode(props.row)" -->
+                <!--  -->
               <span
                 v-else
                 class="col-10"
@@ -224,13 +225,16 @@ export default {
   },
   methods: {
     ...mapActions('assets', ['getAssetUrl']),
+
     clearSelection () {
       this.$refs.table.clearSelection()
     },
+
     exists (node) {
       if (!node.id) throw new Error('Name is required!')
       return this.nodes.some((el) => el.id !== node.id && el.name === node.name)
     },
+
     isValid (node) {
       if (node.name.length <= 0) {
         this.errorMessage = 'Field is required'
@@ -244,24 +248,58 @@ export default {
         return false
       }
 
+      this.errorMessage = null
       this.error = false
       return true
     },
-    saveNode (node) {
-      if (this.error) return
-      node.initialName = node.name
-      this.$emit('save-node', node)
+
+    isNodeSaved (node) {
+      return node.saved
     },
-    resetNode (node) {
+
+    setNodeEdit (node, edit) {
+      node.edit = edit
+    },
+
+    isNodeNameChanged (node) {
+      return node.initialName !== node.name
+    },
+
+    onEnterEvent (node) {
+      this.saveNode(node)
+    },
+
+    onEscEvent (node) {
       node.name = node.initialName
-      this.$emit('save-node', node)
+      // This timeout is needed to wait for the input validation
+      // We can call isValid() as well
+      setTimeout(() => {
+        this.saveNode(node)
+      }, 100)
     },
+
+    onBlurEvent (node) {
+      this.saveNode(node)
+    },
+
+    saveNode (node) {
+      if (this.isError()) {
+        return
+      }
+      if (this.isNodeSaved(node) && !this.isNodeNameChanged(node)) {
+        this.setNodeEdit(node, false)
+        return
+      }
+      if (!this.isNodeSaved(node) || this.isNodeNameChanged(node)) { this.$emit('save-node', node) }
+    },
+
     setNodeActive (e, ref, isActive) {
       if (ref === this.selected) return
 
       if (isActive) this.$refs[ref].classList.add('bg-teal-1', 'text-grey-8')
       else this.$refs[ref].classList.remove('bg-teal-1', 'text-grey-8')
     },
+
     onDragStart (e, node) {
       e.currentTarget.style.opacity = this.opacityOnDragged
 
@@ -272,13 +310,16 @@ export default {
 
       this.$emit('onDragStart', e, node, children)
     },
+
     isError () {
       return this.error
     },
+
     onDrop (e, targetNodeId) {
       this.setNodeActive(targetNodeId, false)
       this.$emit('onDrop', e, targetNodeId)
     },
+
     async getFile (assetId) {
       const data = await this.getAssetUrl(assetId)
       if (data) {

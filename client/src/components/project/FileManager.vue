@@ -592,32 +592,6 @@ export default {
     },
 
     /**
-     * update an existing folder in the node's parent
-     *
-     * @param {Object} node - object forwarded from the Grid components
-     */
-    async update (node) {
-      try {
-        const assetName = await this.updateAsset(
-          {
-            name: node.name,
-            assetId: node.id
-          }
-        )
-
-        node.edit = false
-
-        await this.updateNodes(this.rootNode)
-
-        this.setSelectedNode(node.parentId)
-        this.notifySuccess('Updated')
-      } catch (error) {
-        console.error('update::', error.message)
-        this.notifyFailure()
-      }
-    },
-
-    /**
      * delete an existing folder in the node's parent
      *
      */
@@ -635,36 +609,6 @@ export default {
       }
     },
 
-    /**
-     * Insert a new folder in the node's parent
-     *
-     * @param {Object} node - object forwarded from the Grid components
-     */
-    async insert (node) {
-      try {
-        const assetId = await this.insertAsset(
-          {
-            name: node.name,
-            assetType: 'folder',
-            privacyType: 'private',
-            parentId: node.parentId
-          }
-        )
-
-        node.id = assetId.toString()
-        node.saved = true
-        node.edit = false
-
-        await this.updateNodes(this.rootNode)
-
-        this.setSelectedNode(node.parentId)
-        this.notifySuccess('Created')
-      } catch (error) {
-        console.error('insert::', error.message)
-        this.notifyFailure()
-      }
-    },
-
     goBack () {
       if (this.selectedNode === this.rootNode) return
 
@@ -676,12 +620,43 @@ export default {
     },
 
     async saveNode (node) {
-      if (node.saved) {
-        // update the asset
-        await this.update(node)
-      } else {
-        // insert a new asset
-        await this.insert(node)
+      try {
+        if (node.saved) {
+          // update the asset
+          const assetName = await this.updateAsset(
+            {
+              name: node.name,
+              assetId: node.id
+            }
+          )
+
+          node.initialName = node.name
+
+          this.notifySuccess('Updated')
+        } else {
+          // insert a new asset
+          const assetId = await this.insertAsset(
+            {
+              name: node.name,
+              assetType: 'folder',
+              privacyType: 'private',
+              parentId: node.parentId
+            }
+          )
+
+          node.initialName = node.name
+          node.id = assetId.toString()
+
+          this.notifySuccess('Created')
+        }
+        node.saved = true
+        await this.updateNodes(this.rootNode)
+        this.setSelectedNode(node.parentId)
+      } catch (error) {
+        console.error('saveNode::', error.message)
+        this.notifyFailure()
+      } finally {
+        node.edit = false
       }
     },
 
