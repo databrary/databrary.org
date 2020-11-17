@@ -21,11 +21,11 @@
         <template v-slot:body-cell-name="props">
           <q-td
             :ref="props.row.id"
-            draggable
+            :draggable="!props.row.edit"
             @dblclick.prevent="!props.row.edit ? selected = props.row.id : null"
             @click.prevent="!props.row.edit ? props.selected = !props.selected: null"
-            @dragstart="onDragStart($event, props.row)"
-            @dragend="$event.currentTarget.style.opacity = ''"
+            @dragstart.prevent="!props.row.edit ? onDragStart($event, props.row) : null"
+            @dragend.prevent="$event.currentTarget.style.opacity = ''"
             @dragenter.prevent="props.row.isDir && props.row.id !== selected ? setNodeActive($event, props.row.id, true) : null"
             @dragover.prevent="props.row.isDir && props.row.id !== selected ? setNodeActive($event, props.row.id, true) : null"
             @dragleave.prevent="props.row.isDir && props.row.id !== selected ? setNodeActive($event, props.row.id, false) : null"
