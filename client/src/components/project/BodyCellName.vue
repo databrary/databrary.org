@@ -67,6 +67,9 @@ export default {
       if (!this.edit) return
       this.$emit('validate', this.inputName)
       this.$emit('update:name', this.inputName)
+    },
+    name () {
+      this.inputName = this.name
     }
   },
   methods: {
