@@ -545,8 +545,8 @@ export default {
 
         const tmpContents = await this.fetchContents(targetNodeId)
 
-        const newChildren = children.filter((child) => !this.existsInContents(child.id, child.name, tmpContents))
-        const duplicateChildren = children.filter((child) => this.existsInContents(child.id, child.name, tmpContents))
+        const newChildren = children.filter((child) => !this.existInContents(tmpContents, child.id, child.name))
+        const duplicateChildren = children.filter((child) => this.existInContents(tmpContents, child.id, child.name))
 
         if (duplicateChildren.length) {
           const html = `
@@ -584,6 +584,7 @@ export default {
         this.setSelectedNode(targetNodeId)
         this.notifySuccess('Moved')
       } catch (error) {
+        console.error('moveNode::', error.message)
         this.notifyFailure()
       } finally {
         this.clearConfirm()
@@ -707,6 +708,11 @@ export default {
           this.saveNode(node)
         }
       })
+    },
+
+    existInContents (contents, id, name) {
+      if (!id) throw new Error('Node Id is required!')
+      return contents.some((el) => el.id !== id && el.name === name)
     },
 
     isContentsUnSaved () {
