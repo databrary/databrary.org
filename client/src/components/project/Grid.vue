@@ -20,20 +20,20 @@
         <!-- List view: custom name column -->
         <template v-slot:body-cell-name="props">
           <q-td
-            v-if="props.row.isDir"
+            :ref="props.row.id"
             draggable
             @dblclick.prevent="!props.row.edit ? selected = props.row.id : null"
             @click.prevent="!props.row.edit ? props.selected = !props.selected: null"
             @dragstart="onDragStart($event, props.row)"
             @dragend="$event.currentTarget.style.opacity = ''"
-            @dragenter.prevent="setNodeActive($event, props.row.id, true)"
-            @dragover.prevent="setNodeActive($event,props.row.id, true)"
-            @dragleave.prevent="setNodeActive($event,props.row.id, false)"
-            @drop="onDrop($event, props.row.id)"
+            @dragenter.prevent="props.row.isDir && props.row.id !== selected ? setNodeActive($event, props.row.id, true) : null"
+            @dragover.prevent="props.row.isDir && props.row.id !== selected ? setNodeActive($event, props.row.id, true) : null"
+            @dragleave.prevent="props.row.isDir && props.row.id !== selected ? setNodeActive($event, props.row.id, false) : null"
+            @drop="props.row.isDir && props.row.id !== selected ? onDrop($event, props.row.id) : null"
             class="col-12"
           >
             <BodyCellName
-              :ref="props.row.id"
+              v-if="props.row.isDir"
               :name.sync="props.row.name"
               :edit.sync="props.row.edit"
               :icon="icons['folder']"
@@ -42,18 +42,8 @@
               @save="saveNode(props.row)"
               @reset="props.row.name = props.row.initialName"
             />
-          </q-td>
-          <q-td
-            v-else
-            draggable
-            @dblclick.prevent="!props.row.edit ? selected = props.row.id : null"
-            @click.prevent="!props.row.edit ? props.selected = !props.selected: null"
-            @dragstart="onDragStart($event, props.row)"
-            @dragend="$event.currentTarget.style.opacity = ''"
-            class="col-12"
-          >
             <BodyCellName
-              :ref="props.row.id"
+              v-else
               :name.sync="props.row.name"
               :edit.sync="props.row.edit"
               :icon="props.row.format && props.row.format.toLowerCase() in icons
@@ -278,9 +268,10 @@ export default {
 
     setNodeActive (e, ref, isActive) {
       if (ref === this.selected) return
-
-      if (isActive) this.$refs[ref].classList.add('bg-teal-1', 'text-grey-8')
-      else this.$refs[ref].classList.remove('bg-teal-1', 'text-grey-8')
+      if (!this.$refs[ref]) return
+      // console.log(this.$refs[ref].$el)
+      if (isActive) this.$refs[ref].$el.parentNode.classList.add('bg-teal-1', 'text-grey-8')
+      else this.$refs[ref].$el.parentNode.classList.remove('bg-teal-1', 'text-grey-8')
     },
 
     onDragStart (e, node) {
