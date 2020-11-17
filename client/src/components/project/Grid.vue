@@ -11,6 +11,7 @@
         selection="multiple"
         :style="tableStyleObj"
         virtual-scroll
+        :filter="filter"
         :pagination.sync="pagination"
         :rows-per-page-options="[0]"
         :selected.sync="selectedChildren"
@@ -152,6 +153,10 @@ export default {
     height: {
       type: Number,
       default: () => this.$q.screen.height - 50 - 16 - 50 - 55
+    },
+    filter: {
+      type: String,
+      default: () => ''
     }
   },
   components: {
@@ -219,7 +224,6 @@ export default {
   },
   methods: {
     ...mapActions('assets', ['getAssetUrl']),
-
     clearSelection () {
       this.$refs.table.clearSelection()
     },

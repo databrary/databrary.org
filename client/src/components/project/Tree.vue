@@ -39,6 +39,8 @@
         class="col-12 full-height overflow-auto"
         ref="qtree"
         :nodes="nodes"
+        :filter="filter"
+        :filter-method="filterTree"
         node-key="id"
         selected-color="primary"
         :selected.sync="selected"
@@ -104,6 +106,10 @@ export default {
     height: {
       type: Number,
       default: () => this.$q.screen.height - 50 - 16 - 50 - 55
+    },
+    filter: {
+      type: String,
+      default: () => ''
     }
   },
   data () {
@@ -136,6 +142,10 @@ export default {
     }
   },
   methods: {
+    filterTree (node, filter) {
+      if (node.name.includes(filter)) return true
+      return false
+    },
     setNodeActive (e, ref, isActive) {
       if (!this.$refs[ref] || ref === this.selected) return
 

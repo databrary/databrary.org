@@ -77,6 +77,24 @@
       </q-tooltip>
     </q-btn>
 
+    <q-btn-dropdown
+      flat
+      dense
+      icon="search"
+      color="primary"
+    >
+      <q-input
+        dense
+        v-model="filter"
+        input-class="text-right"
+      >
+        <template v-slot:append>
+          <q-icon v-if="filter === ''" name="search" />
+          <q-icon v-else name="clear" class="cursor-pointer" @click="filter = ''" />
+        </template>
+      </q-input>
+    </q-btn-dropdown>
+
     <q-btn-toggle
       flat
       v-model="view"
@@ -130,7 +148,8 @@ export default {
     }
   },
   data: () => ({
-    view: null
+    view: null,
+    filter: ''
   }),
   mounted () {
     this.view = this.selectedView
@@ -141,6 +160,9 @@ export default {
     },
     view () {
       this.$emit('update:selectedView', this.view)
+    },
+    filter () {
+      this.$emit('filter', this.filter)
     }
   }
 }

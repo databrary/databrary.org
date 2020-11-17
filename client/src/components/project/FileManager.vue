@@ -17,6 +17,7 @@
             :selectedNode.sync="selectedNode"
             :lazyLoad="onLazyLoad"
             :height.sync="height"
+            :filter='filter'
             @onDrop="onNodeDrop"
             @onDragStart="onNodeDragStart"
           />
@@ -28,6 +29,7 @@
             :viewOptions="viewOptions"
             :showFileUploadDialog.sync="showFileUploadDialog"
             :selectedContentsSize="selectedContents.length"
+            @filter="(value) => filter = value"
             @go-back="onGoBack"
             @add-node="onAddNode"
             @edit-node="onEditNode"
@@ -44,6 +46,7 @@
             :loading.sync="loadingContents"
             :selectedView="selectedView"
             :height.sync="height"
+            :filter='filter'
             @save-node="onSaveNode"
             @onDrop="onNodeDrop"
             @onDragStart="onNodeDragStart"
@@ -273,7 +276,8 @@ export default {
       }, // Object with data related to the move/copy action
       splitterModel: 30,
       alertDuplicateName: false,
-      selectedView: null
+      selectedView: null,
+      filter: ''
     }
   },
   async created () {
