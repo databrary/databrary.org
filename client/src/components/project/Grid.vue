@@ -19,53 +19,50 @@
       >
         <!-- List view: custom name column -->
         <template v-slot:body-cell-name="props">
-          <q-td class="col-12">
-            <div
+          <q-td
+            v-if="props.row.isDir"
+            draggable
+            @dblclick.prevent="!props.row.edit ? selected = props.row.id : null"
+            @click.prevent="!props.row.edit ? props.selected = !props.selected: null"
+            @dragstart="onDragStart($event, props.row)"
+            @dragend="$event.currentTarget.style.opacity = ''"
+            @dragenter.prevent="setNodeActive($event, props.row.id, true)"
+            @dragover.prevent="setNodeActive($event,props.row.id, true)"
+            @dragleave.prevent="setNodeActive($event,props.row.id, false)"
+            @drop="onDrop($event, props.row.id)"
+            class="col-12"
+          >
+            <BodyCellName
               :ref="props.row.id"
-              class="row justify-start items-center cursor-pointer"
-              draggable
-              @dragstart="onDragStart($event, props.row)"
-              @dragend="$event.currentTarget.style.opacity = ''"
-              @dragenter.prevent="props.row.isDir ? setNodeActive($event, props.row.id, true): null"
-              @dragover.prevent="props.row.isDir ? setNodeActive($event,props.row.id, true): null"
-              @dragleave.prevent="props.row.isDir ? setNodeActive($event,props.row.id, false) : null"
-              @drop="props.row.isDir ? onDrop($event, props.row.id) : null"
-              @dblclick.prevent="props.row.isDir ? selected = props.row.id : getFile(props.row.id)"
-              @click.prevent="props.selected = !props.selected"
-            >
-              <q-icon
-                class="col-2"
-                size="sm"
-                :name="props.row.isDir
-                  ? icons['folder']
-                  : props.row.format && props.row.format.toLowerCase() in icons
-                    ? icons[props.row.format.toLowerCase()] : icons['other']"
-              />
-              <q-input
-                v-if="props.row.edit"
-                :ref="`${props.row.id}-edit`"
-                v-model.trim="props.row.name"
-                class="col-10"
-                dense
-                autofocus
-                type="text"
-                hide-bottom-space
-                :bottom-slots="false"
-                :error-message="errorMessage"
-                :error="!isValid(props.row)"
-                @focus="$event.target.select()"
-                @keydown.enter="onEnterEvent(props.row)"
-                @keydown.esc="onEscEvent(props.row)"
-                @blur="onBlurEvent(props.row)"
-              />
-                <!--  -->
-              <span
-                v-else
-                class="col-10"
-              >
-                {{props.row.name}}
-              </span>
-            </div>
+              :name.sync="props.row.name"
+              :edit.sync="props.row.edit"
+              :icon="icons['folder']"
+              :errorMessage="errorMessage"
+              @validate="isValid(props.row.id, ...arguments)"
+              @save="saveNode(props.row)"
+              @reset="props.row.name = props.row.initialName"
+            />
+          </q-td>
+          <q-td
+            v-else
+            draggable
+            @dblclick.prevent="!props.row.edit ? selected = props.row.id : null"
+            @click.prevent="!props.row.edit ? props.selected = !props.selected: null"
+            @dragstart="onDragStart($event, props.row)"
+            @dragend="$event.currentTarget.style.opacity = ''"
+            class="col-12"
+          >
+            <BodyCellName
+              :ref="props.row.id"
+              :name.sync="props.row.name"
+              :edit.sync="props.row.edit"
+              :icon="props.row.format && props.row.format.toLowerCase() in icons
+                      ? icons[props.row.format.toLowerCase()] : icons['other']"
+              :errorMessage="errorMessage"
+              @validate="isValid(props.row.id, ...arguments)"
+              @save="saveNode(props.row)"
+              @reset="props.row.name = props.row.initialName"
+            />
           </q-td>
         </template>
         <!-- Grid View Cards -->
@@ -127,6 +124,8 @@
 import { uid } from 'quasar'
 import { mapActions } from 'vuex'
 
+import BodyCellName from './BodyCellName.vue'
+
 import _ from 'lodash'
 
 export default {
@@ -165,6 +164,9 @@ export default {
       default: () => this.$q.screen.height - 50 - 16 - 50 - 55
     }
   },
+  components: {
+    BodyCellName
+  },
   data () {
     return {
       nodes: [],
@@ -188,8 +190,7 @@ export default {
         format: null,
         sources: null
       },
-      error: false,
-      errorMessage: 'Field is required'
+      errorMessage: null
     }
   },
   mounted () {
@@ -221,6 +222,9 @@ export default {
       return {
         height: this.height - 55 + 'px'
       }
+    },
+    error () {
+      return this.errorMessage != null
     }
   },
   methods: {
@@ -230,26 +234,23 @@ export default {
       this.$refs.table.clearSelection()
     },
 
-    exists (node) {
-      if (!node.id) throw new Error('Name is required!')
-      return this.nodes.some((el) => el.id !== node.id && el.name === node.name)
+    exists (id, name) {
+      if (!id) throw new Error('Id is required!')
+      return this.nodes.some((el) => el.id !== id && el.name === name)
     },
 
-    isValid (node) {
-      if (node.name.length <= 0) {
+    isValid (nodeId, newName) {
+      if (newName.length <= 0) {
         this.errorMessage = 'Field is required'
-        this.error = true
         return false
       }
 
-      if (this.exists(node)) {
+      if (this.exists(nodeId, newName)) {
         this.errorMessage = 'Name already exists'
-        this.error = true
         return false
       }
 
       this.errorMessage = null
-      this.error = false
       return true
     },
 
@@ -265,32 +266,14 @@ export default {
       return node.initialName !== node.name
     },
 
-    onEnterEvent (node) {
-      this.saveNode(node)
-    },
-
-    onEscEvent (node) {
-      node.name = node.initialName
-      // This timeout is needed to wait for the input validation
-      // We can call isValid() as well
-      setTimeout(() => {
-        this.saveNode(node)
-      }, 100)
-    },
-
-    onBlurEvent (node) {
-      this.saveNode(node)
-    },
-
     saveNode (node) {
-      if (this.isError()) {
-        return
+      if (this.isError()) return
+
+      if (this.isNodeSaved(node) && !this.isNodeNameChanged(node)) return
+
+      if (!this.isNodeSaved(node) || this.isNodeNameChanged(node)) {
+        this.$emit('save-node', node)
       }
-      if (this.isNodeSaved(node) && !this.isNodeNameChanged(node)) {
-        this.setNodeEdit(node, false)
-        return
-      }
-      if (!this.isNodeSaved(node) || this.isNodeNameChanged(node)) { this.$emit('save-node', node) }
     },
 
     setNodeActive (e, ref, isActive) {

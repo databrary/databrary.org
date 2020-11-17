@@ -287,10 +287,13 @@ export default {
     }
   },
   watch: {
-    async selectedNode () {
-      if (this.isContentsError()) return
+    async selectedNode (newVal, oldVal) {
+      if (this.isContentsError()) {
+        this.selectedNode = oldVal
+        return
+      }
 
-      if (this.isContentsInEditMode()) {
+      if (this.isContentsUnSaved() || this.isContentsInEditMode()) {
         this.$q.dialog({
           component: Confirmation,
           parent: this, // becomes child of this Vue node
@@ -299,11 +302,7 @@ export default {
           okLabel: 'SAVE',
           cancelLabel: 'DISCARD'
         }).onOk(async () => {
-          this.contents.every(async (node) => {
-            if (node.edit) {
-              this.saveNode(node)
-            }
-          })
+          this.saveAll()
           await this.updateSelectedNode()
         }).onCancel(async () => {
           await this.updateSelectedNode()
@@ -599,7 +598,7 @@ export default {
       try {
         await this.deleteAssets({ assets })
 
-        await this.updateNodes(this.rootNode)
+        if (this.selectedNode === this.rootNode) await this.updateNodes(this.rootNode)
 
         this.setSelectedNode(null)
         this.notifySuccess('Deleted')
@@ -649,8 +648,11 @@ export default {
 
           this.notifySuccess('Created')
         }
+
         node.saved = true
-        await this.updateNodes(this.rootNode)
+
+        if (this.setSelectedNode === this.rootNode) await this.updateNodes(this.rootNode)
+
         this.setSelectedNode(node.parentId)
       } catch (error) {
         console.error('saveNode::', error.message)
@@ -689,6 +691,9 @@ export default {
         newNode.edit = true
         newNode.saved = false
 
+        // we need to save all unsaved changes
+        this.saveAll()
+
         this.contents.unshift(newNode)
       } catch (error) {
         console.error('addNode::', error.message)
@@ -696,8 +701,20 @@ export default {
       }
     },
 
+    saveAll () {
+      this.contents.every(async (node) => {
+        if (node.edit || !node.saved) {
+          this.saveNode(node)
+        }
+      })
+    },
+
+    isContentsUnSaved () {
+      return this.contents.some((el) => el.saved === false)
+    },
+
     isContentsInEditMode () {
-      return this.contents.some((el) => el.edit === true)
+      return this.selectedContents.some((el) => el.edit === true)
     },
 
     isContentsError () {
