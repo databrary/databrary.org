@@ -396,8 +396,7 @@ export default {
 
         return data
       } catch (error) {
-        console.error('fetchData::', error.message)
-        throw new Error(error.message)
+        throw new Error(`fetchData::${error.message}`)
       }
     },
 
@@ -500,7 +499,7 @@ export default {
         this.nodes.push(...await this.fetchNodes(assetId))
         this.loadingNodes = false
       } catch (error) {
-        console.error('updateNodes::', error.message)
+        throw new Error(`updateNodes:: ${error.message}`)
       } finally {
         this.loadingNodes = false
       }
@@ -519,7 +518,7 @@ export default {
         this.contents.push(...await this.fetchContents(assetId))
         this.loadingContents = false
       } catch (error) {
-        console.error('updateContents::', error.message)
+        throw new Error(`updateContents:: ${error.message}`)
       } finally {
         this.loadingContents = false
       }
@@ -588,8 +587,8 @@ export default {
         this.setSelectedNode(targetNodeId)
         this.notifySuccess('Moved')
       } catch (error) {
-        console.error('moveNode::', error.message)
         this.notifyFailure()
+        throw new Error(`moveNode:: ${error.message}`)
       } finally {
         this.clearConfirm()
       }
@@ -608,8 +607,8 @@ export default {
         this.setSelectedNode(null)
         this.notifySuccess('Deleted')
       } catch (error) {
-        console.error('deleteNodes::', error.message)
         this.notifyFailure()
+        throw new Error(`deleteNodes:: ${error.message}`)
       }
     },
 
@@ -660,8 +659,8 @@ export default {
 
         this.setSelectedNode(node.parentId)
       } catch (error) {
-        console.error('saveNode::', error.message)
         this.notifyFailure()
+        throw new Error(`saveNode:: ${error.message}`)
       } finally {
         node.edit = false
       }
@@ -699,8 +698,8 @@ export default {
 
         this.contents.unshift(newNode)
       } catch (error) {
-        console.error('addNode::', error.message)
         this.notifyFailure()
+        throw new Error(`addNode:: ${error.message}`)
       }
     },
 
