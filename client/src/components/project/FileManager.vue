@@ -357,8 +357,8 @@ export default {
           ? _.get(asset, 'file.fileFormatId', 'mp4')
           : null,
         initialName: asset.name,
-        edit: false,
-        saved: true
+        edit: asset.edit != null ? asset.edit : false,
+        saved: asset.saved != null ? asset.saved : true
       }
     },
 
@@ -681,29 +681,38 @@ export default {
 
     addNode () {
       try {
-        const id = uid()
+        // we need to save all unsaved changes
+        this.saveAll()
+
         const newAsset = {
-          id: id,
-          name: id,
+          id: uid(),
+          name: this.getNewName(),
           assetType: 'folder',
           parentId: this.selectedNode,
           datetimeCreated: Date.now(),
-          size: 0
+          size: 0,
+          edit: true,
+          saved: false
         }
 
         const newNode = this.createNode(newAsset)
-
-        newNode.edit = true
-        newNode.saved = false
-
-        // we need to save all unsaved changes
-        this.saveAll()
 
         this.contents.unshift(newNode)
       } catch (error) {
         console.error('addNode::', error.message)
         this.notifyFailure()
       }
+    },
+
+    getNewName () {
+      let max = 0
+      this.contents.forEach((node) => {
+        const match = new RegExp('^New Folder \\d{1,2}$').exec(node.name.trim())
+        if (match && match.length === 1) {
+          max = Math.max(max, parseInt(match[0].split(' ').pop()))
+        }
+      })
+      return `New Folder ${max + 1}`
     },
 
     saveAll () {
