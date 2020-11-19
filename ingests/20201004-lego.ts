@@ -101,7 +101,7 @@ async function main () {
 
       const foldersSuccesses = await pMap(_.get(pam, 'containers', []), async (folder) => {
         const folderId = _.get(folder, 'id')
-        const folderName = _.get(folder, 'name') || `Folder ${folderId}`
+        const folderName = _.get(folder, 'name', `Folder ${folderId}`)
         try {
           const folderAsset = await assetService.insertAssetWithPermissionset(
             {
@@ -118,7 +118,7 @@ async function main () {
 
           const filesSuccesses = await pMap(_.get(folder, 'assets', []), async (file) => {
             const fileId = _.get(file, 'id')
-            const fileName = _.get(file, 'name') || `File ${fileId}`
+            const fileName = _.get(file, 'name', `File ${fileId}`)
 
             try {
               const fileAsset = await assetService.insertAssetWithPermissionset(
@@ -133,7 +133,7 @@ async function main () {
                 }
               )
 
-              const fileobjectsSize = _.get(file, 'size') || faker.random.number(100000)
+              const fileobjectsSize = _.get(file, 'size', faker.random.number({min: 10000, max: 1000000}))
 
               const fileobjectsSha256 = crypto.createHash('sha256').update(fileName).digest().toString('hex')
               const fileobjectsSha1 = crypto.createHash('sha1').update(fileName).digest().toString('hex')

@@ -1,5 +1,5 @@
 mutation ( 
-  $size: Int!, 
+  $size: bigint!, 
   $md5: String!, 
   $sha1: String!, 
   $sha256: String!, 
