@@ -4,7 +4,8 @@ mutation insertAsset (
     $name: String!
     $assetType: asset_types_enum!
     $privacyType: privacy_types_enum!
-    $parentId: Int
+    $parentId: Int,
+    $permissionsetId: Int
 ) {
   insert_assets(
         objects: {
@@ -14,6 +15,7 @@ mutation insertAsset (
             name: $name, 
             privacyType: $privacyType,
             parentId: $parentId,
+            permissionsetId: $permissionsetId
         }
     ) {
         returning {

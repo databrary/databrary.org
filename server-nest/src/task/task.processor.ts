@@ -20,7 +20,6 @@ import { FileDTO } from '../dtos/file.dto'
 import { ImageKey, Buckets } from '../common/types'
 import { TMP_DIR, AVATAR_SIZES, AVATAR_FORMAT } from '../common/constants'
 import { AssetService } from '../asset/asset.service'
-import { AssetDTO } from '../dtos/asset.dto'
 
 type Location = 'MINIO' | 'LOCAL'
 
@@ -85,12 +84,14 @@ export class TaskProcessor {
           console.log(`Avatar found in job ${job.id}`)
 
           // Create a new assetId (We can remove this if we create the asset before the upload)
-          const asset = await this.assetService.insertAsset(new AssetDTO({
-            createdById: record.userId,
-            name: `User ${record.userId} Avatar`,
-            assetType: 'avatar',
-            privacyType: 'public'
-          }))
+          const asset = await this.assetService.insertAsset(
+            {
+              createdById: record.userId,
+              name: `User ${record.userId} Avatar`,
+              assetType: 'avatar',
+              privacyType: 'public'
+            }
+          )
 
           record.assetId = asset.id
 

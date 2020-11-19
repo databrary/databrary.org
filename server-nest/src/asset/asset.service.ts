@@ -15,11 +15,28 @@ export class AssetService {
     private readonly minioClient: MinioService
   ) {}
 
-  async insertAsset (asset: AssetDTO): Promise<AssetDTO> {
+  async insertAsset (asset: Record<string, unknown>): Promise<AssetDTO> {
     if (asset == null) throw new Error('Asset must be defined')
 
     const { returning: assets } = await this.client.adminMutate(
       resolve(GQL_DIR, 'insertAsset.gql'),
+      {
+        ...asset
+      }
+    )
+
+    if (_.isEmpty(assets)) throw new Error('Error while inserting an asset')
+    if (assets[0].id == null) throw new Error('Asset must contain an id')
+
+    return new AssetDTO(assets[0])
+  }
+
+  async insertAssetWithPermissionset (asset: Record<string, unknown>): Promise<AssetDTO> {
+    if (asset == null) throw new Error('Asset must be defined')
+    if (asset.permissionsetId == null) throw new Error('permissionsetId must be defined')
+
+    const { returning: assets } = await this.client.adminMutate(
+      resolve(GQL_DIR, 'insertAssetWithPermission.gql'),
       {
         ...asset
       }
