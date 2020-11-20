@@ -7,6 +7,7 @@ import app from './app'
 import profile from './profile'
 import pam from './pam'
 import assets from './assets'
+import uploads from './uploads'
 
 Vue.use(Vuex)
 
@@ -23,7 +24,8 @@ export default function (/* { ssrContext } */) {
       app,
       profile,
       pam,
-      assets
+      assets,
+      uploads
     },
 
     // enable strict mode (adds overhead!)

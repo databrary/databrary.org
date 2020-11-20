@@ -96,6 +96,7 @@
     </q-list>
     </q-btn-dropdown>
     <q-space/>
+    <Uploads />
     <q-btn
       v-if="isLoggedIn"
       clickable
@@ -263,8 +264,12 @@ import _ from 'lodash'
 import { gql } from '@apollo/client'
 
 import getAssetsByType from '@gql/getAssetsByType.gql'
+import Uploads from './Uploads.vue'
 
 export default {
+  components: {
+    Uploads
+  },
   data: () => ({
     loginUrl: `http://localhost:8000/login`,
     bookmarksShowing: false,
