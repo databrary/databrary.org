@@ -3,25 +3,11 @@
       clickable
       dense
       flat
+      icon="update"
       class="text-weight-light text-grey-8"
     >
-      <q-icon
-        name="update"
-        @mouseover="onDragover($event)"
-        @mouseout="onLeave($event)"
-        @dragover.prevent="onDragover($event)"
-        @dragLeave.prevent="onLeave($event)"
-        @dragenter.prevent
-      />
-      <q-menu
-        v-model="show"
-      >
-        <q-list
-          style="width: 300px"
-          @dragover.prevent="onDragover($event)"
-          @dragleave.prevent="onLeave($event)"
-          @dragenter.prevent
-        >
+      <q-menu>
+        <q-list style="width: 300px">
           <q-item
             v-if="uploads.length === 0"
             class="text-black"
@@ -39,7 +25,7 @@
             v-close-popup
           >
             <q-item-section>
-                <UploadStatus :upload="upload"/>
+              <UploadStatus :upload="upload"/>
             </q-item-section>
           </q-item>
         </q-list>
@@ -56,26 +42,10 @@ export default {
     UploadStatus
   },
   data: () => ({
-    show: true,
     timeout: null
   }),
   computed: {
     uploads: get('uploads/uploads')
-  },
-  methods: {
-    onDragover (e) {
-      if (this.timeout) {
-        clearTimeout(this.menuTimeout)
-      }
-      if (!this.show) {
-        this.show = true
-      }
-    },
-    onLeave (e) {
-      this.timeout = setTimeout(() => {
-        this.show = false
-      }, 1000)
-    }
   }
 }
 </script>
