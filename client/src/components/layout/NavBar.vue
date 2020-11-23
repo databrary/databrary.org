@@ -96,7 +96,7 @@
     </q-list>
     </q-btn-dropdown>
     <q-space/>
-    <Uploads />
+    <Uploads v-if="isLoggedIn"/>
     <q-btn
       v-if="isLoggedIn"
       clickable

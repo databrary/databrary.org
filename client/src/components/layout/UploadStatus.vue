@@ -1,10 +1,11 @@
 <template>
-    <div class="row">
-        <span class="col-12">{{file.name}}</span>
-        <q-linear-progress size="10px" :value="progress / 100" />
-        <span class="col-6">Progress: {{Math.floor(progress)}}%</span>
-        <span v-if="file.completed" class="col-6">Completed</span>
-    </div>
+    <q-card no-margin n-padding flat class="row">
+        <q-card-section class="col-12">
+          <span>{{file.name}}</span>
+          <q-linear-progress class="q-my-sm" size="10px" :value="progress / 100" />
+          <span>Progress: {{Math.floor(progress)}}%</span>
+        </q-card-section>
+    </q-card>
 </template>
 
 <script>

@@ -13,14 +13,26 @@
         @dragLeave.prevent="onLeave($event)"
         @dragenter.prevent
       />
-      <q-menu v-model="show">
+      <q-menu
+        v-model="show"
+      >
         <q-list
-          style="min-width: 200px"
+          style="width: 300px"
           @dragover.prevent="onDragover($event)"
           @dragleave.prevent="onLeave($event)"
           @dragenter.prevent
         >
           <q-item
+            v-if="uploads.length === 0"
+            class="text-black"
+            v-close-popup
+          >
+            <q-item-section>
+              <span>No Uploads</span>
+            </q-item-section>
+          </q-item>
+          <q-item
+            v-else
             class="text-black"
             v-for="upload in uploads"
             :key="upload.id"
@@ -44,7 +56,7 @@ export default {
     UploadStatus
   },
   data: () => ({
-    show: false,
+    show: true,
     timeout: null
   }),
   computed: {

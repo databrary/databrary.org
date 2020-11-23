@@ -1,7 +1,20 @@
 import { make } from 'vuex-pathify'
 
 const state = {
-  uploads: []
+  uploads: [
+    {
+      name: 'test.csv',
+      completed: false,
+      bytesUploaded: 735,
+      bytesTotal: 1000
+    },
+    {
+      name: 'test.mp4',
+      completed: false,
+      bytesUploaded: 351,
+      bytesTotal: 1000
+    }
+  ]
 }
 
 const getters = {
