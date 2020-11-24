@@ -231,9 +231,6 @@ export default {
   methods: {
     onClickLogout () {
       window.location.href = 'http://localhost:8000/logout'
-    },
-    toggleDrawer () {
-      this.$emit('toggleDrawer')
     }
   }
 }
