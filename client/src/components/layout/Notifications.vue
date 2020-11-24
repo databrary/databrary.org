@@ -2,7 +2,7 @@
     <q-btn
         dense
         flat
-        class="text-weight-light text-grey-8 q-ma-sm"
+        class="text-weight-light text-grey-8"
         icon="notifications"
     >
         <q-badge color="red-5" floating>3</q-badge>

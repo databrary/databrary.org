@@ -110,9 +110,9 @@
 
     <q-space/>
 
-    <Uploads v-if="isLoggedIn"/>
-    <Bookmarks v-if="isLoggedIn"/>
-    <Notifications v-if="isLoggedIn"/>
+    <Uploads v-if="isLoggedIn" class="q-mx-sm"/>
+    <Bookmarks v-if="isLoggedIn" class="q-mx-sm"/>
+    <Notifications v-if="isLoggedIn" class="q-mx-sm"/>
 
     <!-- Mobile -->
     <q-btn dense flat icon="more_vert" class="lt-md text-weight-light text-grey-8">
@@ -125,13 +125,13 @@
               <q-btn class="text-weight-regular" to="/pages" exact stretch flat label="Pages"/>
             </q-item-section>
           </q-item>
-          <q-separator inset spaced/>
-          <q-item clickable tabindex="0">
+          <q-separator v-if="!isLoggedIn" inset spaced/>
+          <q-item v-if="!isLoggedIn" clickable tabindex="0">
             <q-item-section>
-              <q-btn  class="text-weight-regular" to="/login" exact stretch flat>
+              <q-btn  class="text-weight-regular" :href="loginUrl" exact stretch flat>
                 Login
               </q-btn>
-              <q-btn class="text-weight-regular" to="/register" exact stretch flat>
+              <q-btn class="text-weight-regular" :href="registerUrl" exact stretch flat>
                 Register
               </q-btn>
             </q-item-section>
@@ -144,6 +144,7 @@
       v-if="isLoggedIn"
       unelevated
       spread
+      class="q-ml-sm"
     >
       <q-separator class="gt-sm" vertical inset/>
       <q-btn
@@ -186,7 +187,7 @@
       <q-btn
         class="text-weight-light gt-sm"
         type="a"
-        v-bind:href="loginUrl"
+        :href="loginUrl"
         exact stretch flat
       >
         Login
@@ -197,7 +198,7 @@
       <q-btn
         class="text-weight-light gt-sm"
         type="a"
-        href="http://localhost:8000/register"
+        :href="registerUrl"
         exact stretch flat
       >
         Register
@@ -222,7 +223,8 @@ export default {
     Notifications
   },
   data: () => ({
-    loginUrl: `http://localhost:8000/login`
+    loginUrl: `http://localhost:8000/login`,
+    registerUrl: `http://localhost:8000/register`
   }),
   computed: {
     isLoggedIn: get('app/isLoggedIn'),
