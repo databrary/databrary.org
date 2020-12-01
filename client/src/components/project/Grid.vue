@@ -23,7 +23,7 @@
           <q-td
             :ref="props.row.id"
             :draggable="!props.row.edit"
-            @dblclick.prevent="!props.row.edit ? selected = props.row.id : null"
+            @dblclick.prevent="!props.row.edit && props.row.isDir ? selected = props.row.id : !props.row.isDir ? getFile(props.row.id) : null"
             @click.prevent="!props.row.edit ? props.selected = !props.selected: null"
             @dragstart="!props.row.edit ? onDragStart($event, props.row) : null"
             @dragend="$event.currentTarget.style.opacity = ''"
