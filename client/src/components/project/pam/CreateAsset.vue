@@ -26,7 +26,6 @@
 </template>
 
 <script>
-// TODO(Reda): Add here the wizard for creating a volume
 import createAsset from '@gql/createAsset.gql'
 import { sync, get } from 'vuex-pathify'
 import { assertType } from 'graphql'
@@ -74,7 +73,7 @@ export default {
           message: 'Submitted'
         })
       } catch (error) {
-        console.error(error.message)
+        console.error('onSubmit::', error.message)
         this.$q.notify({
           color: 'red-4',
           textColor: 'white',
@@ -109,6 +108,7 @@ export default {
           assetType: this.assetType
         }
       })
+
       this.hideShowCreateAsset()
       return data.insert_assets.returning[0]
     }

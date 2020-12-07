@@ -1,0 +1,1 @@
+CREATE TABLE "public"."projects"("id" serial NOT NULL, "assetId" integer NOT NULL, "description" Text, "lastChanged" timestamptz NOT NULL DEFAULT now(), PRIMARY KEY ("id") , FOREIGN KEY ("assetId") REFERENCES "public"."assets"("id") ON UPDATE cascade ON DELETE cascade);

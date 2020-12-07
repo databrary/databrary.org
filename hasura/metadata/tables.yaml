@@ -23,6 +23,14 @@
   - name: permissionset
     using:
       foreign_key_constraint_on: permissionsetId
+  - name: project
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: projects
+        column_mapping:
+          id: assetId
   array_relationships:
   - name: childAssets
     using:
@@ -260,6 +268,72 @@
     schema: public
     name: privacy_types
   is_enum: true
+- table:
+    schema: public
+    name: projects
+  object_relationships:
+  - name: asset
+    using:
+      foreign_key_constraint_on: assetId
+  insert_permissions:
+  - role: user
+    permission:
+      check:
+        asset:
+          permissionset:
+            permissions:
+              permissionset:
+                permissions:
+                  group:
+                    groups_users:
+                      userId:
+                        _eq: X-Hasura-User-Id
+      columns:
+      - assetId
+      - description
+      - lastChanged
+      backend_only: false
+  select_permissions:
+  - role: user
+    permission:
+      columns:
+      - assetId
+      - description
+      - filesCount
+      - foldersCount
+      - id
+      - lastChanged
+      filter:
+        _or:
+        - asset:
+            privacyType:
+              _eq: public
+        - asset:
+            permissionset:
+              permissions:
+                permissionset:
+                  permissions:
+                    group:
+                      groups_users:
+                        userId:
+                          _eq: X-Hasura-User-Id
+  update_permissions:
+  - role: user
+    permission:
+      columns:
+      - description
+      - lastChanged
+      filter:
+        asset:
+          permissionset:
+            permissions:
+              permissionset:
+                permissions:
+                  group:
+                    groups_users:
+                      userId:
+                        _eq: X-Hasura-User-Id
+      check: null
 - table:
     schema: public
     name: users

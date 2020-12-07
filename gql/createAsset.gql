@@ -1,7 +1,7 @@
 mutation (
   $name: String!, 
   $assetType: asset_types_enum!
-  $parentId: Int,
+  $parentId: Int
 ) {
   insert_assets(
     objects: {

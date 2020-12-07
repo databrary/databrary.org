@@ -1,32 +1,34 @@
 <template>
-  <div v-if="asset">
-    <div class="row">
-      <div class="col-12 bg-grey-10">
-        <q-img
-          :src="`https://picsum.photos/seed/${projectId}/1000/400`"
-          style="max-height: 400px;"
-          contain
-        >
-          <div class="absolute-bottom text-h5 text-center q-pa-xs">
-            {{ asset.name }}
-          </div>
-        </q-img>
-      </div>
-    </div>
+  <div v-if="title">
     <q-page padding>
       <div class="max-page-width row">
-        <div class="col-xs-12 col-sm-8 col-md-9">
-          <div class="text-h5 q-mt-md">
-            Description
+        <div class="col-12 q-mb-sm">
+          <div class="row bg-grey-10">
+            <q-img
+              :src="`https://picsum.photos/seed/${projectId}/1000/400`"
+              style="max-height: 400px;"
+              contain
+            >
+              <EditTextArea
+                class="absolute-bottom text-h5 text-center q-pa-xs"
+                :data="title"
+                @update-data="onUpdateTitle"
+              />
+            </q-img>
           </div>
-          <p class="text-body1 q-pa-sm">
-            Two pre-adolescent girls engaged in social and gross motor free play on a public
-            playground. The girls were instructed to show the camera operators the various ways
-            in which they play.They used monkey bars, fences, ledges, trees, swings, climbers,
-            and other equipment in ways that were not the likely uses intended by the playground
-            designers. The girls were filmed from two camera views. Other children and parents
-            entered and left the scene.
-          </p>
+        </div>
+        <div class="col-xs-12 col-sm-8 col-md-9">
+          <div class="row">
+            <div class="col-12 text-h5 q-mt-md">
+              Description
+            </div>
+            <EditTextArea
+              class="col-12 text-body1 q-pa-sm"
+              type="textarea"
+              :data="description"
+              @update-data="onUpdateDescription"
+            />
+          </div>
           <q-chip
             square
             size="md"
@@ -94,7 +96,21 @@
 
                 <q-item-section>
                   <q-item-label>Created on</q-item-label>
-                  <q-item-label caption>{{ datetimeCreated }}</q-item-label>
+                  <q-item-label caption>{{ createdOn }}</q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <q-item clickable>
+                <q-item-section avatar>
+                  <q-icon
+                    color="primary"
+                    name="create"
+                  />
+                </q-item-section>
+
+                <q-item-section>
+                  <q-item-label>Last Changed on</q-item-label>
+                  <q-item-label caption>{{ lastChangedOn }}</q-item-label>
                 </q-item-section>
               </q-item>
 
@@ -108,7 +124,7 @@
 
                 <q-item-section>
                   <q-item-label>Sessions</q-item-label>
-                  <q-item-label caption>1 (1 shared)</q-item-label>
+                  <q-item-label caption>{{foldersCount}} Folders - {{filesCount}} Files</q-item-label>
                 </q-item-section>
               </q-item>
 
@@ -145,7 +161,6 @@
           <div class="row text-h5 q-mt-md">
             File Release Levels
           </div>
-          <!-- TODO(Reda): Improve css byt adding style -->
           <q-item class="row justify-content-left">
             <div class="q-pa-md">
               <q-markup-table
@@ -182,62 +197,46 @@
           </q-item>
         </div>
         <div class="col-12">
-          <FileManager :assetId="projectId"></FileManager>
+          <FileManager :assetId="projectId" />
         </div>
       </div>
     </q-page>
   </div>
 </template>
 <script>
-// TODO(Reda): Fetch project id info here
 import { date } from 'quasar'
 import { gql } from '@apollo/client'
-import { sync } from 'vuex-pathify'
 
-import CitationBuilder from '../../../components/CitationBuilder'
-import FileManager from '../../../components/project/FileManager'
+import CitationBuilder from '@/components/CitationBuilder'
+import FileManager from '@/components/project/FileManager'
+import EditTextArea from '@/components/project/landing/EditTextArea'
+
+const defaullDescription = 'View Description'
 
 export default {
-  name: 'PageId',
+  name: 'ProjectViewer',
   components: {
     CitationBuilder,
-    FileManager
+    FileManager,
+    EditTextArea
   },
   props: ['projectId'],
   data: () => ({
-    projectIdFromRoute: null,
-    asset: null,
-    projectName: null,
+    // Project's data
+    title: null,
     datetimeCreated: null,
-    editMode: false,
-    editmodeLabel: 'Edit',
+    description: null,
+    lastChanged: null,
+    filesCount: null,
+    foldersCount: null,
     session_private: 51,
     session_authorized: 43,
     session_audiences: 336,
-    pagination: {
-      page: 1,
-      rowsPerPage: 0 // 0 means all rows
-    },
-    slide: 1,
-    tab: 'data',
-    ticked: [],
-    filter: '',
-    maximizedToggle: true,
-    newVolumeName: 'New Volume'
+    // Used for the citation builder
+    editMode: false,
+    editmodeLabel: 'Edit'
   }),
-  computed: {
-  },
   watch: {
-    // whenever question changes, this function will run
-    ticked () {
-      this.newVolumeChildren = []
-      this.ticked.forEach((checkedEle) => {
-        this.newVolumeChildren.push({
-          label: checkedEle,
-          icon: 'insert_drive_file'
-        })
-      })
-    },
     editMode () {
       if (!this.editMode) {
         this.editmodeLabel = 'Edit'
@@ -245,15 +244,19 @@ export default {
         this.editmodeLabel = 'Save'
       }
     },
-    'projectId': 'fetchData',
-    // '$route': 'fetchData',
-    'projectIdFromRoute': 'fetchData'
+
+    'projectId': 'fetchData'
   },
-  // TODO(Reda): Fetch project summary
   async created () {
-    // this.generateCitation('http://doi.org/10.17910/B77P4V')
-    this.projectIdFromRoute = this.$route.params.projectId
     this.fetchData()
+  },
+  computed: {
+    createdOn () {
+      return date.formatDate(this.datetimeCreated, 'MM-DD-YYYY')
+    },
+    lastChangedOn () {
+      return date.formatDate(this.lastChanged, 'MM-DD-YYYY - hh:mm A')
+    }
   },
   methods: {
     async fetchData () {
@@ -264,25 +267,101 @@ export default {
               id: {_eq: $projectId},
               assetType: {_eq: project}
             }) {
-              id
-              assetType
               name
               datetimeCreated
+              project {
+                description
+                lastChanged
+                filesCount
+                foldersCount
+              }
             }
           }
         `,
         variables: {
-          projectId: this.projectId || this.projectIdFromRoute
+          projectId: this.projectId || this.$route.params.projectId
         }
       })
-      this.asset = result.data.assets[0]
-      // this.datetimeCreated = date.formatDate(
-      //   this.asset.datetime_created,
-      //   'YYYY-MM-DD'
-      // )
+
+      const { name, datetimeCreated, project } = result.data.assets[0]
+
+      this.title = name
+      this.datetimeCreated = datetimeCreated
+
+      this.description = project.description || defaullDescription
+      this.lastChanged = project.lastChanged
+
+      this.filesCount = project.filesCount
+      this.foldersCount = project.foldersCount
+    },
+    async updateAssetName (newName) {
+      const { data } = await this.$apollo.mutate({
+        mutation: gql`
+          mutation UpdateAssetName($assetId: Int!, $name: String!) {
+            update_assets(
+                where: {id: {_eq: $assetId}, assetType: {_eq: project}}, 
+                _set: {name: $name}
+            ) {
+              returning {
+                name
+              }
+            }
+          }
+        `,
+        variables: {
+          assetId: this.projectId || this.$route.params.projectId,
+          name: newName
+        }
+      })
+
+      return data.update_assets.returning[0]
+    },
+    async updateProject (description) {
+      const { data } = await this.$apollo.mutate({
+        mutation: gql`
+          mutation UpdateProject($assetId: Int!, $description: String!) {
+            update_projects(
+              where: {assetId: {_eq: $assetId}}, 
+              _set: {description: $description, lastChanged: "now()"}
+            ) {
+              returning {
+                description
+                lastChanged
+              }
+            }
+          }
+        `,
+        variables: {
+          assetId: this.projectId || this.$route.params.projectId,
+          description: description
+        }
+      })
+
+      return data.update_projects.returning[0]
     },
     toggleEditmode () {
       this.editMode = !this.editMode
+    },
+
+    async onUpdateDescription (newDescription) {
+      try {
+        const { description, lastChanged } = await this.updateProject(newDescription)
+        this.lastChanged = lastChanged
+        this.description = description
+      } catch (error) {
+        console.error('onUpdateDescription::', error.message)
+      }
+    },
+    async onUpdateTitle (newTitle) {
+      try {
+        const { name } = await this.updateAssetName(newTitle)
+        // We update the project with the same description just to change the lastChanged timestamp
+        this.title = name
+        const { lastChanged } = await this.updateProject(this.description)
+        this.lastChanged = lastChanged
+      } catch (error) {
+        console.error('onUpdateTitle::', error.message)
+      }
     }
   }
 }
