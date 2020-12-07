@@ -103,7 +103,7 @@ async function main () {
         const folderId = _.get(folder, 'id')
         const folderName = _.get(folder, 'name', `Folder ${folderId}`)
         try {
-          const folderAsset = await assetService.insertAssetWithPermissionset(
+          const folderAsset = await assetService.insertAsset(
             {
               id: folderId,
               createdById: createdById,
@@ -111,7 +111,6 @@ async function main () {
               assetType: 'folder',
               privacyType: 'private',
               parentId: pamId,
-              permissionsetId: pamAsset.permissionsetId
             }
           )
 
@@ -121,7 +120,7 @@ async function main () {
             const fileName = _.get(file, 'name', `File ${fileId}`)
 
             try {
-              const fileAsset = await assetService.insertAssetWithPermissionset(
+              const fileAsset = await assetService.insertAsset(
                 {
                   id: fileId,
                   createdById: createdById,
@@ -129,7 +128,6 @@ async function main () {
                   assetType: 'file',
                   privacyType: 'private',
                   parentId: folderId,
-                  permissionsetId: folderAsset.permissionsetId
                 }
               )
 
