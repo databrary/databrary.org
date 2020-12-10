@@ -3,18 +3,18 @@
     <q-page padding>
       <div class="max-page-width row">
         <div class="col-12 q-mb-sm">
-          <div class="row bg-grey-10">
-            <q-img
-              :src="`https://picsum.photos/seed/${projectId}/1000/400`"
-              style="max-height: 400px;"
-              contain
-            >
-              <EditTextArea
-                class="absolute-bottom text-h5 text-center q-pa-xs"
-                :data="title"
-                @update-data="onUpdateTitle"
-              />
-            </q-img>
+          <div class="row relative-position">
+            <ProjectHeader
+              class="col-12 fit"
+              :data="projectId"
+              :height="400"
+            />
+            <ProjectTextArea
+              class="col-12 absolute-bottom text-h5 text-white text-center q-pa-md"
+              style="background-color: rgba(0, 0, 0, 0.5)"
+              :data="title"
+              @update-data="onUpdateTitle"
+            />
           </div>
         </div>
         <div class="col-xs-12 col-sm-8 col-md-9">
@@ -22,7 +22,7 @@
             <div class="col-12 text-h5 q-mt-md">
               Description
             </div>
-            <EditTextArea
+            <ProjectTextArea
               class="col-12 text-body1 q-pa-sm"
               type="textarea"
               :data="description"
@@ -209,7 +209,8 @@ import { gql } from '@apollo/client'
 
 import CitationBuilder from '@/components/CitationBuilder'
 import FileManager from '@/components/project/FileManager'
-import EditTextArea from '@/components/project/landing/EditTextArea'
+import ProjectTextArea from '@/components/project/pam/ProjectTextArea'
+import ProjectHeader from '@/components/project/pam/ProjectHeader'
 
 const defaullDescription = 'View Description'
 
@@ -218,7 +219,8 @@ export default {
   components: {
     CitationBuilder,
     FileManager,
-    EditTextArea
+    ProjectTextArea,
+    ProjectHeader
   },
   props: ['projectId'],
   data: () => ({
