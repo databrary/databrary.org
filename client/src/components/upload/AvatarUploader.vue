@@ -1,18 +1,6 @@
 <template>
   <div>
     <div id="avatar-upload-area"></div>
-    <q-btn
-        flat
-        class="avatar-uploader q-my-sm"
-        color="primary"
-        label="Change profile picture"
-      />
-
-      <q-toggle
-        v-model="useGravatar"
-        color="primary"
-        label="Use Gravatar"
-      />
   </div>
 </template>
 
@@ -22,7 +10,7 @@ import Dashboard from '@uppy/dashboard'
 import Webcam from '@uppy/webcam'
 import AwsS3 from '@uppy/aws-s3'
 import { gql } from '@apollo/client'
-import { sync, get } from 'vuex-pathify'
+import { sync, get, call } from 'vuex-pathify'
 
 require('@uppy/core/dist/style.css')
 require('@uppy/dashboard/dist/style.css')
@@ -38,34 +26,13 @@ export default {
   },
   computed: {
     userId: get('app/dbId'),
-    avatar: sync('app/avatar'),
-    thumbnail: sync('app/thumbnail'),
-    useGravatar: sync('app/useGravatar')
+    avatar: sync('app/avatar')
   },
-  watch: {
-    useGravatar: async function (isGravatar) {
-      this.$store.dispatch('app/updateAvatar', isGravatar)
-      await this.$apollo.mutate({
-        mutation: gql`
-          mutation updateuseGravatar ($userId: Int!, $useGravatar: Boolean!) {
-            update_users(
-              where: {id: {_eq: $userId}}, 
-              _set: {useGravatar: $useGravatar}
-            ) {
-              returning {
-                useGravatar
-              }
-            }
-          }
-        `,
-        variables: {
-          userId: this.userId,
-          useGravatar: isGravatar
-        }
-      })
-    }
+  methods: {
+    insertAsset: call('assets/insertAsset')
   },
   mounted: function mounted () {
+    const that = this
     this.uppy = Uppy({
       id: 'AvatarUploader',
       allowMultipleUploads: true, // FIXME(Reda): Allow only one upload and clear cached upload
@@ -92,7 +59,7 @@ export default {
       showLinkToFileUploadResult: false,
       plugins: ['Webcam']
     }).use(AwsS3, {
-      getUploadParameters (file) {
+      async getUploadParameters (file) {
         return fetch('/minio/sign-upload', {
           method: 'post',
           credentials: 'same-origin',
@@ -104,6 +71,13 @@ export default {
             filename: file.name,
             contentType: file.type,
             format: file.extension,
+            assetId: await that.insertAsset(
+              {
+                name: `User ${that.userId} Avatar`,
+                assetType: 'avatar',
+                privacyType: 'public'
+              }
+            ),
             uploadType: 'avatar'
           })
         }).then((response) => {

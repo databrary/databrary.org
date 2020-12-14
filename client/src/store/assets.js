@@ -32,8 +32,8 @@ const actions = {
           $name: String!
           $assetType: asset_types_enum!
           $privacyType: privacy_types_enum!
-          $parentId: Int)
-        {
+          $parentId: Int
+        ) {
           insert_assets(
             objects: {
               name: $name,

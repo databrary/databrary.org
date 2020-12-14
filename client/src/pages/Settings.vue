@@ -37,7 +37,7 @@
           v-model="tab"
         >
           <q-tab-panel name="profile">
-            <SettingsProfile ref="SettingsProfile" />
+            <SettingsProfile ref="settingsProfile" />
           </q-tab-panel>
 
           <q-tab-panel name="account">
@@ -104,7 +104,7 @@ export default {
     confirm (newTab, oldTab) {
       const answer = window.confirm('You have unsaved changes! Would you like to save your changes?')
       if (answer) {
-        this.$refs.SettingsProfile.save()
+        this.$refs.settingsProfile.save()
         this.tab = newTab
       } else {
         this.tab = oldTab

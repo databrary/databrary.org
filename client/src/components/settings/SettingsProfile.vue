@@ -13,7 +13,7 @@
           </div>
         </div>
       </div>
-      <div class="row justify-between">
+      <div class="row justify-between items-start">
         <q-input
           v-model.trim="profile.givenName"
           class="col-4"
@@ -29,7 +29,6 @@
           label="Middle/Additional Name:"
           dense
           outlined
-          :rules="[val]"
         />
 
         <q-input
@@ -188,7 +187,19 @@
       </q-avatar>
       <br>
       <div class="q-my-sm">
-        <AvatarUploader/>
+        <AvatarUploader />
+        <q-btn
+          flat
+          class="avatar-uploader q-my-sm"
+          color="primary"
+          label="Change profile picture"
+        />
+
+        <q-toggle
+          v-model="useGravatar"
+          color="primary"
+          label="Use Gravatar"
+        />
       </div>
     </div>
   </div>
@@ -227,12 +238,36 @@ export default {
     avatar: get('app/avatar'),
     userId: get('app/dbId'),
     saved: sync('profile/isSaved'),
+    useGravatar: sync('app/useGravatar'),
     citationName: function () {
       return this.buildCitationName()
     }
   },
   async created () {
     this.getProfile()
+  },
+  watch: {
+    useGravatar: async function (isGravatar) {
+      this.$store.dispatch('app/updateAvatar', isGravatar)
+      await this.$apollo.mutate({
+        mutation: gql`
+          mutation updateuseGravatar ($userId: Int!, $useGravatar: Boolean!) {
+            update_users(
+              where: {id: {_eq: $userId}}, 
+              _set: {useGravatar: $useGravatar}
+            ) {
+              returning {
+                useGravatar
+              }
+            }
+          }
+        `,
+        variables: {
+          userId: this.userId,
+          useGravatar: isGravatar
+        }
+      })
+    }
   },
   methods: {
     async getProfile () {

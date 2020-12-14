@@ -17,7 +17,6 @@ import Webcam from '@uppy/webcam'
 import ScreenCapture from '@uppy/screen-capture'
 import AwsS3 from '@uppy/aws-s3'
 
-import { mapActions } from 'vuex'
 import { call } from 'vuex-pathify'
 
 require('@uppy/core/dist/style.css')
@@ -39,7 +38,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('assets', ['insertAsset']),
+    insertAsset: call('assets/insertAsset'),
     addUpload: call('uploads/addUpload'),
     updateUpload: call('uploads/updateUpload')
   },

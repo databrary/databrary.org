@@ -83,18 +83,6 @@ export class TaskProcessor {
         try {
           console.log(`Avatar found in job ${job.id}`)
 
-          // Create a new assetId (We can remove this if we create the asset before the upload)
-          const asset = await this.assetService.insertAsset(
-            {
-              createdById: record.userId,
-              name: `User ${record.userId} Avatar`,
-              assetType: 'avatar',
-              privacyType: 'public'
-            }
-          )
-
-          record.assetId = asset.id
-
           const originalFile = resolve(TMP_DIR, record.fileName)
 
           console.log(`Downloading avatar ${record.fileName}...`)
