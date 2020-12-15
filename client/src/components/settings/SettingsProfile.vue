@@ -182,12 +182,17 @@
     </form>
     <div class="order-sm-first order-md-last col-xs-12 col-sm-12 col-md-4 q-pa-sm text-center">
       <div class="text-h5 q-my-sm">Profile picture</div>
+      <!-- Add a spinner on avatar loading  -->
       <q-avatar size="100px">
-        <img :src="avatar">
+        <q-img :src="avatar" spinner-color="primary"/>
       </q-avatar>
       <br>
       <div class="q-my-sm">
-        <AvatarUploader />
+        <ImageUploader
+          assetType="avatar"
+          :assetName="`User ${this.userId} Avatar`"
+          @upload-success="onUploadSuccess"
+        />
         <q-btn
           flat
           class="avatar-uploader q-my-sm"
@@ -206,13 +211,12 @@
 </template>
 
 <script>
-import { sync, get } from 'vuex-pathify'
 import _ from 'lodash'
 import { gql } from '@apollo/client'
-import AvatarUploader from '../../components/upload/AvatarUploader'
 import { uid } from 'quasar'
+import { sync, get, call } from 'vuex-pathify'
 
-// TODO(Reda): Add "Use Gravatar" button bellow Change Profile Picture
+import ImageUploader from '../../components/upload/ImageUploader'
 
 export default {
   name: 'SettingsProfile',
@@ -232,7 +236,7 @@ export default {
     }
   },
   components: {
-    AvatarUploader
+    ImageUploader
   },
   computed: {
     avatar: get('app/avatar'),
@@ -248,7 +252,6 @@ export default {
   },
   watch: {
     useGravatar: async function (isGravatar) {
-      this.$store.dispatch('app/updateAvatar', isGravatar)
       await this.$apollo.mutate({
         mutation: gql`
           mutation updateuseGravatar ($userId: Int!, $useGravatar: Boolean!) {
@@ -267,9 +270,21 @@ export default {
           useGravatar: isGravatar
         }
       })
+      this.updateAvatar(isGravatar)
     }
   },
   methods: {
+    updateAvatar: call('app/updateAvatar'),
+    syncSessionAsync: call('app/syncSessionAsync'),
+    async onUploadSuccess () {
+      const oldAvatar = this.avatar
+      const refreshSession = setInterval(async () => {
+        await this.syncSessionAsync()
+        if (this.avatar !== oldAvatar) {
+          clearInterval(refreshSession)
+        }
+      }, 500)
+    },
     async getProfile () {
       const result = await this.$apollo.query({
         query: gql`

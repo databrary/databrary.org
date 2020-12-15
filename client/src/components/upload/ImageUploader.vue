@@ -18,20 +18,33 @@ require('@uppy/url/dist/style.css')
 
 export default {
   name: 'ImageUploader',
-  props: ['assetType', 'assetName', 'uploadType'],
-  data () {
-    return {
-      uppy: ''
+  props: {
+    assetType: {
+      type: String,
+      required: true
+    },
+    assetName: {
+      type: String,
+      required: false,
+      default: () => 'Image Upload'
+    },
+    uploadType: {
+      type: String,
+      required: false,
+      default: () => null
     }
   },
+  data: () => ({
+    uppy: ''
+  }),
   computed: {
-    userId: get('app/dbId'),
-    avatar: sync('app/avatar')
+    // userId: get('app/dbId'),
+    // avatar: sync('app/avatar')
   },
   methods: {
     insertAsset: call('assets/insertAsset')
   },
-  mounted: function mounted () {
+  mounted () {
     const that = this
 
     this.uppy = Uppy({
@@ -95,19 +108,7 @@ export default {
         })
       }
     }).on('upload-success', (file, data) => {
-      if (that.uploadType === 'avatar') {
-        const oldAvatar = this.avatar
-        this.$q.loading.show({
-          message: 'Upload is in progress.<br/><span class="text-primary">Hang on...</span>'
-        })
-        const refreshSession = setInterval(async () => {
-          await this.$store.dispatch('app/syncSessionAsync')
-          if (oldAvatar !== this.avatar) {
-            this.$q.loading.hide()
-            clearInterval(refreshSession)
-          }
-        }, 500)
-      }
+      this.$emit('upload-success')
     })
   }
 }
