@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <div id="avatar-upload-area"></div>
-  </div>
+  <div id="avatar-upload-area"></div>
 </template>
 
 <script>
@@ -11,6 +9,7 @@ import Webcam from '@uppy/webcam'
 import AwsS3 from '@uppy/aws-s3'
 import { gql } from '@apollo/client'
 import { sync, get, call } from 'vuex-pathify'
+import { assertType } from 'graphql'
 
 require('@uppy/core/dist/style.css')
 require('@uppy/dashboard/dist/style.css')
@@ -18,7 +17,8 @@ require('@uppy/webcam/dist/style.css')
 require('@uppy/url/dist/style.css')
 
 export default {
-  name: 'AvatarUploader',
+  name: 'ImageUploader',
+  props: ['assetType', 'assetName', 'uploadType'],
   data () {
     return {
       uppy: ''
@@ -33,8 +33,9 @@ export default {
   },
   mounted: function mounted () {
     const that = this
+
     this.uppy = Uppy({
-      id: 'AvatarUploader',
+      id: 'ImageUploader',
       allowMultipleUploads: true, // FIXME(Reda): Allow only one upload and clear cached upload
       restrictions: {
         minNumberOfFiles: 1,
@@ -73,12 +74,12 @@ export default {
             format: file.extension,
             assetId: await that.insertAsset(
               {
-                name: `User ${that.userId} Avatar`,
-                assetType: 'avatar',
+                name: that.assetName,
+                assetType: that.assetType,
                 privacyType: 'public'
               }
             ),
-            uploadType: 'avatar'
+            uploadType: that.uploadType || that.assetType
           })
         }).then((response) => {
           return response.json()
@@ -94,17 +95,19 @@ export default {
         })
       }
     }).on('upload-success', (file, data) => {
-      const oldAvatar = this.avatar
-      this.$q.loading.show({
-        message: 'Upload is in progress.<br/><span class="text-primary">Hang on...</span>'
-      })
-      const refreshSession = setInterval(async () => {
-        await this.$store.dispatch('app/syncSessionAsync')
-        if (oldAvatar !== this.avatar) {
-          this.$q.loading.hide()
-          clearInterval(refreshSession)
-        }
-      }, 500)
+      if (that.uploadType === 'avatar') {
+        const oldAvatar = this.avatar
+        this.$q.loading.show({
+          message: 'Upload is in progress.<br/><span class="text-primary">Hang on...</span>'
+        })
+        const refreshSession = setInterval(async () => {
+          await this.$store.dispatch('app/syncSessionAsync')
+          if (oldAvatar !== this.avatar) {
+            this.$q.loading.hide()
+            clearInterval(refreshSession)
+          }
+        }, 500)
+      }
     })
   }
 }
