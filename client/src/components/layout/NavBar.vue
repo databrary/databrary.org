@@ -2,11 +2,13 @@
   <q-toolbar class="bg-white text-black">
     <q-btn to="/" exact stretch flat>
       <h6 class="no-margin text-weight-light">
-        <q-avatar size="40px">
+        <q-avatar size="32px">
           <img src="~assets/databrary-logo.png" />
         </q-avatar>
         <span class="gt-xs">
-          <span class="text-weight-medium">Data</span>brary
+          <span class="text-capitalize">
+            <span class="text-weight-medium">Data</span>brary
+          </span>
         </span>
         <span class="lt-sm">
           <span class="text-weight-medium">D</span>B
