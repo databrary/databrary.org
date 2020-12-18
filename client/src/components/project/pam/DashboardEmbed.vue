@@ -29,7 +29,7 @@
               v-if="selectedView"
             >
               <ProjectViewer
-                :projectId.sync="selectedView"
+                :assetId.sync="selectedView"
               />
             </q-scroll-area>
             <FileManager

@@ -11,7 +11,7 @@ query GetAssets($assetId: Int!) {
           count(columns: id)
         }
       }
-      file {
+      files {
         id
         name
         fileFormatId
@@ -34,7 +34,7 @@ query GetAssets($assetId: Int!) {
             count(columns: id)
           }
         }
-        file {
+        files {
           id
           name
           fileFormatId

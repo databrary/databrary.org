@@ -9,14 +9,6 @@
   - name: creator
     using:
       foreign_key_constraint_on: createdById
-  - name: file
-    using:
-      manual_configuration:
-        remote_table:
-          schema: public
-          name: files
-        column_mapping:
-          id: assetId
   - name: parentAsset
     using:
       foreign_key_constraint_on: parentId
@@ -39,6 +31,13 @@
         table:
           schema: public
           name: assets
+  - name: files
+    using:
+      foreign_key_constraint_on:
+        column: assetId
+        table:
+          schema: public
+          name: files
   insert_permissions:
   - role: user
     permission:
@@ -275,6 +274,9 @@
   - name: asset
     using:
       foreign_key_constraint_on: assetId
+  - name: imageAsset
+    using:
+      foreign_key_constraint_on: imageId
   insert_permissions:
   - role: user
     permission:
@@ -290,19 +292,25 @@
                         _eq: X-Hasura-User-Id
       columns:
       - assetId
+      - color
       - description
+      - imageId
       - lastChanged
+      - useImage
       backend_only: false
   select_permissions:
   - role: user
     permission:
       columns:
       - assetId
+      - color
       - description
       - filesCount
       - foldersCount
       - id
+      - imageId
       - lastChanged
+      - useImage
       filter:
         _or:
         - asset:
@@ -321,8 +329,11 @@
   - role: user
     permission:
       columns:
+      - color
       - description
+      - imageId
       - lastChanged
+      - useImage
       filter:
         asset:
           permissionset:

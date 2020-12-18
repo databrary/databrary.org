@@ -35,7 +35,8 @@ export default {
     }
   },
   data: () => ({
-    uppy: ''
+    uppy: '',
+    newAssetId: null
   }),
   computed: {
     // userId: get('app/dbId'),
@@ -74,6 +75,13 @@ export default {
       plugins: ['Webcam']
     }).use(AwsS3, {
       async getUploadParameters (file) {
+        that.newAssetId = await that.insertAsset(
+          {
+            name: that.assetName,
+            assetType: that.assetType,
+            privacyType: 'public'
+          }
+        )
         return fetch('/minio/sign-upload', {
           method: 'post',
           credentials: 'same-origin',
@@ -85,13 +93,7 @@ export default {
             filename: file.name,
             contentType: file.type,
             format: file.extension,
-            assetId: await that.insertAsset(
-              {
-                name: that.assetName,
-                assetType: that.assetType,
-                privacyType: 'public'
-              }
-            ),
+            assetId: that.newAssetId,
             uploadType: that.uploadType || that.assetType
           })
         }).then((response) => {
@@ -108,7 +110,7 @@ export default {
         })
       }
     }).on('upload-success', (file, data) => {
-      this.$emit('upload-success')
+      this.$emit('upload-success', this.newAssetId)
     })
   }
 }

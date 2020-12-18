@@ -45,8 +45,8 @@ export class AssetService {
     if (assets[0].id == null) throw new Error('Asset must contain an id, return an id in the GQL call')
     if (assets[0].assetType !== 'file') throw new Error('Only File Assets are supported for now')
 
-    const name = _.get(assets[0], 'file.fileobject.sha256', null)
-    const format = _.get(assets[0], 'file.fileFormatId', null)
+    const name = _.get(assets[0], 'files[0].fileobject.sha256', null)
+    const format = _.get(assets[0], 'files[0].fileFormatId', null)
 
     return {
       name,

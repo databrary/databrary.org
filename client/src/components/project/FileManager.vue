@@ -191,7 +191,7 @@ const GET_ASSETS = gql`
           count(columns: id)
         }
       }
-      file {
+      files {
         id
         name
         fileFormatId
@@ -212,7 +212,7 @@ const GET_ASSETS = gql`
             count(columns: id)
           }
         }
-        file {
+        files {
           id
           name
           fileFormatId

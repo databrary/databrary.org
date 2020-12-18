@@ -113,7 +113,7 @@
 
 <script>
 import { uid } from 'quasar'
-import { mapActions } from 'vuex'
+import { call } from 'vuex-pathify'
 
 import BodyCellName from './BodyCellName.vue'
 
@@ -223,7 +223,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('assets', ['getAssetUrl']),
+    getAssetUrl: call('assets/getAssetUrl'),
     clearSelection () {
       this.$refs.table.clearSelection()
     },
