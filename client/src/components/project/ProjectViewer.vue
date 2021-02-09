@@ -164,6 +164,11 @@
       </div>
       <div class="q-mt-md col-xs-12 col-sm-8 col-md-9">
         <div class="row text-h5 q-mt-md">
+          Links
+        </div>
+      </div>
+      <div class="q-mt-md col-xs-12 col-sm-8 col-md-9">
+        <div class="row text-h5 q-mt-md">
           File Release Levels
         </div>
         <q-item class="row justify-content-left">
@@ -212,10 +217,11 @@ import { date } from 'quasar'
 import { gql } from '@apollo/client'
 import { call } from 'vuex-pathify'
 
-import CitationBuilder from '@/components/CitationBuilder'
-import FileManager from '@/components/project/FileManager'
-import ProjectTextArea from '@/components/project/pam/ProjectTextArea'
-import ProjectHeader from '@/components/project/pam/ProjectHeader'
+import CitationBuilder from '@/components/shared/CitationBuilder'
+import FileManager from '@/components/fileManager/FileManager'
+import ProjectTextArea from '@/components/project/ProjectTextArea'
+import ProjectHeader from '@/components/project/ProjectHeader'
+import ProjectLinks from '@/components/project/ProjectLinks'
 
 const defaullDescription = 'View Description'
 
@@ -225,7 +231,8 @@ export default {
     CitationBuilder,
     FileManager,
     ProjectTextArea,
-    ProjectHeader
+    ProjectHeader,
+    ProjectLinks
   },
   props: ['assetId'],
   data: () => ({

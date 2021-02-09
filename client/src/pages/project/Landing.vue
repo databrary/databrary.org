@@ -212,8 +212,8 @@ import { gql } from '@apollo/client'
 
 import _ from 'lodash'
 
-import CitationBuilder from '../../components/CitationBuilder'
-import FileManager from '../../components/project/FileManager'
+import CitationBuilder from '@/components/shared/CitationBuilder'
+import FileManager from '@/components/fileManager/FileManager'
 
 export default {
   name: 'PageId',

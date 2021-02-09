@@ -20,7 +20,7 @@
 // import { date } from 'quasar'
 import { gql } from '@apollo/client'
 
-import DashboardEmbed from '@/components/project/pam/DashboardEmbed'
+import DashboardEmbed from '@/components/pam/DashboardEmbed'
 import Landing from '@/pages/project/Landing'
 
 export default {

@@ -61,11 +61,11 @@ import _ from 'lodash'
 
 import getAssetsByType from '@gql/getAssetsByType.gql'
 
-import ExpansionItem from '@/components/ExpansionItem.vue'
+import ExpansionItem from '@/components/shared/ExpansionItem.vue'
 
-import CreateAsset from '@/components/project/pam/CreateAsset.vue'
-import DashboardEmbed from '@/components/project/pam/DashboardEmbed.vue'
-import DashboardBookmark from '@/components/project/pam/DashboardBookmark.vue'
+import CreateAsset from '@/components/pam/CreateAsset.vue'
+import DashboardEmbed from '@/components/pam/DashboardEmbed.vue'
+import DashboardBookmark from '@/components/pam/DashboardBookmark.vue'
 
 export default {
   name: 'LandingLoggedIn',
