@@ -165,7 +165,29 @@
       <div class="q-mt-md col-xs-12 col-sm-8 col-md-9">
         <div class="row text-h5 q-mt-md">
           Links
+          <q-btn
+            class="q-mx-lg"
+            dense
+            flat
+            @click="onAddUrlClick"
+          >
+            <q-avatar
+              color="primary"
+              size="sm"
+              class="text-right"
+              icon="add"
+            />
+          </q-btn>
         </div>
+        <ProjectLinks
+          class="col-12 q-pa-sm"
+          ref="links"
+          :data="urls"
+          :show="3"
+          @add-url="onAddUrl"
+          @update-url="onUpdateUrl"
+          @remove-url="onRemoveUrl"
+        />
       </div>
       <div class="q-mt-md col-xs-12 col-sm-8 col-md-9">
         <div class="row text-h5 q-mt-md">
@@ -213,7 +235,7 @@
   </q-page>
 </template>
 <script>
-import { date } from 'quasar'
+import { date, uid } from 'quasar'
 import { gql } from '@apollo/client'
 import { call } from 'vuex-pathify'
 
@@ -244,6 +266,7 @@ export default {
     imageId: null,
     imageURI: null,
     useImage: null,
+    urls: null,
     filesCount: null,
     foldersCount: null,
     session_private: 51,
@@ -300,6 +323,7 @@ export default {
                 foldersCount
                 imageId
                 useImage
+                urls
               }
             }
           }
@@ -323,6 +347,7 @@ export default {
       this.color = project.color
       this.imageId = project.imageId
       this.useImage = project.useImage
+      this.urls = project.urls
     },
     async updateAssetName (newName) {
       const { data } = await this.$apollo.mutate({
@@ -437,6 +462,29 @@ export default {
       return data.update_projects.returning[0]
     },
 
+    async updateUrls () {
+      const { data } = await this.$apollo.mutate({
+        mutation: gql`
+          mutation UpdateProjectColor($id: Int!, $urls: jsonb!) {
+            update_projects(
+              where: {id: {_eq: $id}}, 
+              _set: {urls: $urls}
+            ) {
+                returning {
+                  urls
+                }
+              }
+          }
+        `,
+        variables: {
+          id: this.id,
+          urls: this.urls
+        }
+      })
+
+      return data.update_projects.returning[0]
+    },
+
     async onUseImage (newUseImage) {
       const { useImage } = await this.updateUseImage(newUseImage)
       this.useImage = useImage
@@ -493,6 +541,50 @@ export default {
         this.lastChanged = lastChanged
       } catch (error) {
         console.error('onUpdateTitle::', error.message)
+      }
+    },
+
+    async onAddUrlClick () {
+      try {
+        this.$refs.links.addUrl()
+      } catch (error) {
+        console.error('onAddUrlClick::', error.message)
+      }
+    },
+
+    async onAddUrl (url) {
+      try {
+        if (url.url.length < 1) {
+          throw new Error('URL is mendatory')
+        }
+
+        url.id = uid()
+        this.urls.unshift(url)
+        const { urls } = await this.updateUrls()
+        this.$refs.links.clearNewUrl()
+        this.urls = urls
+      } catch (error) {
+        console.error('onAddUrl::', error.message)
+      }
+    },
+
+    async onRemoveUrl (urlId) {
+      try {
+        const index = this.urls.map((url) => url.id).indexOf(urlId)
+        this.urls.splice(index, 1)
+        const { urls } = await this.updateUrls()
+        this.urls = urls
+      } catch (error) {
+        console.error('onRemoveUrl::', error.message)
+      }
+    },
+
+    async onUpdateUrl () {
+      try {
+        const { urls } = await this.updateUrls()
+        this.urls = urls
+      } catch (error) {
+        console.error('onUpdateUrl::', error.message)
       }
     }
   }
