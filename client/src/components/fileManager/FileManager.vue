@@ -105,8 +105,8 @@ import { mapActions } from 'vuex'
 
 import _ from 'lodash'
 
-import FileUploader from '../upload/FileUploader'
-import Confirmation from './modals/Confirmation'
+import FileUploader from '@/components/upload/FileUploader'
+import Confirmation from '@/components/shared/modals/Confirmation'
 import Tree from './Tree'
 import Grid from './Grid'
 import Toolbar from './Toolbar'

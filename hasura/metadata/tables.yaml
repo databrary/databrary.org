@@ -296,6 +296,7 @@
       - description
       - imageId
       - lastChanged
+      - urls
       - useImage
       backend_only: false
   select_permissions:
@@ -310,6 +311,7 @@
       - id
       - imageId
       - lastChanged
+      - urls
       - useImage
       filter:
         _or:
@@ -333,6 +335,7 @@
       - description
       - imageId
       - lastChanged
+      - urls
       - useImage
       filter:
         asset:

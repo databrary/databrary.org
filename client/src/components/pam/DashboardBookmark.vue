@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!assetId" class="row">
+  <div v-if="!selected" class="row">
     <q-spinner
       class="absolute-center"
       color="primary"
@@ -15,10 +15,11 @@
           <q-scroll-area
             :style="{height: ($q.screen.height-50-16-16-50-1)+'px'}"
           >
-            <Panel1
+            <BookmarkPanel
               :createAssetType.sync="createAssetType"
               :assetId.sync="assetId"
               :selectedView.sync="selectedView"
+              :selectedPam.sync="selectedPam"
             />
           </q-scroll-area>
         </template>
@@ -29,19 +30,24 @@
               v-if="selectedView"
             >
               <ProjectViewer
-                :assetId.sync="selectedView"
+                :projectId.sync="selectedView"
               />
             </q-scroll-area>
             <FileManager
-              v-else-if="assetId"
-              :assetId="assetId"
+              v-else-if="selectedPam"
+              :assetId.sync="selectedPam"
+              :height="$q.screen.height-50-16-16-50-1"
+            />
+            <FileManager
+              v-else
+              :assetId.sync="assetId"
               :height="$q.screen.height-50-16-16-50-1"
             />
           </div>
           <CreateAsset
             v-else
             :assetType.sync="createAssetType"
-            :parentId="assetId"
+            :parentId="selectedPam"
           />
         </template>
       </q-splitter>
@@ -50,22 +56,23 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import { date } from 'quasar'
-import { gql } from '@apollo/client'
+import { defaultDataIdFromObject, gql } from '@apollo/client'
 
 import _ from 'lodash'
 
 import Panel1 from './Panel1.vue'
 import BookmarkPanel from './BookmarkPanel.vue'
-import ProjectViewer from './ProjectViewer.vue'
-import CreateAsset from '@/components/project/pam/CreateAsset.vue'
-import FileManager from '@/components/project/FileManager.vue'
+import ProjectViewer from '@/components/project/ProjectViewer.vue'
+import CreateAsset from '@/components/pam/CreateAsset.vue'
+import FileManager from '@/components/fileManager/FileManager.vue'
+
+import getAssetsByType from '@gql/getAssetsByType.gql'
 
 export default {
   name: 'Dashboard',
   components: {
-    Panel1,
+    BookmarkPanel,
     ProjectViewer,
     CreateAsset,
     FileManager
@@ -79,25 +86,32 @@ export default {
   data: () => ({
     firstModel: 20,
     secondModel: 30,
-    assetId: null,
     createAssetType: null,
-    selectedView: null
+    selectedView: null,
+    selectedPam: null,
+    assetId: null
   }),
   created () {
     this.assetId = this.selected
-    this.forceRefresh = this.refresh
   },
   watch: {
-    refresh () {
-      this.forceRefresh = this.refresh
-    },
     selected () {
-      this.selectedView = null
-      this.assetId = this.selected
+      this.reset()
+    },
+    selectedView () {
+      if (this.selectedView != null) {
+        this.selectedPam = null
+      }
+    },
+    selectedPam () {
+      if (this.selectedPam != null) {
+        this.selectedView = null
+      }
     }
   },
   methods: {
     reset () {
+      this.selectedPam = null
       this.selectedView = null
       this.assetId = this.selected
     }

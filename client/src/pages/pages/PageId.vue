@@ -269,7 +269,7 @@
   </div>
 </template>
 <script>
-import citationBuilder from '../../components/CitationBuilder.vue'
+import citationBuilder from '@/components/shared/CitationBuilder.vue'
 
 export default {
   name: 'PageId',
