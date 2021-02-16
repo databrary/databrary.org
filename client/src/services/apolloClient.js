@@ -8,7 +8,7 @@ const httpLink = createHttpLink({
 })
 
 // Create the apollo client
-const apolloClient = new ApolloClient({
+const databrary = new ApolloClient({
   link: httpLink,
   cache: new InMemoryCache(),
   connectToDevTools: true,
@@ -24,4 +24,11 @@ const apolloClient = new ApolloClient({
   }
 })
 
-export { apolloClient }
+const datacite = new ApolloClient({
+  link: createHttpLink({
+    uri: 'https://api.datacite.org/graphql'
+  }),
+  cache: new InMemoryCache()
+})
+
+export { databrary, datacite }

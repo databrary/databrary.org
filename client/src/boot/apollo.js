@@ -1,9 +1,13 @@
-import { apolloClient } from '../services/apolloClient'
+import { databrary, datacite } from '../services/apolloClient'
 import VueApollo from 'vue-apollo'
 
 export default async ({ app, Vue }) => {
   const apolloProvider = new VueApollo({
-    defaultClient: apolloClient,
+    clients: {
+      databrary,
+      datacite
+    },
+    defaultClient: databrary,
     errorHandler ({ graphQLErrors, networkError }) {
       if (graphQLErrors) {
         graphQLErrors.map(({ message, locations, path }) => console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`))
