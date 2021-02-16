@@ -164,6 +164,28 @@
       </div>
       <div class="q-mt-md col-xs-12 col-sm-8 col-md-9">
         <div class="row text-h5 q-mt-md">
+          Funding
+          <q-btn
+            class="q-mx-lg"
+            dense
+            flat
+            @click="onAddFundingClick"
+          >
+            <q-avatar
+              color="primary"
+              size="sm"
+              class="text-right"
+              icon="add"
+            />
+          </q-btn>
+          <ProjectFunding
+            class="col-12 q-pa-sm"
+            :data="funding"
+            @remove-funding="onRemoveFunding"
+            @update-funding="onUpdateFunding"
+          />
+        </div>
+        <div class="row text-h5 q-mt-md">
           Links
           <q-btn
             class="q-mx-lg"
@@ -240,10 +262,12 @@ import { gql } from '@apollo/client'
 import { call } from 'vuex-pathify'
 
 import CitationBuilder from '@/components/shared/CitationBuilder'
+import AddFunding from '@/components/shared/modals/AddFunding'
 import FileManager from '@/components/fileManager/FileManager'
 import ProjectTextArea from '@/components/project/ProjectTextArea'
 import ProjectHeader from '@/components/project/ProjectHeader'
 import ProjectLinks from '@/components/project/ProjectLinks'
+import ProjectFunding from '@/components/project/ProjectFunding'
 
 const defaullDescription = 'View Description'
 
@@ -254,7 +278,9 @@ export default {
     FileManager,
     ProjectTextArea,
     ProjectHeader,
-    ProjectLinks
+    ProjectLinks,
+    AddFunding,
+    ProjectFunding
   },
   props: ['assetId'],
   data: () => ({
@@ -267,6 +293,7 @@ export default {
     imageURI: null,
     useImage: null,
     urls: null,
+    funding: null,
     filesCount: null,
     foldersCount: null,
     session_private: 51,
@@ -324,6 +351,14 @@ export default {
                 imageId
                 useImage
                 urls
+                funding {
+                  id
+                  funder {
+                    name
+                    doi
+                  }
+                  awards
+                }
               }
             }
           }
@@ -348,6 +383,7 @@ export default {
       this.imageId = project.imageId
       this.useImage = project.useImage
       this.urls = project.urls
+      this.funding = project.funding
     },
     async updateAssetName (newName) {
       const { data } = await this.$apollo.mutate({
@@ -485,6 +521,88 @@ export default {
       return data.update_projects.returning[0]
     },
 
+    async insertFunding (fundings) {
+      const that = this
+      const mutationObject = fundings.map((funding) => (
+        {
+          projectId: that.id,
+          funder: { data: { doi: funding.doi, name: funding.name } },
+          awards: funding.awards
+        }
+      ))
+      const { data } = await this.$apollo.mutate({
+        mutation: gql`
+          mutation InsertFunding(
+            $object: [projects_funding_insert_input!]!
+          ) {
+            insert_projects_funding(
+              objects: $object
+            ) {
+              returning {
+                id
+                awards
+                funder {
+                  name
+                  doi
+                }
+              }
+            }
+          }
+        `,
+        variables: {
+          object: mutationObject
+        }
+      })
+
+      return data.insert_projects_funding.returning[0]
+    },
+
+    async removeFunding (id) {
+      const { data } = await this.$apollo.mutate({
+        mutation: gql`
+          mutation DeleteFunding($id: Int!) {
+            delete_projects_funding_by_pk(id: $id) {
+              id
+            }
+          }
+        `,
+        variables: {
+          id: id
+        }
+      })
+
+      return data.delete_projects_funding_by_pk.id
+    },
+
+    async updateFunding (id, awards) {
+      const { data } = await this.$apollo.mutate({
+        mutation: gql`
+          mutation UpdateFunding(
+            $id: Int!,
+            $awards: jsonb!
+          ) {
+            update_projects_funding_by_pk(
+              pk_columns: {id: $id}, 
+              _set: {awards: $awards}
+            ) {
+              id
+              funder {
+                name
+                doi
+              }
+              awards
+            }
+          }
+        `,
+        variables: {
+          id: id,
+          awards: awards
+        }
+      })
+
+      return data.update_projects_funding_by_pk
+    },
+
     async onUseImage (newUseImage) {
       const { useImage } = await this.updateUseImage(newUseImage)
       this.useImage = useImage
@@ -516,10 +634,6 @@ export default {
       const { color, useImage } = await this.updateColor(newColor)
       this.color = color
       this.useImage = useImage
-    },
-
-    toggleEditmode () {
-      this.editMode = !this.editMode
     },
 
     async onUpdateDescription (newDescription) {
@@ -586,6 +700,42 @@ export default {
       } catch (error) {
         console.error('onUpdateUrl::', error.message)
       }
+    },
+
+    async onRemoveFunding (id) {
+      try {
+        await this.removeFunding(id)
+        this.funding.splice(this.funding.findIndex((el) => el.id === id), 1)
+      } catch (error) {
+        console.error('onRemoveFunding::', error.message)
+      }
+    },
+
+    async onUpdateFunding (id, awards) {
+      try {
+        const funding = await this.updateFunding(id, awards)
+        const idx = this.funding.findIndex((el) => el.id === id)
+        this.funding[idx] = funding
+      } catch (error) {
+        console.error('onUpdateFunding::', error.message)
+      }
+    },
+
+    onAddFundingClick () {
+      this.$q.dialog({
+        component: AddFunding,
+        parent: this,
+        text: 'Add your funding source',
+        title: 'Add Funding'
+      }).onOk(async (fundings) => {
+        try {
+          const result = await this.insertFunding(fundings)
+          this.funding.push(result)
+        } catch (error) {
+          console.error('Cannot add new Funding', error.message)
+        }
+      }).onCancel(() => {
+      }).onDismiss(() => {})
     }
   }
 }
