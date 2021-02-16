@@ -191,6 +191,45 @@
                           _eq: X-Hasura-User-Id
 - table:
     schema: public
+    name: funders
+  array_relationships:
+  - name: projects_fundings
+    using:
+      foreign_key_constraint_on:
+        column: funderId
+        table:
+          schema: public
+          name: projects_funding
+  insert_permissions:
+  - role: user
+    permission:
+      check: {}
+      columns:
+      - id
+      - doi
+      - name
+      backend_only: false
+  select_permissions:
+  - role: user
+    permission:
+      columns:
+      - doi
+      - id
+      - name
+      filter:
+        projects_fundings:
+          project:
+            asset:
+              permissionset:
+                permissions:
+                  permissionset:
+                    permissions:
+                      group:
+                        groups_users:
+                          userId:
+                            _eq: X-Hasura-User-Id
+- table:
+    schema: public
     name: group_types
   is_enum: true
 - table:
@@ -277,6 +316,14 @@
   - name: imageAsset
     using:
       foreign_key_constraint_on: imageId
+  array_relationships:
+  - name: funding
+    using:
+      foreign_key_constraint_on:
+        column: projectId
+        table:
+          schema: public
+          name: projects_funding
   insert_permissions:
   - role: user
     permission:
@@ -348,6 +395,87 @@
                       userId:
                         _eq: X-Hasura-User-Id
       check: null
+- table:
+    schema: public
+    name: projects_funding
+  object_relationships:
+  - name: funder
+    using:
+      foreign_key_constraint_on: funderId
+  - name: project
+    using:
+      foreign_key_constraint_on: projectId
+  insert_permissions:
+  - role: user
+    permission:
+      check:
+        project:
+          asset:
+            permissionset:
+              permissions:
+                permissionset:
+                  permissions:
+                    group:
+                      groups_users:
+                        userId:
+                          _eq: X-Hasura-User-Id
+      columns:
+      - funderId
+      - id
+      - projectId
+      - awards
+      backend_only: false
+  select_permissions:
+  - role: user
+    permission:
+      columns:
+      - funderId
+      - id
+      - projectId
+      - awards
+      filter:
+        project:
+          asset:
+            permissionset:
+              permissions:
+                permissionset:
+                  permissions:
+                    group:
+                      groups_users:
+                        userId:
+                          _eq: X-Hasura-User-Id
+  update_permissions:
+  - role: user
+    permission:
+      columns:
+      - awards
+      - funderId
+      filter:
+        project:
+          asset:
+            permissionset:
+              permissions:
+                permissionset:
+                  permissions:
+                    group:
+                      groups_users:
+                        userId:
+                          _eq: X-Hasura-User-Id
+      check: null
+  delete_permissions:
+  - role: user
+    permission:
+      filter:
+        project:
+          asset:
+            permissionset:
+              permissions:
+                permissionset:
+                  permissions:
+                    group:
+                      groups_users:
+                        userId:
+                          _eq: X-Hasura-User-Id
 - table:
     schema: public
     name: users
