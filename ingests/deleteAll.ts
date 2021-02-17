@@ -3,10 +3,10 @@ import Knex from 'knex'
 import pMap from 'p-map'
 import {promises as fs} from 'fs'
 
-import { bootstrap } from '../server-nest/dist/sdk'
-import { KeycloakService } from '../server-nest/dist/keycloak/keycloak.service'
-import { UserService } from '../server-nest/dist/users/user.service'
-import { UserDTO } from '../server-nest/dist/dtos/user.dto'
+import { bootstrap } from '../server/dist/sdk'
+import { KeycloakService } from '../server/dist/keycloak/keycloak.service'
+import { UserService } from '../server/dist/users/user.service'
+import { UserDTO } from '../server/dist/dtos/user.dto'
 
 async function main () {
   const app = await bootstrap()

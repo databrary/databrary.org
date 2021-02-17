@@ -5,7 +5,7 @@
   },
   "eslint.workingDirectories": [
     { "directory": "./client", "changeProcessCWD": true },
-    { "directory": "./server-nest", "changeProcessCWD": true }
+    { "directory": "./server", "changeProcessCWD": true }
   ],
   "debug.node.autoAttach": "off"
 }

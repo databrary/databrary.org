@@ -71,7 +71,7 @@ services:
       - 6379:6379
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
-      - ./server-nest/sessions:/sessions
+      - ./server/sessions:/sessions
     restart: always
 
   typesense:
