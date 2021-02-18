@@ -353,6 +353,7 @@
       - assetId
       - color
       - description
+      - doi
       - filesCount
       - foldersCount
       - id
@@ -395,6 +396,20 @@
                       userId:
                         _eq: X-Hasura-User-Id
       check: null
+  event_triggers:
+  - name: projects_insert
+    definition:
+      enable_manual: false
+      insert:
+        columns: '*'
+    retry_conf:
+      num_retries: 0
+      interval_sec: 10
+      timeout_sec: 60
+    webhook_from_env: HASURA_EVENT_WEBHOOK
+    headers:
+    - name: app-event-token
+      value_from_env: HASURA_EVENT_TOKEN
 - table:
     schema: public
     name: projects_funding
