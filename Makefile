@@ -54,7 +54,7 @@ check-node-version: FORCE
 ##############################################################################
 # Setup rules and targets for yarn installs
 ##############################################################################
-JS_DIRS=client server-nest
+JS_DIRS=client server
 
 define install-js-rule
 $(1)/node_modules: $(1)/package.json $(1)/yarn.lock
@@ -149,13 +149,12 @@ docker: bin-exists-docker-compose
 	DOCKER_HOST_IP=$(DOCKER_HOST_IP) docker-compose up
 
 #: Start the Nest.js server in non-daemon mode
-server: server_nest
-server_nest: check-node-version bin-exists-yarn server-nest/node_modules
-	cd server-nest && rm -rf dist && npm run start:dev && cd ..
+server: check-node-version bin-exists-yarn server/node_modules
+	cd server && rm -rf dist && npm run start:dev && cd ..
 server_test: FORCE
-	cd server-nest && npm run test && cd ..
-server_debug: check-node-version bin-exists-yarn server-nest/node_modules
-	cd server-nest && npm run start:debug && cd ..
+	cd server && npm run test && cd ..
+server_debug: check-node-version bin-exists-yarn server/node_modules
+	cd server && npm run start:debug && cd ..
 
 #: Start the front-end in non-daemon mode
 client: check-node-version bin-exists-yarn client/node_modules

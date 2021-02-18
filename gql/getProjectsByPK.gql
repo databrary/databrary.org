@@ -1,0 +1,11 @@
+query GetProjectByPK ($id: Int!) {
+  projects_by_pk(id: $id) {
+    asset {
+      name
+      creator {
+        givenName
+        familyName
+      }
+    }
+  }
+}

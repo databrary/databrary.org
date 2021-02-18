@@ -1,0 +1,8 @@
+mutation UpdateProjectDoi($id: Int!, $doi: String!) {
+  update_projects(where: {id: {_eq: $id}}, _set: {doi: $doi}) {
+    returning {
+      id
+      doi
+    }
+  }
+}
