@@ -1,6 +1,6 @@
 import { make } from 'vuex-pathify'
 import { gql } from '@apollo/client'
-import { apolloClient } from '../services/apolloClient'
+import { databrary } from '../services/apolloClient'
 import axios from 'axios'
 import _ from 'lodash'
 
@@ -26,7 +26,7 @@ const actions = {
   // the createdById field is set from the session variable X-Hasura-User-Id
   // That is not required in the client side
   async insertAsset (_, { name, assetType, privacyType, parentId }) {
-    const result = await apolloClient.mutate({
+    const result = await databrary.mutate({
       mutation: gql`
         mutation (
           $name: String!
@@ -59,7 +59,7 @@ const actions = {
     return result.data.insert_assets.returning[0].id
   },
   async updateAsset (_, { assetId, name }) {
-    const result = await apolloClient.mutate({
+    const result = await databrary.mutate({
       mutation: gql`
         mutation (
           $assetId: Int!
@@ -85,7 +85,7 @@ const actions = {
     return result.data.update_assets.returning[0].name
   },
   async deleteAssets (_, { assets }) {
-    const result = await apolloClient.mutate({
+    const result = await databrary.mutate({
       mutation: gql`
         mutation ($assets: [Int!]!) {
           delete_assets(where: {id: {_in: $assets}}) {
