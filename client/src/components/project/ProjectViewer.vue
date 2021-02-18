@@ -52,7 +52,7 @@
         </div>
         <citationBuilder
           class="q-pa-sm"
-          doi="10.1037/0003-066X.59.1.29"
+          :doi="doi"
           :editMode="editMode"
         />
         <div class="q-mt-md">
@@ -351,6 +351,7 @@ export default {
                 imageId
                 useImage
                 urls
+                doi
                 funding {
                   id
                   funder {
@@ -383,6 +384,7 @@ export default {
       this.imageId = project.imageId
       this.useImage = project.useImage
       this.urls = project.urls
+      this.doi = project.doi
       this.funding = project.funding
     },
     async updateAssetName (newName) {

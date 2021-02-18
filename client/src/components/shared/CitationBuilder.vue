@@ -1,6 +1,7 @@
 <template>
   <div>
-    <div>
+    <div v-if="!doi">Citation not available</div>
+    <div v-else>
       <q-btn
         no-caps
         icon="edit"
@@ -9,7 +10,13 @@
         color="primary"
         @click="editCitation = true"
       />
-      {{ citation }}
+      <div class="row" v-if="!errorMessage">
+        <q-skeleton class="col-6" v-if="loading" type="text" />
+        <div class="col-12" v-else>{{citation}}</div>
+      </div>
+      <div class="row" v-else>
+        <span class="col-12">{{errorMessage}}</span>
+      </div>
     </div>
     <q-dialog
       v-model="editCitation"
@@ -36,8 +43,7 @@
         <q-tab-panels v-model="tab" animated>
           <q-tab-panel name="edit">
             <div class="text-h6">Edit</div>
-            <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="family" label="Family" />
-            <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="given" label="Given" />
+            <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="authors" label="Authors" />
             <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="title" label="Title" />
             <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="date" label="Date" />
             <q-input dense class="q-pb-sm q-pr-sm" outlined v-model="journal" label="Journal" />
@@ -63,20 +69,30 @@
 export default {
   name: 'CitationBuilder',
   props: ['doi', 'editMode'],
-  data () {
-    return {
-      editCitation: false,
-      citation: '',
-      family: '',
-      given: '',
-      title: '',
-      date: '',
-      journal: '',
-      tab: 'edit'
-    }
-  },
+  data: () => ({
+    loading: false,
+    editCitation: false,
+    errorMessage: '',
+    authors: '',
+    title: '',
+    date: '',
+    journal: '',
+    url: '',
+    tab: 'edit'
+  }),
   mounted () {
     this.createCitation()
+  },
+  computed: {
+    citation () {
+      return `${this.authors}, ${this.title} (${this.date}) ${this.journal}`
+    }
+  },
+  watch: {
+    async doi () {
+      this.errorMessage = ''
+      await this.createCitation()
+    }
   },
   methods: {
     lookupCitation () {
@@ -84,26 +100,24 @@ export default {
       this.tab = 'edit'
     },
     saveCitation () {
-      this.citation = `${this.family}, ${this.given} ${this.title} (${this.date}) ${this.journal}`
+      this.citation = `${this.authors}, ${this.title} (${this.date}) ${this.journal}`
     },
-    createCitation () {
-      const url = `https://api.crossref.org/works/${this.doi}`
-      this.$axios.get(url)
-        .then((response) => {
-          console.log(response)
-          const { message } = response.data
-          this.family = message.author[0].family
-          this.given = message.author[0].given
-          /* eslint prefer-destructuring: ["error", {VariableDeclarator: {object: true}}] */
-          this.title = message.title[0]
-          this.date = this.formatDate(new Date(message.deposited['date-time']))
-          this.journal = message.publisher
-
-          this.citation = `${this.family}, ${this.given} ${this.title} (${this.date}) ${this.journal}`
-        })
-        .catch((error) => {
-          console.log(error)
-        })
+    async createCitation () {
+      try {
+        this.loading = true
+        const url = `https://api.test.datacite.org/dois/${this.doi}`
+        const { data: { data: { attributes } } } = await this.$axios.get(url)
+        this.authors = attributes.creators.map((creator) => (creator.name)).join(',')
+        this.title = attributes.titles[0].title
+        this.date = this.formatDate(new Date(attributes.registered))
+        this.journal = attributes.publisher
+        this.url = `https://doi.org/${attributes.doi}`
+      } catch (error) {
+        this.errorMessage = 'Citation not available'
+        console.error('createCitation::', error)
+      } finally {
+        this.loading = false
+      }
     },
     formatDate (date) {
       const monthNames = [
@@ -121,7 +135,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>
