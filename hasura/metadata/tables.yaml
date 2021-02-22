@@ -200,34 +200,6 @@
         table:
           schema: public
           name: projects_funding
-  insert_permissions:
-  - role: user
-    permission:
-      check: {}
-      columns:
-      - id
-      - doi
-      - name
-      backend_only: false
-  select_permissions:
-  - role: user
-    permission:
-      columns:
-      - doi
-      - id
-      - name
-      filter:
-        projects_fundings:
-          project:
-            asset:
-              permissionset:
-                permissions:
-                  permissionset:
-                    permissions:
-                      group:
-                        groups_users:
-                          userId:
-                            _eq: X-Hasura-User-Id
 - table:
     schema: public
     name: group_types
