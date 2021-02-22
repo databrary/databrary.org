@@ -163,6 +163,9 @@ client: check-node-version bin-exists-yarn client/node_modules
 fix_es_lint: FORCE
 	npx eslint --ext .ts . --fix
 
+generate_funders: FORCE bin-exists-yarn server/node_modules
+	cd server && yarn generate:funders && cd ..
+
 ##############################################################################
 all: ;
 FORCE: ;
