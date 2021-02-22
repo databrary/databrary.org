@@ -5,7 +5,7 @@ NOTES.md
 **/recordings/*
 
 # Hasura config
-hasura/config.yaml
+**/hasura/config.yaml
 
 # Server
 **/tmp/
