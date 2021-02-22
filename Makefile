@@ -76,11 +76,11 @@ upgrade-hasura-cli: FORCE
 # Hasura
 ##############################################################################
 #: Start hasura console for live persistence of migrations
-migrate: FORCE
-	cd hasura && hasura console --skip-update-check --endpoint http://127.0.0.1:8000 && cd ..
+migrate: FORCE check-node-version bin-exists-yarn hasura/node_modules
+	cd hasura && yarn hasura:console && cd ..
 
-metadata: FORCE
-	cd hasura && hasura metadata export --skip-update-check --endpoint http://127.0.0.1:8000 && cd .. 
+metadata: FORCE check-node-version bin-exists-yarn hasura/node_modules
+	cd hasura && yarn hasura:metadata:export && cd .. 
 
 ##############################################################################
 # Minio
