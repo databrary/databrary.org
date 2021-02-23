@@ -200,6 +200,14 @@
         table:
           schema: public
           name: projects_funding
+  select_permissions:
+  - role: user
+    permission:
+      columns:
+      - doi
+      - id
+      - name
+      filter: {}
 - table:
     schema: public
     name: group_types
