@@ -1,0 +1,9 @@
+mutation InsertFunders ($object: [funders_insert_input!]!) {
+  insert_funders(objects: $object) {
+    returning {
+      name
+      id
+      doi
+    }
+  }
+}
