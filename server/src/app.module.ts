@@ -11,8 +11,11 @@ import { TaskModule } from './task/task.module'
 import { UserModule } from './users/user.module'
 import { AssetModule } from './asset/asset.module'
 import { SearchModule } from './search/search.module'
-import { DataciteModule } from './datacite/datacite.module';
-import { ProjectModule } from './project/project.module';
+import { DataciteModule } from './datacite/datacite.module'
+import { ProjectModule } from './project/project.module'
+import { FunderService } from './funder/funder.service'
+import { FunderModule } from './funder/funder.module'
+import { GqlClientModule } from './gqlClient/gqlClient.module'
 
 @Module({
   imports: [
@@ -20,6 +23,7 @@ import { ProjectModule } from './project/project.module';
       envFilePath: ['../.env'],
       isGlobal: true
     }),
+    GqlClientModule,
     KeycloakModule,
     HasuraModule,
     MinioModule,
@@ -28,9 +32,10 @@ import { ProjectModule } from './project/project.module';
     UserModule,
     AssetModule,
     DataciteModule,
-    ProjectModule
+    ProjectModule,
+    FunderModule
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [AppService, FunderService]
 })
 export class AppModule {}

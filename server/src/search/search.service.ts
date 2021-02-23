@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common'
 import { Index } from '../common/types'
 import { UserDTO } from '../dtos/user.dto'
+import { FunderDTO } from '../dtos/funder.dto'
 import { Client } from 'typesense'
 
 @Injectable()
@@ -15,7 +16,7 @@ export class SearchService {
 
   // This might fail if typesense server is not ready
   private initCollections () {
-    const schemas: Array<Record<string, unknown>> = [UserDTO.schema]
+    const schemas: Array<Record<string, unknown>> = [UserDTO.schema, FunderDTO.schema]
     for (const schema of schemas) {
       this.client.collections().create(schema)
         .then(function (data) {

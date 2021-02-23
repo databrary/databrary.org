@@ -528,7 +528,7 @@ export default {
       const mutationObject = fundings.map((funding) => (
         {
           projectId: that.id,
-          funder: { data: { doi: funding.doi, name: funding.name } },
+          funderId: funding.id,
           awards: funding.awards
         }
       ))
@@ -542,11 +542,11 @@ export default {
             ) {
               returning {
                 id
-                awards
                 funder {
                   name
                   doi
                 }
+                awards
               }
             }
           }

@@ -36,7 +36,7 @@
                 <span>{{funder.name}}</span>
               </q-item-label>
               <q-item-label caption>
-                <span>{{funder.id}}</span>
+                <span>{{funder.doi}}</span>
               </q-item-label>
               <q-item-label lines="1" v-if="funder.awards.length">
                 <div
@@ -86,19 +86,8 @@
 <script>
 import { gql } from '@apollo/client'
 import { uid } from 'quasar'
+import { Client } from 'typesense'
 import _ from 'lodash'
-
-const GET_FUNDERS = gql`
-  query GetFunder ($query: String!) {
-    funders(query: $query) {
-      totalCount
-      nodes {
-        id
-        name
-      }
-    }
-  }
-`
 
 export default {
   props: {
@@ -117,15 +106,23 @@ export default {
   },
   data: () => ({
     search: '',
-    results: [
-      // {
-      //   id: 'https://doi.org/10.13039/100000001',
-      //   name: 'National Science Foundation',
-      //   awards: []
-      // }
-    ],
-    loading: false
+    results: [],
+    loading: false,
+    client: null
   }),
+
+  mounted () {
+    this.client = new Client({
+      'nodes': [{
+        'host': 'localhost',
+        'path': '/typesense',
+        'port': '8000',
+        'protocol': 'http'
+      }],
+      'apiKey': 'e5325d85-7570-4d95-b95d-60c99cfba4bf',
+      'connectionTimeoutSeconds': 2
+    })
+  },
   watch: {
     async search () {
       await this.dataCiteFundersLookUp(this.search)
@@ -159,8 +156,9 @@ export default {
     onOKClick () {
       const funding = this.results
         .filter((funder) => this.hasAwards(funder))
-        .map(({ id, name, awards }) => ({
-          doi: id,
+        .map(({ id, doi, name, awards }) => ({
+          id: id,
+          doi: doi,
           name: name,
           awards: awards.filter((award) => award.value !== '')
         }))
@@ -182,17 +180,17 @@ export default {
     async dataCiteFundersLookUp (query) {
       try {
         this.loading = true
-        const { data: { funders: { nodes } } } = await this.$apollo.query({
-          client: 'datacite',
-          query: GET_FUNDERS,
-          variables: {
-            query: query
-          }
-        })
-
-        this.results = _.cloneDeep(nodes).map(({ id, name }) => (
+        const { hits } = await this.client
+          .collections(['databrary-funders'])
+          .documents()
+          .search({
+            q: query,
+            query_by: 'name'
+          })
+        this.results = _.map(hits, 'document').map(({ docId, doi, name }) => (
           {
-            id,
+            id: docId,
+            doi,
             name,
             awards: []
           }
