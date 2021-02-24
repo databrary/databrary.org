@@ -14,13 +14,11 @@ import { UserDTO } from './dtos/user.dto'
 
 import { isEmpty } from 'lodash'
 import { UserService } from './users/user.service'
-import { SearchService } from './search/search.service'
 
 @Controller()
 export class AppController {
   constructor (
-    private readonly userService: UserService,
-    private readonly searchService: SearchService
+    private readonly userService: UserService
   ) {}
 
   @Get('/')

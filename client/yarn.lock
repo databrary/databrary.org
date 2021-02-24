@@ -2242,10 +2242,10 @@ axios@^0.18.1:
     follow-redirects "1.5.10"
     is-buffer "^2.0.2"
 
-axios@^0.20.0:
-  version "0.20.0"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.20.0.tgz#057ba30f04884694993a8cd07fa394cff11c50bd"
-  integrity sha512-ANA4rr2BDcmmAQLOKft2fufrtuvlqR+cXNNinUmvfeSNCOF98PZL+7M/v1zIdGo7OLjEA9J2gXJL+j4zGsl0bA==
+axios@^0.21.1:
+  version "0.21.1"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
+  integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
   dependencies:
     follow-redirects "^1.10.0"
 
@@ -6756,10 +6756,15 @@ log-update@4.0.0:
     slice-ansi "^4.0.0"
     wrap-ansi "^6.2.0"
 
-loglevel@^1.6.8, loglevel@^1.7.0:
+loglevel@^1.6.8:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.7.0.tgz#728166855a740d59d38db01cf46f042caa041bb0"
   integrity sha512-i2sY04nal5jDcagM3FMfG++T69GEEM8CYuOfeOIvmXzOIcwE9a/CJPR0MFM97pYMj/u10lzz7/zd7+qwhrBTqQ==
+
+loglevel@^1.7.1:
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.7.1.tgz#005fde2f5e6e47068f935ff28573e125ef72f197"
+  integrity sha512-Hesni4s5UkWkwCGJMQGAh71PaLUmKFM60dHvq0zi/vDhhrzuk+4GgNbTXJ12YYQJn6ZKBDNIjYcuQGKudvqrIw==
 
 loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.4.0:
   version "1.4.0"
@@ -10431,13 +10436,13 @@ typescript@^3.7.5:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.7.tgz#98d600a5ebdc38f40cb277522f12dc800e9e25fa"
   integrity sha512-BLbiRkiBzAwsjut4x/dsibSTB6yWpwT5qWmC2OfuCg3GgVQCSgMs4vEctYPhsaGtd0AeuuHMkjZ2h2WG8MSzRw==
 
-typesense@^0.7.1:
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/typesense/-/typesense-0.7.1.tgz#304e0f22dc9e06a2c0cc5f8539492d1faf9f98ba"
-  integrity sha512-ZoROcThAJJyPpCzNEWQu8ve3JkWCow4VIyEYE4KzuaRmNrqmvuDwImK7BSs5O16uMHsF7a1gQj/XbbUpERp2xA==
+typesense@^0.11.1:
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/typesense/-/typesense-0.11.1.tgz#61ba772b743044e3caa19b292dad3aef1d686c0e"
+  integrity sha512-vQswMl+OCpmIKpSxSGUPY3EYIGBFBUhRSAucmXdZcO7j4aw0VOHA0IkO490jr+arUc0lWh05LC+gT4PW4+kelg==
   dependencies:
-    axios "^0.20.0"
-    loglevel "^1.7.0"
+    axios "^0.21.1"
+    loglevel "^1.7.1"
 
 uglify-js@^3.1.4, uglify-js@^3.5.1:
   version "3.10.4"

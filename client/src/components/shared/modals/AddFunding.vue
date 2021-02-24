@@ -84,9 +84,7 @@
 </template>
 
 <script>
-import { gql } from '@apollo/client'
 import { uid } from 'quasar'
-import { Client } from 'typesense'
 import _ from 'lodash'
 
 export default {
@@ -110,19 +108,6 @@ export default {
     loading: false,
     client: null
   }),
-
-  mounted () {
-    this.client = new Client({
-      'nodes': [{
-        'host': 'localhost',
-        'path': '/typesense',
-        'port': '8000',
-        'protocol': 'http'
-      }],
-      'apiKey': 'e5325d85-7570-4d95-b95d-60c99cfba4bf',
-      'connectionTimeoutSeconds': 2
-    })
-  },
   watch: {
     async search () {
       await this.dataCiteFundersLookUp(this.search)
@@ -180,7 +165,7 @@ export default {
     async dataCiteFundersLookUp (query) {
       try {
         this.loading = true
-        const { hits } = await this.client
+        const { hits } = await this.$typesense
           .collections(['databrary-funders'])
           .documents()
           .search({

@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Res,
-  Request,
-  Post
-} from '@nestjs/common'
-
+import { Controller,  Res,  Request,  Post } from '@nestjs/common'
 import { isEmpty } from 'lodash'
 import { SearchService } from './search.service'
 import { Index } from '../common/types'

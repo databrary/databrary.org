@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { isEmpty } from 'lodash'
 import { resolve } from 'path'
-import { GQL_DIR } from 'src/common/constants'
-import { FunderDTO } from 'src/dtos/funder.dto'
-import { GqlClientService } from 'src/gqlClient/gqlClient.service'
-import { SearchService } from 'src/search/search.service'
+import { GQL_DIR } from '../common/constants'
+import { FunderDTO } from '../dtos/funder.dto'
+import { GqlClientService } from '../gqlClient/gqlClient.service'
+import { SearchService } from '../search/search.service'
 
 @Injectable()
 export class FunderService {

@@ -84,9 +84,6 @@
 
 <script>
 import _ from 'lodash'
-import { Client } from 'typesense'
-
-// import { mapActions } from 'vuex'
 
 // import ProjectCard from '../../components/search/ProjectCard'
 import ProfileCard from '@/components/search/ProfileCard'
@@ -109,19 +106,6 @@ export default {
   components: {
     // ProjectCard,
     ProfileCard
-  },
-  mounted () {
-    // this.search = this.$route.query.q
-    this.client = new Client({
-      'nodes': [{
-        'host': 'localhost',
-        'path': '/typesense',
-        'port': '8000',
-        'protocol': 'http'
-      }],
-      'apiKey': 'e5325d85-7570-4d95-b95d-60c99cfba4bf',
-      'connectionTimeoutSeconds': 2
-    })
   },
   watch: {
     async search () {
@@ -160,7 +144,7 @@ export default {
   methods: {
     // ...mapActions('app', ['search']),
     async doSearch () {
-      const { hits } = await this.client
+      const { hits } = await this.$typesense
         .collections(['databrary-users'])
         .documents()
         .search({
