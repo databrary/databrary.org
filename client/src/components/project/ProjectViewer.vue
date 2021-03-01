@@ -52,7 +52,7 @@
         </div>
         <citationBuilder
           class="q-pa-sm"
-          :doi="doi"
+          :data="citationBuilderData"
           :editMode="editMode"
         />
         <div class="q-mt-md">
@@ -339,6 +339,15 @@ export default {
     },
     lastChangedOn () {
       return date.formatDate(this.lastChanged, 'MM-DD-YYYY - hh:mm A')
+    },
+    citationBuilderData () {
+      return {
+        title: this.title,
+        authors: this.collaborators.map((col) => col.displayFullName).join(', '),
+        date: this.lastChanged,
+        journal: 'Databrary',
+        url: `https://doi.org/${this.title}`
+      }
     }
   },
   methods: {
