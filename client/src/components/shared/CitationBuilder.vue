@@ -1,7 +1,15 @@
 <template>
   <div>
-    <div v-if="!doi">Citation not available</div>
-    <div v-else>
+    <div v-if="data">
+      <div class="row" v-if="!errorMessage">
+        <q-skeleton class="col-6" v-if="loading" type="text" />
+        <div class="col-12" v-else>{{citation}}</div>
+      </div>
+      <div class="row" v-else>
+        <span class="col-12">{{errorMessage}}</span>
+      </div>
+    </div>
+    <div v-else-if="doi">
       <q-btn
         no-caps
         icon="edit"
@@ -18,6 +26,7 @@
         <span class="col-12">{{errorMessage}}</span>
       </div>
     </div>
+    <div v-else>Citation not available</div>
     <q-dialog
       v-model="editCitation"
     >
@@ -68,7 +77,23 @@
 <script>
 export default {
   name: 'CitationBuilder',
-  props: ['doi', 'editMode'],
+  props: {
+    doi: {
+      type: String,
+      required: false,
+      default: () => ''
+    },
+    data: {
+      type: Object,
+      required: false,
+      default: () => {}
+    },
+    editMode: {
+      type: Boolean,
+      required: false,
+      default: () => false
+    }
+  },
   data: () => ({
     loading: false,
     editCitation: false,
@@ -81,7 +106,13 @@ export default {
     tab: 'edit'
   }),
   mounted () {
-    this.createCitation()
+    if (this.doi) {
+      this.createCitation()
+    } else if (this.data) {
+      this.generateCitation()
+    } else {
+      this.errorMessage = 'Can\'t find props'
+    }
   },
   computed: {
     citation () {
@@ -92,6 +123,14 @@ export default {
     async doi () {
       this.errorMessage = ''
       await this.createCitation()
+    },
+
+    data: {
+      deep: true,
+      async handler () {
+        this.errorMessage = ''
+        this.generateCitation()
+      }
     }
   },
   methods: {
@@ -115,6 +154,22 @@ export default {
       } catch (error) {
         this.errorMessage = 'Citation not available'
         console.error('createCitation::', error)
+      } finally {
+        this.loading = false
+      }
+    },
+
+    generateCitation () {
+      try {
+        this.loading = true
+        this.authors = this.data.authors
+        this.title = this.data.title
+        this.date = this.formatDate(new Date(this.data.date))
+        this.journal = this.data.journal
+        this.url = this.data.url
+      } catch (error) {
+        this.errorMessage = 'Citation not available'
+        console.error('generateCitation::', error)
       } finally {
         this.loading = false
       }

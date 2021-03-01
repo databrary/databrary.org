@@ -64,9 +64,9 @@ export class UserDTO {
     { name: 'additionalName', type: 'string' },
     { name: 'displayFullName', type: 'string' },
     { name: 'bio', type: 'string' },
-    { name: 'gravatar', type: 'object' },
-    { name: 'image', type: 'object' },
-    { name: 'useGravatar', type: 'boolean' }
+    { name: 'gravatar', type: 'string' },
+    { name: 'image', type: 'string' },
+    { name: 'useGravatar', type: 'bool' }
   ]
 
   // Do not add docId or anything that is not a string or integer
@@ -89,12 +89,12 @@ export class UserDTO {
     if (user.bio == null) this.bio = ''
   }
 
-  get document (): Partial<UserDTO> {
+  get document (): Record<string, any> {
     return {
       docId: this.id,
       docIdS: `${this.id}`,
-      image: this.image,
-      gravatar: this.gravatar,
+      image: JSON.stringify(this.image),
+      gravatar: JSON.stringify(this.gravatar),
       useGravatar: this.useGravatar,
       bio: this.bio,
       additionalName: this.additionalName,

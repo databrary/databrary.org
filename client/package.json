@@ -38,12 +38,13 @@
     "node-sass": "^4.13.1",
     "quasar": "^1.14.0",
     "react": "^16.13.1",
-    "typesense": "^0.7.1",
+    "typesense": "^0.11.1",
     "v-runtime-template": "^1.10.0",
     "validator": "^13.0.0",
     "vue-apollo": "^3.0.2",
     "vue-class-component": "^7.2.2",
     "vue-property-decorator": "^8.3.0",
+    "vuedraggable": "^2.24.3",
     "vuex-pathify": "^1.4.1"
   },
   "devDependencies": {
