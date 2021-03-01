@@ -71,16 +71,23 @@
           </div>
           <div class="text-h5 float-right">
             Collaborators
-            <div>
+            <q-btn
+              class="q-mx-lg"
+              dense
+              flat
+              @click="onShowCollaborators"
+            >
               <q-avatar
-                class="q-ma-xs q-pa-sm"
-                size="40px"
-                v-for="k in 2"
-                :key="k"
-              >
-                <img :src="'https://cdn.quasar.dev/img/avatar' + k + '.jpg'">
-              </q-avatar>
-            </div>
+                color="primary"
+                size="sm"
+                class="text-right"
+                icon="add"
+              />
+            </q-btn>
+            <ProjectCollaborators
+              :data="collaborators"
+              :show="2"
+            />
           </div>
         </div>
       </div>
@@ -268,6 +275,8 @@ import ProjectTextArea from '@/components/project/ProjectTextArea'
 import ProjectHeader from '@/components/project/ProjectHeader'
 import ProjectLinks from '@/components/project/ProjectLinks'
 import ProjectFunding from '@/components/project/ProjectFunding'
+import ProjectCollaborators from '@/components/project/ProjectCollaborators'
+import Collaborators from '@/components/shared/modals/Collaborators'
 
 const defaullDescription = 'View Description'
 
@@ -280,7 +289,9 @@ export default {
     ProjectHeader,
     ProjectLinks,
     AddFunding,
-    ProjectFunding
+    ProjectFunding,
+    ProjectCollaborators,
+    Collaborators
   },
   props: ['assetId'],
   data: () => ({
@@ -293,6 +304,7 @@ export default {
     imageURI: null,
     useImage: null,
     urls: null,
+    collaborators: null,
     funding: null,
     filesCount: null,
     foldersCount: null,
@@ -351,6 +363,7 @@ export default {
                 imageId
                 useImage
                 urls
+                collaborators
                 doi
                 funding {
                   id
@@ -384,6 +397,7 @@ export default {
       this.imageId = project.imageId
       this.useImage = project.useImage
       this.urls = project.urls
+      this.collaborators = project.collaborators
       this.doi = project.doi
       this.funding = project.funding
     },
@@ -503,7 +517,7 @@ export default {
     async updateUrls () {
       const { data } = await this.$apollo.mutate({
         mutation: gql`
-          mutation UpdateProjectColor($id: Int!, $urls: jsonb!) {
+          mutation UpdateProjectUrls($id: Int!, $urls: jsonb!) {
             update_projects(
               where: {id: {_eq: $id}}, 
               _set: {urls: $urls}
@@ -521,6 +535,29 @@ export default {
       })
 
       return data.update_projects.returning[0]
+    },
+
+    async updateCollaborators (collaborators) {
+      const { data } = await this.$apollo.mutate({
+        mutation: gql`
+          mutation UpdateProjectCollaborators($id: Int!, $collaborators: jsonb!) {
+            update_projects(
+              where: {id: {_eq: $id}}, 
+              _set: {collaborators: $collaborators}
+            ) {
+                returning {
+                  collaborators
+                }
+              }
+          }
+        `,
+        variables: {
+          id: this.id,
+          collaborators: collaborators
+        }
+      })
+
+      return data.update_projects.returning[0].collaborators
     },
 
     async insertFunding (fundings) {
@@ -735,6 +772,23 @@ export default {
           this.funding.push(result)
         } catch (error) {
           console.error('Cannot add new Funding', error.message)
+        }
+      }).onCancel(() => {
+      }).onDismiss(() => {})
+    },
+
+    onShowCollaborators () {
+      this.$q.dialog({
+        component: Collaborators,
+        parent: this,
+        title: 'Collaborators',
+        data: this.collaborators
+      }).onOk(async (collaborators) => {
+        try {
+          const result = await this.updateCollaborators(collaborators)
+          this.collaborators = result
+        } catch (error) {
+          console.error('Cannot update collaborators', error.message)
         }
       }).onCancel(() => {
       }).onDismiss(() => {})
