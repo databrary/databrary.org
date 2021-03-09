@@ -57,19 +57,6 @@
         />
         <div class="q-mt-md">
           <div class="text-h5 float-left">
-            Investigators
-            <div>
-              <q-avatar
-                class="q-ma-xs q-pa-sm"
-                size="40px"
-                v-for="k in 6"
-                :key="k"
-              >
-                <img :src="'https://cdn.quasar.dev/img/avatar' + k + '.jpg'">
-              </q-avatar>
-            </div>
-          </div>
-          <div class="text-h5 float-right">
             Collaborators
             <q-btn
               class="q-mx-lg"
@@ -86,7 +73,7 @@
             </q-btn>
             <ProjectCollaborators
               :data="collaborators"
-              :show="2"
+              :show="6"
             />
           </div>
         </div>
