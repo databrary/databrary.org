@@ -343,7 +343,9 @@ export default {
     citationBuilderData () {
       return {
         title: this.title,
-        authors: this.collaborators.map((col) => col.displayFullName).join(', '),
+        authors: this.collaborators
+          .filter(col => col.bibliographic)
+          .map((col) => col.displayFullName).join(', '),
         date: this.lastChanged,
         journal: 'Databrary',
         url: `https://doi.org/${this.title}`
