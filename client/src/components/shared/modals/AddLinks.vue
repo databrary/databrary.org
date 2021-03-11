@@ -1,6 +1,6 @@
 <template>
   <q-dialog ref="dialog" @hide="onDialogHide">
-    <q-card class="col-12 q-dialog-plugin" style="width: 180vh">
+    <q-card class="col-12 q-dialog-plugin" style="width: 150vh">
       <q-card-section>
         <div class="text-h6">{{ title }}</div>
       </q-card-section>
@@ -103,14 +103,17 @@
               </div>
             </q-item-section>
           </q-item>
-          <draggable v-model="urls">
-            <ProjectLink
-              v-for="url in urls"
-              :key="url.id"
-              :data="url"
-              :editMode="true"
-              @remove-link="onRemoveUrlClick"
-            />
+          <draggable class="col-12" v-model="urls">
+            <div class="row">
+              <ProjectLink
+                class="col-12"
+                v-for="url in urls"
+                :key="url.id"
+                :data="url"
+                :editMode="true"
+                @remove-link="onRemoveUrlClick"
+              />
+            </div>
           </draggable>
         </q-list>
       </q-card-section>

@@ -2,6 +2,7 @@
   <div class="row">
     <q-list class="col-12">
       <ProjectLink
+        class="row"
         v-for="url in urlsToShow"
         :key="url.id"
         :data="url"

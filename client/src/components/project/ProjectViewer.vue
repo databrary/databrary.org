@@ -195,11 +195,13 @@
             />
           </q-btn>
         </div>
-        <ProjectLinks
-          class="col-12 q-pa-sm"
-          :data="urls"
-          :show="3"
-        />
+        <div class="row">
+          <ProjectLinks
+            class="col-12"
+            :data="urls"
+            :show="3"
+          />
+        </div>
       </div>
       <div class="q-mt-md col-xs-12 col-sm-8 col-md-9">
         <div class="row text-h5 q-mt-md">
