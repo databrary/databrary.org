@@ -109,6 +109,7 @@
               :key="url.id"
               :data="url"
               :editMode="true"
+              @remove-link="onRemoveUrlClick"
             />
           </draggable>
         </q-list>

@@ -111,7 +111,7 @@
                 dense
                 color="negative"
                 icon="cancel"
-                @click.stop="onRemoveUrlClick(link.id)"
+                @click.stop="$emit('remove-link', link.id)"
             />
         </q-item-section>
       </q-item>
