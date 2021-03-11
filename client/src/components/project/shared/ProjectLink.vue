@@ -48,8 +48,8 @@
             <q-icon :name="link.type" />
           </q-avatar>
         </q-item-section>
-        <q-item-section class="col-2">
-          <span class="text-capitalize">
+        <q-item-section :class="editMode ? 'col-2' : 'col-4'">
+          <span class="full-width text-capitalize text-capitalize ellipsis overflow-hidden text-no-wrap">
             {{link.title}}
           </span>
             <q-popup-edit
@@ -65,7 +65,7 @@
                 />
             </q-popup-edit>
         </q-item-section>
-        <q-item-section class="col-3">
+        <q-item-section :class="editMode ? 'col-3' : 'col-4'">
           <span
             class="full-width ellipsis overflow-hidden text-no-wrap text-primary"
             style="text-decoration: underline"
@@ -85,7 +85,7 @@
             />
             </q-popup-edit>
         </q-item-section>
-        <q-item-section class="col-3">
+        <q-item-section :class="editMode ? 'col-3' : 'col-4'">
           <span
             class="full-width text-capitalize ellipsis overflow-hidden text-no-wrap"
           >
