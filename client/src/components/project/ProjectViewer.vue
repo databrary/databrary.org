@@ -197,12 +197,8 @@
         </div>
         <ProjectLinks
           class="col-12 q-pa-sm"
-          ref="links"
           :data="urls"
           :show="3"
-          @add-url="onAddUrl"
-          @update-url="onUpdateUrl"
-          @remove-url="onRemoveUrl"
         />
       </div>
       <div class="q-mt-md col-xs-12 col-sm-8 col-md-9">
@@ -224,10 +220,7 @@
               </thead>
               <tbody>
                 <tr>
-                  <th
-                    class="bg-grey-4"
-                    rowspan="3"
-                  >sessions</th>
+                  <th class="bg-grey-4" rowspan="3">sessions</th>
                   <th class="text-left bg-grey-4">private</th>
                   <td class="text-center">{{ session_private }}</td>
                 </tr>
@@ -257,6 +250,7 @@ import { call } from 'vuex-pathify'
 
 import CitationBuilder from '@/components/shared/CitationBuilder'
 import AddFunding from '@/components/shared/modals/AddFunding'
+import AddLinks from '@/components/shared/modals/AddLinks'
 import FileManager from '@/components/fileManager/FileManager'
 import ProjectTextArea from '@/components/project/ProjectTextArea'
 import ProjectHeader from '@/components/project/ProjectHeader'
@@ -276,6 +270,7 @@ export default {
     ProjectHeader,
     ProjectLinks,
     AddFunding,
+    AddLinks,
     ProjectFunding,
     ProjectCollaborators,
     Collaborators
@@ -512,7 +507,7 @@ export default {
       return data.update_projects.returning[0]
     },
 
-    async updateUrls () {
+    async updateUrls (urls) {
       const { data } = await this.$apollo.mutate({
         mutation: gql`
           mutation UpdateProjectUrls($id: Int!, $urls: jsonb!) {
@@ -528,7 +523,7 @@ export default {
         `,
         variables: {
           id: this.id,
-          urls: this.urls
+          urls: urls
         }
       })
 
@@ -695,50 +690,6 @@ export default {
       }
     },
 
-    async onAddUrlClick () {
-      try {
-        this.$refs.links.addUrl()
-      } catch (error) {
-        console.error('onAddUrlClick::', error.message)
-      }
-    },
-
-    async onAddUrl (url) {
-      try {
-        if (url.url.length < 1) {
-          throw new Error('URL is mendatory')
-        }
-
-        url.id = uid()
-        this.urls.unshift(url)
-        const { urls } = await this.updateUrls()
-        this.$refs.links.clearNewUrl()
-        this.urls = urls
-      } catch (error) {
-        console.error('onAddUrl::', error.message)
-      }
-    },
-
-    async onRemoveUrl (urlId) {
-      try {
-        const index = this.urls.map((url) => url.id).indexOf(urlId)
-        this.urls.splice(index, 1)
-        const { urls } = await this.updateUrls()
-        this.urls = urls
-      } catch (error) {
-        console.error('onRemoveUrl::', error.message)
-      }
-    },
-
-    async onUpdateUrl () {
-      try {
-        const { urls } = await this.updateUrls()
-        this.urls = urls
-      } catch (error) {
-        console.error('onUpdateUrl::', error.message)
-      }
-    },
-
     async onRemoveFunding (id) {
       try {
         await this.removeFunding(id)
@@ -775,12 +726,16 @@ export default {
       }).onDismiss(() => {})
     },
 
+    // Qusar Dialog Plugin will sync props
+    // A workarround to wait for users validation
+    // is to deep copy your props
+    // and wait for the ok event
     onShowCollaborators () {
       this.$q.dialog({
         component: Collaborators,
         parent: this,
         title: 'Collaborators',
-        data: this.collaborators
+        data: this.deepCopy(this.collaborators)
       }).onOk(async (collaborators) => {
         try {
           const result = await this.updateCollaborators(collaborators)
@@ -790,7 +745,35 @@ export default {
         }
       }).onCancel(() => {
       }).onDismiss(() => {})
+    },
+
+    // Qusar Dialog Plugin will sync props
+    // A workarround to wait for users validation
+    // is to deep copy your props
+    // and wait for the ok event
+    onAddUrlClick () {
+      this.$q.dialog({
+        component: AddLinks,
+        parent: this,
+        title: 'Links',
+        data: this.deepCopy(this.urls),
+        okLabel: 'SAVE'
+      }).onOk(async (links) => {
+        try {
+          const { urls } = await this.updateUrls(links)
+          this.urls = urls
+        } catch (error) {
+          console.error('Cannot save urls::', error.message)
+        }
+      }).onCancel(() => {
+      }).onDismiss(() => {
+      })
+    },
+
+    deepCopy (data) {
+      return JSON.parse(JSON.stringify(data))
     }
+
   }
 }
 </script>
