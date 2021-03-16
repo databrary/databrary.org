@@ -104,7 +104,6 @@
             </q-item-section>
           </q-item>
           <draggable class="col-12" v-model="urls">
-            <div class="row">
               <ProjectLink
                 class="col-12"
                 v-for="url in urls"
@@ -113,7 +112,6 @@
                 :editMode="true"
                 @remove-link="onRemoveUrlClick"
               />
-            </div>
           </draggable>
         </q-list>
       </q-card-section>
