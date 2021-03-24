@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "cathie": "ts-node 20201004-lego.ts"
+  },
   "dependencies": {
     "@types/lodash": "^4.14.161",
     "@types/node": "^14.11.2",
@@ -17,6 +20,8 @@
     "rake-js": "^0.1.1"
   },
   "devDependencies": {
-    "@types/faker": "^5.1.2"
+    "@types/faker": "^5.1.2",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
   }
 }
