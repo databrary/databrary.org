@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <q-page padding>
     <div class="text-h4 q-mb-md">Security</div>
       <q-banner v-if=!showTwoFactor rounded class="bg-red-5 text-white">
         <template v-slot:avatar>
@@ -92,7 +92,7 @@
             </q-dialog>
           </div>
       </div>
-  </div>
+  </q-page>
 </template>
 <script>
 export default {
@@ -128,7 +128,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

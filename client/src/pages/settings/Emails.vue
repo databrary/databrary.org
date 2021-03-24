@@ -1,53 +1,53 @@
 <template>
-  <div>
-  <div class="text-h4 q-mb-md">Emails</div>
-  <q-list bordered separator>
-    <q-item v-for="(email, index) in emails" :key="email" dense>
-      <q-item-section>
-        <div class="q-my-md">
-          {{ email }}
-          <q-badge v-if="isPrimary(index)" color="blue" align="middle">Primary</q-badge>
-        </div>
-      </q-item-section>
-      <q-item-section right >
-        <div class="text-right">
-          <q-avatar class="text-red-5" v-if="!isPrimary(index)" icon="delete" @click="removeEmail(index)"/>
-        </div>
-      </q-item-section>
-    </q-item>
-  </q-list>
-  <div class="q-pt-md">
-    <b>Add new email:</b>
-    <q-input
-      v-model.trim="email"
-      outlined
-      dense
-      label="Email"
-      class="q-pb-md"
-    >
-    <template v-slot:after>
-        <q-btn color="primary" label="Add" @click="addEmail"/>
-    </template>
-    </q-input>
-  </div>
-  <div class="q-pt-md">
-    <b>Primary email address</b>
-    <div class="text-caption">
-      {{ primaryEmail }} will be used for account-related notifications,
-      any web-based operations (e.g. edits), and can be used for password resets.
+  <q-page padding>
+    <div class="text-h4 q-mb-md">Emails</div>
+    <q-list bordered separator>
+      <q-item v-for="(email, index) in emails" :key="email" dense>
+        <q-item-section>
+          <div class="q-my-md">
+            {{ email }}
+            <q-badge v-if="isPrimary(index)" color="blue" align="middle">Primary</q-badge>
+          </div>
+        </q-item-section>
+        <q-item-section right >
+          <div class="text-right">
+            <q-avatar class="text-red-5" v-if="!isPrimary(index)" icon="delete" @click="removeEmail(index)"/>
+          </div>
+        </q-item-section>
+      </q-item>
+    </q-list>
+    <div class="q-pt-md">
+      <b>Add new email:</b>
+      <q-input
+        v-model.trim="email"
+        outlined
+        dense
+        label="Email"
+        class="q-pb-md"
+      >
+      <template v-slot:after>
+          <q-btn color="primary" label="Add" @click="addEmail"/>
+      </template>
+      </q-input>
     </div>
-    <q-select
-      disable
-      v-model="updatePrimaryEmail"
-      :options="emails"
-      label="Primary email"
-    >
-    <template v-slot:after>
-        <q-btn disable color="primary" label="Update" @click="setPrimaryEmail"/>
-    </template>
-    </q-select>
-  </div>
-  </div>
+    <div class="q-pt-md">
+      <b>Primary email address</b>
+      <div class="text-caption">
+        {{ primaryEmail }} will be used for account-related notifications,
+        any web-based operations (e.g. edits), and can be used for password resets.
+      </div>
+      <q-select
+        disable
+        v-model="updatePrimaryEmail"
+        :options="emails"
+        label="Primary email"
+      >
+      <template v-slot:after>
+          <q-btn disable color="primary" label="Update" @click="setPrimaryEmail"/>
+      </template>
+      </q-select>
+    </div>
+  </q-page>
 </template>
 
 <script>

@@ -10,13 +10,13 @@
         >
           <div class="text-h6 text-weight-light text-center">Personal settings</div>
           <q-separator inset />
-          <q-tab name="profile"  label="Profile" />
+          <q-route-tab to="/settings/profile" name="profile"  label="Profile" />
           <q-separator inset />
-          <q-tab name="account"  label="Account" />
+          <q-route-tab to="/settings/account" name="account"  label="Account" />
           <q-separator inset />
-          <q-tab name="emails"  label="Emails" />
+          <q-route-tab to="/settings/emails" name="emails"  label="Emails" />
           <q-separator inset />
-          <q-tab name="security"  label="Security" />
+          <q-route-tab to="/settings/security" name="security"  label="Security" />
           <q-separator inset />
         </q-tabs>
         <!-- Mobile -->
@@ -32,8 +32,9 @@
           <q-tab name="security" class="q-px-sm" label="Security" />
         </q-tabs>
       </div>
-      <div class="col-md-9 col-sm-12  col-xs-12">
-        <q-tab-panels
+      <div class="col-md-9 col-sm-12 col-xs-12">
+        <router-view />
+        <!-- <q-tab-panels
           v-model="tab"
         >
           <q-tab-panel name="profile">
@@ -63,7 +64,7 @@
           <q-tab-panel name="security">
             <SettingsSecurity/>
           </q-tab-panel>
-        </q-tab-panels>
+        </q-tab-panels> -->
       </div>
     </div>
   </q-page>
@@ -71,18 +72,8 @@
 
 <script>
 import { get } from 'vuex-pathify'
-import SettingsProfile from '../components/settings/SettingsProfile'
-import SettingsAccount from '../components/settings/SettingsAccount'
-import SettingsEmails from '../components/settings/SettingsEmails'
-import SettingsSecurity from '../components/settings/SettingsSecurity'
 
 export default {
-  components: {
-    SettingsProfile,
-    SettingsAccount,
-    SettingsEmails,
-    SettingsSecurity
-  },
   data () {
     return {
       tab: 'profile'

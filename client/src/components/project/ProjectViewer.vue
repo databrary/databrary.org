@@ -246,7 +246,7 @@
   </q-page>
 </template>
 <script>
-import { date, uid } from 'quasar'
+import { date } from 'quasar'
 import { gql } from '@apollo/client'
 import { call } from 'vuex-pathify'
 
@@ -277,7 +277,12 @@ export default {
     ProjectCollaborators,
     Collaborators
   },
-  props: ['assetId'],
+  props: {
+    assetId: {
+      type: Number,
+      required: false
+    }
+  },
   data: () => ({
     id: null, // project id
     title: null,
@@ -315,6 +320,7 @@ export default {
     'assetId': 'fetchData'
   },
   async created () {
+    this.assetId = this.assetId || parseInt(this.$route.params.id)
     this.fetchData()
   },
   computed: {
@@ -373,7 +379,7 @@ export default {
           }
         `,
         variables: {
-          assetId: this.assetId || this.$route.params.projectId
+          assetId: this.assetId
         }
       })
 
@@ -411,7 +417,7 @@ export default {
           }
         `,
         variables: {
-          assetId: this.assetId || this.$route.params.projectId,
+          assetId: this.assetId,
           name: newName
         }
       })
@@ -434,7 +440,7 @@ export default {
           }
         `,
         variables: {
-          assetId: this.assetId || this.$route.params.projectId,
+          assetId: this.assetId,
           description: description
         }
       })

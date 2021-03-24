@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <q-page padding>
     <div class="text-h4 q-mb-md">Account</div>
     <div class="text-h5">Change password</div>
     <form @submit.prevent="validateAndResetPassword">
@@ -34,7 +34,7 @@
         <q-btn type="submit" color="primary" label="Update password" name="submitAction"/>
         <!-- <q-btn color="primary" label="Update password" v-on:click="validateAndResetPassword()"/> -->
     </form>
-  </div>
+  </q-page>
 </template>
 <script>
 import axios from 'axios'

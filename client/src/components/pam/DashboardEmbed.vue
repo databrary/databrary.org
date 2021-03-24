@@ -50,14 +50,9 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import { date } from 'quasar'
-import { gql } from '@apollo/client'
-
 import _ from 'lodash'
 
 import Panel1 from './Panel1.vue'
-import BookmarkPanel from './BookmarkPanel.vue'
 import ProjectViewer from '@/components/project/ProjectViewer.vue'
 import CreateAsset from '@/components/pam/CreateAsset.vue'
 import FileManager from '@/components/fileManager/FileManager.vue'
@@ -84,7 +79,7 @@ export default {
     selectedView: null
   }),
   created () {
-    this.assetId = this.selected
+    this.assetId = this.selected || parseInt(this.$route.params.id)
     this.forceRefresh = this.refresh
   },
   watch: {

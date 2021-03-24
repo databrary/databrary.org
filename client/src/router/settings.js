@@ -1,25 +1,24 @@
 export default function routes (store) {
   return [
     {
-      name: 'profile',
       path: 'profile',
-      component: () => import('components/settings/settingsProfile.vue')
+      name: 'Profile',
+      component: () => import('pages/settings/Profile.vue')
     },
     {
-      name: 'emails',
-      path: 'emails',
-      component: () => import('components/settings/settingsEmails.vue')
-    },
-    {
-      name: 'account',
       path: 'account',
-      component: () => import('components/settings/settingsAccount.vue')
+      name: 'Account',
+      component: () => import('pages/settings/Account.vue')
     },
     {
-      name: 'security',
+      path: 'emails',
+      name: 'Emails',
+      component: () => import('pages/settings/Emails.vue')
+    },
+    {
       path: 'security',
-      component: () => import('components/settings/settingsSecurity.vue')
+      name: 'Security',
+      component: () => import('pages/settings/Security.vue')
     }
-
   ]
 }

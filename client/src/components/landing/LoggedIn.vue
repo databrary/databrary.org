@@ -53,16 +53,13 @@
 </template>
 
 <script>
-import createAsset from '@gql/createAsset.gql'
 import { sync } from 'vuex-pathify'
-import { gql } from '@apollo/client'
 
 import _ from 'lodash'
 
 import getAssetsByType from '@gql/getAssetsByType.gql'
 
 import ExpansionItem from '@/components/shared/ExpansionItem.vue'
-
 import CreateAsset from '@/components/pam/CreateAsset.vue'
 import DashboardEmbed from '@/components/pam/DashboardEmbed.vue'
 import DashboardBookmark from '@/components/pam/DashboardBookmark.vue'
