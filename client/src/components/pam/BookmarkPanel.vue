@@ -75,7 +75,6 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import { gql } from '@apollo/client'
 import { sync } from 'vuex-pathify'
 

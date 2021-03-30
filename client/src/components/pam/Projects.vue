@@ -11,7 +11,7 @@
         </q-item-section>
 
         <q-item-section class="text-bold">
-          Views
+          Projects
         </q-item-section>
         <q-item-section side>
           <q-icon
@@ -44,8 +44,6 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import { gql } from '@apollo/client'
 import { sync } from 'vuex-pathify'
 
 import _ from 'lodash'

@@ -23,7 +23,7 @@ export default function routes (store) {
         {
           path: 'pam/:id',
           name: 'pamLanding',
-          component: () => import('components/pam/DashboardEmbed.vue'),
+          component: () => import('pages/Pam.vue'),
           beforeEnter: (to, from, next) => {
             if (store.get('app/isLoggedIn')) next()
             else next('/')

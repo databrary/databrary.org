@@ -17,7 +17,7 @@
           >
             Assets
           </ExpansionItem>
-          <ExpansionItem
+          <!-- <ExpansionItem
             v-if="bookmarks"
             :data.sync="bookmarks"
             :id.sync="bookmarkId"
@@ -27,21 +27,21 @@
             @onClick="onClick"
           >
             Bookmarks
-          </ExpansionItem>
+          </ExpansionItem> -->
         </q-list>
       </template>
       <template v-slot:after>
         <div v-if="!createAssetType">
-          <DashboardEmbed
+          <Pam
             v-if="isPamSelected"
             ref="pam"
             :selected="pamId"
           />
-          <DashboardBookmark
+          <!-- <DashboardBookmark
             v-else-if="isBookmarkSelected"
             ref="bookmark"
             :selected="bookmarkId"
-          />
+          /> -->
         </div>
         <CreateAsset
           v-else
@@ -59,16 +59,16 @@ import _ from 'lodash'
 
 import getAssetsByType from '@gql/getAssetsByType.gql'
 
-import ExpansionItem from '@/components/shared/ExpansionItem.vue'
+import ExpansionItem from '@/components/pam/ExpansionItem.vue'
 import CreateAsset from '@/components/pam/CreateAsset.vue'
-import DashboardEmbed from '@/components/pam/DashboardEmbed.vue'
-import DashboardBookmark from '@/components/pam/DashboardBookmark.vue'
+import Pam from '@/pages/Pam.vue'
+// import DashboardBookmark from '@/components/pam/DashboardBookmark.vue'
 
 export default {
   name: 'LandingLoggedIn',
   components: {
-    DashboardEmbed,
-    DashboardBookmark,
+    Pam,
+    // DashboardBookmark,
     CreateAsset,
     ExpansionItem
   },

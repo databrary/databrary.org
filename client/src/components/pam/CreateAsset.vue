@@ -27,8 +27,7 @@
 
 <script>
 import createAsset from '@gql/createAsset.gql'
-import { sync, get } from 'vuex-pathify'
-import { assertType } from 'graphql'
+import { sync } from 'vuex-pathify'
 
 export default {
   props: {

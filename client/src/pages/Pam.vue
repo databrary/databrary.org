@@ -1,13 +1,13 @@
 <template>
-  <div v-if="!assetId" class="row">
-    <q-spinner
-      class="absolute-center"
-      color="primary"
-      size="3em"
-    />
-  </div>
-  <div v-else>
-    <div class="q-pa-md">
+  <q-page>
+    <div v-if="!assetId" class="row">
+      <q-spinner
+        class="absolute-center"
+        color="primary"
+        size="3em"
+      />
+    </div>
+    <div v-else class="q-pa-md">
       <q-splitter
         v-model="firstModel"
       >
@@ -15,7 +15,7 @@
           <q-scroll-area
             :style="{height: ($q.screen.height-50-16-16-50-1)+'px'}"
           >
-            <Panel1
+            <Projects
               :createAssetType.sync="createAssetType"
               :assetId.sync="assetId"
               :selectedView.sync="selectedView"
@@ -46,13 +46,13 @@
         </template>
       </q-splitter>
     </div>
-  </div>
+  </q-page>
 </template>
 
 <script>
 import _ from 'lodash'
 
-import Panel1 from './Panel1.vue'
+import Projects from '../components/pam/Projects.vue'
 import ProjectViewer from '@/pages/Project.vue'
 import CreateAsset from '@/components/pam/CreateAsset.vue'
 import FileManager from '@/components/fileManager/FileManager.vue'
@@ -60,7 +60,7 @@ import FileManager from '@/components/fileManager/FileManager.vue'
 export default {
   name: 'Dashboard',
   components: {
-    Panel1,
+    Projects,
     ProjectViewer,
     CreateAsset,
     FileManager
