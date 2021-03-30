@@ -218,7 +218,7 @@ import { gql } from '@apollo/client'
 import { uid } from 'quasar'
 import { sync, get, call } from 'vuex-pathify'
 
-import ImageUploader from '../../components/upload/ImageUploader'
+import ImageUploader from '@/components/upload/ImageUploader'
 
 export default {
   name: 'SettingsProfile',

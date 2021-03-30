@@ -1,7 +1,7 @@
 <template>
   <div class="row">
     <q-list class="col-12">
-      <ProjectLink
+      <Link
         class="row"
         v-for="url in urlsToShow"
         :key="url.id"
@@ -22,11 +22,11 @@
 </template>
 
 <script>
-import ProjectLink from '@/components/project/shared/ProjectLink'
+import Link from '@/components/project/Link'
 export default {
   name: 'ProjectLinks',
   components: {
-    ProjectLink
+    Link
   },
   props: {
     data: {

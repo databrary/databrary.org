@@ -60,7 +60,6 @@
   </div>
 </template>
 <script>
-import { gql } from '@apollo/client'
 import ImageUploader from '@/components/upload/ImageUploader'
 export default {
   name: 'ProjectHeader',

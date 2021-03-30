@@ -56,18 +56,12 @@
 </template>
 
 <script>
-import { date } from 'quasar'
-import { defaultDataIdFromObject, gql } from '@apollo/client'
-
 import _ from 'lodash'
 
-import Panel1 from './Panel1.vue'
 import BookmarkPanel from './BookmarkPanel.vue'
-import ProjectViewer from '@/components/project/ProjectViewer.vue'
+import ProjectViewer from '@/pages/Project.vue'
 import CreateAsset from '@/components/pam/CreateAsset.vue'
 import FileManager from '@/components/fileManager/FileManager.vue'
-
-import getAssetsByType from '@gql/getAssetsByType.gql'
 
 export default {
   name: 'Dashboard',

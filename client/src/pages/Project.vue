@@ -3,7 +3,7 @@
     <div class="max-page-width row">
       <div class="col-12 q-mb-sm">
         <div class="row relative-position">
-          <ProjectHeader
+          <Header
             class="col-12 fit"
             :projectId="id"
             :projectColor="color"
@@ -14,26 +14,24 @@
             @update-color="onUpdateColor"
             @use-image="onUseImage"
           />
-          <ProjectTextArea
-            class="col-12 absolute-bottom text-h5 text-white text-center q-pa-md"
-            style="background-color: rgba(0, 0, 0, 0.5)"
-            :data="title"
-            @update-data="onUpdateTitle"
-          />
+          <div class="col-12 absolute-bottom">
+            <TextArea
+              class=" text-h5 text-white text-center q-pa-sm"
+              style="background-color: rgba(0, 0, 0, 0.5)"
+              :data="title"
+              @update-data="onUpdateTitle"
+            />
+          </div>
         </div>
       </div>
       <div class="col-xs-12 col-sm-8 col-md-9">
-        <div class="row">
-          <div class="col-12 text-h5 q-mt-md">
-            Description
-          </div>
-          <ProjectTextArea
-            class="col-12 text-body1 q-pa-sm"
-            type="textarea"
-            :data="description"
-            @update-data="onUpdateDescription"
-          />
-        </div>
+        <TextArea
+          type="textarea"
+          :data="description"
+          @update-data="onUpdateDescription"
+        >
+          Description
+        </TextArea>
         <q-chip
           square
           size="md"
@@ -71,7 +69,7 @@
                 icon="add"
               />
             </q-btn>
-            <ProjectCollaborators
+            <Collaborators
               :data="collaborators"
               :show="6"
             />
@@ -172,7 +170,7 @@
               icon="add"
             />
           </q-btn>
-          <ProjectFunding
+          <Funding
             class="col-12 q-pa-sm"
             :data="funding"
             @remove-funding="onRemoveFunding"
@@ -196,7 +194,7 @@
           </q-btn>
         </div>
         <div class="row">
-          <ProjectLinks
+          <Links
             class="col-12"
             :data="urls"
             :show="3"
@@ -240,7 +238,7 @@
         </q-item>
       </div>
       <div class="col-12">
-        <FileManager :assetId="assetId" />
+        <FileManager :assetId="id" />
       </div>
     </div>
   </q-page>
@@ -254,12 +252,12 @@ import CitationBuilder from '@/components/shared/CitationBuilder'
 import AddFunding from '@/components/shared/modals/AddFunding'
 import AddLinks from '@/components/shared/modals/AddLinks'
 import FileManager from '@/components/fileManager/FileManager'
-import ProjectTextArea from '@/components/project/ProjectTextArea'
-import ProjectHeader from '@/components/project/ProjectHeader'
-import ProjectLinks from '@/components/project/ProjectLinks'
-import ProjectFunding from '@/components/project/ProjectFunding'
-import ProjectCollaborators from '@/components/project/ProjectCollaborators'
-import Collaborators from '@/components/shared/modals/Collaborators'
+import TextArea from '@/components/project/TextArea'
+import Header from '@/components/project/Header'
+import Links from '@/components/project/Links'
+import Funding from '@/components/project/Funding'
+import Collaborators from '@/components/project/Collaborators'
+import CollaboratorsModal from '@/components/shared/modals/Collaborators'
 
 const defaullDescription = 'View Description'
 
@@ -268,14 +266,14 @@ export default {
   components: {
     CitationBuilder,
     FileManager,
-    ProjectTextArea,
-    ProjectHeader,
-    ProjectLinks,
+    TextArea,
+    Header,
+    Links,
     AddFunding,
     AddLinks,
-    ProjectFunding,
-    ProjectCollaborators,
-    Collaborators
+    Funding,
+    Collaborators,
+    CollaboratorsModal
   },
   props: {
     assetId: {
@@ -317,10 +315,13 @@ export default {
       const data = await this.getAssetUrl(this.imageId)
       this.imageURI = data.url
     },
-    'assetId': 'fetchData'
+    async assetId () {
+      this.id = this.assetId || parseInt(this.$route.params.id)
+      await this.fetchData()
+    }
   },
   async created () {
-    this.assetId = this.assetId || parseInt(this.$route.params.id)
+    this.id = this.assetId || parseInt(this.$route.params.id)
     this.fetchData()
   },
   computed: {
@@ -379,7 +380,7 @@ export default {
           }
         `,
         variables: {
-          assetId: this.assetId
+          assetId: this.id
         }
       })
 
@@ -417,7 +418,7 @@ export default {
           }
         `,
         variables: {
-          assetId: this.assetId,
+          assetId: this.id,
           name: newName
         }
       })
@@ -440,7 +441,7 @@ export default {
           }
         `,
         variables: {
-          assetId: this.assetId,
+          assetId: this.id,
           description: description
         }
       })
@@ -740,7 +741,7 @@ export default {
     // and wait for the ok event
     onShowCollaborators () {
       this.$q.dialog({
-        component: Collaborators,
+        component: CollaboratorsModal,
         parent: this,
         title: 'Collaborators',
         data: this.deepCopy(this.collaborators)

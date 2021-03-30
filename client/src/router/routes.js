@@ -14,7 +14,7 @@ export default function routes (store) {
         {
           path: 'project/:id',
           name: 'projectLanding',
-          component: () => import('components/project/ProjectViewer.vue'),
+          component: () => import('pages/Project.vue'),
           beforeEnter: (to, from, next) => {
             if (store.get('app/isLoggedIn')) next()
             else next('/')

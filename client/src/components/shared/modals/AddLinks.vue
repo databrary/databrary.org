@@ -104,7 +104,7 @@
             </q-item-section>
           </q-item>
           <draggable class="col-12" v-model="urls">
-              <ProjectLink
+              <Link
                 class="col-12"
                 v-for="url in urls"
                 :key="url.id"
@@ -130,7 +130,7 @@
 </template>
 
 <script>
-import ProjectLink from '@/components/project/shared/ProjectLink'
+import Link from '@/components/project/Link'
 import { gql } from '@apollo/client'
 import { uid } from 'quasar'
 import draggable from 'vuedraggable'
@@ -172,7 +172,7 @@ export default {
   },
   components: {
     draggable,
-    ProjectLink
+    Link
   },
   data: () => ({
     urls: [],
