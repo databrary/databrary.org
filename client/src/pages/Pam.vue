@@ -18,7 +18,7 @@
             <Projects
               :createAssetType.sync="createAssetType"
               :projects="projects"
-              :selectedView.sync="selectedView"
+              :selectedProject.sync="selectedProject"
             />
           </q-scroll-area>
         </template>
@@ -26,10 +26,10 @@
           <div v-if="!createAssetType">
             <q-scroll-area
               :style="{height: ($q.screen.height-50-16-16-50-1)+'px'}"
-              v-if="selectedView"
+              v-if="selectedProject"
             >
               <ProjectViewer
-                :assetId.sync="selectedView"
+                :assetId.sync="selectedProject"
               />
             </q-scroll-area>
             <FileManager
@@ -71,11 +71,6 @@ export default {
     pamId: {
       type: Number,
       required: true
-    },
-    showProject: {
-      type: Boolean,
-      required: false,
-      default: () => false
     }
   },
   data: () => ({
@@ -83,19 +78,27 @@ export default {
     secondModel: 30,
     assetId: null,
     createAssetType: null,
-    selectedView: null,
+    selectedProject: null,
     projects: []
   }),
-  async created () {
+  created () {
     this.assetId = this.pamId || parseInt(this.$route.params.id)
-    await this.fetchProjects()
-    this.selectFirstProject()
+  },
+  computed: {
+    isProjectsEmpty () {
+      return this.projects.length === 0
+    }
   },
   watch: {
     async pamId () {
+      this.assetId = this.pamId
       this.reset()
-      await this.fetchProjects()
-      this.selectFirstProject()
+    },
+    async assetId () {
+      this.projects = await this.fetchProjects()
+      if (this.isProjectsEmpty) {
+        await this.onInsertAsset('Default Project View')
+      }
     }
   },
   methods: {
@@ -103,12 +106,16 @@ export default {
     insertAsset: call('assets/insertAsset'),
 
     async fetchProjects () {
-      const data = await this.getAssetsByType({
-        parentId: this.assetId,
-        assetType: 'project'
-      })
+      try {
+        const data = await this.getAssetsByType({
+          parentId: this.assetId,
+          assetType: 'project'
+        })
 
-      this.projects = _.get(data, 'assets', [])
+        return _.get(data, 'assets', [])
+      } catch (error) {
+        console.error(error.message)
+      }
     },
 
     async onInsertAsset (name) {
@@ -119,8 +126,8 @@ export default {
           assetType: 'project',
           privacyType: 'private'
         })
-        await this.fetchProjects()
-        this.selectedView = id
+        this.projects = await this.fetchProjects()
+        this.selectedProject = id
 
         this.$q.notify({
           color: 'green-4',
@@ -141,13 +148,7 @@ export default {
       }
     },
     reset () {
-      this.selectedView = null
-      this.assetId = this.pamId
-    },
-    selectFirstProject () {
-      if (this.showProject && this.projects[0]) {
-        this.selectedView = this.projects[0].id
-      }
+      this.selectedProject = null
     }
   }
 }

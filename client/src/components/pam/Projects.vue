@@ -26,8 +26,8 @@
         v-ripple
         v-for="project in projects"
         :key="project.id"
-        @click="$emit('update:selectedView', project.id)"
-        :active="selectedView == project.id"
+        @click="$emit('update:selectedProject', project.id)"
+        :active="selectedProject == project.id"
         active-class="bg-teal-1 text-grey-8"
         class="col-12 q-pl-md"
       >
@@ -44,15 +44,13 @@
 </template>
 
 <script>
-import { sync } from 'vuex-pathify'
-
 import _ from 'lodash'
 
 export default {
   name: 'PageIndex',
   props: [
     'createAssetType',
-    'selectedView',
+    'selectedProject',
     'projects'
   ]
 }

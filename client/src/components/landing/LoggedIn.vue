@@ -36,7 +36,6 @@
             v-if="isPamSelected"
             ref="pam"
             :pamId="pamId"
-            :showProject="showProject"
           />
           <DashboardBookmark
             v-else-if="isBookmarkSelected"
@@ -80,7 +79,7 @@ export default {
       createAssetType: null,
       pamId: null,
       bookmarkId: null,
-      showProject: true
+      showProject: false
     }
   },
   computed: {
@@ -94,12 +93,13 @@ export default {
     }
   },
   async created () {
-    await this.fetchData('pam')
-    await this.fetchData('list')
+    this.pams = await this.fetchData('pam')
+    this.bookmarks = await this.fetchData('list')
     this.pamId = this.selectedPam ? this.selectedPam : this.pams[0].id
   },
   watch: {
     pamId () {
+      this.showProject = false
       if (this.pamId != null) {
         this.bookmarkId = null
         this.selectedBookmark = null
@@ -131,17 +131,13 @@ export default {
         const data = await this.getAssetsByType({
           assetType
         })
-        switch (assetType) {
-          case 'pam':
-            this.pams = _.get(data, 'assets', [])
-            break
-          case 'list':
-            this.bookmarks = _.get(data, 'assets', [])
-            break
-        }
+
+        return _.get(data, 'assets', [])
       } catch (error) {
         console.error(error.message)
       }
+
+      return []
     },
 
     async onInsertAsset (name) {
@@ -152,13 +148,7 @@ export default {
           assetType: 'pam',
           privacyType: 'private'
         })
-        const { id: projectId } = await this.insertAsset({
-          parentId: pamId,
-          name: 'Default Project View',
-          assetType: 'project',
-          privacyType: 'private'
-        })
-        await this.fetchData()
+        this.pams = await this.fetchData()
         this.pamId = pamId
 
         this.$q.notify({
