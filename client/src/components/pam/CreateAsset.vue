@@ -9,8 +9,8 @@
       <q-input
         filled
         v-model="name"
-        :label="`${assetType === 'pam' ? 'Project' : assetType === 'list' ? 'List' : 'View'} title *`"
-        :hint="`Name your ${assetType === 'pam' ? 'Project' : assetType === 'list' ? 'List' :'View'} something descriptive`"
+        :label="label"
+        :hint="hint"
         lazy-rules
         :rules="[ val => val && val.length > 0 || 'Please type a title']"
       />
@@ -41,6 +41,18 @@ export default {
   data () {
     return {
       name: null
+    }
+  },
+  computed: {
+    label () {
+      return `${this.assetType === 'pam'
+        ? 'Assets' : this.assetType === 'list' ? 'List' : 'Project'} 
+        title *`
+    },
+    hint () {
+      return `Name your ${this.assetType === 'pam'
+        ? 'Assets' : this.assetType === 'list' ? 'List' : 'Project'} 
+        something descriptive`
     }
   },
   methods: {

@@ -35,7 +35,8 @@
           <Pam
             v-if="isPamSelected"
             ref="pam"
-            :selected="pamId"
+            :pamId="pamId"
+            :showProject="showProject"
           />
           <DashboardBookmark
             v-else-if="isBookmarkSelected"
@@ -78,14 +79,13 @@ export default {
       firstModel: 20,
       createAssetType: null,
       pamId: null,
-      bookmarkId: null
+      bookmarkId: null,
+      showProject: true
     }
   },
   computed: {
     selectedPam: sync('pam/selectedPam'),
     selectedBookmark: sync('pam/selectedBookmark'),
-    refreshPams: sync('pam/refreshPams'),
-    refreshBookmarks: sync('pam/refreshBookmarks'),
     isPamSelected () {
       return this.pamId !== null && this.bookmarkId == null
     },
@@ -99,18 +99,6 @@ export default {
     this.pamId = this.selectedPam ? this.selectedPam : this.pams[0].id
   },
   watch: {
-    async refreshPams () {
-      if (this.refreshPams) {
-        await this.fetchData('pam')
-        this.refreshPams = false
-      }
-    },
-    async refreshBookmarks () {
-      if (this.refreshBookmarks) {
-        await this.fetchData('list')
-        this.refreshBookmarks = false
-      }
-    },
     pamId () {
       if (this.pamId != null) {
         this.bookmarkId = null
@@ -158,14 +146,20 @@ export default {
 
     async onInsertAsset (name) {
       try {
-        const { id } = await this.insertAsset({
-          parentId: this.assetId,
+        const { id: pamId } = await this.insertAsset({
+          parentId: null,
           name: name,
           assetType: 'pam',
           privacyType: 'private'
         })
+        const { id: projectId } = await this.insertAsset({
+          parentId: pamId,
+          name: 'Default Project View',
+          assetType: 'project',
+          privacyType: 'private'
+        })
         await this.fetchData()
-        this.pamId = id
+        this.pamId = pamId
 
         this.$q.notify({
           color: 'green-4',

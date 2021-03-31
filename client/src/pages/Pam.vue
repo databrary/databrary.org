@@ -33,7 +33,7 @@
               />
             </q-scroll-area>
             <FileManager
-              v-else-if="assetId"
+              v-else
               :assetId="assetId"
               :height="$q.screen.height-50-16-16-50-1"
             />
@@ -68,9 +68,14 @@ export default {
     FileManager
   },
   props: {
-    selected: {
+    pamId: {
       type: Number,
       required: true
+    },
+    showProject: {
+      type: Boolean,
+      required: false,
+      default: () => false
     }
   },
   data: () => ({
@@ -82,18 +87,15 @@ export default {
     projects: []
   }),
   async created () {
-    this.assetId = this.selected || parseInt(this.$route.params.id)
-    this.forceRefresh = this.refresh
+    this.assetId = this.pamId || parseInt(this.$route.params.id)
     await this.fetchProjects()
+    this.selectFirstProject()
   },
   watch: {
-    refresh () {
-      this.forceRefresh = this.refresh
-    },
-    async selected () {
-      this.selectedView = null
-      this.assetId = this.selected
+    async pamId () {
+      this.reset()
       await this.fetchProjects()
+      this.selectFirstProject()
     }
   },
   methods: {
@@ -140,7 +142,12 @@ export default {
     },
     reset () {
       this.selectedView = null
-      this.assetId = this.selected
+      this.assetId = this.pamId
+    },
+    selectFirstProject () {
+      if (this.showProject && this.projects[0]) {
+        this.selectedView = this.projects[0].id
+      }
     }
   }
 }
