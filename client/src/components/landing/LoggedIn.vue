@@ -17,7 +17,7 @@
           >
             Assets
           </ExpansionItem>
-          <!-- <ExpansionItem
+          <ExpansionItem
             v-if="bookmarks"
             :data.sync="bookmarks"
             :id.sync="bookmarkId"
@@ -27,7 +27,7 @@
             @onClick="onClick"
           >
             Bookmarks
-          </ExpansionItem> -->
+          </ExpansionItem>
         </q-list>
       </template>
       <template v-slot:after>
@@ -37,15 +37,16 @@
             ref="pam"
             :selected="pamId"
           />
-          <!-- <DashboardBookmark
+          <DashboardBookmark
             v-else-if="isBookmarkSelected"
             ref="bookmark"
             :selected="bookmarkId"
-          /> -->
+          />
         </div>
         <CreateAsset
           v-else
           :assetType.sync="createAssetType"
+          @insert-asset="onInsertAsset"
         />
       </template>
     </q-splitter>
@@ -53,22 +54,20 @@
 </template>
 
 <script>
-import { sync } from 'vuex-pathify'
+import { sync, call } from 'vuex-pathify'
 
 import _ from 'lodash'
-
-import getAssetsByType from '@gql/getAssetsByType.gql'
 
 import ExpansionItem from '@/components/pam/ExpansionItem.vue'
 import CreateAsset from '@/components/pam/CreateAsset.vue'
 import Pam from '@/pages/Pam.vue'
-// import DashboardBookmark from '@/components/pam/DashboardBookmark.vue'
+import DashboardBookmark from '@/components/pam/DashboardBookmark.vue'
 
 export default {
   name: 'LandingLoggedIn',
   components: {
     Pam,
-    // DashboardBookmark,
+    DashboardBookmark,
     CreateAsset,
     ExpansionItem
   },
@@ -128,6 +127,8 @@ export default {
     }
   },
   methods: {
+    getAssetsByType: call('assets/getAssetsByType'),
+    insertAsset: call('assets/insertAsset'),
     onClick (id, type) {
       if (type === 'pam') {
         this.pamId = id
@@ -139,11 +140,8 @@ export default {
     },
     async fetchData (assetType = 'pam') {
       try {
-        const { data } = await this.$apollo.query({
-          query: getAssetsByType,
-          variables: {
-            assetType
-          }
+        const data = await this.getAssetsByType({
+          assetType
         })
         switch (assetType) {
           case 'pam':
@@ -155,6 +153,36 @@ export default {
         }
       } catch (error) {
         console.error(error.message)
+      }
+    },
+
+    async onInsertAsset (name) {
+      try {
+        const { id } = await this.insertAsset({
+          parentId: this.assetId,
+          name: name,
+          assetType: 'pam',
+          privacyType: 'private'
+        })
+        await this.fetchData()
+        this.pamId = id
+
+        this.$q.notify({
+          color: 'green-4',
+          textColor: 'white',
+          icon: 'cloud_done',
+          message: 'Submitted'
+        })
+      } catch (error) {
+        console.error('onInsertAsset::', error.message)
+        this.$q.notify({
+          color: 'red-4',
+          textColor: 'white',
+          icon: 'cloud_done',
+          message: 'Failed'
+        })
+      } finally {
+        this.createAssetType = null
       }
     }
   }

@@ -24,10 +24,10 @@
       <q-item
         clickable
         v-ripple
-        v-for="view in projects"
-        :key="view.id"
-        @click="$emit('update:selectedView', view.id)"
-        :active="selectedView == view.id"
+        v-for="project in projects"
+        :key="project.id"
+        @click="$emit('update:selectedView', project.id)"
+        :active="selectedView == project.id"
         active-class="bg-teal-1 text-grey-8"
         class="col-12 q-pl-md"
       >
@@ -36,7 +36,7 @@
         </q-item-section>
 
         <q-item-section>
-          <q-item-label lines="1">{{view.name}}</q-item-label>
+          <q-item-label lines="1">{{project.name}}</q-item-label>
         </q-item-section>
       </q-item>
     </q-expansion-item>
@@ -48,48 +48,12 @@ import { sync } from 'vuex-pathify'
 
 import _ from 'lodash'
 
-import getAssetsByType from '@gql/getAssetsByType.gql'
-
 export default {
   name: 'PageIndex',
-  props: ['createAssetType', 'selectedView', 'assetId'],
-  data: () => ({
-    id: null,
-    projects: []
-  }),
-  computed: {
-    refreshViews: sync('pam/refreshViews')
-  },
-  created () {
-    this.id = this.assetId
-  },
-  watch: {
-    assetId () {
-      this.id = this.assetId
-    },
-    async id () {
-      await this.fetchData()
-    },
-    async refreshViews () {
-      if (this.refreshViews) {
-        await this.fetchData()
-        this.refreshViews = false
-      }
-    }
-  },
-  methods: {
-    async fetchData () {
-      const { data } = await this.$apollo.query({
-        query: getAssetsByType,
-        variables: {
-          assetId: null,
-          parentId: this.assetId,
-          assetType: 'project'
-        }
-      })
-
-      this.projects = _.get(data, 'assets', [])
-    }
-  }
+  props: [
+    'createAssetType',
+    'selectedView',
+    'projects'
+  ]
 }
 </script>

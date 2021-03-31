@@ -17,7 +17,7 @@
           >
             <Projects
               :createAssetType.sync="createAssetType"
-              :assetId.sync="assetId"
+              :projects="projects"
               :selectedView.sync="selectedView"
             />
           </q-scroll-area>
@@ -42,6 +42,7 @@
             v-else
             :assetType.sync="createAssetType"
             :parentId="assetId"
+            @insert-asset="onInsertAsset"
           />
         </template>
       </q-splitter>
@@ -50,6 +51,7 @@
 </template>
 
 <script>
+import { call } from 'vuex-pathify'
 import _ from 'lodash'
 
 import Projects from '../components/pam/Projects.vue'
@@ -76,22 +78,66 @@ export default {
     secondModel: 30,
     assetId: null,
     createAssetType: null,
-    selectedView: null
+    selectedView: null,
+    projects: []
   }),
-  created () {
+  async created () {
     this.assetId = this.selected || parseInt(this.$route.params.id)
     this.forceRefresh = this.refresh
+    await this.fetchProjects()
   },
   watch: {
     refresh () {
       this.forceRefresh = this.refresh
     },
-    selected () {
+    async selected () {
       this.selectedView = null
       this.assetId = this.selected
+      await this.fetchProjects()
     }
   },
   methods: {
+    getAssetsByType: call('assets/getAssetsByType'),
+    insertAsset: call('assets/insertAsset'),
+
+    async fetchProjects () {
+      const data = await this.getAssetsByType({
+        parentId: this.assetId,
+        assetType: 'project'
+      })
+
+      this.projects = _.get(data, 'assets', [])
+    },
+
+    async onInsertAsset (name) {
+      try {
+        const { id } = await this.insertAsset({
+          parentId: this.assetId,
+          name: name,
+          assetType: 'project',
+          privacyType: 'private'
+        })
+        await this.fetchProjects()
+        this.selectedView = id
+
+        this.$q.notify({
+          color: 'green-4',
+          textColor: 'white',
+          icon: 'cloud_done',
+          message: 'Submitted'
+        })
+      } catch (error) {
+        console.error('onInsertAsset::', error.message)
+        this.$q.notify({
+          color: 'red-4',
+          textColor: 'white',
+          icon: 'cloud_done',
+          message: 'Failed'
+        })
+      } finally {
+        this.createAssetType = null
+      }
+    },
     reset () {
       this.selectedView = null
       this.assetId = this.selected

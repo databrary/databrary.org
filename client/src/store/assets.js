@@ -3,11 +3,12 @@ import { gql } from '@apollo/client'
 import { databrary } from '../services/apolloClient'
 import axios from 'axios'
 import _ from 'lodash'
+import getAssetsByType from '@/gql/getAssetsByType.gql'
+import getAssetProject from '@/gql/getAssetProject.gql'
+import updateAssetName from '@/gql/updateAssetName.gql'
+import insertAsset from '@/gql/insertAsset.gql'
 
 const state = {
-  // data: [],
-  // nodes: [],
-  // contents: []
 }
 
 const getters = {
@@ -15,39 +16,53 @@ const getters = {
 }
 
 const mutations = {
-  ...make.mutations(state),
-  setData (state, data) {
-    state.data = data
-  }
+  ...make.mutations(state)
 }
 
 const actions = {
   ...make.actions(state),
   // the createdById field is set from the session variable X-Hasura-User-Id
   // That is not required in the client side
+
+  async updateAssetName (_, { assetId, assetType, name }) {
+    const { data } = await databrary.mutate({
+      mutation: updateAssetName,
+      variables: {
+        assetId,
+        assetType,
+        name
+      }
+    })
+
+    return data.update_assets.returning[0]
+  },
+
+  async getAssetProject (_, { assetId }) {
+    const { data } = await databrary.query({
+      query: getAssetProject,
+      variables: {
+        assetId
+      }
+    })
+
+    return data
+  },
+
+  async getAssetsByType (_, { assetId, parentId, assetType }) {
+    const { data } = await databrary.query({
+      query: getAssetsByType,
+      variables: {
+        assetId,
+        parentId,
+        assetType
+      }
+    })
+
+    return data
+  },
   async insertAsset (_, { name, assetType, privacyType, parentId }) {
-    const result = await databrary.mutate({
-      mutation: gql`
-        mutation (
-          $name: String!
-          $assetType: asset_types_enum!
-          $privacyType: privacy_types_enum!
-          $parentId: Int
-        ) {
-          insert_assets(
-            objects: {
-              name: $name,
-              assetType: $assetType,
-              privacyType: $privacyType,
-              parentId: $parentId
-            }) 
-          {
-            returning {
-              id
-            }
-          }
-        }
-      `,
+    const { data } = await databrary.mutate({
+      mutation: insertAsset,
       variables: {
         name,
         assetType,
@@ -56,8 +71,9 @@ const actions = {
       }
     })
 
-    return result.data.insert_assets.returning[0].id
+    return data.insert_assets.returning[0]
   },
+
   async updateAsset (_, { assetId, name }) {
     const result = await databrary.mutate({
       mutation: gql`

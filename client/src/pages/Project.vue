@@ -315,14 +315,15 @@ export default {
       const data = await this.getAssetUrl(this.imageId)
       this.imageURI = data.url
     },
-    async assetId () {
+    assetId () {
       this.id = this.assetId || parseInt(this.$route.params.id)
+    },
+    async id () {
       await this.fetchData()
     }
   },
-  async created () {
+  created () {
     this.id = this.assetId || parseInt(this.$route.params.id)
-    this.fetchData()
   },
   computed: {
     createdOn () {
@@ -345,52 +346,19 @@ export default {
   },
   methods: {
     getAssetUrl: call('assets/getAssetUrl'),
+    getAssetProject: call('assets/getAssetProject'),
+    updateAssetName: call('assets/updateAssetName'),
     async fetchData () {
-      const result = await this.$apollo.query({
-        query: gql`
-          query GetProject($assetId: Int!) {
-            assets(where: {
-              id: {_eq: $assetId},
-              assetType: {_eq: project}
-            }) {
-              name
-              datetimeCreated
-              project {
-                id
-                description
-                lastChanged
-                color
-                filesCount
-                foldersCount
-                imageId
-                useImage
-                urls
-                collaborators
-                doi
-                funding {
-                  id
-                  funder {
-                    name
-                    doi
-                  }
-                  awards
-                }
-              }
-            }
-          }
-        `,
-        variables: {
-          assetId: this.id
-        }
+      const data = await this.getAssetProject({
+        assetId: this.id
       })
 
-      const { name, datetimeCreated, project } = result.data.assets[0]
+      const { name, datetimeCreated, project } = data.assets[0]
 
       this.title = name
       this.datetimeCreated = datetimeCreated
 
       this.description = project.description || defaullDescription
-      this.id = project.id
       this.lastChanged = project.lastChanged
 
       this.filesCount = project.filesCount
@@ -402,28 +370,6 @@ export default {
       this.collaborators = project.collaborators
       this.doi = project.doi
       this.funding = project.funding
-    },
-    async updateAssetName (newName) {
-      const { data } = await this.$apollo.mutate({
-        mutation: gql`
-          mutation UpdateAssetName($assetId: Int!, $name: String!) {
-            update_assets(
-                where: {id: {_eq: $assetId}, assetType: {_eq: project}}, 
-                _set: {name: $name}
-            ) {
-              returning {
-                name
-              }
-            }
-          }
-        `,
-        variables: {
-          assetId: this.id,
-          name: newName
-        }
-      })
-
-      return data.update_assets.returning[0]
     },
     async updateProject (description) {
       const { data } = await this.$apollo.mutate({
@@ -689,7 +635,12 @@ export default {
 
     async onUpdateTitle (newTitle) {
       try {
-        const { name } = await this.updateAssetName(newTitle)
+        const { name } = await this.updateAssetName({
+          name: newTitle,
+          assetId: this.id,
+          assetType: 'project'
+        })
+
         // We update the project with the same description just to change the lastChanged timestamp
         this.title = name
         const { lastChanged } = await this.updateProject(this.description)

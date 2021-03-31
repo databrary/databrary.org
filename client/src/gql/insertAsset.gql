@@ -1,0 +1,23 @@
+mutation InsertAsset(
+  $name: String!
+  $assetType: asset_types_enum!
+  $privacyType: privacy_types_enum!
+  $parentId: Int
+) {
+  insert_assets(
+    objects: {
+      name: $name
+      assetType: $assetType
+      privacyType: $privacyType
+      parentId: $parentId
+    }
+  ) {
+    returning {
+      id
+      name
+      datetimeCreated
+      privacyType
+      parentId
+    }
+  }
+}

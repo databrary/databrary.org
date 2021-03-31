@@ -46,12 +46,10 @@
 </template>
 
 <script>
-import { sync } from 'vuex-pathify'
+import { sync, call } from 'vuex-pathify'
 import { gql } from '@apollo/client'
 
 import _ from 'lodash'
-
-import getAssetsByType from '@gql/getAssetsByType.gql'
 
 export default {
   data: () => ({
@@ -75,13 +73,12 @@ export default {
     }
   },
   methods: {
+    getAssetsByType: call('assets/getAssetsByType'),
+
     async fetchData () {
       try {
-        const { data } = await this.$apollo.query({
-          query: getAssetsByType,
-          variables: {
-            assetType: 'list'
-          }
+        const data = await this.getAssetsByType({
+          assetType: 'list'
         })
 
         this.bookmarks = _.get(data, 'assets', [])

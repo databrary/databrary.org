@@ -1,0 +1,17 @@
+mutation UpdateAssetName(
+    $assetId: Int!, 
+    $name: String!
+    $assetType: asset_types_enum!
+) {
+  update_assets(
+    where: { 
+        id: { _eq: $assetId },
+        assetType: { _eq: $assetType } 
+    }
+    _set: { name: $name }
+  ) {
+    returning {
+      name
+    }
+  }
+}
