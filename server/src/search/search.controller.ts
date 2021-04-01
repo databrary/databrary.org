@@ -40,9 +40,9 @@ export class SearchController {
 
         const docs = await this.searchService.searchTypesense(searchParameters, index)
 
-        results[type] = docs.map(({ id, docId, ...doc }) => (doc))
+        if (docs == null) continue
 
-        console.log(results)
+        results[type] = docs.map(({ id, docId, ...doc }) => (doc))
       }
 
       return res.json(results)

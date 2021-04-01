@@ -29,6 +29,7 @@
 </template>
 
 <script>
+import { call } from 'vuex-pathify'
 export default {
   props: {
     data: {
@@ -42,11 +43,35 @@ export default {
     }
   },
   data: () => ({
+    collaborators: [],
     avatarSize: '40px'
   }),
+  async created () {
+    this.collaborators = await this.generateCollaborators()
+  },
+  watch: {
+    async data () {
+      this.collaborators = await this.generateCollaborators()
+    }
+  },
   computed: {
     dataToShow () {
-      return this.data.slice(0, this.show)
+      return this.collaborators.slice(0, this.show)
+    }
+  },
+  methods: {
+    getUserById: call('search/getUserById'),
+    async generateCollaborators () {
+      const collaborators = []
+      for (const col of this.data) {
+        if (!col.id) continue
+        const userDoc = await this.getUserById({ id: col.id })
+        collaborators.push({
+          ...userDoc
+        })
+      }
+
+      return collaborators
     }
   }
 }

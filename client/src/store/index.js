@@ -9,6 +9,7 @@ import pam from './pam'
 import assets from './assets'
 import projects from './projects'
 import uploads from './uploads'
+import search from './search'
 
 Vue.use(Vuex)
 
@@ -27,7 +28,8 @@ export default function (/* { ssrContext } */) {
       pam,
       assets,
       uploads,
-      projects
+      projects,
+      search
     },
 
     // enable strict mode (adds overhead!)

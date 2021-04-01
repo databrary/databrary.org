@@ -1,6 +1,6 @@
 import { Client } from 'typesense'
 
-const typesenseClient = new Client({
+const typesense = new Client({
   nodes: [
     {
       host: 'localhost',
@@ -13,4 +13,4 @@ const typesenseClient = new Client({
   connectionTimeoutSeconds: 2
 })
 
-export { typesenseClient }
+export { typesense }

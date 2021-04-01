@@ -172,9 +172,9 @@ export default {
             q: query,
             query_by: 'name'
           })
-        this.results = _.map(hits, 'document').map(({ docId, doi, name }) => (
+        this.results = _.map(hits, 'document').map(({ id, doi, name }) => (
           {
-            id: docId,
+            id,
             doi,
             name,
             awards: []

@@ -546,8 +546,7 @@ export default {
           console.error('Cannot save urls::', error.message)
         }
       }).onCancel(() => {
-      }).onDismiss(() => {
-      })
+      }).onDismiss(() => {})
     },
 
     deepCopy (data) {

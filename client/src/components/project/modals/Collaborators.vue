@@ -26,8 +26,8 @@
             </q-input>
             <div
               class="col-12 q-my-sm"
-              v-for="(doc, index) in results"
-              :key="index"
+              v-for="doc in results"
+              :key="doc.id"
             >
               <ProfileCard
                 class="cursor-pointer"
@@ -56,7 +56,7 @@
                   <draggable v-model="collaborators" tag="tbody">
                     <tr
                       v-for="collaborator in collaborators"
-                      :key="collaborator.name">
+                      :key="collaborator.id">
                       <td>
                         <q-icon name="drag_handle"/>
                       </td>
@@ -110,7 +110,7 @@
 </template>
 
 <script>
-import _ from 'lodash'
+import { call } from 'vuex-pathify'
 import draggable from 'vuedraggable'
 import ProfileCard from '@/components/search/ProfileCard'
 import {
@@ -167,18 +167,20 @@ export default {
       }
     ]
   }),
-  created () {
-    this.collaborators = this.data
+  async created () {
+    this.collaborators = await this.generateCollaborators()
   },
   watch: {
-    data () {
-      this.collaborators = this.data
+    async data () {
+      this.collaborators = await this.generateCollaborators()
     },
     async search () {
       await this.doSearch(this.search)
     }
   },
   methods: {
+    getUsersByQuery: call('search/getUsersByQuery'),
+    getUserById: call('search/getUserById'),
     // following method is REQUIRED
     // (don't change its name --> "show")
     show () {
@@ -199,11 +201,7 @@ export default {
 
     onOKClick () {
       const colls = this.collaborators.map((el) => ({
-        docId: el.docId,
-        displayFullName: el.displayFullName,
-        useGravatar: el.useGravatar,
-        image: el.image,
-        gravatar: el.gravatar,
+        id: el.id,
         permission: el.permission,
         bibliographic: el.bibliographic
       }))
@@ -223,7 +221,7 @@ export default {
     },
 
     onCollaboratorClick (collaborator) {
-      if (this.collaborators.find((col) => col.docId === collaborator.docId)) return
+      if (this.collaborators.find((col) => col.id === collaborator.id)) return
       this.collaborators.push({
         ...collaborator,
         permission: 'Administrator',
@@ -239,18 +237,28 @@ export default {
     async doSearch (query) {
       try {
         this.loading = true
-        const { hits } = await this.$typesense
-          .collections(['databrary-users'])
-          .documents()
-          .search({
-            q: query,
-            query_by: 'familyName,givenName,additionalName,displayFullName,bio'
-          })
-        this.results = _.map(hits, 'document')
+        this.results = await this.getUsersByQuery({
+          query
+        })
         this.loading = false
       } catch (error) {
         console.log('error', error.message)
       }
+    },
+
+    async generateCollaborators () {
+      const collaborators = []
+      for (const col of this.data) {
+        if (!col.id) continue
+        const userDoc = await this.getUserById({ id: col.id })
+        collaborators.push({
+          ...userDoc,
+          permission: col.permission,
+          bibliographic: col.bibliographic
+        })
+      }
+
+      return collaborators
     }
   }
 }

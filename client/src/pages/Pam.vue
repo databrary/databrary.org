@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { call } from 'vuex-pathify'
+import { get, call } from 'vuex-pathify'
 import _ from 'lodash'
 
 import Projects from '../components/pam/Projects.vue'
@@ -85,6 +85,7 @@ export default {
     this.assetId = this.pamId || parseInt(this.$route.params.id)
   },
   computed: {
+    userId: get('app/dbId'),
     isProjectsEmpty () {
       return this.projects.length === 0
     }
@@ -96,15 +97,37 @@ export default {
     },
     async assetId () {
       this.projects = await this.fetchProjects()
-      if (this.isProjectsEmpty) {
-        await this.onInsertAsset('Default Project View')
-      }
+
+      // if (this.isProjectsEmpty) {
+      //   const projectId = await this.insertProjectAsset(
+      //     this.assetId, 'Default Project View')
+      //   const user = await this.getUserById({
+      //     id: `${this.userId}`
+      //   })
+      //   const collaborators = [
+      //     {
+      //       docId: this.userId,
+      //       gravatar: user.gravatar,
+      //       image: user.image,
+      //       useGravatar: user.useGravatar,
+      //       displayFullName: user.displayFullName,
+      //       bibliographic: true,
+      //       permission: 'Administrator'
+      //     }
+      //   ]
+      //   await this.updateProjectCollaborators({
+      //     id: this.projectId,
+      //     collaborators: JSON.parse(JSON.stringify(collaborators))
+      //   })
+      //   this.selectedProject = projectId
+      // }
     }
   },
   methods: {
     getAssetsByType: call('assets/getAssetsByType'),
     insertAsset: call('assets/insertAsset'),
-
+    getUserById: call('search/getUserById'),
+    updateProjectCollaborators: call('projects/updateProjectCollaborators'),
     async fetchProjects () {
       try {
         const data = await this.getAssetsByType({
@@ -118,14 +141,19 @@ export default {
       }
     },
 
+    async insertProjectAsset (parentId, name) {
+      const { id } = await this.insertAsset({
+        parentId,
+        name,
+        assetType: 'project',
+        privacyType: 'private'
+      })
+      return id
+    },
+
     async onInsertAsset (name) {
       try {
-        const { id } = await this.insertAsset({
-          parentId: this.assetId,
-          name: name,
-          assetType: 'project',
-          privacyType: 'private'
-        })
+        const id = this.insertProjectAsset(this.assetId, name)
         this.projects = await this.fetchProjects()
         this.selectedProject = id
 
