@@ -1,0 +1,14 @@
+mutation InsertProjectFunding(
+    $object: [projects_funding_insert_input!]!
+) {
+  insert_projects_funding(objects: $object) {
+    returning {
+      id
+      funder {
+        name
+        doi
+      }
+      awards
+    }
+  }
+}

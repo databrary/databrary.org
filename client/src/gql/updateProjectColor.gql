@@ -1,0 +1,11 @@
+mutation UpdateProjectColor($id: Int!, $color: String!) {
+  update_projects(
+    where: { id: { _eq: $id } }
+    _set: { color: $color, useImage: "false" }
+  ) {
+    returning {
+      color
+      useImage
+    }
+  }
+}

@@ -245,7 +245,6 @@
 </template>
 <script>
 import { date } from 'quasar'
-import { gql } from '@apollo/client'
 import { call } from 'vuex-pathify'
 
 import TextArea from '@/components/project/TextArea'
@@ -276,13 +275,14 @@ export default {
     CollaboratorsModal
   },
   props: {
-    assetId: {
+    id: {
       type: Number,
       required: false
     }
   },
   data: () => ({
-    id: null, // project id
+    assetId: null, // asset id
+    projectId: null, // project id
     title: null,
     datetimeCreated: null,
     description: null,
@@ -315,15 +315,15 @@ export default {
       const data = await this.getAssetUrl(this.imageId)
       this.imageURI = data.url
     },
-    assetId () {
-      this.id = this.assetId || parseInt(this.$route.params.id)
-    },
-    async id () {
+    async assetId () {
       await this.fetchData()
+    },
+    id () {
+      this.assetId = this.id || parseInt(this.$route.params.id)
     }
   },
   created () {
-    this.id = this.assetId || parseInt(this.$route.params.id)
+    this.assetId = this.id || parseInt(this.$route.params.id)
   },
   computed: {
     createdOn () {
@@ -348,15 +348,24 @@ export default {
     getAssetUrl: call('assets/getAssetUrl'),
     getAssetProject: call('assets/getAssetProject'),
     updateAssetName: call('assets/updateAssetName'),
+    updateProjectDescription: call('projects/updateProjectDescription'),
+    updateProjectImageId: call('projects/updateProjectImageId'),
+    updateProjectUseImage: call('projects/updateProjectUseImage'),
+    updateProjectColor: call('projects/updateProjectColor'),
+    updateProjectCollaborators: call('projects/updateProjectCollaborators'),
+    insertProjectFunding: call('projects/insertProjectFunding'),
+    deleteProjectFunding: call('projects/deleteProjectFunding'),
+    updateProjectFunding: call('projects/updateProjectFunding'),
     async fetchData () {
       const data = await this.getAssetProject({
-        assetId: this.id
+        assetId: this.assetId
       })
 
       const { name, datetimeCreated, project } = data.assets[0]
 
       this.title = name
       this.datetimeCreated = datetimeCreated
+      this.projectId = project.id
 
       this.description = project.description || defaullDescription
       this.lastChanged = project.lastChanged
@@ -371,227 +380,12 @@ export default {
       this.doi = project.doi
       this.funding = project.funding
     },
-    async updateProject (description) {
-      const { data } = await this.$apollo.mutate({
-        mutation: gql`
-          mutation UpdateProject($assetId: Int!, $description: String!) {
-            update_projects(
-              where: {assetId: {_eq: $assetId}}, 
-              _set: {description: $description, lastChanged: "now()"}
-            ) {
-              returning {
-                description
-                lastChanged
-              }
-            }
-          }
-        `,
-        variables: {
-          assetId: this.id,
-          description: description
-        }
-      })
-
-      return data.update_projects.returning[0]
-    },
-    async updateImageId (assetId) {
-      const { data } = await this.$apollo.mutate({
-        mutation: gql`
-          mutation UpdateImageId($id: Int!, $imageId: Int!) {
-            update_projects(
-              where: {id: {_eq: $id}}, 
-              _set: {imageId: $imageId, useImage: "true"}
-            ) {
-              returning {
-                imageId
-                useImage
-              }
-            }
-          }
-        `,
-        variables: {
-          id: this.id,
-          imageId: assetId
-        }
-      })
-      return data.update_projects.returning[0]
-    },
-
-    async updateUseImage (useImage) {
-      const { data } = await this.$apollo.mutate({
-        mutation: gql`
-          mutation UpdateProjectUseImage($id: Int!, $useImage: Boolean!) {
-            update_projects(
-              where: {id: {_eq: $id}},
-              _set: {useImage: $useImage}
-            ) {
-              returning {
-                useImage
-              }
-            }
-          }
-        `,
-        variables: {
-          id: this.id,
-          useImage: useImage
-        }
-      })
-      return data.update_projects.returning[0]
-    },
-    async updateColor (color) {
-      const { data } = await this.$apollo.mutate({
-        mutation: gql`
-          mutation UpdateProjectColor($id: Int!, $color: String!) {
-            update_projects(
-              where: {id: {_eq: $id}}, 
-              _set: {color: $color, useImage: "false"}
-            ) {
-              returning {
-                color
-                useImage
-              }
-            }
-          }
-        `,
-        variables: {
-          id: this.id,
-          color: color
-        }
-      })
-
-      return data.update_projects.returning[0]
-    },
-
-    async updateUrls (urls) {
-      const { data } = await this.$apollo.mutate({
-        mutation: gql`
-          mutation UpdateProjectUrls($id: Int!, $urls: jsonb!) {
-            update_projects(
-              where: {id: {_eq: $id}}, 
-              _set: {urls: $urls}
-            ) {
-                returning {
-                  urls
-                }
-              }
-          }
-        `,
-        variables: {
-          id: this.id,
-          urls: urls
-        }
-      })
-
-      return data.update_projects.returning[0]
-    },
-
-    async updateCollaborators (collaborators) {
-      const { data } = await this.$apollo.mutate({
-        mutation: gql`
-          mutation UpdateProjectCollaborators($id: Int!, $collaborators: jsonb!) {
-            update_projects(
-              where: {id: {_eq: $id}}, 
-              _set: {collaborators: $collaborators}
-            ) {
-                returning {
-                  collaborators
-                }
-              }
-          }
-        `,
-        variables: {
-          id: this.id,
-          collaborators: collaborators
-        }
-      })
-
-      return data.update_projects.returning[0].collaborators
-    },
-
-    async insertFunding (fundings) {
-      const that = this
-      const mutationObject = fundings.map((funding) => (
-        {
-          projectId: that.id,
-          funderId: funding.id,
-          awards: funding.awards
-        }
-      ))
-      const { data } = await this.$apollo.mutate({
-        mutation: gql`
-          mutation InsertFunding(
-            $object: [projects_funding_insert_input!]!
-          ) {
-            insert_projects_funding(
-              objects: $object
-            ) {
-              returning {
-                id
-                funder {
-                  name
-                  doi
-                }
-                awards
-              }
-            }
-          }
-        `,
-        variables: {
-          object: mutationObject
-        }
-      })
-
-      return data.insert_projects_funding.returning[0]
-    },
-
-    async removeFunding (id) {
-      const { data } = await this.$apollo.mutate({
-        mutation: gql`
-          mutation DeleteFunding($id: Int!) {
-            delete_projects_funding_by_pk(id: $id) {
-              id
-            }
-          }
-        `,
-        variables: {
-          id: id
-        }
-      })
-
-      return data.delete_projects_funding_by_pk.id
-    },
-
-    async updateFunding (id, awards) {
-      const { data } = await this.$apollo.mutate({
-        mutation: gql`
-          mutation UpdateFunding(
-            $id: Int!,
-            $awards: jsonb!
-          ) {
-            update_projects_funding_by_pk(
-              pk_columns: {id: $id}, 
-              _set: {awards: $awards}
-            ) {
-              id
-              funder {
-                name
-                doi
-              }
-              awards
-            }
-          }
-        `,
-        variables: {
-          id: id,
-          awards: awards
-        }
-      })
-
-      return data.update_projects_funding_by_pk
-    },
 
     async onUseImage (newUseImage) {
-      const { useImage } = await this.updateUseImage(newUseImage)
+      const { useImage } = await this.updateProjectUseImage({
+        id: this.projectId,
+        useImage: newUseImage
+      })
       this.useImage = useImage
     },
 
@@ -602,7 +396,10 @@ export default {
           const newImageURI = await this.getAssetUrl(assetId)
 
           if (newImageURI !== null && newImageURI !== '') {
-            const { useImage, imageId } = await this.updateImageId(assetId)
+            const { useImage, imageId } = await this.updateProjectImageId({
+              id: this.projectId,
+              imageId: assetId
+            })
             this.imageId = imageId
             this.useImage = useImage
           }
@@ -618,14 +415,20 @@ export default {
     },
 
     async onUpdateColor (newColor) {
-      const { color, useImage } = await this.updateColor(newColor)
+      const { color, useImage } = await this.updateProjectColor({
+        id: this.projectId,
+        color: newColor
+      })
       this.color = color
       this.useImage = useImage
     },
 
     async onUpdateDescription (newDescription) {
       try {
-        const { description, lastChanged } = await this.updateProject(newDescription)
+        const { description, lastChanged } = await this.updateProjectDescription({
+          id: this.projectId,
+          description: newDescription
+        })
         this.lastChanged = lastChanged
         this.description = description
       } catch (error) {
@@ -637,7 +440,7 @@ export default {
       try {
         const { name } = await this.updateAssetName({
           name: newTitle,
-          assetId: this.id,
+          assetId: this.assetId,
           assetType: 'project'
         })
 
@@ -652,7 +455,7 @@ export default {
 
     async onRemoveFunding (id) {
       try {
-        await this.removeFunding(id)
+        await this.deleteProjectFunding({ id })
         this.funding.splice(this.funding.findIndex((el) => el.id === id), 1)
       } catch (error) {
         console.error('onRemoveFunding::', error.message)
@@ -661,7 +464,9 @@ export default {
 
     async onUpdateFunding (id, awards) {
       try {
-        const funding = await this.updateFunding(id, awards)
+        const funding = await this.updateProjectFunding(
+          { id, awards }
+        )
         const idx = this.funding.findIndex((el) => el.id === id)
         this.funding[idx] = funding
       } catch (error) {
@@ -677,8 +482,17 @@ export default {
         title: 'Add Funding'
       }).onOk(async (fundings) => {
         try {
-          const result = await this.insertFunding(fundings)
-          this.funding.push(result)
+          const that = this
+          const newFunding = await this.insertProjectFunding({
+            object: fundings.map((funding) => (
+              {
+                projectId: that.id,
+                funderId: funding.id,
+                awards: funding.awards
+              }
+            ))
+          })
+          this.funding.push(newFunding)
         } catch (error) {
           console.error('Cannot add new Funding', error.message)
         }
@@ -696,10 +510,13 @@ export default {
         parent: this,
         title: 'Collaborators',
         data: this.deepCopy(this.collaborators)
-      }).onOk(async (collaborators) => {
+      }).onOk(async (newCollaborators) => {
         try {
-          const result = await this.updateCollaborators(collaborators)
-          this.collaborators = result
+          const { collaborators } = await this.updateProjectCollaborators({
+            id: this.projectId,
+            collaborators: newCollaborators
+          })
+          this.collaborators = collaborators
         } catch (error) {
           console.error('Cannot update collaborators', error.message)
         }
@@ -720,7 +537,10 @@ export default {
         okLabel: 'SAVE'
       }).onOk(async (links) => {
         try {
-          const { urls } = await this.updateUrls(links)
+          const { urls } = await this.updateProjectUrls({
+            id: this.projectId,
+            urls: links
+          })
           this.urls = urls
         } catch (error) {
           console.error('Cannot save urls::', error.message)

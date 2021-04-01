@@ -1,0 +1,13 @@
+mutation UpdateProjectCollaborators(
+    $id: Int!, 
+    $collaborators: jsonb!
+) {
+  update_projects(
+    where: { id: { _eq: $id } }
+    _set: { collaborators: $collaborators }
+  ) {
+    returning {
+      collaborators
+    }
+  }
+}

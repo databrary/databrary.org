@@ -1,0 +1,13 @@
+mutation UpdateProjectFunding($id: Int!, $awards: jsonb!) {
+  update_projects_funding_by_pk(
+    pk_columns: { id: $id }
+    _set: { awards: $awards }
+  ) {
+    id
+    funder {
+      name
+      doi
+    }
+    awards
+  }
+}

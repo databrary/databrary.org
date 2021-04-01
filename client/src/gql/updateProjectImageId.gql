@@ -1,0 +1,11 @@
+mutation UpdateProjectImageId($id: Int!, $imageId: Int!) {
+  update_projects(
+    where: { id: { _eq: $id } }
+    _set: { imageId: $imageId, useImage: "true" }
+  ) {
+    returning {
+      imageId
+      useImage
+    }
+  }
+}

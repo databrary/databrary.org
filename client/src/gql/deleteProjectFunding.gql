@@ -1,0 +1,5 @@
+mutation DeleteProjectFunding($id: Int!) {
+  delete_projects_funding_by_pk(id: $id) {
+    id
+  }
+}
