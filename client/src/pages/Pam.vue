@@ -30,6 +30,7 @@
             >
               <ProjectViewer
                 :id="selectedProject"
+                @update-project-title="onProjectTitleUpdate"
               />
             </q-scroll-area>
             <FileManager
@@ -153,8 +154,14 @@ export default {
         this.createAssetType = null
       }
     },
+
     reset () {
       this.selectedProject = null
+    },
+
+    onProjectTitleUpdate (projectId, newTitle) {
+      const project = this.projects.find((project) => project.id === projectId)
+      project.name = newTitle
     }
   }
 }

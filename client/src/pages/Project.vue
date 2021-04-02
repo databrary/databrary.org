@@ -426,7 +426,7 @@ export default {
     async onUpdateDescription (newDescription) {
       try {
         const { description, lastChanged } = await this.updateProjectDescription({
-          id: this.projectId,
+          assetId: this.assetId,
           description: newDescription
         })
         this.lastChanged = lastChanged
@@ -438,6 +438,7 @@ export default {
 
     async onUpdateTitle (newTitle) {
       try {
+        console.log('Asset Id', this.assetId)
         const { name } = await this.updateAssetName({
           name: newTitle,
           assetId: this.assetId,
@@ -446,8 +447,13 @@ export default {
 
         // We update the project with the same description just to change the lastChanged timestamp
         this.title = name
-        const { lastChanged } = await this.updateProject(this.description)
+        // TODO: Move this workaround to a backend trigger
+        const { lastChanged } = await this.updateProjectDescription({
+          assetId: this.assetId,
+          description: this.description
+        })
         this.lastChanged = lastChanged
+        this.$emit('update-project-title', this.assetId, this.title)
       } catch (error) {
         console.error('onUpdateTitle::', error.message)
       }
