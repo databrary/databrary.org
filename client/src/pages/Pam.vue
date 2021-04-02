@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { get, call } from 'vuex-pathify'
+import { call } from 'vuex-pathify'
 import _ from 'lodash'
 
 import Projects from '../components/pam/Projects.vue'
@@ -84,12 +84,6 @@ export default {
   created () {
     this.assetId = this.pamId || parseInt(this.$route.params.id)
   },
-  computed: {
-    userId: get('app/dbId'),
-    isProjectsEmpty () {
-      return this.projects.length === 0
-    }
-  },
   watch: {
     async pamId () {
       this.assetId = this.pamId
@@ -97,30 +91,14 @@ export default {
     },
     async assetId () {
       this.projects = await this.fetchProjects()
-
-      // if (this.isProjectsEmpty) {
-      //   const projectId = await this.insertProjectAsset(
-      //     this.assetId, 'Default Project View')
-      //   const user = await this.getUserById({
-      //     id: `${this.userId}`
-      //   })
-      //   const collaborators = [
-      //     {
-      //       docId: this.userId,
-      //       gravatar: user.gravatar,
-      //       image: user.image,
-      //       useGravatar: user.useGravatar,
-      //       displayFullName: user.displayFullName,
-      //       bibliographic: true,
-      //       permission: 'Administrator'
-      //     }
-      //   ]
-      //   await this.updateProjectCollaborators({
-      //     id: this.projectId,
-      //     collaborators: JSON.parse(JSON.stringify(collaborators))
-      //   })
-      //   this.selectedProject = projectId
-      // }
+    },
+    projects: {
+      deep: true,
+      handler () {
+        if (this.projects.length > 0 && this.selectedProject == null) {
+          this.selectedProject = this.projects[0].id
+        }
+      }
     }
   },
   methods: {

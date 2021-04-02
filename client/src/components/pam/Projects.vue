@@ -11,7 +11,7 @@
         </q-item-section>
 
         <q-item-section class="text-bold">
-          Projects
+          Pages
         </q-item-section>
         <q-item-section side>
           <q-icon

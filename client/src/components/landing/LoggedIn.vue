@@ -15,7 +15,7 @@
             :height="($q.screen.height-50-16-16-50-10) / 2"
             @onClick="onClick"
           >
-            Assets
+            Projects
           </ExpansionItem>
           <ExpansionItem
             v-if="bookmarks"
