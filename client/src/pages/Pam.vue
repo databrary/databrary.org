@@ -153,7 +153,7 @@ export default {
 
     async onInsertAsset (name) {
       try {
-        const id = this.insertProjectAsset(this.assetId, name)
+        const id = await this.insertProjectAsset(this.assetId, name)
         this.projects = await this.fetchProjects()
         this.selectedProject = id
 
