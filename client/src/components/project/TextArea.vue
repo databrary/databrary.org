@@ -43,15 +43,15 @@
               <q-btn
                 flat
                 dense
-                color="negative"
-                icon="cancel"
+                color="primary"
+                label="cancel"
                 @click.stop="cancel"
               />
               <q-btn
                 flat
                 dense
-                color="positive"
-                icon="check_circle"
+                color="primary"
+                label="save"
                 @click.stop="set"
                 :disable="validate(value) === false || initialValue === value"
               />
