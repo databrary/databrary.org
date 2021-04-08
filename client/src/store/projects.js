@@ -8,6 +8,7 @@ import updateProjectCollaborators from '@/gql/updateProjectCollaborators.gql'
 import insertProjectFunding from '@/gql/insertProjectFunding.gql'
 import deleteProjectFunding from '@/gql/deleteProjectFunding.gql'
 import updateProjectFunding from '@/gql/updateProjectFunding.gql'
+import getProjectFunding from '@/gql/getProjectFunding.gql'
 import { databrary } from '../services/apolloClient'
 
 const state = {
@@ -103,7 +104,7 @@ const actions = {
       }
     })
 
-    return data.insert_projects_funding.returning[0]
+    return data.insert_projects_funding.returning
   },
 
   async deleteProjectFunding (_, { id }) {
@@ -117,16 +118,27 @@ const actions = {
     return data.delete_projects_funding_by_pk.id
   },
 
-  async updateProjectFunding (_, { id, awards }) {
+  async updateProjectFunding (_, { id, award }) {
     const { data } = await databrary.mutate({
       mutation: updateProjectFunding,
       variables: {
         id: id,
-        awards: awards
+        award: award
       }
     })
 
     return data.update_projects_funding_by_pk
+  },
+
+  async getProjectFunding (_, { projectId }) {
+    const { data } = await databrary.query({
+      query: getProjectFunding,
+      variables: {
+        projectId
+      }
+    })
+
+    return data.projects_funding
   }
 }
 

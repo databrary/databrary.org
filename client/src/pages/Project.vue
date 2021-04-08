@@ -170,11 +170,10 @@
               icon="add"
             />
           </q-btn>
-          <Funding
+          <Fundings
             class="col-12 q-pa-sm"
             :data="funding"
-            @remove-funding="onRemoveFunding"
-            @update-funding="onUpdateFunding"
+            :show="3"
           />
         </div>
         <div class="row text-h5 q-mt-md">
@@ -250,7 +249,7 @@ import { call } from 'vuex-pathify'
 import TextArea from '@/components/project/TextArea'
 import Header from '@/components/project/Header'
 import Links from '@/components/project/Links'
-import Funding from '@/components/project/Funding'
+import Fundings from '@/components/project/Fundings'
 import Collaborators from '@/components/project/Collaborators'
 import CollaboratorsModal from '@/components/project/modals/Collaborators'
 import AddFunding from '@/components/project/modals/AddFunding'
@@ -270,7 +269,7 @@ export default {
     Links,
     AddFunding,
     AddLinks,
-    Funding,
+    Fundings,
     Collaborators,
     CollaboratorsModal
   },
@@ -332,12 +331,13 @@ export default {
     lastChangedOn () {
       return date.formatDate(this.lastChanged, 'MM-DD-YYYY - hh:mm A')
     },
+    // TODO: Fix the citation builder data, I need to fetch metadata for every bibliographic contr
     citationBuilderData () {
       return {
         title: this.title,
         authors: this.collaborators
           .filter(col => col.bibliographic)
-          .map((col) => col.displayFullName).join(', '),
+          .map((col) => col.id).join(', '),
         date: this.lastChanged,
         journal: 'Databrary',
         url: `https://doi.org/${this.title}`
@@ -356,6 +356,8 @@ export default {
     insertProjectFunding: call('projects/insertProjectFunding'),
     deleteProjectFunding: call('projects/deleteProjectFunding'),
     updateProjectFunding: call('projects/updateProjectFunding'),
+    getProjectFunding: call('projects/getProjectFunding'),
+    updateProjectUrls: call('projects/updateProjectUrls'),
     async fetchData () {
       const data = await this.getAssetProject({
         assetId: this.assetId
@@ -468,10 +470,10 @@ export default {
       }
     },
 
-    async onUpdateFunding (id, awards) {
+    async onUpdateFunding (id, award) {
       try {
         const funding = await this.updateProjectFunding(
-          { id, awards }
+          { id, award }
         )
         const idx = this.funding.findIndex((el) => el.id === id)
         this.funding[idx] = funding
@@ -484,23 +486,42 @@ export default {
       this.$q.dialog({
         component: AddFunding,
         parent: this,
-        text: 'Add your funding source',
-        title: 'Add Funding'
-      }).onOk(async (fundings) => {
+        title: 'Funding',
+        data: this.deepCopy(this.funding)
+      }).onOk(async ({ newFundings, oldFundings, deleteFundings }) => {
         try {
-          const that = this
-          const newFunding = await this.insertProjectFunding({
-            object: fundings.map((funding) => (
-              {
-                projectId: that.id,
-                funderId: funding.id,
-                awards: funding.awards
-              }
-            ))
+          // Delete Funding
+          for (const f of deleteFundings) {
+            await this.deleteProjectFunding({ id: f.id })
+          }
+
+          // Add new Funding and remove generate uid
+          const newInserts = newFundings.map((f) => ({
+            projectId: this.projectId,
+            funderId: f.funder.id,
+            award: f.award
+          }))
+          await this.insertProjectFunding({
+            object: newInserts
           })
-          this.funding.push(newFunding)
+
+          // Update changed fundings
+          const updates = oldFundings.map((f) => ({
+            id: f.id,
+            projectId: this.projectId,
+            funderId: f.funder.id,
+            award: f.award
+          }))
+          await this.insertProjectFunding({
+            object: updates
+          })
+
+          // Fetch Project Fundings
+          this.funding = await this.getProjectFunding({
+            projectId: this.projectId
+          })
         } catch (error) {
-          console.error('Cannot add new Funding', error.message)
+          console.error('Cannot process Funding', error.message)
         }
       }).onCancel(() => {
       }).onDismiss(() => {})

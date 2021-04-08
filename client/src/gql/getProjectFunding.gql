@@ -1,0 +1,11 @@
+query GetProjectFunding($projectId: Int!) {
+  projects_funding(where: { projectId: { _eq: $projectId } }) {
+    id
+    award
+    funder {
+      id
+      name
+      doi
+    }
+  }
+}

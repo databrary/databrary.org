@@ -19,11 +19,12 @@ query GetAssetProject($assetId: Int!) {
       doi
       funding {
         id
+        award
         funder {
+          id
           name
           doi
         }
-        awards
       }
     }
   }

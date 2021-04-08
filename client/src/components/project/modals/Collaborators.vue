@@ -53,7 +53,10 @@
                       <th class="text-center"></th>
                     </tr>
                   </thead>
-                  <draggable v-model="collaborators" tag="tbody">
+                  <draggable
+                    v-model="collaborators"
+                    tag="tbody"
+                  >
                     <tr
                       v-for="collaborator in collaborators"
                       :key="collaborator.id">
@@ -147,7 +150,6 @@ export default {
     results: [],
     collaborators: [],
     loading: false,
-    client: null,
     permissions: [
       {
         label: 'Administrator',

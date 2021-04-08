@@ -1,82 +1,87 @@
 <template>
-  <q-dialog ref="dialog" @hide="onDialogHide">
-    <q-card style="width: 600px" class="q-dialog-plugin">
-      <q-card-section>
-        <div class="text-h6">{{title}}</div>
-      </q-card-section>
-      <q-card-section>
-        <q-input
-          v-model="search"
-          debounce="500"
-          filled
-          placeholder="Search"
-        >
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-      </q-card-section>
-      <q-card-section  style="height: 500px">
-        <div v-if="loading">
-          <q-item v-for="i in Array(5).keys()" :key="i">
-            <q-item-section>
-              <q-item-label>
-                <q-skeleton type="text" width="35%" />
-              </q-item-label>
-              <q-item-label caption>
-                <q-skeleton type="text" />
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-        </div>
-        <q-scroll-area v-else class="fit">
-          <q-item v-for="funder in results" :key="funder.id">
-            <q-item-section>
-              <q-item-label>
-                <span>{{funder.name}}</span>
-              </q-item-label>
-              <q-item-label caption>
-                <span>{{funder.doi}}</span>
-              </q-item-label>
-              <q-item-label lines="1" v-if="funder.awards.length">
-                <div
-                  v-for="award in funder.awards"
-                  :key="award.id"
-                >
-                  <q-input
-                    v-model="award.value"
-                    class="col-12"
-                    dense
-                    label="Award #"
-                    mask="XXX-XXXXXX-XX"
-                    hint="XXX-XXXXXX-XX"
-                  >
-                    <template append>
-                      <q-btn
-                        flat
-                        dense
-                        color="negative"
-                        icon="cancel"
-                        @click.stop="onRemoveAwardClick (award.id, funder)"
-                      />
-                    </template>
-                  </q-input>
-                </div>
-              </q-item-label>
-            </q-item-section>
-            <q-item-section top side>
-              <q-btn
-                flat
-                dense
-                icon="add_circle_outline"
-                @click.stop="onAddAwardClick(funder)"
+  <q-dialog class="row" ref="dialog" @hide="onDialogHide">
+    <q-card class="col-12 q-dialog-plugin" style="width: 100%">
+      <q-splitter v-model="splitterModel">
+        <template v-slot:before>
+          <div class="row q-pa-md">
+            <q-input
+              class="col-12"
+              v-model="search"
+              debounce="500"
+              filled
+              placeholder="search"
+            >
+              <template v-slot:append>
+                <q-icon name="search" />
+              </template>
+            </q-input>
+            <div
+              class="col-12 q-my-sm"
+              v-for="funder in results"
+              :key="funder.id"
+            >
+              <FunderCard
+                class="cursor-pointer"
+                :funder="funder"
+                @click.native="onFunderClick(funder)"
               />
-            </q-item-section>
-          </q-item>
-        </q-scroll-area>
-      </q-card-section>
+            </div>
+          </div>
+        </template>
+        <template v-slot:after>
+          <div class="row q-pa-md">
+            <div class="col-12 text-h4 q-mt-sm">{{ title }}</div>
+            <div class="col-12 q-mt-sm">
+              <q-markup-table class="row" flat>
+                <thead>
+                  <tr>
+                    <th class="text-left"></th>
+                    <th class="text-left">Name</th>
+                    <th class="text-center">Award</th>
+                    <th class="text-center"></th>
+                  </tr>
+                </thead>
+                <draggable v-model="fundings" handle=".handle" tag="tbody">
+                  <tr v-for="funding in allFunding" :key="funding.id">
+                    <td>
+                      <q-icon class="handle" name="drag_handle" />
+                    </td>
+                    <td class="content-center">
+                      <span class="ellipsis overflow-hidden text-no-wrap">
+                        {{ funding.funder.name }}
+                      </span>
+                    </td>
+                    <td>
+                      <q-input
+                        v-model="funding.award"
+                        label="Award #"
+                        dense
+                        flat
+                      />
+                    </td>
+                    <td class="text-center">
+                      <q-icon
+                        class="cursor-pointer"
+                        size="sm"
+                        name="delete"
+                        @click.stop="onRemoveFundingClick(funding.id)"
+                      />
+                    </td>
+                  </tr>
+                </draggable>
+              </q-markup-table>
+            </div>
+          </div>
+        </template>
+      </q-splitter>
       <q-card-actions align="right">
-        <q-btn flat dense color="primary" :label="cancelLabel" @click="onCancelClick" />
+        <q-btn
+          flat
+          dense
+          color="primary"
+          :label="cancelLabel"
+          @click="onCancelClick"
+        />
         <q-btn flat dense color="primary" :label="okLabel" @click="onOKClick" />
       </q-card-actions>
     </q-card>
@@ -86,9 +91,15 @@
 <script>
 import { uid } from 'quasar'
 import _ from 'lodash'
+import draggable from 'vuedraggable'
+import FunderCard from '@/components/search/FunderCard'
 
 export default {
   props: {
+    data: {
+      type: Array,
+      required: true
+    },
     title: {
       type: String,
       required: true
@@ -102,13 +113,34 @@ export default {
       default: () => 'CANCEL'
     }
   },
+  components: {
+    FunderCard,
+    draggable
+  },
   data: () => ({
+    splitterModel: 20,
     search: '',
     results: [],
-    loading: false,
-    client: null
+    newFundings: [],
+    fundings: [],
+    deleted: [],
+    loading: false
   }),
+  mounted () {
+    this.fundings = this.data
+  },
+  computed: {
+    allFunding () {
+      return this.fundings.concat(this.newFundings)
+    }
+  },
   watch: {
+    data: {
+      deep: true,
+      handler () {
+        this.fundings = this.data
+      }
+    },
     async search () {
       await this.dataCiteFundersLookUp(this.search)
     }
@@ -132,25 +164,15 @@ export default {
       this.$emit('hide')
     },
 
-    hasAwards (funder) {
-      if (!funder.awards) return false
-
-      return !funder.awards.every((award) => award.value === '')
-    },
-
     onOKClick () {
-      const funding = this.results
-        .filter((funder) => this.hasAwards(funder))
-        .map(({ id, doi, name, awards }) => ({
-          id: id,
-          doi: doi,
-          name: name,
-          awards: awards.filter((award) => award.value !== '')
-        }))
       // on OK, it is REQUIRED to
       // emit "ok" event (with optional payload)
       // before hiding the QDialog
-      this.$emit('ok', funding)
+      this.$emit('ok', {
+        newFundings: this.newFundings,
+        oldFundings: this.fundings,
+        deleteFundings: this.deleted
+      })
       // or with payload: this.$emit('ok', { ... })
 
       // then hiding dialog
@@ -172,28 +194,49 @@ export default {
             q: query,
             query_by: 'name'
           })
-        this.results = _.map(hits, 'document').map(({ id, doi, name }) => (
-          {
-            id,
-            doi,
-            name,
-            awards: []
-          }
-        ))
+        this.results = _.map(hits, 'document')
         this.loading = false
       } catch (error) {
         console.log('error', error.message)
       }
     },
 
-    onAddAwardClick (funder) {
-      if (funder.awards.find((el) => el.value === '')) return
-      funder.awards.push({ id: uid(), value: '' })
+    onFunderClick (funder) {
+      this.newFundings.push({
+        id: uid(),
+        award: '',
+        funder: {
+          id: funder.id,
+          doi: funder.doi,
+          name: funder.name
+        }
+      })
     },
 
-    onRemoveAwardClick (id, funder) {
-      funder.awards = funder.awards.filter((award) => award.id !== id)
+    onRemoveFundingClick (fundingId) {
+      const newFundingIdx = this.newFundings.findIndex(
+        (f) => f.id === fundingId
+      )
+      if (newFundingIdx !== -1) {
+        this.newFundings.splice(newFundingIdx, 1)
+        return
+      }
+
+      const fundingIdx = this.fundings.findIndex((f) => f.id === fundingId)
+
+      if (fundingIdx !== -1) {
+        this.deleted = this.deleted.concat(this.fundings.splice(fundingIdx, 1))
+        return
+      }
+
+      console.error(`Cannot find a funding with ${fundingId} id`)
     }
   }
 }
 </script>
+
+<style scoped>
+.handle {
+  cursor: move;
+}
+</style>
