@@ -1,7 +1,7 @@
 <template>
   <q-page padding v-if="title">
     <div class="max-page-width row">
-      <div class="col-12 q-mb-sm">
+      <section class="col-12 q-mb-sm">
         <div class="row relative-position">
           <Header
             class="col-12 fit"
@@ -16,15 +16,15 @@
           />
           <div class="col-12 absolute-bottom">
             <TextArea
-              class=" text-h5 text-white text-center q-pa-sm"
+              class="text-h5 text-white text-center q-pa-sm"
               style="background-color: rgba(0, 0, 0, 0.5)"
               :data="title"
               @update-data="onUpdateTitle"
             />
           </div>
         </div>
-      </div>
-      <div class="col-xs-12 col-sm-8 col-md-9">
+      </section>
+      <section class="col-xs-12 col-sm-8 col-md-9">
         <TextArea
           type="textarea"
           :data="description"
@@ -32,36 +32,20 @@
         >
           Description
         </TextArea>
-        <q-chip
-          square
-          size="md"
-          class="q-mt-xs"
-          v-for="i in 4"
-          :key="i"
-        >
-          <q-avatar
-            color="primary"
-            text-color="black"
-          >1</q-avatar>
-          Tag {{i}}
-        </q-chip>
-        <div class="text-h5 q-mt-md">
-          Citation
+        <div class="q-tm-md">
+          <div class="text-h5">
+            Citation
+          </div>
+          <citationBuilder
+            class="q-pa-sm"
+            :data="citationBuilderData"
+            :editMode="editMode"
+          />
         </div>
-        <citationBuilder
-          class="q-pa-sm"
-          :data="citationBuilderData"
-          :editMode="editMode"
-        />
         <div class="q-mt-md">
-          <div class="text-h5 float-left">
+          <div class="text-h5">
             Collaborators
-            <q-btn
-              class="q-mx-lg"
-              dense
-              flat
-              @click="onShowCollaborators"
-            >
+            <q-btn class="q-mx-lg" dense flat @click="onShowCollaborators">
               <q-avatar
                 color="primary"
                 size="sm"
@@ -69,167 +53,126 @@
                 icon="add"
               />
             </q-btn>
-            <Collaborators
-              :data="collaborators"
-              :show="6"
-            />
           </div>
+          <Collaborators :data="collaborators" :show="6" />
         </div>
-      </div>
-      <div class="col-xs-12 col-sm-4 col-md-3">
-        <q-card
-          class="q-px-sm"
-          flat
-          bordered
-        >
-          <q-list>
-            <q-item clickable>
-              <q-item-section avatar>
-                <q-icon
-                  color="primary"
-                  name="create"
-                />
-              </q-item-section>
-
-              <q-item-section>
-                <q-item-label>Created on</q-item-label>
-                <q-item-label caption>{{ createdOn }}</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item clickable>
-              <q-item-section avatar>
-                <q-icon
-                  color="primary"
-                  name="create"
-                />
-              </q-item-section>
-
-              <q-item-section>
-                <q-item-label>Last Changed on</q-item-label>
-                <q-item-label caption>{{ lastChangedOn }}</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item clickable>
-              <q-item-section avatar>
-                <q-icon
-                  color="primary"
-                  name="grain"
-                />
-              </q-item-section>
-
-              <q-item-section>
-                <q-item-label>Sessions</q-item-label>
-                <q-item-label caption>{{foldersCount}} Folders - {{filesCount}} Files</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item clickable>
-              <q-item-section avatar>
-                <q-icon
-                  color="primary"
-                  name="access_time"
-                />
-              </q-item-section>
-
-              <q-item-section>
-                <q-item-label>Ages</q-item-label>
-                <q-item-label caption>10.8 yrs–12.1 yrs (M = 11.5 yrs)</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item clickable>
-              <q-item-section avatar>
-                <q-icon
-                  color="primary"
-                  name="people"
-                />
-              </q-item-section>
-
-              <q-item-section>
-                <q-item-label>Participants</q-item-label>
-                <q-item-label caption>2 (2 Female)</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-card>
-      </div>
-      <div class="q-mt-md col-xs-12 col-sm-8 col-md-9">
-        <div class="row text-h5 q-mt-md">
-          Funding
-          <q-btn
-            class="q-mx-lg"
-            dense
-            flat
-            @click="onAddFundingClick"
-          >
-            <q-avatar
-              color="primary"
-              size="sm"
-              class="text-right"
-              icon="add"
-            />
-          </q-btn>
-          <Fundings
-            class="col-12 q-pa-sm"
-            :data="funding"
-            :show="3"
-          />
+        <div class="q-mt-md">
+          <div class="text-h5">
+            Funding
+            <q-btn class="q-mx-lg" dense flat @click="onAddFundingClick">
+              <q-avatar color="primary" size="sm" class="text-right" icon="add" />
+            </q-btn>
+          </div>
+          <Fundings class="q-pa-sm" :data="funding" :show="3" />
         </div>
-        <div class="row text-h5 q-mt-md">
-          Links
-          <q-btn
-            class="q-mx-lg"
-            dense
-            flat
-            @click="onAddUrlClick"
-          >
-            <q-avatar
-              color="primary"
-              size="sm"
-              class="text-right"
-              icon="add"
-            />
-          </q-btn>
+        <div class="q-mt-md">
+          <div class="text-h5">
+            Links
+            <q-btn class="q-mx-lg" dense flat @click="onAddUrlClick">
+              <q-avatar color="primary" size="sm" class="text-right" icon="add" />
+            </q-btn>
+          </div>
+          <Links :data="urls" :show="3" />
         </div>
-        <div class="row">
-          <Links
-            class="col-12"
-            :data="urls"
-            :show="3"
-          />
+      </section>
+      <section class="col-xs-12 col-sm-4 col-md-3">
+        <div>
+          <q-card class="q-px-sm" flat bordered>
+            <q-list>
+              <q-item clickable>
+                <q-item-section avatar>
+                  <q-icon color="primary" name="create" />
+                </q-item-section>
+
+                <q-item-section>
+                  <q-item-label>Created on</q-item-label>
+                  <q-item-label caption>{{ createdOn }}</q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <q-item clickable>
+                <q-item-section avatar>
+                  <q-icon color="primary" name="create" />
+                </q-item-section>
+
+                <q-item-section>
+                  <q-item-label>Last Changed on</q-item-label>
+                  <q-item-label caption>{{ lastChangedOn }}</q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <q-item clickable>
+                <q-item-section avatar>
+                  <q-icon color="primary" name="grain" />
+                </q-item-section>
+
+                <q-item-section>
+                  <q-item-label>Sessions</q-item-label>
+                  <q-item-label caption
+                    >{{ foldersCount }} Folders -
+                    {{ filesCount }} Files</q-item-label
+                  >
+                </q-item-section>
+              </q-item>
+
+              <q-item clickable>
+                <q-item-section avatar>
+                  <q-icon color="primary" name="access_time" />
+                </q-item-section>
+
+                <q-item-section>
+                  <q-item-label>Ages</q-item-label>
+                  <q-item-label caption
+                    >10.8 yrs–12.1 yrs (M = 11.5 yrs)</q-item-label
+                  >
+                </q-item-section>
+              </q-item>
+              <q-item clickable>
+                <q-item-section avatar>
+                  <q-icon color="primary" name="people" />
+                </q-item-section>
+
+                <q-item-section>
+                  <q-item-label>Participants</q-item-label>
+                  <q-item-label caption>2 (2 Female)</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card>
         </div>
-      </div>
-      <div class="q-mt-md col-xs-12 col-sm-4 col-md-3">
-        <q-markup-table
-          flat
-          bordered
-        >
-          <thead>
-            <tr class="bg-grey-4">
-              <th class="text-left">Release Level</th>
-              <th># of Files</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th class="text-left bg-grey-4">private</th>
-              <td class="text-center">{{ session_private }}</td>
-            </tr>
-            <tr>
-              <th class="text-left bg-grey-4">authorized users</th>
-              <td class="text-center">{{ session_authorized }}</td>
-            </tr>
-            <tr>
-              <th class="text-left bg-grey-4">learning audiences</th>
-              <td class="text-center"> {{ session_audiences }} </td>
-            </tr>
-          </tbody>
-        </q-markup-table>
-      </div>
-      <div class="col-12 q-mt-md">
+        <div class="q-mt-md">
+          <q-chip size="md" color="primary" class="q-mt-xs" v-for="i in 4" :key="i">
+            Tag {{ i }}
+          </q-chip>
+        </div>
+        <div class="q-mt-md">
+          <q-markup-table flat bordered>
+            <thead>
+              <tr class="bg-grey-2">
+                <th class="text-left">Release Level</th>
+                <th># of Files</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th class="text-left bg-grey-2">private</th>
+                <td class="text-center">{{ session_private }}</td>
+              </tr>
+              <tr>
+                <th class="text-left bg-grey-2">authorized users</th>
+                <td class="text-center">{{ session_authorized }}</td>
+              </tr>
+              <tr>
+                <th class="text-left bg-grey-2">learning audiences</th>
+                <td class="text-center">{{ session_audiences }}</td>
+              </tr>
+            </tbody>
+          </q-markup-table>
+        </div>
+      </section>
+      <section class="col-12 q-mt-md">
         <FileManager :assetId="id" />
-      </div>
+      </section>
     </div>
   </q-page>
 </template>
@@ -327,8 +270,9 @@ export default {
       return {
         title: this.title,
         authors: this.collaborators
-          .filter(col => col.bibliographic)
-          .map((col) => col.id).join(', '),
+          .filter((col) => col.bibliographic)
+          .map((col) => col.id)
+          .join(', '),
         date: this.lastChanged,
         journal: 'Databrary',
         url: `https://doi.org/${this.title}`
@@ -418,7 +362,10 @@ export default {
 
     async onUpdateDescription (newDescription) {
       try {
-        const { description, lastChanged } = await this.updateProjectDescription({
+        const {
+          description,
+          lastChanged
+        } = await this.updateProjectDescription({
           assetId: this.assetId,
           description: newDescription
         })
@@ -455,7 +402,10 @@ export default {
     async onRemoveFunding (id) {
       try {
         await this.deleteProjectFunding({ id })
-        this.funding.splice(this.funding.findIndex((el) => el.id === id), 1)
+        this.funding.splice(
+          this.funding.findIndex((el) => el.id === id),
+          1
+        )
       } catch (error) {
         console.error('onRemoveFunding::', error.message)
       }
@@ -463,9 +413,7 @@ export default {
 
     async onUpdateFunding (id, award) {
       try {
-        const funding = await this.updateProjectFunding(
-          { id, award }
-        )
+        const funding = await this.updateProjectFunding({ id, award })
         const idx = this.funding.findIndex((el) => el.id === id)
         this.funding[idx] = funding
       } catch (error) {
@@ -474,48 +422,51 @@ export default {
     },
 
     onAddFundingClick () {
-      this.$q.dialog({
-        component: AddFunding,
-        parent: this,
-        title: 'Funding',
-        data: this.deepCopy(this.funding)
-      }).onOk(async ({ newFundings, oldFundings, deleteFundings }) => {
-        try {
-          // Delete Funding
-          for (const f of deleteFundings) {
-            await this.deleteProjectFunding({ id: f.id })
+      this.$q
+        .dialog({
+          component: AddFunding,
+          parent: this,
+          title: 'Funding',
+          data: this.deepCopy(this.funding)
+        })
+        .onOk(async ({ newFundings, oldFundings, deleteFundings }) => {
+          try {
+            // Delete Funding
+            for (const f of deleteFundings) {
+              await this.deleteProjectFunding({ id: f.id })
+            }
+
+            // Add new Funding and remove generate uid
+            const newInserts = newFundings.map((f) => ({
+              projectId: this.projectId,
+              funderId: f.funder.id,
+              award: f.award
+            }))
+            await this.insertProjectFunding({
+              object: newInserts
+            })
+
+            // Update changed fundings
+            const updates = oldFundings.map((f) => ({
+              id: f.id,
+              projectId: this.projectId,
+              funderId: f.funder.id,
+              award: f.award
+            }))
+            await this.insertProjectFunding({
+              object: updates
+            })
+
+            // Fetch Project Fundings
+            this.funding = await this.getProjectFunding({
+              projectId: this.projectId
+            })
+          } catch (error) {
+            console.error('Cannot process Funding', error.message)
           }
-
-          // Add new Funding and remove generate uid
-          const newInserts = newFundings.map((f) => ({
-            projectId: this.projectId,
-            funderId: f.funder.id,
-            award: f.award
-          }))
-          await this.insertProjectFunding({
-            object: newInserts
-          })
-
-          // Update changed fundings
-          const updates = oldFundings.map((f) => ({
-            id: f.id,
-            projectId: this.projectId,
-            funderId: f.funder.id,
-            award: f.award
-          }))
-          await this.insertProjectFunding({
-            object: updates
-          })
-
-          // Fetch Project Fundings
-          this.funding = await this.getProjectFunding({
-            projectId: this.projectId
-          })
-        } catch (error) {
-          console.error('Cannot process Funding', error.message)
-        }
-      }).onCancel(() => {
-      }).onDismiss(() => {})
+        })
+        .onCancel(() => {})
+        .onDismiss(() => {})
     },
 
     // Qusar Dialog Plugin will sync props
@@ -523,23 +474,26 @@ export default {
     // is to deep copy your props
     // and wait for the ok event
     onShowCollaborators () {
-      this.$q.dialog({
-        component: CollaboratorsModal,
-        parent: this,
-        title: 'Collaborators',
-        data: this.deepCopy(this.collaborators)
-      }).onOk(async (newCollaborators) => {
-        try {
-          const { collaborators } = await this.updateProjectCollaborators({
-            id: this.projectId,
-            collaborators: newCollaborators
-          })
-          this.collaborators = collaborators
-        } catch (error) {
-          console.error('Cannot update collaborators', error.message)
-        }
-      }).onCancel(() => {
-      }).onDismiss(() => {})
+      this.$q
+        .dialog({
+          component: CollaboratorsModal,
+          parent: this,
+          title: 'Collaborators',
+          data: this.deepCopy(this.collaborators)
+        })
+        .onOk(async (newCollaborators) => {
+          try {
+            const { collaborators } = await this.updateProjectCollaborators({
+              id: this.projectId,
+              collaborators: newCollaborators
+            })
+            this.collaborators = collaborators
+          } catch (error) {
+            console.error('Cannot update collaborators', error.message)
+          }
+        })
+        .onCancel(() => {})
+        .onDismiss(() => {})
     },
 
     // Qusar Dialog Plugin will sync props
@@ -547,30 +501,32 @@ export default {
     // is to deep copy your props
     // and wait for the ok event
     onAddUrlClick () {
-      this.$q.dialog({
-        component: AddLinks,
-        parent: this,
-        title: 'Links',
-        data: this.deepCopy(this.urls),
-        okLabel: 'SAVE'
-      }).onOk(async (links) => {
-        try {
-          const { urls } = await this.updateProjectUrls({
-            id: this.projectId,
-            urls: links
-          })
-          this.urls = urls
-        } catch (error) {
-          console.error('Cannot save urls::', error.message)
-        }
-      }).onCancel(() => {
-      }).onDismiss(() => {})
+      this.$q
+        .dialog({
+          component: AddLinks,
+          parent: this,
+          title: 'Links',
+          data: this.deepCopy(this.urls),
+          okLabel: 'SAVE'
+        })
+        .onOk(async (links) => {
+          try {
+            const { urls } = await this.updateProjectUrls({
+              id: this.projectId,
+              urls: links
+            })
+            this.urls = urls
+          } catch (error) {
+            console.error('Cannot save urls::', error.message)
+          }
+        })
+        .onCancel(() => {})
+        .onDismiss(() => {})
     },
 
     deepCopy (data) {
       return JSON.parse(JSON.stringify(data))
     }
-
   }
 }
 </script>
