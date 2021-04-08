@@ -8,6 +8,7 @@
               class="col-12"
               v-model="search"
               debounce="500"
+              autofocus
               filled
               placeholder="search"
             >

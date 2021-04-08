@@ -14,9 +14,11 @@
         <template v-slot:before>
           <div class="row q-pa-md">
             <q-input
+              ref="searchInput"
               class="col-12"
               v-model="search"
               debounce="500"
+              autofocus
               filled
               placeholder="Search"
             >
