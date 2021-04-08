@@ -200,43 +200,34 @@
           />
         </div>
       </div>
-      <div class="q-mt-md col-xs-12 col-sm-8 col-md-9">
-        <div class="row text-h5 q-mt-md">
-          File Release Levels
-        </div>
-        <q-item class="row justify-content-left">
-          <div class="q-pa-md">
-            <q-markup-table
-              flat
-              bordered
-            >
-              <thead>
-                <tr class="bg-grey-4">
-                  <th>File Type</th>
-                  <th class="text-left">Release Level</th>
-                  <th># of Files</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th class="bg-grey-4" rowspan="3">sessions</th>
-                  <th class="text-left bg-grey-4">private</th>
-                  <td class="text-center">{{ session_private }}</td>
-                </tr>
-                <tr>
-                  <th class="text-left bg-grey-4">authorized users</th>
-                  <td class="text-center">{{ session_authorized }}</td>
-                </tr>
-                <tr>
-                  <th class="text-left bg-grey-4">learning audiences</th>
-                  <td class="text-center"> {{ session_audiences }} </td>
-                </tr>
-              </tbody>
-            </q-markup-table>
-          </div>
-        </q-item>
+      <div class="q-mt-md col-xs-12 col-sm-4 col-md-3">
+        <q-markup-table
+          flat
+          bordered
+        >
+          <thead>
+            <tr class="bg-grey-4">
+              <th class="text-left">Release Level</th>
+              <th># of Files</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th class="text-left bg-grey-4">private</th>
+              <td class="text-center">{{ session_private }}</td>
+            </tr>
+            <tr>
+              <th class="text-left bg-grey-4">authorized users</th>
+              <td class="text-center">{{ session_authorized }}</td>
+            </tr>
+            <tr>
+              <th class="text-left bg-grey-4">learning audiences</th>
+              <td class="text-center"> {{ session_audiences }} </td>
+            </tr>
+          </tbody>
+        </q-markup-table>
       </div>
-      <div class="col-12">
+      <div class="col-12 q-mt-md">
         <FileManager :assetId="id" />
       </div>
     </div>
