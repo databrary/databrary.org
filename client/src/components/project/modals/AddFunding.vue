@@ -45,7 +45,10 @@
                 <draggable v-model="fundings" handle=".handle" tag="tbody">
                   <tr v-for="funding in allFunding" :key="funding.id">
                     <td>
-                      <q-icon class="handle" name="drag_handle" />
+                      <q-icon
+                        class="handle"
+                        name="drag_handle"
+                      />
                     </td>
                     <td class="content-center">
                       <span class="ellipsis overflow-hidden text-no-wrap">

@@ -10,6 +10,8 @@
           class="col-9"
           label="URL or DOI"
           dense
+          @keypress.enter="onAddClick"
+          autofocus
         />
         <q-btn
           class="col-2"
@@ -22,43 +24,36 @@
       </q-card-section>
       <q-card-section class="row">
         <q-list class="col-12">
-          <q-item
-            class="row"
-            v-if="newUrl"
-            dense
-          >
+          <q-item class="row" v-if="newUrl" dense>
             <q-item-section class="col-3">
-                <div class="row">
-                  <div class="col-2"></div>
-                  <q-select
-                      class="col-8"
-                      v-model="newUrl.type"
-                      :options="options"
-                      dense
-                      emit-value
-                      map-options
-                  >
-                      <template v-slot:option="props">
-                          <q-item
-                              v-bind="props.itemProps"
-                              v-on="props.itemEvents"
-                          >
-                              <q-item-section avatar>
-                                  <q-avatar>
-                                      <q-icon :name="props.opt.icon" />
-                                  </q-avatar>
-                              </q-item-section>
-                              <q-item-section>
-                                  {{props.opt.label}}
-                              </q-item-section>
-                          </q-item>
-                      </template>
-                      <template v-slot:selected-item="props">
-                          <q-icon class="q-mr-sm" size="xs" :name="props.opt.icon" />
-                          {{props.opt.label}}
-                      </template>
-                  </q-select>
-                </div>
+              <div class="row">
+                <div class="col-2"></div>
+                <q-select
+                  class="col-8"
+                  v-model="newUrl.type"
+                  :options="options"
+                  dense
+                  emit-value
+                  map-options
+                >
+                  <template v-slot:option="props">
+                    <q-item v-bind="props.itemProps" v-on="props.itemEvents">
+                      <q-item-section avatar>
+                        <q-avatar>
+                          <q-icon :name="props.opt.icon" />
+                        </q-avatar>
+                      </q-item-section>
+                      <q-item-section>
+                        {{ props.opt.label }}
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                  <template v-slot:selected-item="props">
+                    <q-icon class="q-mr-sm" size="xs" :name="props.opt.icon" />
+                    {{ props.opt.label }}
+                  </template>
+                </q-select>
+              </div>
             </q-item-section>
             <q-item-section class="col-2">
               <q-input
@@ -70,11 +65,7 @@
               />
             </q-item-section>
             <q-item-section class="col-3 cursor-pointer">
-              <q-input
-                v-model.trim="newUrl.url"
-                outlined dense
-                label="URL"
-              />
+              <q-input v-model.trim="newUrl.url" outlined dense label="URL" />
             </q-item-section>
             <q-item-section class="col-3 cursor-pointer">
               <q-input
@@ -103,15 +94,19 @@
               </div>
             </q-item-section>
           </q-item>
-          <draggable class="col-12" v-model="urls">
-              <Link
-                class="col-12"
-                v-for="url in urls"
-                :key="url.id"
-                :data="url"
-                :editMode="true"
-                @remove-link="onRemoveUrlClick"
-              />
+          <draggable
+            class="col-12"
+            handle=".handle"
+            v-model="urls"
+          >
+            <Link
+              class="col-12"
+              v-for="url in urls"
+              :key="url.id"
+              :data="url"
+              :editMode="true"
+              @remove-link="onRemoveUrlClick"
+            />
           </draggable>
         </q-list>
       </q-card-section>
@@ -136,14 +131,14 @@ import { uid } from 'quasar'
 import draggable from 'vuedraggable'
 
 const GET_PUBLICATION = gql`
-  query GetPublication ($id: ID!) {
+  query GetPublication($id: ID!) {
     publication(id: $id) {
       id
-      doi,
-      url,
+      doi
+      url
       descriptions {
         description
-      },
+      }
       titles {
         title
       }
@@ -195,7 +190,7 @@ export default {
         icon: 'article'
       },
       {
-        label: 'Source',
+        label: 'Source Code',
         value: 'source',
         icon: 'source'
       },
@@ -255,7 +250,7 @@ export default {
         id: uid(),
         type: result.type,
         title: result.title,
-        url: result.url,
+        url: result.id,
         description: result.description
       }
 
@@ -275,38 +270,64 @@ export default {
     },
 
     async parseUrl (url) {
-      try {
-        if (this.isDOI(url)) {
-          url = new URL(url, 'https://doi.org/').href
-          return await this.getPublication(url)
-        }
-      } catch (error) {
-        console.error('Parsing DOI error', error.message)
+      let formattedUrl = url
+      if (this.isValidDOI(url)) {
+        formattedUrl = new URL(formattedUrl, 'https://doi.org/').href
       }
 
+      try {
+        if (formattedUrl.includes('https://doi.org/')) {
+          const publication = await this.getPublication(formattedUrl)
+          return publication
+        }
+      } catch (error) {
+        console.error(`Parsing DOI ${formattedUrl} error`, error.message)
+      }
+
+      if (!this.containsProtocol(formattedUrl)) {
+        formattedUrl = 'https://' + formattedUrl
+      }
+
+      if (this.isValidURL(formattedUrl)) {
+        return {
+          type: 'link',
+          title: '',
+          url: formattedUrl,
+          id: formattedUrl,
+          description: ''
+        }
+      }
       return {
         type: 'link',
         title: '',
-        url: this.url,
+        url: url,
+        id: url,
         description: ''
       }
     },
 
     // https://www.crossref.org/blog/dois-and-matching-regular-expressions/
-    isDOI (str) {
+    isValidDOI (str) {
       const re = new RegExp('^10.\\d{4,9}/[-._;()/:A-Z0-9]+$', 'i')
+      return re.test(str)
+    },
+    // https://stackoverflow.com/questions/8667070/javascript-regular-expression-to-validate-url
+    isValidURL (str) {
+      const re = new RegExp('^(?:(?:(?:https?|ftp):)?\\/\\/)(?:\\S+(?::\\S*)?@)?(?:(?!(?:10|127)(?:\\.\\d{1,3}){3})(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\\.(?:[a-z\u00a1-\uffff]{2,})))(?::\\d{2,5})?(?:[/?#]\\S*)?$', 'i')
+      return re.test(str)
+    },
+
+    containsProtocol (str) {
+      const re = new RegExp('^(?:(?:(?:https?|ftp):)?\\/\\/)', 'i')
       return re.test(str)
     },
 
     async getPublication (publicationId) {
-      const { data: {
-        publication: {
-          id,
-          doi,
-          url,
-          titles,
-          descriptions }
-      } } = await this.$apollo.query({
+      const {
+        data: {
+          publication: { id, doi, url, titles, descriptions }
+        }
+      } = await this.$apollo.query({
         client: 'datacite',
         query: GET_PUBLICATION,
         variables: {

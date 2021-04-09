@@ -10,7 +10,7 @@
         >
             <div class="row items-center">
                 <q-icon
-                    class="col-2"
+                    class="handle col-2"
                     name="drag_handle"
                 />
                 <q-select
@@ -50,7 +50,7 @@
         </q-item-section>
         <q-item-section :class="editMode ? 'col-2' : 'col-4'">
           <span
-            class="full-width text-capitalize text-capitalize ellipsis overflow-hidden text-no-wrap"
+            class="full-width ellipsis overflow-hidden text-no-wrap"
             :title="link.title"
           >
             {{link.title}}
@@ -91,7 +91,7 @@
         </q-item-section>
         <q-item-section :class="editMode ? 'col-3' : 'col-4'">
           <span
-            class="full-width text-capitalize ellipsis overflow-hidden text-no-wrap"
+            class="full-width ellipsis overflow-hidden text-no-wrap"
             :title="link.description"
           >
             {{link.description}}
@@ -114,8 +114,7 @@
             <q-btn
                 flat
                 dense
-                color="negative"
-                icon="cancel"
+                icon="delete"
                 @click.stop="$emit('remove-link', link.id)"
             />
         </q-item-section>
@@ -154,7 +153,7 @@ export default {
         icon: 'article'
       },
       {
-        label: 'Source',
+        label: 'Source Code',
         value: 'source',
         icon: 'source'
       },
@@ -177,5 +176,7 @@ export default {
 </script>
 
 <style>
-
+.handle {
+  cursor: move;
+}
 </style>

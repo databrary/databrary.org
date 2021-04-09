@@ -96,7 +96,11 @@
                         <q-checkbox v-model="collaborator.bibliographic" />
                       </td>
                       <td class="text-center">
-                        <q-icon @click.stop="onRemoveCollaborator(collaborator)" size="sm" name="clear" />
+                        <q-icon
+                          size="sm"
+                          name="delete"
+                          @click.stop="onRemoveCollaborator(collaborator)"
+                        />
                       </td>
                     </tr>
                   </draggable>
