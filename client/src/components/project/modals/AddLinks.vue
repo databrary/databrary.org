@@ -1,6 +1,9 @@
 <template>
   <q-dialog ref="dialog" @hide="onDialogHide">
-    <q-card class="col-12 q-dialog-plugin" style="width: 150vh">
+    <q-card
+      class="col-12 q-dialog-plugin"
+      style="width: 150vh"
+    >
       <q-card-section>
         <div class="text-h6">{{ title }}</div>
       </q-card-section>
@@ -103,6 +106,7 @@
               class="col-12"
               v-for="url in urls"
               :key="url.id"
+              :ref="`link-${url.id}`"
               :data="url"
               :editMode="true"
               @remove-link="onRemoveUrlClick"
@@ -147,6 +151,7 @@ const GET_PUBLICATION = gql`
 `
 
 export default {
+  name: 'AddLinks',
   props: {
     title: {
       type: String,
@@ -246,15 +251,20 @@ export default {
 
     async onAddClick () {
       const result = await this.parseUrl(this.url)
-      this.newUrl = {
+      const newUrl = {
         id: uid(),
         type: result.type,
         title: result.title,
         url: result.id,
         description: result.description
       }
-
+      this.urls.unshift(newUrl)
       this.url = ''
+      setTimeout(() => {
+        if (!newUrl.title) {
+          this.getLinkFromRef(`link-${newUrl.id}`)
+        }
+      }, 100)
     },
 
     onSaveUrlClick () {
@@ -342,6 +352,15 @@ export default {
         title: titles[0].title,
         description: descriptions[0].description,
         type: 'article'
+      }
+    },
+
+    getLinkFromRef (ref) {
+      const el = this.$refs[ref]
+      if (el) {
+        el[0].editTitle()
+      } else {
+        console.error('Cannot find element with nreference', ref)
       }
     }
   }
