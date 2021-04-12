@@ -44,6 +44,7 @@
         node-key="id"
         selected-color="primary"
         :selected.sync="selected"
+        no-nodes-label="No files or folders to display"
         @lazy-load="lazyLoad"
       >
         <template v-slot:default-header="prop">
