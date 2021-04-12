@@ -16,6 +16,7 @@
           />
           <div class="col-12 absolute-bottom">
             <TextArea
+              ref="project-title"
               class="text-h5 text-white text-center q-pa-sm"
               style="background-color: rgba(0, 0, 0, 0.5)"
               :data="title"
@@ -526,6 +527,16 @@ export default {
 
     deepCopy (data) {
       return JSON.parse(JSON.stringify(data))
+    },
+
+    editTitle () {
+      const ref = 'project-title'
+      const el = this.$refs[ref]
+      if (el) {
+        el.editText()
+      } else {
+        console.error('Cannot find element with reference', ref)
+      }
     }
   }
 }

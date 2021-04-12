@@ -360,7 +360,7 @@ export default {
       if (el) {
         el[0].editTitle()
       } else {
-        console.error('Cannot find element with nreference', ref)
+        console.error('Cannot find element with reference', ref)
       }
     }
   }

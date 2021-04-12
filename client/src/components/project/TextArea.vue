@@ -28,6 +28,7 @@
       </div>
       <q-popup-edit
         v-model="text"
+        ref="text"
         :validate="(val) => val.length > 0"
         @save="$emit('update-data', text)"
       >
@@ -90,6 +91,17 @@ export default {
   watch: {
     data () {
       this.text = this.data
+    }
+  },
+  methods: {
+    editText () {
+      const ref = 'text'
+      const el = this.$refs[ref]
+      if (el) {
+        el.show()
+      } else {
+        console.error('Cannot find element with reference', ref)
+      }
     }
   }
 }

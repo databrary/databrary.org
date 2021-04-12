@@ -5,7 +5,7 @@
     @mouseleave="onMouseLeave"
   >
     <q-img
-      :class="useImage && imageURI ? 'col-12 bg-grey-10': 'col-12'"
+      :class="useImage && imageURI ? 'col-12 bg-grey-10': 'col-12 bg-grey-10'"
       :src="src"
       :style="imgObjStyle"
       contain

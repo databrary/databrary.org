@@ -30,6 +30,7 @@
             >
               <ProjectViewer
                 :id="selectedProject"
+                :ref="`project-${selectedProject}`"
                 @update-project-title="onProjectTitleUpdate"
               />
             </q-scroll-area>
@@ -157,6 +158,18 @@ export default {
 
     reset () {
       this.selectedProject = null
+    },
+
+    editDefaultTitle () {
+      if (this.selectedProject) {
+        const ref = `project-${this.selectedProject}`
+        const el = this.$refs[ref]
+        if (el) {
+          el.editTitle()
+        } else {
+          console.error('Cannot find element with reference', ref)
+        }
+      }
     },
 
     onProjectTitleUpdate (projectId, newTitle) {

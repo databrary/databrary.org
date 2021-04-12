@@ -151,6 +151,10 @@ export default {
         this.pams = await this.fetchData()
         this.pamId = pamId
 
+        setTimeout(() => {
+          if (this.$refs.pam) this.$refs.pam.editDefaultTitle()
+        }, 300)
+
         this.$q.notify({
           color: 'green-4',
           textColor: 'white',
