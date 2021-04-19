@@ -13,56 +13,34 @@
     </template>
     <div v-if="data">
       <q-scroll-area v-if="height" :style="{ height: height + 'px' }">
-        <q-item
+        <Item
           v-for="item in data"
           :key="item.id"
-          clickable
-          v-ripple
-          @click="onClickItem(item.id)"
+          :item="item"
           :active="id == item.id"
-          active-class="text-white bg-secondary"
-        >
-          <q-item-section>{{ item.name }}</q-item-section>
-          <q-item-section side>
-            <q-icon
-              name="keyboard_arrow_right"
-              :color="id == item.id ? 'white' : 'green'"
-            />
-          </q-item-section>
-        </q-item>
+          @item-selected="onClickItem"
+        />
       </q-scroll-area>
-      <q-item
-        v-else
-        v-for="item in data"
-        :key="item.id"
-        clickable
-        v-ripple
-        @click="$emit('update:id', item.id)"
-        :active="id == item.id"
-        active-class="text-white bg-secondary"
-      >
-        <q-item-section>{{ item.name }}</q-item-section>
-        <q-item-section side>
-          <q-icon
-            name="keyboard_arrow_right"
-            :color="id == item.id ? 'white' : 'green'"
-          />
-        </q-item-section>
-      </q-item>
     </div>
   </q-expansion-item>
 </template>
 
 <script>
+import Item from './Item'
+
 export default {
   name: 'ExpansionItem',
+  components: {
+    Item
+  },
   props: {
     data: {
       type: Array,
       required: true
     },
     height: {
-      type: Number
+      type: Number,
+      required: true
     },
     id: {
       required: true
