@@ -8,7 +8,7 @@
         <q-list>
           <ExpansionItem
             v-if="pams"
-            :data.sync="pams"
+            :data="pams"
             :id.sync="pamId"
             type="pam"
             :addType.sync="createAssetType"
@@ -19,7 +19,7 @@
           </ExpansionItem>
           <ExpansionItem
             v-if="bookmarks"
-            :data.sync="bookmarks"
+            :data="bookmarks"
             :id.sync="bookmarkId"
             type="list"
             :addType.sync="createAssetType"
