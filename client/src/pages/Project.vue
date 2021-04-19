@@ -110,33 +110,10 @@
 
                 <q-item-section>
                   <q-item-label>Sessions</q-item-label>
-                  <q-item-label caption
-                    >{{ foldersCount }} Folders -
-                    {{ filesCount }} Files</q-item-label
-                  >
-                </q-item-section>
-              </q-item>
-
-              <q-item clickable>
-                <q-item-section avatar>
-                  <q-icon color="primary" name="access_time" />
-                </q-item-section>
-
-                <q-item-section>
-                  <q-item-label>Ages</q-item-label>
-                  <q-item-label caption
-                    >10.8 yrs–12.1 yrs (M = 11.5 yrs)</q-item-label
-                  >
-                </q-item-section>
-              </q-item>
-              <q-item clickable>
-                <q-item-section avatar>
-                  <q-icon color="primary" name="people" />
-                </q-item-section>
-
-                <q-item-section>
-                  <q-item-label>Participants</q-item-label>
-                  <q-item-label caption>2 (2 Female)</q-item-label>
+                  <q-item-label caption>
+                    {{ foldersCount }} Folders -
+                    {{ filesCount }} Files
+                  </q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
