@@ -194,7 +194,7 @@ import AddLinks from '@/components/project/modals/AddLinks'
 import FileManager from '@/components/fileManager/FileManager'
 import CitationBuilder from '@/components/shared/CitationBuilder'
 
-const defaullDescription = 'View Description'
+const defaullDescription = 'This page is associated with'
 
 export default {
   name: 'ProjectViewer',
@@ -310,7 +310,7 @@ export default {
       this.datetimeCreated = datetimeCreated
       this.projectId = project.id
 
-      this.description = project.description || defaullDescription
+      this.description = project.description || `${defaullDescription} ${name}`
       this.lastChanged = project.lastChanged
 
       this.filesCount = project.filesCount
