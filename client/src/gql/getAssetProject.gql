@@ -1,0 +1,31 @@
+query GetAssetProject($assetId: Int!) {
+  assets(where: { 
+    id: { _eq: $assetId }, 
+    assetType: { _eq: project } 
+  }) {
+    name
+    datetimeCreated
+    project {
+      id
+      description
+      lastChanged
+      color
+      filesCount
+      foldersCount
+      imageId
+      useImage
+      urls
+      collaborators
+      doi
+      funding {
+        id
+        award
+        funder {
+          id
+          name
+          doi
+        }
+      }
+    }
+  }
+}

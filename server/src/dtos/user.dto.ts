@@ -8,10 +8,6 @@ export class UserDTO {
   @Exclude()
   docId: number
 
-  // We use a string for docId because of the typesense limitations not allowins intger search
-  @Exclude()
-  docIdS: string
-
   @Exclude()
   authServerId: string
 
@@ -57,8 +53,8 @@ export class UserDTO {
   gravatar: Record<ImageKey, any>
 
   static readonly docFields = [
+    { name: 'id', type: 'string' },
     { name: 'docId', type: 'int32' },
-    { name: 'docIdS', type: 'string' },
     { name: 'familyName', type: 'string' },
     { name: 'givenName', type: 'string' },
     { name: 'additionalName', type: 'string' },
@@ -91,8 +87,8 @@ export class UserDTO {
 
   get document (): Record<string, any> {
     return {
+      id: `${this.id}`,
       docId: this.id,
-      docIdS: `${this.id}`,
       image: JSON.stringify(this.image),
       gravatar: JSON.stringify(this.gravatar),
       useGravatar: this.useGravatar,

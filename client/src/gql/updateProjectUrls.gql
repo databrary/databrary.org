@@ -1,0 +1,7 @@
+mutation UpdateProjectUrls($id: Int!, $urls: jsonb!) {
+  update_projects(where: { id: { _eq: $id } }, _set: { urls: $urls }) {
+    returning {
+      urls
+    }
+  }
+}

@@ -211,7 +211,6 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import { get } from 'vuex-pathify'
 
 import Uploads from './Uploads.vue'
@@ -239,6 +238,3 @@ export default {
   }
 }
 </script>
-
-<style>
-</style>

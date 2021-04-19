@@ -16,6 +16,7 @@
         :rows-per-page-options="[0]"
         :selected.sync="selectedChildren"
         :loading="loading"
+        no-data-label="No files or folders to display"
         color="primary"
       >
         <!-- List view: custom name column -->

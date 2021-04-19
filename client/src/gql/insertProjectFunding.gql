@@ -1,0 +1,22 @@
+mutation InsertProjectFunding(
+    $object: [projects_funding_insert_input!]!
+) {
+  insert_projects_funding(
+    objects: $object,
+    on_conflict: {
+      constraint: projects_funding_id_key, 
+      update_columns: award
+    }
+  ) {
+    returning {
+      id
+      projectId
+      funder {
+        id
+        name
+        doi
+      }
+      award
+    }
+  }
+}

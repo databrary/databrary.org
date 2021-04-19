@@ -30,20 +30,9 @@ export class SearchService {
     }
   }
 
-  private async deleteTypesense (index: Index, docId: number): Promise<boolean> {
+  private async deleteTypesense (index: Index, id: string): Promise<boolean> {
     try {
-      const searchParameters = {
-        q: `${docId}`,
-        query_by: 'docIdS'
-      }
-
-      const docs = await this.searchTypesense(searchParameters, index)
-
-      if (docs == null) return false
-
-      for (const doc of docs) {
-        await this.client.collections(index).documents(doc.id).delete()
-      }
+      await this.client.collections(index).documents(id).delete()
 
       return true
     } catch (error) {
@@ -83,13 +72,19 @@ export class SearchService {
 
       return result
     } catch (error) {
-      console.log(error.message)
+      console.error(error.message)
     }
   }
 
-  async updateTypesense (index: Index, oldDocId: number, newDoc: Record<string, unknown>): Promise<number> {
-    if (await this.deleteTypesense(index, oldDocId)) {
-      return await this.createTypesense(index, newDoc)
+  async updateTypesense (index: Index, id: number, newDoc: Record<string, unknown>): Promise<number> {
+    try {
+      await this.client
+        .collections(index)
+        .documents(id)
+        .update(newDoc)
+      return 200
+    } catch (error) {
+      console.error(error.message)
     }
 
     return 400

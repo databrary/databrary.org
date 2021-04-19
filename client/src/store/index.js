@@ -7,7 +7,9 @@ import app from './app'
 import profile from './profile'
 import pam from './pam'
 import assets from './assets'
+import projects from './projects'
 import uploads from './uploads'
+import search from './search'
 
 Vue.use(Vuex)
 
@@ -25,7 +27,9 @@ export default function (/* { ssrContext } */) {
       profile,
       pam,
       assets,
-      uploads
+      uploads,
+      projects,
+      search
     },
 
     // enable strict mode (adds overhead!)

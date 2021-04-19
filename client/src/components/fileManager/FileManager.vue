@@ -638,7 +638,7 @@ export default {
           this.notifySuccess('Updated')
         } else {
           // insert a new asset
-          const assetId = await this.insertAsset(
+          const { id } = await this.insertAsset(
             {
               name: node.name,
               assetType: 'folder',
@@ -648,7 +648,7 @@ export default {
           )
 
           node.initialName = node.name
-          node.id = assetId.toString()
+          node.id = id.toString()
 
           this.notifySuccess('Created')
         }

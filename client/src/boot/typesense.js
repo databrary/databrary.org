@@ -1,5 +1,5 @@
-import { typesenseClient } from '../services/typesenseService'
+import { typesense } from '../services/typesenseClient'
 
 export default async ({ Vue, store }) => {
-  Vue.prototype.$typesense = typesenseClient
+  Vue.prototype.$typesense = typesense
 }

@@ -1,0 +1,20 @@
+query GetAssetsByType(
+    $assetId: Int,
+    $parentId: Int,
+    $assetType: asset_types_enum!
+) {
+    assets(
+        where: {
+            id: {_eq: $assetId},
+            parentId: {_eq: $parentId},
+            assetType: {_eq: $assetType}
+        }
+        order_by: {datetimeCreated: desc}
+    ) {
+        id
+        name
+        datetimeCreated
+        assetType
+        listAssets
+    }
+}

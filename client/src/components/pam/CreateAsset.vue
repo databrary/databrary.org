@@ -9,8 +9,8 @@
       <q-input
         filled
         v-model="name"
-        :label="`${assetType === 'pam' ? 'Project' : assetType === 'list' ? 'List' : 'View'} title *`"
-        :hint="`Name your ${assetType === 'pam' ? 'Project' : assetType === 'list' ? 'List' :'View'} something descriptive`"
+        :label="label"
+        :hint="hint"
         lazy-rules
         :rules="[ val => val && val.length > 0 || 'Please type a title']"
       />
@@ -26,15 +26,12 @@
 </template>
 
 <script>
-import createAsset from '@gql/createAsset.gql'
-import { sync, get } from 'vuex-pathify'
-import { assertType } from 'graphql'
-
 export default {
   props: {
     assetType: {
       type: String,
-      required: true
+      required: false,
+      default: () => 'pam'
     },
     parentId: {
       type: Number,
@@ -47,43 +44,20 @@ export default {
     }
   },
   computed: {
-    refreshViews: sync('pam/refreshViews'),
-    refreshPams: sync('pam/refreshPams'),
-    refreshBookmarks: sync('pam/refreshBookmarks')
+    label () {
+      return `${this.assetType === 'pam'
+        ? 'Assets' : this.assetType === 'list' ? 'List' : 'Project'} 
+        title *`
+    },
+    hint () {
+      return `Name your ${this.assetType === 'pam'
+        ? 'Assets' : this.assetType === 'list' ? 'List' : 'Project'} 
+        something descriptive`
+    }
   },
   methods: {
     async onSubmit () {
-      try {
-        const asset = await this.createAsset()
-        switch (this.assetType) {
-          case 'project':
-            this.refreshViews = true
-            break
-          case 'list':
-            this.refreshBookmarks = true
-            break
-          default:
-            this.refreshPams = true
-            break
-        }
-        this.$q.notify({
-          color: 'green-4',
-          textColor: 'white',
-          icon: 'cloud_done',
-          message: 'Submitted'
-        })
-      } catch (error) {
-        console.error('onSubmit::', error.message)
-        this.$q.notify({
-          color: 'red-4',
-          textColor: 'white',
-          icon: 'cloud_done',
-          message: 'Failed'
-        })
-      } finally {
-        this.name = null
-        this.hideShowCreateAsset()
-      }
+      this.$emit('insert-asset', this.name)
     },
 
     onReset () {
@@ -96,21 +70,6 @@ export default {
 
     hideShowCreateAsset () {
       this.$emit('update:assetType', null)
-    },
-
-    async createAsset () {
-      // Call to the graphql mutation
-      const { data } = await this.$apollo.mutate({
-        mutation: createAsset,
-        variables: {
-          parentId: this.parentId,
-          name: this.name,
-          assetType: this.assetType
-        }
-      })
-
-      this.hideShowCreateAsset()
-      return data.insert_assets.returning[0]
     }
   }
 }

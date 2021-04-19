@@ -16,16 +16,16 @@ export class FunderDTO {
   }
 
   static readonly docFields = [
+    { name: 'id', type: 'string' },
     { name: 'docId', type: 'int32' },
-    { name: 'docIdS', type: 'string' },
     { name: 'doi', type: 'string' },
     { name: 'name', type: 'string' }
   ]
 
   get document (): Partial<Record<string, unknown>> {
     return {
+      id: `${this.id}`,
       docId: this.id,
-      docIdS: `${this.id}`,
       doi: this.doi,
       name: this.name
     }

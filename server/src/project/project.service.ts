@@ -50,22 +50,23 @@ export class ProjectService {
   })
   async handleProjectInsert (evt: HasuraEvent): Promise<void> {
     try {
-      const { new: { id } } = evt.event.data as Record<string, any>
+      // uncomment this when we are ready to use Datacite
+      // const { new: { id } } = evt.event.data as Record<string, any>
 
-      const { name, creator } = await this.getProject(id)
+      // const { name, creator } = await this.getProject(id)
 
-      const titles = [
-        { title: name }
-      ]
+      // const titles = [
+      //   { title: name }
+      // ]
 
-      const fullName = `${creator.givenName as string} ${creator.familyName as string}`
-      const creators = [
-        { name: fullName }
-      ]
+      // const fullName = `${creator.givenName as string} ${creator.familyName as string}`
+      // const creators = [
+      //   { name: fullName }
+      // ]
 
-      const { data: { attributes: { doi } } } = await this.dataCiteService.addDoi(titles, creators)
+      // const { data: { attributes: { doi } } } = await this.dataCiteService.addDoi(titles, creators)
 
-      await this.updateProjectDoi(id, doi)
+      // await this.updateProjectDoi(id, doi)
     } catch (error) {
       console.error(error.message)
     }

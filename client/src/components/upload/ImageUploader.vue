@@ -75,13 +75,14 @@ export default {
       plugins: ['Webcam']
     }).use(AwsS3, {
       async getUploadParameters (file) {
-        that.newAssetId = await that.insertAsset(
+        const { id } = await that.insertAsset(
           {
             name: that.assetName,
             assetType: that.assetType,
             privacyType: 'public'
           }
         )
+        that.newAssetId = id
         return fetch('/minio/sign-upload', {
           method: 'post',
           credentials: 'same-origin',

@@ -1,0 +1,17 @@
+mutation UpdateProject(
+    $assetId: Int!, 
+    $description: String!
+) {
+  update_projects(
+    where: { assetId: { _eq: $assetId } }
+    _set: { 
+        description: $description, 
+        lastChanged: "now()" 
+    }
+  ) {
+    returning {
+      description
+      lastChanged
+    }
+  }
+}

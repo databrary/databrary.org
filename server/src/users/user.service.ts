@@ -117,7 +117,7 @@ export class UserService {
 
       const status = await this.searchService.updateTypesense(
         'databrary-users',
-        newDoc.docId,
+        newDoc.id,
         newDoc
       )
 
@@ -139,8 +139,6 @@ export class UserService {
       } = evt
 
       const user: UserDTO = new UserDTO(newUser)
-
-      // console.log('Hasura Event users create Payload', user.document)
 
       // const status = await this.searchService.create(
       //   user.id.toString(),

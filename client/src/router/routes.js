@@ -1,6 +1,5 @@
-import projectRoutes from './project'
 import aboutRoutes from './about'
-import otherRoutes from './other'
+import settingsRoutes from './settings'
 
 export default function routes (store) {
   const routes = [
@@ -10,32 +9,49 @@ export default function routes (store) {
       children: [
         {
           path: '',
-          component: () => import('pages/LandingPage.vue')
-        }, // Reda: deactivate project path give access only to children or just change to /project/:id path
-        {
-          path: '/project',
-          component: () => import('layouts/Project.vue'),
-          children: projectRoutes(store)
+          component: () => import('pages/Landing.vue')
         },
         {
-          path: '/pam',
-          component: () => import('layouts/Project.vue'),
-          children: [{
-            name: 'pam',
-            path: ':projectId',
-            component: () => import('components/pam/DashboardEmbed.vue')
-          }]
+          path: 'project/:id',
+          name: 'projectLanding',
+          component: () => import('pages/Project.vue'),
+          beforeEnter: (to, from, next) => {
+            if (store.get('app/isLoggedIn')) next()
+            else next('/')
+          }
         },
         {
-          path: '/settings',
-          component: () => import('pages/Settings.vue')
+          path: 'pam/:id',
+          name: 'pamLanding',
+          component: () => import('pages/Pam.vue'),
+          beforeEnter: (to, from, next) => {
+            if (store.get('app/isLoggedIn')) next()
+            else next('/')
+          }
         },
         {
-          path: '/about',
+          path: 'settings',
+          redirect: '/settings/profile',
+          component: () => import('pages/settings/Index.vue'),
+          beforeEnter: (to, from, next) => {
+            if (store.get('app/isLoggedIn')) next()
+            else next('/')
+          },
+          children: settingsRoutes(store)
+        },
+        {
+          path: 'about',
           component: () => import('pages/about/Index.vue'),
           children: aboutRoutes(store)
         },
-        ...otherRoutes(store)
+        {
+          path: 'search',
+          component: () => import('pages/Search.vue')
+        },
+        {
+          path: 'news',
+          component: () => import('pages/News.vue')
+        }
       ]
     }
   ]

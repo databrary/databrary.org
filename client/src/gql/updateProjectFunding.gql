@@ -1,0 +1,13 @@
+mutation UpdateProjectFunding($id: Int!, $award: String!) {
+  update_projects_funding_by_pk(
+    pk_columns: { id: $id }
+    _set: { award: $award }
+  ) {
+    id
+    funder {
+      name
+      doi
+    }
+    award
+  }
+}

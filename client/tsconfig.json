@@ -8,6 +8,9 @@
       "app/*": [
         "*"
       ],
+      "gql/*": [
+        "./src/gql/*"
+      ],
       "components/*": [
         "./src/components/*"
       ],
