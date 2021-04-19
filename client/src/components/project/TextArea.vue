@@ -8,11 +8,24 @@
       @mouseover="showEdit = true"
       @mouseleave="showEdit = false"
     >
-      <div class="row">
-        <div class="col-11 q-pb-md">
-          <span>{{ text }}</span>
+      <div class="row items-center q-py-sm">
+        <div class="col-12 relative-position">
+          {{ text }}
+          <q-btn
+            class="absolute-position"
+            style="left: 20px"
+            size="12px"
+            no-padding
+            v-show="showEdit"
+            flat
+            dense
+            rounded
+            icon="edit"
+          >
+            <q-tooltip> Click to edit </q-tooltip>
+          </q-btn>
         </div>
-        <div class="col-1">
+        <!-- <div class="col-1">
           <q-btn
             no-padding
             v-if="showEdit"
@@ -24,7 +37,7 @@
           >
             <q-tooltip> Click to edit </q-tooltip>
           </q-btn>
-        </div>
+        </div> -->
       </div>
       <q-popup-edit
         v-model="text"

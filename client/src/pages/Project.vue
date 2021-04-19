@@ -37,9 +37,10 @@
           <div class="text-h5">
             Citation
           </div>
-          <citationBuilder
+          <CitationBuilder
             class="q-pa-sm"
             :data="citationBuilderData"
+            v-if="citationBuilderData"
             :editMode="editMode"
           />
         </div>
@@ -180,6 +181,7 @@
 <script>
 import { date } from 'quasar'
 import { call } from 'vuex-pathify'
+import { gql } from '@apollo/client'
 
 import TextArea from '@/components/project/TextArea'
 import Header from '@/components/project/Header'
@@ -235,7 +237,8 @@ export default {
     // Used for the citation builder
     color: null,
     editMode: false,
-    editmodeLabel: 'Edit'
+    editmodeLabel: 'Edit',
+    authorsInfo: null
   }),
   watch: {
     editMode () {
@@ -251,6 +254,9 @@ export default {
     },
     async assetId () {
       await this.fetchData()
+    },
+    async collaborators () {
+      this.authorsInfo = await this.fetchAuthorsInfo()
     },
     id () {
       this.assetId = this.id || parseInt(this.$route.params.id)
@@ -268,12 +274,10 @@ export default {
     },
     // TODO: Fix the citation builder data, I need to fetch metadata for every bibliographic contr
     citationBuilderData () {
+      if (!this.authorsInfo) return null
       return {
         title: this.title,
-        authors: this.collaborators
-          .filter((col) => col.bibliographic)
-          .map((col) => col.id)
-          .join(', '),
+        authors: this.authorsInfo,
         date: this.lastChanged,
         journal: 'Databrary',
         url: `https://doi.org/${this.title}`
@@ -294,6 +298,7 @@ export default {
     updateProjectFunding: call('projects/updateProjectFunding'),
     getProjectFunding: call('projects/getProjectFunding'),
     updateProjectUrls: call('projects/updateProjectUrls'),
+    getUserById: call('search/getUserById'),
     async fetchData () {
       const data = await this.getAssetProject({
         assetId: this.assetId
@@ -330,7 +335,6 @@ export default {
     async onUpdateImageId (assetId) {
       const waitForNewAssetURL = setInterval(async () => {
         try {
-          console.log('onUpdateImageId')
           const newImageURI = await this.getAssetUrl(assetId)
 
           if (newImageURI !== null && newImageURI !== '') {
@@ -379,7 +383,6 @@ export default {
 
     async onUpdateTitle (newTitle) {
       try {
-        console.log('Asset Id', this.assetId)
         const { name } = await this.updateAssetName({
           name: newTitle,
           assetId: this.assetId,
@@ -537,6 +540,47 @@ export default {
       } else {
         console.error('Cannot find element with reference', ref)
       }
+    },
+
+    async fetchAuthorsInfo () {
+      const authorsIds = this.collaborators
+        .filter((col) => col.bibliographic)
+        .map((col) => col.id)
+      const that = this
+      const authorsInfo = await Promise.all(authorsIds.map(
+        async (id) => {
+          const authorInfo = await that.fetchAuthorInfo(id)
+          return authorInfo.displayFullName
+        }
+      ))
+
+      return authorsInfo.join(', ')
+    },
+
+    async fetchAuthorInfo (authorId) {
+      const userDoc = await this.getUserById({ id: authorId })
+      return userDoc
+      // const { data } = await this.$apollo.query({
+      //   query: gql`
+      //     query GetUserInfo ($id: Int!) {
+      //       users_by_pk(id: $id) {
+      //         additionalName
+      //         displayFullName
+      //         familyName
+      //         givenName
+      //         gravatar
+      //         id
+      //         image
+      //         useGravatar
+      //       }
+      //     }
+      //   `,
+      //   variables: {
+      //     id: authorId
+      //   }
+      // })
+
+      // return data.users_by_pk
     }
   }
 }
