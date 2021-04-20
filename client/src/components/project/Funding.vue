@@ -4,26 +4,26 @@
         class="row"
         dense
     >
-        <q-item-section avatar>
-          <q-avatar>
-            <q-icon size="6px" name="circle" />
-          </q-avatar>
-        </q-item-section>
         <q-item-section class="col-8">
-          <span
-            class="full-width text-capitalize text-capitalize ellipsis overflow-hidden text-no-wrap"
+          <q-item-label
+            class="full-width ellipsis overflow-hidden text-no-wrap"
             :title="funding.funder.name"
           >
             {{funding.funder.name}}
-          </span>
+          </q-item-label>
+          <q-item-label
+            caption
+          >
+            <a :href="funding.funder.doi">{{funding.funder.doi}}</a>
+          </q-item-label>
         </q-item-section>
         <q-item-section class="col-4">
-          <span
+          <q-item-label
             class="full-width"
             :title="funding.award"
           >
             {{funding.award}}
-          </span>
+          </q-item-label>
         </q-item-section>
       </q-item>
 </template>

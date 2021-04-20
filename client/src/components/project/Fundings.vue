@@ -2,7 +2,7 @@
   <div class="row">
     <q-list class="col-12">
       <Funding
-        class="row"
+        class="q-py-sm"
         v-for="funding in fundingsToShow"
         :key="funding.id"
         :data="funding"

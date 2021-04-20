@@ -79,7 +79,7 @@
       </section>
       <section class="col-xs-12 col-sm-4 col-md-3">
         <div>
-          <q-card class="q-px-sm" flat bordered>
+          <q-card class="q-pa-sm" flat bordered>
             <q-list>
               <q-item clickable>
                 <q-item-section avatar>
@@ -377,28 +377,6 @@ export default {
         this.$emit('update-project-title', this.assetId, this.title)
       } catch (error) {
         console.error('onUpdateTitle::', error.message)
-      }
-    },
-
-    async onRemoveFunding (id) {
-      try {
-        await this.deleteProjectFunding({ id })
-        this.funding.splice(
-          this.funding.findIndex((el) => el.id === id),
-          1
-        )
-      } catch (error) {
-        console.error('onRemoveFunding::', error.message)
-      }
-    },
-
-    async onUpdateFunding (id, award) {
-      try {
-        const funding = await this.updateProjectFunding({ id, award })
-        const idx = this.funding.findIndex((el) => el.id === id)
-        this.funding[idx] = funding
-      } catch (error) {
-        console.error('onUpdateFunding::', error.message)
       }
     },
 
