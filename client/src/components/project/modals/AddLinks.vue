@@ -2,7 +2,7 @@
   <q-dialog ref="dialog" @hide="onDialogHide">
     <q-card
       class="col-12 q-dialog-plugin"
-      style="width: 150vh"
+      style="display: block; width: 70%; min-height: 500px; height: 500px"
     >
       <q-card-section>
         <div class="text-h6">{{ title }}</div>
@@ -25,94 +25,25 @@
           @click="onAddClick"
         />
       </q-card-section>
-      <q-card-section class="row">
-        <q-list class="col-12">
-          <q-item class="row" v-if="newUrl" dense>
-            <q-item-section class="col-3">
-              <div class="row">
-                <div class="col-2"></div>
-                <q-select
-                  class="col-8"
-                  v-model="newUrl.type"
-                  :options="options"
-                  dense
-                  emit-value
-                  map-options
-                >
-                  <template v-slot:option="props">
-                    <q-item v-bind="props.itemProps" v-on="props.itemEvents">
-                      <q-item-section avatar>
-                        <q-avatar>
-                          <q-icon :name="props.opt.icon" />
-                        </q-avatar>
-                      </q-item-section>
-                      <q-item-section>
-                        {{ props.opt.label }}
-                      </q-item-section>
-                    </q-item>
-                  </template>
-                  <template v-slot:selected-item="props">
-                    <q-icon class="q-mr-sm" size="xs" :name="props.opt.icon" />
-                    {{ props.opt.label }}
-                  </template>
-                </q-select>
-              </div>
-            </q-item-section>
-            <q-item-section class="col-2">
-              <q-input
-                class="row"
-                v-model.trim="newUrl.title"
-                outlined
-                dense
-                label="Title"
-              />
-            </q-item-section>
-            <q-item-section class="col-3 cursor-pointer">
-              <q-input v-model.trim="newUrl.url" outlined dense label="URL" />
-            </q-item-section>
-            <q-item-section class="col-3 cursor-pointer">
-              <q-input
-                v-model.trim="newUrl.description"
-                outlined
-                dense
-                label="Description"
-              />
-            </q-item-section>
-            <q-item-section class="col-1" right>
-              <div class="row">
-                <q-btn
-                  flat
-                  dense
-                  color="positive"
-                  icon="check_circle"
-                  @click.stop="onSaveUrlClick"
-                />
-                <q-btn
-                  flat
-                  dense
-                  color="negative"
-                  icon="cancel"
-                  @click.stop="newUrl = null"
-                />
-              </div>
-            </q-item-section>
-          </q-item>
-          <draggable
-            class="col-12"
-            handle=".handle"
-            v-model="urls"
-          >
-            <Link
+      <q-card-section class="row" style="height: 330px">
+        <q-scroll-area class="col-12" style="height: 300px">
+          <q-list class="row">
+            <draggable
+              handle=".handle"
+              v-model="urls"
               class="col-12"
-              v-for="url in urls"
-              :key="url.id"
-              :ref="`link-${url.id}`"
-              :data="url"
-              :editMode="true"
-              @remove-link="onRemoveUrlClick"
-            />
-          </draggable>
-        </q-list>
+            >
+              <Link
+                v-for="url in urls"
+                :key="url.id"
+                :ref="`link-${url.id}`"
+                :data="url"
+                :editMode="true"
+                @remove-link="onRemoveUrlClick"
+              />
+            </draggable>
+          </q-list>
+        </q-scroll-area>
       </q-card-section>
       <q-card-actions align="right">
         <q-btn

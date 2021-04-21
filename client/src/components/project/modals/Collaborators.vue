@@ -6,110 +6,112 @@
   >
     <q-card
       class="col-12 q-dialog-plugin"
-      style="width: 100%"
+      style="display: block; width: 70%; min-height: 500px; height: 500px"
     >
-      <q-splitter
-        v-model="splitterModel"
-      >
-        <template v-slot:before>
-          <div class="row q-pa-md">
-            <q-input
-              ref="searchInput"
-              class="col-12"
-              v-model="search"
-              debounce="500"
-              autofocus
-              filled
-              placeholder="Search"
-            >
-              <template v-slot:append>
-                <q-icon name="search" />
-              </template>
-            </q-input>
-            <div
-              class="col-12 q-my-sm"
-              v-for="doc in results"
-              :key="doc.id"
-            >
-              <ProfileCard
-                class="cursor-pointer"
-                :profile="doc"
-                @click.native="onCollaboratorClick(doc)"
-              />
+      <q-card-section class="row" style="height: 445px">
+        <q-splitter
+          class="col-12"
+          v-model="splitterModel"
+          :limits="limits"
+        >
+          <template v-slot:before>
+            <div class="row q-pa-md">
+              <q-input
+                ref="searchInput"
+                class="col-12"
+                v-model="search"
+                debounce="500"
+                autofocus
+                filled
+                placeholder="Search"
+              >
+                <template v-slot:append>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
+              <q-scroll-area class="col-12 q-mt-sm" style="height: 350px">
+                <ProfileCard
+                  v-for="doc in results"
+                  :key="doc.id"
+                  class="q-my-sm cursor-pointer"
+                  :profile="doc"
+                  @click.native="onCollaboratorClick(doc)"
+                />
+              </q-scroll-area>
             </div>
-          </div>
-        </template>
+          </template>
 
-        <template v-slot:after>
-          <div class="row q-pa-md">
-            <div class="col-12 text-h4 q-mt-sm">{{ title }}</div>
-            <div class="col-12">
-              <div class="row">
-                <q-markup-table class="col-12" flat>
-                  <thead>
-                    <tr>
-                      <th class="text-left"></th>
-                      <th class="text-left">Name</th>
-                      <th class="text-center">Permissions</th>
-                      <th class="text-center">Bibliographic Contributor</th>
-                      <th class="text-center"></th>
-                    </tr>
-                  </thead>
-                  <draggable
-                    v-model="collaborators"
-                    tag="tbody"
-                  >
-                    <tr
-                      v-for="collaborator in collaborators"
-                      :key="collaborator.id">
-                      <td>
-                        <q-icon name="drag_handle"/>
-                      </td>
-                      <td>
-                        <div class="row items-center">
-                          <q-avatar
-                            class="q-mr-md"
-                            size="md"
-                          >
-                            <img
-                              v-if="collaborator.useGravatar"
-                              :src="JSON.parse(collaborator.gravatar).large"
-                            />
-                            <img
-                              v-else
-                              :src="JSON.parse(collaborator.image).large"
-                            />
-                          </q-avatar>
-                          {{ collaborator.displayFullName }}
-                        </div>
-                      </td>
-                      <td class="text-center">
-                        <q-select
-                          class="fit"
-                          dense
-                          item-aligned
-                          v-model="collaborator.permission"
-                          :options="permissions"
-                        />
-                      </td>
-                      <td class="text-center">
-                        <q-checkbox v-model="collaborator.bibliographic" />
-                      </td>
-                      <td class="text-center">
-                        <q-icon
-                          size="sm"
-                          name="delete"
-                          @click.stop="onRemoveCollaborator(collaborator)"
-                        />
-                      </td>
-                    </tr>
-                  </draggable>
-                </q-markup-table>
+          <template v-slot:after>
+            <div class="row q-pa-md">
+              <div class="col-12 text-h4 q-mt-sm">{{ title }}</div>
+              <div class="col-12">
+                <div class="row">
+                  <q-markup-table class="col-12" flat>
+                    <thead>
+                      <tr>
+                        <th class="text-left"></th>
+                        <th class="text-left">Name</th>
+                        <th class="text-center">Permissions</th>
+                        <th class="text-center">Bibliographic Contributor</th>
+                        <th class="text-center"></th>
+                      </tr>
+                    </thead>
+                    <draggable
+                      v-model="collaborators"
+                      tag="tbody"
+                    >
+                      <tr
+                        v-for="collaborator in collaborators"
+                        :key="collaborator.id">
+                        <td>
+                          <q-icon name="drag_handle"/>
+                        </td>
+                        <td>
+                          <div class="row items-center">
+                            <q-avatar
+                              class="q-mr-md"
+                              size="md"
+                            >
+                              <img
+                                v-if="collaborator.useGravatar"
+                                :src="JSON.parse(collaborator.gravatar).large"
+                              />
+                              <img
+                                v-else
+                                :src="JSON.parse(collaborator.image).large"
+                              />
+                            </q-avatar>
+                            {{ collaborator.displayFullName }}
+                          </div>
+                        </td>
+                        <td class="text-center">
+                          <q-select
+                            class="fit"
+                            dense
+                            item-aligned
+                            v-model="collaborator.permission"
+                            :options="permissions"
+                          />
+                        </td>
+                        <td class="text-center">
+                          <q-checkbox v-model="collaborator.bibliographic" />
+                        </td>
+                        <td class="text-center">
+                          <q-icon
+                            size="sm"
+                            name="delete"
+                            @click.stop="onRemoveCollaborator(collaborator)"
+                          />
+                        </td>
+                      </tr>
+                    </draggable>
+                  </q-markup-table>
+                </div>
               </div>
             </div>
-          </div>
-        </template>
-      </q-splitter>
+          </template>
+        </q-splitter>
+      </q-card-section>
       <q-card-actions align="right">
         <q-btn flat color="primary" :label="cancelLabel" @click="onCancelClick" />
         <q-btn flat color="primary" :label="okLabel" @click="onOKClick" />
@@ -151,7 +153,8 @@ export default {
     QMarkupTable
   },
   data: () => ({
-    splitterModel: 20,
+    splitterModel: 25,
+    limits: [25, 30],
     search: '',
     results: [],
     collaborators: [],

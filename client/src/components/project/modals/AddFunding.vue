@@ -1,84 +1,84 @@
 <template>
   <q-dialog class="row" ref="dialog" @hide="onDialogHide">
-    <q-card class="col-12 q-dialog-plugin" style="width: 100%">
-      <q-splitter v-model="splitterModel">
-        <template v-slot:before>
-          <div class="row q-pa-md">
-            <q-input
-              class="col-12"
-              v-model="search"
-              debounce="500"
-              autofocus
-              filled
-              placeholder="search"
-            >
-              <template v-slot:append>
-                <q-icon name="search" />
-              </template>
-            </q-input>
-            <div
-              class="col-12 q-my-sm"
-              v-for="funder in results"
-              :key="funder.id"
-            >
-              <FunderCard
-                class="cursor-pointer"
-                :funder="funder"
-                @click.native="onFunderClick(funder)"
-              />
+    <q-card class="col-12 q-dialog-plugin" style="display: block; width: 70%; min-height: 500px; height: 500px">
+      <q-card-section class="row" style="height: 450px">
+        <q-splitter class="col-12" v-model="splitterModel" :limits="limits">
+          <template v-slot:before>
+            <div class="row q-pa-sm">
+              <q-input
+                class="col-12"
+                v-model="search"
+                debounce="500"
+                autofocus
+                filled
+                placeholder="search"
+              >
+                <template v-slot:append>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
+              <q-scroll-area class="col-12 q-mt-sm" style="height: 350px">
+                <FunderCard
+                  v-for="funder in results"
+                  :key="funder.id"
+                  class="col-12 cursor-pointer q-my-sm"
+                  :funder="funder"
+                  @click.native="onFunderClick(funder)"
+                />
+              </q-scroll-area>
             </div>
-          </div>
-        </template>
-        <template v-slot:after>
-          <div class="row q-pa-md">
-            <div class="col-12 text-h4 q-mt-sm">{{ title }}</div>
-            <div class="col-12 q-mt-sm">
-              <q-markup-table class="row" flat>
-                <thead>
-                  <tr>
-                    <th class="text-left"></th>
-                    <th class="text-left">Name</th>
-                    <th class="text-center">Award</th>
-                    <th class="text-center"></th>
-                  </tr>
-                </thead>
-                <draggable v-model="fundings" handle=".handle" tag="tbody">
-                  <tr v-for="funding in allFunding" :key="funding.id">
-                    <td>
-                      <q-icon
-                        class="handle"
-                        name="drag_handle"
-                      />
-                    </td>
-                    <td class="content-center">
-                      <span class="ellipsis overflow-hidden text-no-wrap">
-                        {{ funding.funder.name }}
-                      </span>
-                    </td>
-                    <td>
-                      <q-input
-                        v-model="funding.award"
-                        label="Award #"
-                        dense
-                        flat
-                      />
-                    </td>
-                    <td class="text-center">
-                      <q-icon
-                        class="cursor-pointer"
-                        size="sm"
-                        name="delete"
-                        @click.stop="onRemoveFundingClick(funding.id)"
-                      />
-                    </td>
-                  </tr>
-                </draggable>
-              </q-markup-table>
+          </template>
+          <template v-slot:after>
+            <div class="row q-pa-md">
+              <div class="col-12 text-h4 q-mt-sm">{{ title }}</div>
+              <div class="col-12 q-mt-sm">
+                <q-markup-table flat>
+                  <thead>
+                    <tr>
+                      <th class="text-left"></th>
+                      <th class="text-left">Name</th>
+                      <th class="text-center">Award</th>
+                      <th class="text-center"></th>
+                    </tr>
+                  </thead>
+                  <draggable v-model="fundings" handle=".handle" tag="tbody">
+                    <tr v-for="funding in allFunding" :key="funding.id">
+                      <td>
+                        <q-icon
+                          class="handle"
+                          name="drag_handle"
+                        />
+                      </td>
+                      <td class="content-center">
+                        <span class="ellipsis overflow-hidden text-no-wrap">
+                          {{ funding.funder.name }}
+                        </span>
+                      </td>
+                      <td>
+                        <q-input
+                          v-model="funding.award"
+                          label="Award #"
+                          dense
+                          flat
+                        />
+                      </td>
+                      <td class="text-center">
+                        <q-icon
+                          class="cursor-pointer"
+                          size="sm"
+                          name="delete"
+                          @click.stop="onRemoveFundingClick(funding.id)"
+                        />
+                      </td>
+                    </tr>
+                  </draggable>
+                </q-markup-table>
+              </div>
             </div>
-          </div>
-        </template>
-      </q-splitter>
-      <q-card-actions align="right">
+          </template>
+        </q-splitter>
+      </q-card-section>
+      <q-card-actions class="row" style="height: 50px" align="right">
         <q-btn
           flat
           dense
@@ -122,7 +122,8 @@ export default {
     draggable
   },
   data: () => ({
-    splitterModel: 20,
+    splitterModel: 30,
+    limits: [30, 40],
     search: '',
     results: [],
     newFundings: [],
