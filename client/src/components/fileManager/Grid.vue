@@ -48,8 +48,7 @@
               v-else
               :name.sync="props.row.name"
               :edit.sync="props.row.edit"
-              :icon="props.row.format && props.row.format.toLowerCase() in icons
-                      ? icons[props.row.format.toLowerCase()] : icons['other']"
+              :icon="getIconFromFormat(props.row.format)"
               :errorMessage="errorMessage"
               @validate="isValid(props.row.id, ...arguments)"
               @save="saveNode(props.row)"
@@ -113,7 +112,6 @@
 </template>
 
 <script>
-import { uid } from 'quasar'
 import { call } from 'vuex-pathify'
 
 import BodyCellName from './BodyCellName.vue'
@@ -225,6 +223,10 @@ export default {
   },
   methods: {
     getAssetUrl: call('assets/getAssetUrl'),
+    getIconFromFormat (format) {
+      return format && format.toLowerCase() in this.icons
+        ? this.icons[format.toLowerCase()] : this.icons['other']
+    },
     clearSelection () {
       this.$refs.table.clearSelection()
     },

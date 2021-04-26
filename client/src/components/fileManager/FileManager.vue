@@ -352,9 +352,9 @@ export default {
         lazy: asset.assetType === 'folder',
         size: asset.assetType === 'folder'
           ? _.get(asset, 'childAssets_aggregate.aggregate.count', 0)
-          : _.get(asset, 'file.fileobject.size', 0),
+          : _.get(asset, 'files[0].fileobject.size', 0),
         format: asset.assetType === 'file'
-          ? _.get(asset, 'file.fileFormatId', 'mp4')
+          ? _.get(asset, 'files[0].fileFormatId')
           : null,
         initialName: asset.name,
         edit: asset.edit != null ? asset.edit : false,

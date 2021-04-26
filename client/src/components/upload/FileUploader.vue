@@ -34,7 +34,8 @@ export default {
   },
   data () {
     return {
-      uppy: ''
+      uppy: '',
+      newAssetId: null
     }
   },
   methods: {
@@ -62,6 +63,15 @@ export default {
     }).use(ScreenCapture, { inline: true, target: Dashboard, companionUrl: 'https://companion.uppy.io'
     }).use(AwsS3, {
       async getUploadParameters (file) {
+        const { id } = await that.insertAsset(
+          {
+            name: file.name,
+            assetType: 'file',
+            privacyType: 'private',
+            parentId: that.parentId
+          }
+        )
+        that.newAssetId = id
         return fetch('/minio/sign-upload', {
           method: 'post',
           headers: {
@@ -72,14 +82,7 @@ export default {
             filename: file.name,
             contentType: file.type,
             format: file.extension,
-            assetId: await that.insertAsset(
-              {
-                name: file.name,
-                assetType: 'file',
-                privacyType: 'private',
-                parentId: that.parentId
-              }
-            ),
+            assetId: that.newAssetId,
             uploadType: 'file'
           })
         }).then((response) => {

@@ -59,7 +59,7 @@ export default {
     getAvatarSource (collaborator) {
       return collaborator.useGravatar
         ? JSON.parse(collaborator.gravatar).large
-        : JSON.parse(collaborator.image).large
+        : JSON.parse(collaborator.image).thumbnail // Using thumbnail temp (bug with large sizes not fetched)
     },
     async generateCollaborators () {
       const collaborators = []
