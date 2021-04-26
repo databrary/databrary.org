@@ -56,7 +56,10 @@
               />
             </q-btn>
           </div>
-          <Collaborators :data="collaborators" :show="6" />
+          <Collaborators
+            :data="collaborators"
+            :show="6"
+          />
         </div>
         <div class="q-mt-md">
           <div class="text-h5">
@@ -158,7 +161,6 @@
 <script>
 import { date } from 'quasar'
 import { call } from 'vuex-pathify'
-import { gql } from '@apollo/client'
 
 import TextArea from '@/components/project/TextArea'
 import Header from '@/components/project/Header'
@@ -196,6 +198,7 @@ export default {
   data: () => ({
     assetId: null, // asset id
     projectId: null, // project id
+    creator: null,
     title: null,
     datetimeCreated: null,
     description: null,
@@ -281,10 +284,11 @@ export default {
         assetId: this.assetId
       })
 
-      const { name, datetimeCreated, project } = data.assets[0]
+      const { name, datetimeCreated, project, createdById } = data.assets[0]
 
       this.title = name
       this.datetimeCreated = datetimeCreated
+      this.creator = createdById
       this.projectId = project.id
 
       this.description = project.description || `${defaullDescription} ${name}`
@@ -438,7 +442,8 @@ export default {
           component: CollaboratorsModal,
           parent: this,
           title: 'Collaborators',
-          data: this.deepCopy(this.collaborators)
+          data: this.deepCopy(this.collaborators),
+          creator: this.creator
         })
         .onOk(async (newCollaborators) => {
           try {

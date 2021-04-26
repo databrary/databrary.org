@@ -12,6 +12,4 @@ export class HasuraController {
       'X-Hasura-User-Id': user.id.toString()
     })
   }
-
-  // TODO add events endpoint for hasura
 }

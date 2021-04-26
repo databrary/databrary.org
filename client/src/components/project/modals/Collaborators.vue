@@ -60,50 +60,12 @@
                       v-model="collaborators"
                       tag="tbody"
                     >
-                      <tr
+                      <Collaborator
                         v-for="collaborator in collaborators"
-                        :key="collaborator.id">
-                        <td>
-                          <q-icon name="drag_handle"/>
-                        </td>
-                        <td>
-                          <div class="row items-center">
-                            <q-avatar
-                              class="q-mr-md"
-                              size="md"
-                            >
-                              <img
-                                v-if="collaborator.useGravatar"
-                                :src="JSON.parse(collaborator.gravatar).large"
-                              />
-                              <img
-                                v-else
-                                :src="JSON.parse(collaborator.image).large"
-                              />
-                            </q-avatar>
-                            {{ collaborator.displayFullName }}
-                          </div>
-                        </td>
-                        <td class="text-center">
-                          <q-select
-                            class="fit"
-                            dense
-                            item-aligned
-                            v-model="collaborator.permission"
-                            :options="permissions"
-                          />
-                        </td>
-                        <td class="text-center">
-                          <q-checkbox v-model="collaborator.bibliographic" />
-                        </td>
-                        <td class="text-center">
-                          <q-icon
-                            size="sm"
-                            name="delete"
-                            @click.stop="onRemoveCollaborator(collaborator)"
-                          />
-                        </td>
-                      </tr>
+                        :key="collaborator.id"
+                        :collaborator="collaborator"
+                        @remove="onRemoveCollaborator"
+                      />
                     </draggable>
                   </q-markup-table>
                 </div>
@@ -124,6 +86,7 @@
 import { call } from 'vuex-pathify'
 import draggable from 'vuedraggable'
 import ProfileCard from '@/components/search/ProfileCard'
+import Collaborator from '@/components/project/modals/Collaborator'
 import {
   QMarkupTable
 } from 'quasar'
@@ -132,6 +95,10 @@ export default {
   props: {
     data: {
       type: Array,
+      required: true
+    },
+    creator: {
+      type: Number,
       required: true
     },
     title: {
@@ -150,7 +117,8 @@ export default {
   components: {
     ProfileCard,
     draggable,
-    QMarkupTable
+    QMarkupTable,
+    Collaborator
   },
   data: () => ({
     splitterModel: 25,
@@ -158,25 +126,7 @@ export default {
     search: '',
     results: [],
     collaborators: [],
-    loading: false,
-    permissions: [
-      {
-        label: 'Administrator',
-        value: 'administrator'
-      },
-      {
-        label: 'Manager',
-        value: 'manager'
-      },
-      {
-        label: 'Read & Write',
-        value: 'read_write'
-      },
-      {
-        label: 'Read',
-        value: 'read'
-      }
-    ]
+    loading: false
   }),
   async created () {
     this.collaborators = await this.generateCollaborators()
@@ -187,6 +137,19 @@ export default {
     },
     async search () {
       await this.doSearch(this.search)
+    },
+    containsAdministrator  (newValue, oldValue) {
+      if (!newValue) {
+        console.log('You need at least one Admin')
+      }
+    }
+  },
+  computed: {
+    containsAdministrator () {
+      return this.collaborators.some((col) => col.permission === 'Administrator')
+    },
+    administratorsSize () {
+      return this.collaborators.filter((col) => col.permission === 'Administrator').length
     }
   },
   methods: {
@@ -240,8 +203,16 @@ export default {
       })
     },
 
-    onRemoveCollaborator (collaborator) {
-      const idx = this.collaborators.map((col) => col.docId).indexOf(collaborator.docId)
+    isCreator (id) {
+      return id === this.creator
+    },
+
+    onRemoveCollaborator (collaboratorId) {
+      if (this.isCreator(collaboratorId)) {
+        console.log('Cannot delete Page owner')
+        return
+      }
+      const idx = this.collaborators.map((col) => col.docId).indexOf(collaboratorId)
       this.collaborators.splice(idx, 1)
     },
 

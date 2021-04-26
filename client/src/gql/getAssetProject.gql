@@ -5,6 +5,7 @@ query GetAssetProject($assetId: Int!) {
   }) {
     name
     datetimeCreated
+    createdById
     project {
       id
       description

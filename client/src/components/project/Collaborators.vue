@@ -1,22 +1,12 @@
 <template>
   <div class="q-pa-sm">
-    <q-avatar
-      class="q-ma-xs"
-      :size="avatarSize"
+    <Avatar
       v-for="collaborator in dataToShow"
       :key="collaborator.displayFullName"
-    >
-      <q-img
-        v-if="collaborator.useGravatar"
-        :src="JSON.parse(collaborator.gravatar).large"
-        :title="collaborator.displayFullName"
-      />
-      <q-img
-        v-else
-        :src="JSON.parse(collaborator.image).large"
-        :title="collaborator.displayFullName"
-      />
-    </q-avatar>
+      class="q-ma-xs"
+      :size="avatarSize"
+      :src="getAvatarSource(collaborator)"
+    />
     <q-avatar
       v-if="data > dataToShow"
       class="q-ma-xs bg-grey-4"
@@ -30,6 +20,8 @@
 
 <script>
 import { call } from 'vuex-pathify'
+import Avatar from '@/components/shared/Avatar'
+
 export default {
   props: {
     data: {
@@ -41,6 +33,9 @@ export default {
       required: false,
       default: () => 3
     }
+  },
+  components: {
+    Avatar
   },
   data: () => ({
     collaborators: [],
@@ -61,6 +56,11 @@ export default {
   },
   methods: {
     getUserById: call('search/getUserById'),
+    getAvatarSource (collaborator) {
+      return collaborator.useGravatar
+        ? JSON.parse(collaborator.gravatar).large
+        : JSON.parse(collaborator.image).large
+    },
     async generateCollaborators () {
       const collaborators = []
       for (const col of this.data) {
