@@ -17,7 +17,6 @@
           <template v-slot:before>
             <div class="row q-pa-md">
               <q-input
-                ref="searchInput"
                 class="col-12"
                 v-model="search"
                 debounce="500"
@@ -63,7 +62,13 @@
                       <Collaborator
                         v-for="collaborator in collaborators"
                         :key="collaborator.id"
-                        :collaborator="collaborator"
+                        :ref="`collaborator-${collaborator.id}`"
+                        :id="collaborator.id"
+                        :permission.sync="collaborator.permission"
+                        :bibliographic.sync="collaborator.bibliographic"
+                        :disablePermission="collaborator.disablePermission"
+                        :disableBibliographic="collaborator.disableBibliographic"
+                        :disableRemove="collaborator.disableRemove"
                         @remove="onRemoveCollaborator"
                       />
                     </draggable>
@@ -128,25 +133,60 @@ export default {
     collaborators: [],
     loading: false
   }),
-  async created () {
-    this.collaborators = await this.generateCollaborators()
+  created () {
+    this.collaborators = this.data.map((el) => ({
+      ...el,
+      disablePermission: false,
+      disableRemove: false,
+      disableBibliographic: false
+    }))
   },
   watch: {
-    async data () {
-      this.collaborators = await this.generateCollaborators()
+    data () {
+      this.collaborators = this.data.map((el) => ({
+        ...el,
+        disablePermission: false,
+        disableRemove: false,
+        disableBibliographic: false
+      }))
     },
     async search () {
       await this.doSearch(this.search)
     },
-    containsAdministrator  (newValue, oldValue) {
-      if (!newValue) {
-        console.log('You need at least one Admin')
+    lastAdministrator (newValue, oldValue) {
+      // console.log('lastAdministrator Old', oldValue)
+      // console.log('lastAdministrator New', newValue)
+      if (newValue) {
+        newValue.disablePermission = true
+        newValue.disableRemove = true
+      } else if (oldValue && !newValue) {
+        oldValue.disablePermission = false
+        oldValue.disableRemove = oldValue.disableBibliographic
+      }
+    },
+    lastContributor (newValue, oldValue) {
+      // console.log('lastContributor Old', oldValue)
+      // console.log('lastContributor New', newValue)
+      if (newValue) {
+        newValue.disableBibliographic = true
+        newValue.disableRemove = true
+      } else if (oldValue && !newValue) {
+        oldValue.disableBibliographic = false
+        oldValue.disableRemove = oldValue.disablePermission
       }
     }
   },
   computed: {
-    containsAdministrator () {
-      return this.collaborators.some((col) => col.permission === 'Administrator')
+    lastAdministrator () {
+      if (this.administratorsSize !== 1) return
+      return this.collaborators.find((col) => col.permission === 'Administrator')
+    },
+    lastContributor () {
+      if (this.contributorsSize !== 1) return
+      return this.collaborators.find((col) => col.bibliographic)
+    },
+    contributorsSize () {
+      return this.collaborators.filter((col) => col.bibliographic).length
     },
     administratorsSize () {
       return this.collaborators.filter((col) => col.permission === 'Administrator').length
@@ -154,7 +194,6 @@ export default {
   },
   methods: {
     getUsersByQuery: call('search/getUsersByQuery'),
-    getUserById: call('search/getUserById'),
     // following method is REQUIRED
     // (don't change its name --> "show")
     show () {
@@ -174,15 +213,16 @@ export default {
     },
 
     onOKClick () {
-      const colls = this.collaborators.map((el) => ({
-        id: el.id,
-        permission: el.permission,
-        bibliographic: el.bibliographic
-      }))
       // on OK, it is REQUIRED to
       // emit "ok" event (with optional payload)
       // before hiding the QDialog
-      this.$emit('ok', JSON.parse(JSON.stringify(colls)))
+      this.$emit('ok', JSON.parse(JSON.stringify(
+        this.collaborators.map((col) => ({
+          id: col.id,
+          permission: col.permission,
+          bibliographic: col.bibliographic
+        }))
+      )))
       // or with payload: this.$emit('ok', { ... })
 
       // then hiding dialog
@@ -195,24 +235,37 @@ export default {
     },
 
     onCollaboratorClick (collaborator) {
-      if (this.collaborators.find((col) => col.id === collaborator.id)) return
+      if (this.collaborators.find((col) => col.id === collaborator.id)) {
+        this.$q.notify({
+          color: 'red-4',
+          textColor: 'white',
+          icon: 'warning',
+          message: `${collaborator.displayFullName} is already a collaborator`
+        })
+        return
+      }
       this.collaborators.push({
-        ...collaborator,
+        id: collaborator.id,
         permission: 'Administrator',
         bibliographic: true
       })
     },
 
-    isCreator (id) {
-      return id === this.creator
+    isCreator (collaboratorId) {
+      console.log('is creator', collaboratorId, this.creator)
+      return collaboratorId === this.creator.toString()
     },
 
     onRemoveCollaborator (collaboratorId) {
       if (this.isCreator(collaboratorId)) {
-        console.log('Cannot delete Page owner')
-        return
+        this.$q.notify({
+          color: 'red-4',
+          textColor: 'white',
+          icon: 'warning',
+          message: `You deleted the creator of this page.`
+        })
       }
-      const idx = this.collaborators.map((col) => col.docId).indexOf(collaboratorId)
+      const idx = this.collaborators.map((col) => col.id).indexOf(collaboratorId)
       this.collaborators.splice(idx, 1)
     },
 
@@ -227,20 +280,14 @@ export default {
         console.log('error', error.message)
       }
     },
-
-    async generateCollaborators () {
-      const collaborators = []
-      for (const col of this.data) {
-        if (!col.id) continue
-        const userDoc = await this.getUserById({ id: col.id })
-        collaborators.push({
-          ...userDoc,
-          permission: col.permission,
-          bibliographic: col.bibliographic
-        })
-      }
-
-      return collaborators
+    resetDisableRemove () {
+      this.collaborators.forEach((el) => { el.disableRemove = false })
+    },
+    resetDisablePermission () {
+      this.collaborators.forEach((el) => { el.disablePermission = false })
+    },
+    resetDisableBibliographic () {
+      this.collaborators.forEach((el) => { el.disableBibliographic = false })
     }
   }
 }
