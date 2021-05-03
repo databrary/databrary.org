@@ -19,6 +19,7 @@
           :item="item"
           :active="id == item.id"
           @item-selected="onClickItem"
+          @force-refresh="onForceRefresh"
         />
       </q-scroll-area>
     </div>
@@ -26,6 +27,7 @@
 </template>
 
 <script>
+import { sync } from 'vuex-pathify'
 import Item from './Item'
 
 export default {
@@ -52,9 +54,17 @@ export default {
       required: true
     }
   },
+  computed: {
+    refreshBookmarks: sync('pam/refreshBookmarks')
+  },
   methods: {
     onClickItem (id) {
       this.$emit('onClick', id, this.type)
+    },
+    onForceRefresh () {
+      if (this.type === 'list') {
+        this.refreshBookmarks = true
+      }
     }
   }
 }

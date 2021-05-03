@@ -81,10 +81,10 @@ export default {
       try {
         const { name } = await this.updateAssetName({
           name: this.name,
-          assetId: this.id,
-          assetType: 'pam'
+          assetId: this.id
         })
         this.name = name
+        this.$emit('force-refresh', true)
       } catch (error) {
         this.resetName()
       } finally {

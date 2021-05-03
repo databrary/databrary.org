@@ -1,12 +1,10 @@
 mutation UpdateAssetName(
     $assetId: Int!, 
     $name: String!
-    $assetType: asset_types_enum!
 ) {
   update_assets(
     where: { 
-        id: { _eq: $assetId },
-        assetType: { _eq: $assetType } 
+        id: { _eq: $assetId }
     }
     _set: { name: $name }
   ) {

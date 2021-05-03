@@ -2,7 +2,6 @@
     <q-btn
         clickable
         to="/"
-        @click="selectedBookmark == null ? selectedBookmark = bookmarks[0].id : null"
         dense
         flat
         class="text-weight-light text-grey-8"
@@ -31,7 +30,7 @@
                     v-close-popup
                     v-for="bookmark in bookmarks"
                     :key="bookmark.id"
-                    @click="selectedPam = bookmark.id"
+                    @click="selectedBookmark = bookmark.id"
                     @drop="onDrop($event, bookmark.id)"
                 >
                     <q-item-section>

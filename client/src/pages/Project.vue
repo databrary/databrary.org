@@ -366,8 +366,7 @@ export default {
       try {
         const { name } = await this.updateAssetName({
           name: newTitle,
-          assetId: this.assetId,
-          assetType: 'project'
+          assetId: this.assetId
         })
 
         // We update the project with the same description just to change the lastChanged timestamp

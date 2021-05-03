@@ -112,6 +112,9 @@ export default {
         this.selectedPam = null
         this.selectedBookmark = this.bookmarkId
       }
+    },
+    selectedBookmark () {
+      this.bookmarkId = this.selectedBookmark
     }
   },
   methods: {
@@ -140,12 +143,12 @@ export default {
       return []
     },
 
-    async onInsertAsset (name) {
+    async onInsertAsset (name, assetType) {
       try {
         const { id: pamId } = await this.insertAsset({
           parentId: null,
-          name: name,
-          assetType: 'pam',
+          name,
+          assetType,
           privacyType: 'private'
         })
         this.pams = await this.fetchData()

@@ -57,7 +57,7 @@ export default {
   },
   methods: {
     async onSubmit () {
-      this.$emit('insert-asset', this.name)
+      this.$emit('insert-asset', this.name, this.assetType)
     },
 
     onReset () {
