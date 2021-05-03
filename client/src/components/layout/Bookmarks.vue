@@ -32,6 +32,8 @@
                     :key="bookmark.id"
                     @click="selectedBookmark = bookmark.id"
                     @drop="onDrop($event, bookmark.id)"
+                    @dragenter.prevent
+                    @dragover.prevent
                 >
                     <q-item-section>
                         <q-item-label>
@@ -86,20 +88,21 @@ export default {
       }
     },
     async onDrop (e, bookmarId) {
+      console.log('Dropping')
       const assets = JSON.parse(e.dataTransfer.getData('children')) // TODO(jeff) necessary to originally stringify?
       const listAssets = assets.map(asset => parseInt(asset.id))
 
       const result = await this.$apollo.mutate({
         mutation: gql`
           mutation UpdateBookmarkedAssets(
-            $assetId: Int!, 
+            $assetId: Int!,
             $listAssets: jsonb!
           ) {
             update_assets(
               where: {
-                id: {_eq: $assetId}, 
+                id: {_eq: $assetId},
                 assetType: {_eq: list}
-              }, 
+              },
               _append: {listAssets: $listAssets}
             ) {
               returning {
@@ -136,7 +139,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>
