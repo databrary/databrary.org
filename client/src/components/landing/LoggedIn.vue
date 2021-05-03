@@ -145,14 +145,20 @@ export default {
 
     async onInsertAsset (name, assetType) {
       try {
-        const { id: pamId } = await this.insertAsset({
+        const { id } = await this.insertAsset({
           parentId: null,
           name,
           assetType,
           privacyType: 'private'
         })
-        this.pams = await this.fetchData()
-        this.pamId = pamId
+
+        if (assetType === 'pam') {
+          this.pams = await this.fetchData()
+          this.pamId = id
+        } else if (assetType === 'list') {
+          this.bookmarks = await this.fetchData('list')
+          this.bookmarkId = id
+        }
 
         setTimeout(() => {
           if (this.$refs.pam) this.$refs.pam.editDefaultTitle()
