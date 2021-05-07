@@ -24,6 +24,13 @@
         column_mapping:
           id: assetId
   array_relationships:
+  - name: bookmarks
+    using:
+      foreign_key_constraint_on:
+        column: bookmarkId
+        table:
+          schema: public
+          name: bookmarks
   - name: childAssets
     using:
       foreign_key_constraint_on:
@@ -115,6 +122,50 @@
                     groups_users:
                       userId:
                         _eq: X-Hasura-User-Id
+- table:
+    schema: public
+    name: bookmarks
+  object_relationships:
+  - name: asset
+    using:
+      foreign_key_constraint_on: assetId
+  - name: bookmark
+    using:
+      foreign_key_constraint_on: bookmarkId
+  insert_permissions:
+  - role: user
+    permission:
+      check:
+        bookmark:
+          permissionset:
+            permissions:
+              group:
+                groups_users:
+                  userId:
+                    _eq: X-Hasura-User-Id
+      columns:
+      - assetId
+      - bookmarkId
+      backend_only: false
+  select_permissions:
+  - role: user
+    permission:
+      columns:
+      - assetId
+      - bookmarkId
+      - id
+      filter:
+        _or:
+        - asset:
+            privacyType:
+              _eq: public
+        - bookmark:
+            permissionset:
+              permissions:
+                group:
+                  groups_users:
+                    userId:
+                      _eq: X-Hasura-User-Id
 - table:
     schema: public
     name: fileformats
