@@ -85,6 +85,7 @@ export default {
   computed: {
     selectedPam: sync('pam/selectedPam'),
     selectedBookmark: sync('pam/selectedBookmark'),
+    refreshBookmarks: sync('pam/refreshBookmarks'),
     isPamSelected () {
       return this.pamId !== null && this.bookmarkId == null
     },
@@ -158,6 +159,7 @@ export default {
         } else if (assetType === 'list') {
           this.bookmarks = await this.fetchData('list')
           this.bookmarkId = id
+          this.refreshBookmarks = true
         }
 
         setTimeout(() => {
