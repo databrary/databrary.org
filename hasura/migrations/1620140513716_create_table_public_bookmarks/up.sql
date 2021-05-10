@@ -1,0 +1,1 @@
+CREATE TABLE "public"."bookmarks"("id" serial NOT NULL, "assetId" integer NOT NULL, PRIMARY KEY ("id") , FOREIGN KEY ("assetId") REFERENCES "public"."assets"("id") ON UPDATE no action ON DELETE no action);

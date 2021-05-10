@@ -88,32 +88,22 @@ export default {
       }
     },
     async onDrop (e, bookmarId) {
-      console.log('Dropping')
       const assets = JSON.parse(e.dataTransfer.getData('children')) // TODO(jeff) necessary to originally stringify?
-      const listAssets = assets.map(asset => parseInt(asset.id))
-
+      const listAssets = assets.map(asset => ({ bookmarkId: bookmarId, assetId: parseInt(asset.id) }))
       const result = await this.$apollo.mutate({
         mutation: gql`
-          mutation UpdateBookmarkedAssets(
-            $assetId: Int!,
-            $listAssets: jsonb!
-          ) {
-            update_assets(
-              where: {
-                id: {_eq: $assetId},
-                assetType: {_eq: list}
-              },
-              _append: {listAssets: $listAssets}
-            ) {
+          mutation AddBookmarkedAssets($objects: [bookmarks_insert_input!]!) {
+              insert_bookmarks(objects: $objects) {
               returning {
-                listAssets
+                assetId
+                id
+                bookmarkId
               }
             }
           }
         `,
         variables: {
-          assetId: bookmarId,
-          listAssets: listAssets
+          objects: listAssets
         }
       })
       this.$q.notify({

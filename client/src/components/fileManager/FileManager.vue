@@ -222,6 +222,30 @@ const GET_ASSETS = gql`
           }
         }
       }
+      bookmarks {
+        asset {
+          id
+          name
+          assetType
+          datetimeCreated
+          parentId
+          listAssets
+          childAssets_aggregate {
+            aggregate {
+              count(columns: id)
+            }
+          }
+          files {
+            id
+            name
+            fileFormatId
+            uploadedDatetime
+            fileobject {
+              size
+            }
+          }
+        }
+      }
     }
   }
 `
@@ -377,21 +401,13 @@ export default {
         })
 
         let data = _.get(result, 'data.assets[0]', [])
-
-        if (this.selectedBookmark && !_.isEmpty(_.get(data, 'listAssets', []))) {
-          for (const assetId of _.get(data, 'listAssets', [])) {
-            const result = await this.$apollo.query({
-              query: GET_ASSETS,
-              variables: {
-                assetId: assetId
-              }
-            })
-            const asset = _.get(result, 'data.assets[0]')
-
-            if (asset.assetType === 'pam' || asset.assetType === 'project') continue
-
-            data.childAssets.push(asset)
-          }
+        if (this.selectedBookmark) {
+          const bookmarks = _.get(data, 'bookmarks')
+          bookmarks.forEach(({ asset }) => {
+            if (!data.childAssets.find(el => el.id === asset.id)) {
+              data.childAssets.push(asset)
+            }
+          })
         }
 
         return data
